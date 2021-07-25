@@ -12,8 +12,8 @@ const pages = [
     icon: <ExploreIcon />
   },
   {
-    url: '/users',
-    title: 'Users',
+    url: '/contacts',
+    title: 'Contacts',
     icon: <UsersIcon />
   },
   {

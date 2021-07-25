@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux'
 import { actions as actionsModal } from 'features/Modal/actions'
 import { Modal } from 'features/Modal'
 import { ChoiceTags } from 'common/components/ChoiceTags'
-import { EditIcon } from 'common/icons'
+import { Edit2Icon } from 'common/icons'
 import styles from './styles.module.sass'
 
 interface ITags {
@@ -58,7 +58,7 @@ export const Tags: FC<ITags> = ({
             {tags.map((tag: string | number) => (
               <Tag key={tag} value={tag} dictionary={dictionary} />
             ))}
-            <Tag value={<EditIcon />} action={openModal} />
+            <Tag value={<Edit2Icon />} action={openModal} className={styles.editTagButton} />
           </div>
         ) : (
           <Tag value="+ Add" action={openModal} color="#1557FF" />

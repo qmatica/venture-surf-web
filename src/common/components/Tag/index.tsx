@@ -9,6 +9,7 @@ interface ITag {
     add?: () => void
     remove?: () => void
     color?: string
+    className?: string
 }
 
 export const Tag: FC<ITag> = ({
@@ -17,14 +18,19 @@ export const Tag: FC<ITag> = ({
   action,
   add,
   remove,
-  color = '#030D21'
+  color = '#030D21',
+  className
 }) => {
   let displayedValue = value
   if (typeof value === 'number' && dictionary && !Array.isArray(dictionary)) {
     displayedValue = dictionary[value]
   }
   return (
-    <div className={styles.tag} onClick={action} style={{ cursor: action ? 'pointer' : 'default' }}>
+    <div
+      className={`${styles.tag} ${className}`}
+      onClick={action}
+      style={{ cursor: action ? 'pointer' : 'default' }}
+    >
       {add && <div onClick={add} className={`${styles.actionTag} ${styles.leftTag}`}><PlusIcon /></div>}
       <div className={styles.value} style={{ color }}>{displayedValue}</div>
       {remove && <div onClick={remove} className={`${styles.actionTag} ${styles.rightTag}`}><TrashCanIcon /></div>}
