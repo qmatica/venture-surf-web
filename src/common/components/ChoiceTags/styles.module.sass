@@ -1,0 +1,51 @@
+.content
+  display: flex
+  flex-direction: column
+  flex-wrap: wrap
+  gap: 20px
+  .section
+    display: flex
+    flex-wrap: wrap
+    gap: 15px
+    border-bottom: 1px solid #D7DFED
+    padding-bottom: 20px
+    .empty
+      color: #D7DFED
+      font-family: "Roboto", sans-serif
+      font-size: 17px
+  .inputContainer
+    display: flex
+    justify-content: space-between
+    .input
+      height: 42px
+      border: 1px solid #D7DFED
+      border-right: none
+      font-family: "Roboto", sans-serif
+      font-size: 17px
+      padding-left: 20px
+      border-radius: 10px 0 0 10px
+      width: 100%
+      &:focus
+        outline: none
+      &::placeholder
+        font-family: "Roboto", sans-serif
+        font-size: 17px
+        color: #D7DFED
+    .button
+      border: 1px solid #D7DFED
+      background: #F2F5FA
+      border-radius: 0 10px 10px 0
+      height: 42px
+      width: 53px
+      display: flex
+      align-items: center
+      justify-content: center
+      cursor: pointer
+      transition: 0.2s
+      &:hover
+        background: #E7F0FF
+  .error
+    color: #d65555
+    font-size: 17px
+    font-family: "Roboto", sans-serif
+    margin-top: 10px

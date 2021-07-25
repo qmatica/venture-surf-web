@@ -1,26 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { FC, useEffect } from 'react'
+import { Switch, Route } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { Profile } from 'features/Profile'
+import { init } from 'common/actions'
+import { SignIn } from 'features/Auth/components/SignIn'
+import { Layout } from 'features/Layout'
 
-function App() {
+export const App: FC = () => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(init())
+  }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <Switch>
+        <Route path="/signin" component={SignIn} />
+        <Route path="/*">
+          <Layout>
+            <Route path="/" exact render={() => <div>Empty page</div>} />
+            <Route path="/profile" component={Profile} />
+          </Layout>
+        </Route>
+      </Switch>
+    </>
+  )
 }
-
-export default App;

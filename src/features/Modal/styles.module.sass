@@ -1,0 +1,71 @@
+.wrapper
+  width: 100vw
+  height: 100vh
+  position: fixed
+  left: 0
+  top: 0
+  display: flex
+  justify-content: center
+  align-items: center
+  background: rgba(0,0,0,0.3)
+  z-index: 100
+  .container
+    width: 560px
+    max-height: calc(100vh - 40px)
+    background: #FFFFFF
+    box-shadow: 0px 20px 50px rgba(0, 0, 0, 0.01)
+    padding: 20px
+    font-family: "Roboto", sans-serif
+    display: flex
+    flex-shrink: 0
+    flex-direction: column
+    border-radius: 10px
+    z-index: 150
+    > div:nth-child(2)
+      padding-top: 20px
+      padding-bottom: 20px
+      padding-right: 2px
+    .header
+      width: 100%
+      white-space: nowrap
+      text-overflow: ellipsis
+      display: flex
+      justify-content: space-between
+      align-items: center
+      > div
+        display: flex
+        align-items: center
+      .close
+        cursor: pointer
+        &:hover
+          > svg
+            stroke: #1557FF
+      .title
+        color: #030D21
+        font-size: 18px
+    .footer
+      font-size: 14px
+      line-height: 14px
+      border-radius: 3px
+      display: flex
+      justify-content: flex-start
+      .button
+        background: #F2F5FA
+        padding: 0 25px
+        font-size: 17px
+        height: 42px
+        display: flex
+        justify-content: center
+        align-items: center
+        border-radius: 10px
+        cursor: pointer
+        transition: 0.2s
+        color: #131313
+        margin-right: 15px
+  .overlayClose
+    position: absolute
+    width: 100vw
+    height: 100vh
+    left: 0
+    top: 0
+    z-index: 20

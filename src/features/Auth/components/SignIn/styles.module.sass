@@ -1,0 +1,104 @@
+.wrapper
+  width: 100vw
+  height: 100vh
+  position: absolute
+  left: 0
+  top: 0
+  display: flex
+  justify-content: center
+  align-items: center
+.logoContainer
+  display: flex
+  flex-direction: column
+  align-items: center
+  user-select: none
+  > img
+    width: 127px
+.logoTitle
+  color: #6A6A6A
+  font-size: 16px
+  margin-bottom: 5px
+  font-family: "Roboto", sans-serif
+.input
+  width: 275px
+  background: none
+  border: none
+  border-bottom: 1px solid #BEBEBE
+  height: 48px
+  font-size: 18px
+  &::placeholder
+    color: #DBDBDB
+    font-size: 18px
+    letter-spacing: normal
+    font-weight: normal
+  &:focus
+    outline: none
+    border-bottom: 1px solid #808080
+.confirmCode
+  letter-spacing: 8px
+  font-weight: bold
+  text-align: center
+.buttonContainer
+  display: flex
+  justify-content: center
+  margin-top: 43px
+  height: 39px
+  > button
+    font-size: 16px
+    width: 132px
+    height: 100%
+    display: flex
+    align-items: center
+    justify-content: center
+    color: #FFF
+    border-radius: 10px
+    border: none
+    background: #1557FF
+    cursor: pointer
+    transition: 0.2s
+    font-family: "Roboto", sans-serif
+    letter-spacing: 0.3px
+    &:disabled
+      background: #BED0FF
+      cursor: default
+.phoneNumberContainer
+  \:global
+    .form-control
+      width: 275px
+      background: none
+      border: none
+      border-bottom: 1px solid #BEBEBE
+      border-radius: 0
+      height: 48px
+      font-size: 18px
+      font-family: "Roboto", sans-serif
+      padding-left: 35px
+      &::placeholder
+        color: #DBDBDB
+        font-size: 18px
+        letter-spacing: normal
+        font-weight: normal
+      &:focus
+        outline: none
+        border-bottom: 1px solid #808080
+    .flag-dropdown
+      background: none
+      border: none
+    .selected-flag
+      cursor: default
+      margin-top: -1px
+      &:hover
+        background: none
+      &:focus
+        background: none
+.isFailedConfirmationCode
+  text-align: center
+  line-height: 38px
+  color: #e92222
+  font-family: "Roboto", sans-serif
+  letter-spacing: 0.5px
+.resendCode
+  font-size: 15px
+  color: #1557FF
+  font-weight: bold
+  font-family: "Roboto", sans-serif

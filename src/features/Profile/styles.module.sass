@@ -1,0 +1,65 @@
+.wrapper
+  display: flex
+  flex-direction: column
+  width: 100%
+.headerContainer
+  display: flex
+  height: 137px
+  font-family: "Roboto", sans-serif
+  .aboutProfileContainer
+    display: flex
+    flex-shrink: 0
+    .photoContainer
+      border-radius: 100px
+      width: 137px
+      height: 137px
+      overflow: hidden
+      img
+        width: 100%
+        height: 100%
+    .infoContainer
+      display: flex
+      margin-left: 54px
+      flex-direction: column
+      padding: 20px 0
+      justify-content: space-between
+      .displayName
+        font-size: 25px
+        color: #030D21
+      .specific
+        font-size: 17px
+        color: #8B98B0
+      .industries
+        display: flex
+        font-size: 17px
+        color: #030D21
+  .otherContainer
+    display: flex
+    flex-direction: column
+    justify-content: center
+    margin-left: 54px
+    .title
+      color: #CDD5E5
+      font-size: 17px
+      margin-bottom: 7px
+    .content
+      font-size: 18px
+      color: #030D21
+.tabsContainer
+  border-bottom: 1px solid #D7DFED
+  width: 100%
+  height: 39px
+  display: flex
+  justify-content: center
+  margin: 30px 0
+  font-family: "Roboto", sans-serif
+  .tab
+    margin: 0 60px
+    display: flex
+    align-items: center
+    color: #CDD5E5
+    font-weight: bold
+    cursor: pointer
+  .active
+    color: #1557FF
+    border-bottom: 2px solid #1557FF

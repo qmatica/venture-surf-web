@@ -1,0 +1,54 @@
+.container
+  display: flex
+  justify-content: space-between
+  gap: 31px
+  font-family: "Roboto", sans-serif
+  .profileVideoContainer
+    display: flex
+    flex-direction: column
+    width: 341px
+    gap: 24px
+    flex-shrink: 0
+    .playListContainer
+      width: 100%
+      display: flex
+      flex-direction: column
+      gap: 24px
+  .playerContainer
+    display: flex
+    flex-direction: column
+    flex-grow: 1
+    gap: 15px
+    .player
+      max-height: 500px
+      width: 100%
+      background: #F7FAFF
+      border-radius: 10px
+      overflow: hidden
+      video
+        width: 100%
+        height: 100%
+    .infoContainer
+      display: flex
+      flex-direction: column
+      gap: 6px
+      .title
+        color: #030D21
+        font-size: 17px
+      .time
+        color: #576B8E
+        font-size: 14px
+      .description
+        font-size: 17px
+        color: #030D21
+        margin-top: 5px
+.save
+  background: #F2F5FA!important
+  padding: 0
+  width: 89px
+  &:hover
+    background: #e4eeff!important
+.cancel
+  background: #f2f2f2!important
+  &:hover
+    background: #eaeaea!important

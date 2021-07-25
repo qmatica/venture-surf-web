@@ -1,0 +1,87 @@
+.container
+  display: flex
+  flex-grow: 1
+  form
+    width: 100%
+    font-family: "Roboto", sans-serif
+  .setTitleVideoContainer
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 20px
+    .videoImage
+      width: 133px
+      height: 79px
+      display: flex
+      justify-content: center
+      align-items: center
+      border-radius: 10px
+      background: #EFF5FE
+      overflow: hidden
+      img
+        height: 100%
+    .inputContainer
+      position: relative
+      display: flex
+      flex-grow: 1
+      .input
+        width: 100%
+        height: 42px
+        border: 1px solid #D7DFED
+        font-family: "Roboto", sans-serif
+        font-size: 17px
+        padding-left: 20px
+        border-radius: 10px
+        transition: 0.2s
+        &:focus
+          outline: none
+        &::placeholder
+          font-family: "Roboto", sans-serif
+          font-size: 17px
+          color: #D7DFED
+      .isErrorNameExist
+        font-size: 17px
+        color: #dc4947
+        position: absolute
+        top: 50px
+    .clearSelectedVideoButton
+      width: 42px
+      height: 42px
+      display: flex
+      justify-content: center
+      align-items: center
+      background: #EFF5FE
+      border-radius: 10px
+      cursor: pointer
+      transition: 0.2s
+      &:hover
+        background: #E7F0FF
+  .buttonsContainer
+    display: flex
+    gap: 20px
+    margin-top: 20px
+    .button
+      padding: 0 25px
+      font-size: 17px
+      height: 42px
+      display: flex
+      justify-content: center
+      align-items: center
+      border-radius: 10px
+      cursor: pointer
+      transition: 0.2s
+      color: #48494a
+      border: none
+      &.submit
+        background: #F2F5FA
+        &:hover
+          background: #E5EFFF
+        &:disabled
+          background: #fafbfd
+          cursor: default
+          color: #dcdcdd
+      &.delete
+        background: #ff8a89
+        color: #FFF
+        &:hover
+          background: #f36f6e

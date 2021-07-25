@@ -1,13 +1,31 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
-import App from './App'
+import firebase from 'firebase/app'
+import { ReactReduxFirebaseProvider } from 'react-redux-firebase'
+import { createFirestoreInstance } from 'redux-firestore'
+import { Provider } from 'react-redux'
+import { BrowserRouter } from 'react-router-dom'
+import { store } from 'store/store'
+import { rrfConfig } from 'config/firebase'
+import { App } from './App'
 import reportWebVitals from './reportWebVitals'
+import './index.css'
+
+const rrfProps = {
+  firebase,
+  config: rrfConfig,
+  dispatch: store.dispatch,
+  createFirestoreInstance
+}
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <Provider store={store}>
+    <BrowserRouter>
+      <ReactReduxFirebaseProvider {...rrfProps}>
+        <App />
+      </ReactReduxFirebaseProvider>
+    </BrowserRouter>
+  </Provider>,
   document.getElementById('root')
 )
 
