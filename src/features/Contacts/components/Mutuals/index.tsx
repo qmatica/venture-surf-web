@@ -5,14 +5,18 @@ import { useSelector } from 'react-redux'
 export const Mutuals: FC = memo(() => {
   const mutuals = useSelector(getMutuals)
 
-  if (!mutuals) return <>Not mutuals</>
-
-  const mutualsProfile = Object.values(mutuals)
+  if (!mutuals?.length) {
+    return (
+      <div>
+        No mutuals
+      </div>
+    )
+  }
 
   return (
     <>
       <div>
-        {mutualsProfile.map(({
+        {mutuals.map(({
           photoURL, displayName, name, uid, job
         }) => (
           <div key={uid}>

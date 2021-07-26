@@ -41,23 +41,7 @@ export type ProfileType = {
             job_title: string
         }
     }
-    mutuals: {
-        [key: string]: {
-            headline: string
-            name: string
-            uid: string
-            job_company: string
-            photoURL: string
-            dt: string
-            displayName: string
-            job: {
-                headline: string
-                company: string
-                position: string
-                title: string
-            }
-        }
-    }
+    mutuals: MutualsType
     verified: {
         linkedIn: string
     }
@@ -144,3 +128,22 @@ export type profileInteractionUsersType = {
         investor: 'investments'
     }
 }
+
+export type MutualsType = {
+    [key: string]: {
+        headline: string
+        name: string
+        uid: string
+        job_company: string
+        photoURL: string
+        dt: string
+        displayName: string
+        job: {
+            headline: string
+            company: string
+            position: string
+            title: string
+        }
+    }
+}
+
