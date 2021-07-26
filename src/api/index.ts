@@ -37,12 +37,6 @@ export const profileAPI = {
   updateMyProfile(value: { [key: string]: any }) {
     return instance.post('api/user', value).then((res) => res.status)
   },
-  getMatches() {
-    return instance.get('api/matches').then((res) => res.data)
-  },
-  getRecommended() {
-    return instance.get('/api/recommend/me').then((res) => res.data)
-  },
   getVideos() {
     return instance.get('/api/videos').then((res) => res.data)
   },
@@ -73,5 +67,11 @@ export const usersAPI = {
   },
   likeUser(userId: string) {
     return instance.post(`api/like/${userId}`).then((res) => res.data)
+  },
+  getMatches() {
+    return instance.get('api/matches').then((res) => res.data)
+  },
+  getRecommended() {
+    return instance.get('/api/recommend/me').then((res) => res.data)
   }
 }

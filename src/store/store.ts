@@ -12,6 +12,7 @@ import { AuthReducer } from 'features/Auth/reducer'
 import { ProfileReducer } from 'features/Profile/reducer'
 import { ModalReducer } from 'features/Modal/reducer'
 import { ContactsReducer } from 'features/Contacts/reducer'
+import { SurfReducer } from 'features/Surf/reducer'
 import { config } from 'config/firebase'
 
 firebase.initializeApp(config)
@@ -24,7 +25,8 @@ export const rootReducer = combineReducers({
   auth: AuthReducer,
   profile: ProfileReducer,
   contacts: ContactsReducer,
-  modal: ModalReducer
+  modal: ModalReducer,
+  surf: SurfReducer
 })
 
 const middlewares = [
