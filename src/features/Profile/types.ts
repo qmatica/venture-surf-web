@@ -50,7 +50,12 @@ export type ProfileType = {
             photoURL: string
             dt: string
             displayName: string
-            job_title: string
+            job: {
+                headline: string
+                company: string
+                position: string
+                title: string
+            }
         }
     }
     verified: {

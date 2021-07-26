@@ -11,6 +11,7 @@ import { AppReducer } from 'common/reducer'
 import { AuthReducer } from 'features/Auth/reducer'
 import { ProfileReducer } from 'features/Profile/reducer'
 import { ModalReducer } from 'features/Modal/reducer'
+import { ContactsReducer } from 'features/Contacts/reducer'
 import { config } from 'config/firebase'
 
 firebase.initializeApp(config)
@@ -22,6 +23,7 @@ export const rootReducer = combineReducers({
   app: AppReducer,
   auth: AuthReducer,
   profile: ProfileReducer,
+  contacts: ContactsReducer,
   modal: ModalReducer
 })
 

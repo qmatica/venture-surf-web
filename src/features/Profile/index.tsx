@@ -5,8 +5,9 @@ import { Deck } from './components/Deck'
 import { Info } from './components/Info'
 import { Video } from './components/Video'
 import styles from './styles.module.sass'
+import { Tabs } from '../../common/components/Tabs'
 
-const tabsPages = [
+const tabs = [
   { title: 'Info', Component: Info },
   { title: 'Video', Component: Video },
   { title: 'Deck', Component: Deck }
@@ -14,7 +15,7 @@ const tabsPages = [
 
 export const Profile = () => {
   const profile = useSelector(getProfile)
-  const [tab, setTab] = useState(tabsPages[0])
+  const [tab, setTab] = useState(tabs[0])
 
   if (!profile) return <>Profile not found</>
 
@@ -36,17 +37,7 @@ export const Profile = () => {
           <div className={styles.content}>{profile[profile.activeRole].job?.title || 'Not filled'}</div>
         </div>
       </div>
-      <div className={styles.tabsContainer}>
-        {tabsPages.map(({ title, Component }) => (
-          <div
-            key={title}
-            className={`${styles.tab} ${tab.title === title ? styles.active : ''}`}
-            onClick={() => setTab({ title, Component })}
-          >
-            {title}
-          </div>
-        ))}
-      </div>
+      <Tabs tabs={tabs} activeTab={tab} onChange={setTab} />
       <div>
         <tab.Component profile={profile} />
       </div>

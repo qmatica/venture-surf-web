@@ -111,3 +111,9 @@ export const EyeIcon = () => (
     </g>
   </svg>
 )
+
+export const FilterIcon = () => (
+  <svg width="21" height="12" viewBox="0 0 21 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 1L20 1M3 6.00001L18 6.00001M5 11L16 11" stroke="#D7DFED" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+)

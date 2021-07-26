@@ -1,0 +1,37 @@
+.wrapper
+  display: flex
+  flex-direction: column
+  width: 100%
+.searchContainer
+  display: flex
+  justify-content: space-between
+  position: relative
+  margin-bottom: 20px
+  .input
+    height: 42px
+    border: 1px solid #D7DFED
+    font-family: "Roboto", sans-serif
+    font-size: 17px
+    padding-left: 20px
+    border-radius: 10px
+    width: 100%
+    &:focus
+      outline: none
+    &::placeholder
+      font-family: "Roboto", sans-serif
+      font-size: 17px
+      color: #D7DFED
+  .filterButton
+    position: absolute
+    cursor: pointer
+    height: 100%
+    width: 58px
+    right: 0
+    display: flex
+    justify-content: center
+    align-items: center
+    path
+      transition: 0.2s
+    &:hover
+      path
+        stroke: #2676fc
