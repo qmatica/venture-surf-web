@@ -1,7 +1,7 @@
-import { ActionTypes } from './types'
+import { ActionTypes, surfUser } from './types'
 
 const initialState = {
-  users: [] as any[]
+  users: [] as surfUser[]
 }
 
 export const SurfReducer = (state = initialState, action: ActionTypes): typeof initialState => {

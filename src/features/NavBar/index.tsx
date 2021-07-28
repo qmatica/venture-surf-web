@@ -7,8 +7,8 @@ import styles from './styles.module.sass'
 
 const pages = [
   {
-    url: '/explore',
-    title: 'Explore',
+    url: '/surf',
+    title: 'Surf',
     icon: <ExploreIcon />
   },
   {
