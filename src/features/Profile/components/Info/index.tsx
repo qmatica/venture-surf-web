@@ -35,6 +35,7 @@ export const Info: FC<IInfo> = ({ profile }) => {
         dictionary={stages[profile.activeRole]}
         onSave={updateProfile('stages')}
         modalName="stages"
+        edit
       />
       <Tags
         title="My startup is"
@@ -42,12 +43,14 @@ export const Info: FC<IInfo> = ({ profile }) => {
         dictionary={industries}
         onSave={updateProfile('industries')}
         modalName="industries"
+        edit
       />
       <Tags
         title="Keywords"
         tags={profile.tags}
         onSave={updateProfile('tags')}
         modalName="tags"
+        edit
       />
       {profileInteraction.value && (
       <div className={styles.infoContainer}>

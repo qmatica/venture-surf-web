@@ -10,9 +10,10 @@ import styles from './styles.module.sass'
 interface ITags {
     title: string
     tags?: (string | number)[]
-    modalName: string
-    onSave: (value: any) => void
+    modalName?: string
+    onSave?: (value: any) => void
     dictionary?: { [key: string]: string } | string[]
+    edit: boolean
 }
 
 export const Tags: FC<ITags> = ({
@@ -20,11 +21,17 @@ export const Tags: FC<ITags> = ({
   tags,
   modalName,
   onSave,
-  dictionary
+  dictionary,
+  edit
 }) => {
+  if (edit && !modalName && !onSave) {
+    if (!modalName) console.error('string: modalName not found!')
+    if (!onSave) console.error('function: onSave not found!')
+    return null
+  }
   const dispatch = useDispatch()
   const openModal = () => {
-    dispatch(actionsModal.openModal(modalName))
+    if (modalName) dispatch(actionsModal.openModal(modalName))
   }
   const [updatableTags, setUpdatableTags] = useState<(string | number)[]>([])
 
@@ -32,7 +39,9 @@ export const Tags: FC<ITags> = ({
     setUpdatableTags(tags || [])
   }, [tags])
 
-  const save = () => onSave(updatableTags)
+  const save = () => {
+    if (onSave) onSave(updatableTags)
+  }
 
   const modalButtons = [
     {
@@ -58,12 +67,13 @@ export const Tags: FC<ITags> = ({
             {tags.map((tag: string | number) => (
               <Tag key={tag} value={tag} dictionary={dictionary} />
             ))}
-            <Tag value={<Edit2Icon />} action={openModal} className={styles.editTagButton} />
+            {edit && <Tag value={<Edit2Icon />} action={openModal} className={styles.editTagButton} />}
           </div>
         ) : (
           <Tag value="+ Add" action={openModal} color="#1557FF" />
         )}
       </div>
+      {modalName && (
       <Modal
         modalName={modalName}
         title={title}
@@ -71,6 +81,7 @@ export const Tags: FC<ITags> = ({
       >
         <ChoiceTags tags={updatableTags} onChange={setUpdatableTags} dictionary={dictionary} />
       </Modal>
+      )}
     </div>
   )
 }

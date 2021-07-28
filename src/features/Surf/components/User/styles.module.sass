@@ -1,0 +1,46 @@
+.container
+  padding: 30px 20px
+  display: flex
+  flex-direction: column
+  font-family: "Roboto", sans-serif
+  border-radius: 10px
+  border: 1px solid #D7DFED
+  flex-grow: 1
+  .infoContainer
+    display: flex
+    align-items: center
+    gap: 20px
+    .imgContainer
+      border-radius: 100%
+      width: 137px
+      height: 137px
+      overflow: hidden
+      img
+        width: 100%
+    .aboutUserContainer
+      display: flex
+      flex-direction: column
+      gap: 10px
+      .name
+        font-size: 25px
+        color: #030D21
+      .company
+        font-size: 17px
+        color: #CDD5E5
+      .headline
+        font-size: 17px
+        color: #8B98B0
+      .likeButton
+        width: 109px
+        height: 40px
+        display: flex
+        align-items: center
+        justify-content: center
+        gap: 8px
+        border: 2px solid #BFD5FA
+        border-radius: 10px
+        color: #629CFF
+        cursor: pointer
+        transition: 0.2s
+        &:hover
+          border-color: #629CFF
