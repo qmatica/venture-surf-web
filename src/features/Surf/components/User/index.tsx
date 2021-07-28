@@ -2,9 +2,12 @@ import React, { FC } from 'react'
 import { useDispatch } from 'react-redux'
 import { LikeIcon } from 'common/icons'
 import { Tags } from 'common/components/Tags'
+import Slider from 'react-slick'
 import { industries, stages } from 'features/Profile/constants'
-import styles from './styles.module.sass'
 import { surfUser } from '../../types'
+import styles from './styles.module.sass'
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
 
 interface IUser {
     user: surfUser
@@ -13,6 +16,13 @@ interface IUser {
 export const User: FC<IUser> = ({ user }) => {
   const dispatch = useDispatch()
   const name = user.displayName || `${user.first_name} ${user.last_name}`
+  const settings = {
+    arrows: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1
+  }
   return (
     <div className={styles.container}>
       <div className={styles.infoContainer}>
@@ -31,7 +41,29 @@ export const User: FC<IUser> = ({ user }) => {
         </div>
       </div>
       <div className={styles.videosContainer}>
-        <div>Videos</div>
+        <Slider {...settings}>
+          <div>
+            <div className={styles.imgContainer} />
+          </div>
+          <div>
+            <div className={styles.imgContainer} />
+          </div>
+          <div>
+            <div className={styles.imgContainer} />
+          </div>
+          <div>
+            <div className={styles.imgContainer} />
+          </div>
+          <div>
+            <div className={styles.imgContainer} />
+          </div>
+          <div>
+            <div className={styles.imgContainer} />
+          </div>
+          <div>
+            <div className={styles.imgContainer} />
+          </div>
+        </Slider>
       </div>
     </div>
   )

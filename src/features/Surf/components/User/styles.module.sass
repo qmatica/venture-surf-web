@@ -6,21 +6,25 @@
   border-radius: 10px
   border: 1px solid #D7DFED
   flex-grow: 1
+  gap: 30px
   .infoContainer
     display: flex
     align-items: center
     gap: 20px
+    justify-content: space-between
     .imgContainer
       border-radius: 100%
       width: 137px
       height: 137px
       overflow: hidden
+      flex-shrink: 0
       img
         width: 100%
     .aboutUserContainer
       display: flex
       flex-direction: column
       gap: 10px
+      flex-grow: 1
       .name
         font-size: 25px
         color: #030D21
@@ -44,3 +48,22 @@
         transition: 0.2s
         &:hover
           border-color: #629CFF
+    .tagsContainer
+      display: flex
+      width: 530px
+      flex-direction: column
+      flex-shrink: 0
+  .videosContainer
+    width: 100%
+    padding: 0 20px
+    \:global(.slick-prev:before)
+      color: #c7dcff!important
+      content: '<'!important
+    \:global(.slick-next:before)
+      color: #c7dcff!important
+      content: '>'!important
+    .imgContainer
+      height: 135px
+      margin: 0 10px
+      border: 1px solid #D7DFED
+      border-radius: 10px

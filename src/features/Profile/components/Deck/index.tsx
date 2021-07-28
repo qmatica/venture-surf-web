@@ -17,7 +17,7 @@ export const Deck: FC<IDeck> = ({ profile }) => {
     <div className={styles.container}>
       <div className={styles.docsContainer}>
         {sortedDocs.map(({ title, url }) => (
-          <div className={styles.wrapper}>
+          <div key={title} className={styles.wrapper}>
             <div className={styles.doc}>
               <a href={url} target="_blank" rel="noopener noreferrer">
                 <div className={styles.info}>

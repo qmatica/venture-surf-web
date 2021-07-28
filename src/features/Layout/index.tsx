@@ -24,7 +24,7 @@ export const Layout: FC<ILayout> = ({ children }) => {
   return (
     <div className={styles.wrapper}>
       <Header />
-      <div className={styles.wrapper} style={{ padding: '0 20px' }}>
+      <div className={styles.wrapper} style={{ padding: '0 20px', marginBottom: '30px' }}>
         <div className={styles.container}>
           {children}
         </div>
