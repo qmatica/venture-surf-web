@@ -15,11 +15,9 @@ export const Layout: FC<ILayout> = ({ children }) => {
   const { auth } = useSelector((state: RootState) => state.auth)
   const { profile } = useSelector((state: RootState) => state.profile)
 
-  if (!initialized) return null
+  if (!initialized || auth === undefined) return <Preloader />
 
-  if (auth && !profile) return <Preloader />
-
-  if (!profile) return <Redirect to="/signin" />
+  if (auth === false) return <Redirect to="/signin" />
 
   return (
     <div className={styles.wrapper}>

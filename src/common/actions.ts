@@ -11,8 +11,10 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
   getFirebase().auth().onAuthStateChanged(async (userAuth) => {
     dispatch(actions.setInitialized(true))
     if (userAuth) {
-      dispatch(authActions.setAuth(true))
       await Promise.all([dispatch(initProfile()), dispatch(initSurf())])
+      dispatch(authActions.setAuth(true))
+    } else {
+      dispatch(authActions.setAuth(false))
     }
   })
 }

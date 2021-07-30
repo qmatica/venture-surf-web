@@ -9,12 +9,42 @@ import styles from './styles.module.sass'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 
+type VideoType = {
+  title: string,
+  img: string,
+  url: string
+}
+
 interface IUser {
     user: surfUser
 }
 
 export const User: FC<IUser> = ({ user }) => {
   const dispatch = useDispatch()
+
+  const videos = user.content.videos._order_.reduce((prevVideos: (VideoType | null)[], nextVideo, index, array) => {
+    const playbackID = user.content.videos[nextVideo]
+    const video = {
+      title: nextVideo,
+      img: `https://image.mux.com/${playbackID}/thumbnail.jpg?time=5`,
+      url: `https://stream.mux.com/${playbackID}.m3u8`
+    }
+
+    // generate empty carts for carousel videos
+    if (index === array.length - 1) {
+      let emptyVideos
+      if (index === 0) {
+        emptyVideos = [null, null]
+      }
+      if (index === 1) {
+        emptyVideos = [null]
+      }
+      if (emptyVideos) return [...prevVideos, video, ...emptyVideos]
+    }
+
+    return [...prevVideos, video]
+  }, [])
+
   const name = user.displayName || `${user.first_name} ${user.last_name}`
   const settings = {
     arrows: true,
@@ -42,27 +72,22 @@ export const User: FC<IUser> = ({ user }) => {
       </div>
       <div className={styles.videosContainer}>
         <Slider {...settings}>
-          <div>
-            <div className={styles.imgContainer} />
-          </div>
-          <div>
-            <div className={styles.imgContainer} />
-          </div>
-          <div>
-            <div className={styles.imgContainer} />
-          </div>
-          <div>
-            <div className={styles.imgContainer} />
-          </div>
-          <div>
-            <div className={styles.imgContainer} />
-          </div>
-          <div>
-            <div className={styles.imgContainer} />
-          </div>
-          <div>
-            <div className={styles.imgContainer} />
-          </div>
+          {videos.map((video) => {
+            if (!video) {
+              return (
+                <div>
+                  <div className={styles.imgContainer} />
+                </div>
+              )
+            }
+            return (
+              <div>
+                <div className={styles.imgContainer}>
+                  <img src={video.img} alt={video.title} />
+                </div>
+              </div>
+            )
+          })}
         </Slider>
       </div>
     </div>

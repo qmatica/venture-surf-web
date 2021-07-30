@@ -56,12 +56,24 @@
   .videosContainer
     width: 100%
     padding: 0 20px
+    \:global(.slick-prev)
+      left: -22px!important
     \:global(.slick-prev:before)
       color: #c7dcff!important
-      content: '<'!important
+      font-size: 28px!important
+      content: '◂'!important
+      position: absolute
+      top: -11px
+      right: 0
+      transition: 0.2s!important
     \:global(.slick-next:before)
       color: #c7dcff!important
-      content: '>'!important
+      font-size: 28px!important
+      content: '▸'!important
+      position: absolute
+      top: -11px
+      left: 0
+      transition: 0.2s!important
     .imgContainer
       height: 135px
       margin: 0 10px

@@ -2,10 +2,11 @@ import { ConfirmationResult } from '@firebase/auth-types'
 import { ActionTypes } from './types'
 
 const initialState = {
-  auth: false,
+  auth: undefined as boolean | undefined,
   confirmation: null as ConfirmationResult | null,
   isFailedConfirmationCode: false,
-  isLoading: false
+  isLoading: false,
+  isWaitingProfileData: false
 }
 
 export const AuthReducer = (state = initialState, action: ActionTypes): typeof initialState => {
@@ -29,6 +30,11 @@ export const AuthReducer = (state = initialState, action: ActionTypes): typeof i
       return {
         ...state,
         isLoading: action.isLoading
+      }
+    case 'SIGN_IN_SET_IS_WAITING_PROFILE_DATA':
+      return {
+        ...state,
+        isWaitingProfileData: action.isWaitingProfileData
       }
     case 'SIGN_IN__SET_RESET':
       return initialState
