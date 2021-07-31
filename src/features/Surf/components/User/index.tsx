@@ -21,7 +21,6 @@ interface IUser {
 
 export const User: FC<IUser> = ({ user }) => {
   const dispatch = useDispatch()
-
   const videos = user.content.videos._order_.reduce((prevVideos: (VideoType | null)[], nextVideo, index, array) => {
     const playbackID = user.content.videos[nextVideo]
     const video = {
@@ -37,7 +36,7 @@ export const User: FC<IUser> = ({ user }) => {
         emptyVideos = [null, null]
       }
       if (index === 1) {
-        emptyVideos = [null]
+        emptyVideos = null
       }
       if (emptyVideos) return [...prevVideos, video, ...emptyVideos]
     }
@@ -49,6 +48,7 @@ export const User: FC<IUser> = ({ user }) => {
   const settings = {
     arrows: true,
     infinite: true,
+    swipeToSlide: true,
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1

@@ -71,6 +71,9 @@ export const usersAPI = {
   getMatches() {
     return instance.get('api/matches').then((res) => res.data)
   },
+  getCurrentVideo(uid: string, videoId: string) {
+    return instance.get(`/api/videos/${uid}/${videoId}`).then((res) => res.data)
+  },
   getRecommended() {
     return instance.get('/api/recommend/me').then((res) => res.data)
   }
