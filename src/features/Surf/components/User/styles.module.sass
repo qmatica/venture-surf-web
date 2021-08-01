@@ -79,3 +79,40 @@
       margin: 0 10px
       border: 1px solid #D7DFED
       border-radius: 10px
+.videoPlayerContainer
+  display: flex
+  gap: 20px
+  .player
+    width: 550px
+    background: #F7FAFF
+    border-radius: 10px
+    overflow: hidden
+    video
+      width: 100%
+      height: 100%
+  .playList
+    display: flex
+    flex-direction: column
+    gap: 10px
+    flex-grow: 1
+    .item
+      display: flex
+      align-items: center
+      gap: 20px
+      flex-shrink: 0
+      background: #FAFCFF
+      border-radius: 10px
+      cursor: pointer
+      transition: 0.2s
+      &:hover
+        background: #EFF5FE
+      &.active
+        background: #EFF5FE
+      .imgContainer
+        width: 133px
+        height: 79px
+        border-radius: 10px
+        overflow: hidden
+        background: rgba(140,180,238,0.3)
+        justify-content: center
+        align-items: center

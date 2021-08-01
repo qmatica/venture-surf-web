@@ -1,10 +1,11 @@
-import React, { FC, useState } from 'react'
+import React, { createRef, FC, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { LikeIcon } from 'common/icons'
 import { Tags } from 'common/components/Tags'
 import Slider from 'react-slick'
 import { industries, stages } from 'features/Profile/constants'
 import { Modal } from 'features/Modal'
+import ReactHlsPlayer from 'react-hls-player'
 import { surfUser } from '../../types'
 import styles from './styles.module.sass'
 import 'slick-carousel/slick/slick.css'
@@ -22,11 +23,15 @@ interface IUser {
 
 export const User: FC<IUser> = ({ user }) => {
   const dispatch = useDispatch()
-  const [titleVideo, setTitleVideo] = useState('')
+  const playerRef = createRef<HTMLVideoElement>()
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [isSliding, setIsSliding] = useState(false)
+  const [selectedVideo, setSelectedVideo] = useState<VideoType | null>(null)
 
   const name = user.displayName || `${user.first_name} ${user.last_name}`
+
+  const startSliding = () => setIsSliding(true)
+  const stopSliding = () => setIsSliding(false)
 
   const settingsSlider = {
     arrows: true,
@@ -34,7 +39,9 @@ export const User: FC<IUser> = ({ user }) => {
     swipeToSlide: true,
     speed: 500,
     slidesToShow: 3,
-    slidesToScroll: 1
+    slidesToScroll: 1,
+    beforeChange: startSliding,
+    afterChange: stopSliding
   }
 
   const videos = user.content.videos._order_.reduce((prevVideos: (VideoType | null)[], nextVideo, index, array) => {
@@ -60,18 +67,14 @@ export const User: FC<IUser> = ({ user }) => {
     return [...prevVideos, video]
   }, [])
 
-  const openModal = (title: string) => {
+  const openModal = (video: VideoType) => {
     if (!isSliding) {
+      setSelectedVideo(video)
       toggleModal()
-      setTitleVideo(title)
     }
   }
 
   const toggleModal = () => setIsOpenModal(!isOpenModal)
-
-  const startSliding = () => setIsSliding(true)
-
-  const stopSliding = () => setIsSliding(false)
 
   return (
     <div className={styles.container}>
@@ -91,7 +94,7 @@ export const User: FC<IUser> = ({ user }) => {
         </div>
       </div>
       <div className={styles.videosContainer}>
-        <Slider {...settingsSlider} beforeChange={startSliding} afterChange={stopSliding}>
+        <Slider {...settingsSlider}>
           {videos.map((video, index) => {
             if (!video) {
               return (
@@ -102,7 +105,7 @@ export const User: FC<IUser> = ({ user }) => {
             }
             return (
               <div key={video.url}>
-                <div className={styles.imgContainer} onClick={() => openModal(video.title)}>
+                <div className={styles.imgContainer} onClick={() => openModal(video)}>
                   <img src={video.img} alt={video.title} />
                 </div>
               </div>
@@ -110,9 +113,35 @@ export const User: FC<IUser> = ({ user }) => {
           })}
         </Slider>
       </div>
-      <Modal title={titleVideo} isOpen={isOpenModal} onClose={toggleModal}>
-        <div>
-          Video modal
+      <Modal title={selectedVideo?.title} isOpen={isOpenModal} onClose={toggleModal} width={935}>
+        <div className={styles.videoPlayerContainer}>
+          {selectedVideo && (
+            <div className={styles.player}>
+              <ReactHlsPlayer
+                playerRef={playerRef}
+                src={selectedVideo.url}
+                autoPlay
+                controls
+              />
+            </div>
+          )}
+          <div className={styles.playList}>
+            {videos.map((video, index) => {
+              if (!video) return null
+              return (
+                <div
+                  key={video.url}
+                  className={`${styles.item} ${selectedVideo?.url === video.url ? styles.active : ''}`}
+                  onClick={() => setSelectedVideo(video)}
+                >
+                  <div className={styles.imgContainer}>
+                    <img src={video.img} alt={video.title} />
+                  </div>
+                  <div>{video.title}</div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </Modal>
     </div>

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getProfile } from 'features/Profile/selector'
+import { Tabs } from 'common/components/Tabs'
 import { Deck } from './components/Deck'
 import { Info } from './components/Info'
 import { Video } from './components/Video'
 import styles from './styles.module.sass'
-import { Tabs } from '../../common/components/Tabs'
 
 const tabs = [
   { title: 'Info', Component: Info },
