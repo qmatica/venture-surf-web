@@ -1,15 +1,16 @@
 import React, { FC, useEffect, useState } from 'react'
-import { TrashCanIcon, VideoIcon } from 'common/icons'
+import { PreloaderIcon, TrashCanIcon, VideoIcon } from 'common/icons'
 import { useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import styles from './styles.module.sass'
 
-interface ISetNameVideo {
+interface IEditVideo {
   titleVideo?: string
-  onSubmit: (e: React.FormEvent<IFormElement>) => void
-  setSelectedVideo?: (value: File | null) => void
   imageVideo?: string
-  deleteVideo?: () => void
+  isLoadingButton?: 'onSaveButton' | 'onDeleteButton' | null
+  onSaveVideo: (e: React.FormEvent<IFormElement>) => void
+  onSetSelectedVideo?: (value: File | null) => void
+  onDeleteVideo?: () => void
 }
 
 interface IFormElements extends HTMLFormControlsCollection {
@@ -20,12 +21,13 @@ export interface IFormElement extends HTMLFormElement {
   readonly elements: IFormElements
 }
 
-export const SetNameVideo: FC<ISetNameVideo> = ({
+export const EditVideo: FC<IEditVideo> = ({
   titleVideo,
   imageVideo,
-  onSubmit,
-  setSelectedVideo,
-  deleteVideo
+  isLoadingButton,
+  onSaveVideo,
+  onSetSelectedVideo,
+  onDeleteVideo
 }) => {
   const { profile } = useSelector((state: RootState) => state.profile)
   const [title, setTitle] = useState('')
@@ -51,19 +53,19 @@ export const SetNameVideo: FC<ISetNameVideo> = ({
   }
 
   const clearAddedVideo = () => {
-    if (setSelectedVideo) setSelectedVideo(null)
+    if (onSetSelectedVideo) onSetSelectedVideo(null)
     setIsErrorNameExist(false)
   }
 
+  const getTitleOnSaveButton = () => {
+    if (isLoadingButton === 'onSaveButton') return <PreloaderIcon />
+    if (isEdit) return 'Update'
+    return 'Upload'
+  }
+
   return (
-    <div
-      className={styles.container}
-      style={{
-        height: 'inherit',
-        paddingBottom: '0px'
-      }}
-    >
-      <form onSubmit={onSubmit}>
+    <div className={styles.container}>
+      <form onSubmit={onSaveVideo}>
         <div className={styles.setTitleVideoContainer}>
           <div className={styles.videoImage}>
             {imageVideo ? <img src={imageVideo} alt={titleVideo} /> : <VideoIcon />}
@@ -94,15 +96,15 @@ export const SetNameVideo: FC<ISetNameVideo> = ({
             type="submit"
             disabled={title === titleVideo || isErrorNameExist || !title.length}
           >
-            {isEdit ? 'Update' : 'Upload'}
+            {getTitleOnSaveButton()}
           </button>
-          {deleteVideo && (
+          {onDeleteVideo && (
           <button
             type="button"
             className={`${styles.button} ${styles.delete}`}
-            onClick={deleteVideo}
+            onClick={onDeleteVideo}
           >
-            Delete
+            {isLoadingButton === 'onDeleteButton' ? <PreloaderIcon /> : 'Delete'}
           </button>
           )}
         </div>

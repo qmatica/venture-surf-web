@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react'
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, Redirect } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { Profile } from 'features/Profile'
 import { init } from 'common/actions'
@@ -20,7 +20,7 @@ export const App: FC = () => {
         <Route path="/signin" component={SignIn} />
         <Route path="/*">
           <Layout>
-            <Route path="/" exact render={() => <div>Empty page</div>} />
+            <Route path="/" exact render={() => <Redirect to="/surf" />} />
             <Route path="/profile" component={Profile} />
             <Route path="/contacts" component={Contacts} />
             <Route path="/surf" component={Surf} />

@@ -1,87 +1,68 @@
 import React, { FC, useEffect, useState } from 'react'
 import { Tag } from 'common/components/Tag'
-import { useDispatch } from 'react-redux'
-import { actions as actionsModal } from 'features/Modal/actions'
 import { Modal } from 'features/Modal'
 import { ChoiceTags } from 'common/components/ChoiceTags'
-import { Edit2Icon } from 'common/icons'
+import { Edit2Icon, PreloaderIcon } from 'common/icons'
 import styles from './styles.module.sass'
 
 interface ITags {
     title: string
     tags?: (string | number)[]
-    modalName?: string
     onSave?: (value: any) => void
     dictionary?: { [key: string]: string } | string[]
-    edit: boolean
 }
 
 export const Tags: FC<ITags> = ({
   title,
   tags,
-  modalName,
   onSave,
-  dictionary,
-  edit
+  dictionary
 }) => {
-  if (edit && !modalName && !onSave) {
-    if (!modalName) console.error('string: modalName not found!')
-    if (!onSave) console.error('function: onSave not found!')
-    return null
-  }
-  const dispatch = useDispatch()
-  const openModal = () => {
-    if (modalName) dispatch(actionsModal.openModal(modalName))
-  }
+  const [isOpenModal, setIsOpenModal] = useState(false)
   const [updatableTags, setUpdatableTags] = useState<(string | number)[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     setUpdatableTags(tags || [])
+    if (isOpenModal) toggleModal()
+    if (isLoading) setIsLoading(false)
   }, [tags])
 
-  const save = () => {
-    if (onSave) onSave(updatableTags)
-  }
+  const toggleModal = () => setIsOpenModal(!isOpenModal)
 
-  const modalButtons = [
-    {
-      title: 'Save',
-      className: styles.save,
-      action: save,
-      preloader: true
-    },
-    {
-      title: 'Cancel',
-      className: styles.cancel
+  const save = () => {
+    if (onSave) {
+      setIsLoading(true)
+      onSave(updatableTags)
     }
-  ]
+  }
 
   return (
     <div className={styles.infoContainer}>
-      <div className={styles.title}>
-        {title}
-      </div>
+      <div className={styles.title}>{title}</div>
       <div className={styles.content}>
         {tags?.length ? (
           <div className={styles.flex}>
             {tags.map((tag: string | number) => (
               <Tag key={tag} value={tag} dictionary={dictionary} />
             ))}
-            {edit && <Tag value={<Edit2Icon />} action={openModal} className={styles.editTagButton} />}
+            {onSave && <Tag value={<Edit2Icon />} action={toggleModal} className={styles.editTagButton} />}
           </div>
         ) : (
-          <Tag value="+ Add" action={openModal} color="#1557FF" />
+          <Tag value="+ Add" action={toggleModal} color="#1557FF" />
         )}
       </div>
-      {modalName && (
-      <Modal
-        modalName={modalName}
-        title={title}
-        modalButtons={modalButtons}
-      >
-        <ChoiceTags tags={updatableTags} onChange={setUpdatableTags} dictionary={dictionary} />
+      <Modal title={title} isOpen={isOpenModal} onClose={toggleModal}>
+        <>
+          <ChoiceTags tags={updatableTags} onChange={setUpdatableTags} dictionary={dictionary} />
+          <div className={styles.footer}>
+            <div className={`${styles.button} ${styles.save}`} onClick={save}>
+              {isLoading ? <PreloaderIcon stroke="#96baf6" /> : 'Save'}
+            </div>
+            <div className={`${styles.button} ${styles.close}`} onClick={toggleModal}>Close</div>
+          </div>
+        </>
       </Modal>
-      )}
     </div>
   )
 }

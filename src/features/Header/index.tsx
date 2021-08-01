@@ -7,7 +7,7 @@ import styles from './styles.module.sass'
 export const Header: FC = () => (
   <div className={styles.wrapper}>
     <div className={styles.container}>
-      <NavLink to="/explore"><img style={{ marginLeft: '-7px' }} src={logoHeader} alt="Venture Surf" draggable={false} /></NavLink>
+      <NavLink to="/surf"><img style={{ marginLeft: '-7px' }} src={logoHeader} alt="Venture Surf" draggable={false} /></NavLink>
       <NavBar />
     </div>
   </div>

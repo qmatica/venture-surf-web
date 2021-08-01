@@ -35,7 +35,12 @@ export const updateMyProfile = (value: { [key: string]: any }, modalName?: strin
   if (modalName) dispatch(actionsModal.toggleLoadingModal(modalName, false))
 }
 
-export const uploadVideo = (file: File, title: string, modalName: string): ThunkType => async (dispatch, getState, getFirebase) => {
+export const uploadVideo = (
+  file: File,
+  title: string,
+  setIsOpenModal: (isOpenModal: boolean) => void,
+  setIsLoadingButton: (inLoadingButton: 'onSaveButton' | null) => void
+): ThunkType => async (dispatch, getState, getFirebase) => {
   dispatch(actions.setProgressLoadingFile(0.1))
   const { upload_url, ref } = await profileAPI.uploadVideo(title)
   const upload = UpChunk.createUpload({
@@ -43,6 +48,8 @@ export const uploadVideo = (file: File, title: string, modalName: string): Thunk
     file,
     chunkSize: 5120
   })
+
+  setIsLoadingButton(null)
 
   upload.on('error', (err) => {
     console.error('💥 🙀', err.detail)
@@ -88,8 +95,8 @@ export const uploadVideo = (file: File, title: string, modalName: string): Thunk
         }
       }
       dispatch(actions.setMyProfile(updatedProfile))
-      dispatch(actionsModal.closeModal(modalName))
     }
+    setIsOpenModal(false)
     const unSubscribe = await getFirebase().firestore().doc(ref).onSnapshot(async (doc) => {
       const video = doc.data() as VideoType
       if (video.status === 'ready') {
@@ -117,7 +124,13 @@ export const uploadVideo = (file: File, title: string, modalName: string): Thunk
   })
 }
 
-export const renameVideo = (asset_id: string, title: string, newTitle: string, modalName: string): ThunkType => async (dispatch, getState) => {
+export const renameVideo = (
+  asset_id: string,
+  title: string,
+  newTitle: string,
+  setIsOpenModal: (isOpen: boolean) => void,
+  setIsLoadingButton: (isLoadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
+): ThunkType => async (dispatch, getState) => {
   const status = await profileAPI.renameVideo(title, newTitle)
   if (status === apiCodes.success) {
     const { profile } = getState().profile
@@ -145,13 +158,18 @@ export const renameVideo = (asset_id: string, title: string, newTitle: string, m
           }
         }
         dispatch(actions.setMyProfile(updatedProfile))
-        dispatch(actionsModal.closeModal(modalName))
       }
     }
   }
+  setIsLoadingButton(null)
+  setIsOpenModal(false)
 }
 
-export const deleteVideo = (title: string, modalName: string): ThunkType => async (dispatch, getState) => {
+export const deleteVideo = (
+  title: string,
+  setIsOpenModal: (isOpen: boolean) => void,
+  setIsLoadingButton: (isLoadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
+): ThunkType => async (dispatch, getState) => {
   const status = await profileAPI.deleteVideo(title)
   if (status === apiCodes.success) {
     const { profile } = getState().profile
@@ -178,7 +196,8 @@ export const deleteVideo = (title: string, modalName: string): ThunkType => asyn
         }
       }
       dispatch(actions.setMyProfile(updatedProfile))
-      dispatch(actionsModal.closeModal(modalName))
     }
   }
+  setIsLoadingButton(null)
+  setIsOpenModal(false)
 }

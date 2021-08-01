@@ -1,9 +1,10 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { LikeIcon } from 'common/icons'
 import { Tags } from 'common/components/Tags'
 import Slider from 'react-slick'
 import { industries, stages } from 'features/Profile/constants'
+import { Modal } from 'features/Modal'
 import { surfUser } from '../../types'
 import styles from './styles.module.sass'
 import 'slick-carousel/slick/slick.css'
@@ -21,6 +22,21 @@ interface IUser {
 
 export const User: FC<IUser> = ({ user }) => {
   const dispatch = useDispatch()
+  const [titleVideo, setTitleVideo] = useState('')
+  const [isOpenModal, setIsOpenModal] = useState(false)
+  const [isSliding, setIsSliding] = useState(false)
+
+  const name = user.displayName || `${user.first_name} ${user.last_name}`
+
+  const settingsSlider = {
+    arrows: true,
+    infinite: false,
+    swipeToSlide: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1
+  }
+
   const videos = user.content.videos._order_.reduce((prevVideos: (VideoType | null)[], nextVideo, index, array) => {
     const playbackID = user.content.videos[nextVideo]
     const video = {
@@ -44,15 +60,19 @@ export const User: FC<IUser> = ({ user }) => {
     return [...prevVideos, video]
   }, [])
 
-  const name = user.displayName || `${user.first_name} ${user.last_name}`
-  const settings = {
-    arrows: true,
-    infinite: true,
-    swipeToSlide: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1
+  const openModal = (title: string) => {
+    if (!isSliding) {
+      toggleModal()
+      setTitleVideo(title)
+    }
   }
+
+  const toggleModal = () => setIsOpenModal(!isOpenModal)
+
+  const startSliding = () => setIsSliding(true)
+
+  const stopSliding = () => setIsSliding(false)
+
   return (
     <div className={styles.container}>
       <div className={styles.infoContainer}>
@@ -66,23 +86,23 @@ export const User: FC<IUser> = ({ user }) => {
           <div className={styles.likeButton}><LikeIcon /> Like</div>
         </div>
         <div className={styles.tagsContainer}>
-          <Tags title="My startup is" tags={user.industries} dictionary={industries} edit={false} />
-          <Tags title="My startup space is" tags={user.stages} dictionary={stages[user.activeRole]} edit={false} />
+          <Tags title="My startup is" tags={user.industries} dictionary={industries} />
+          <Tags title="My startup space is" tags={user.stages} dictionary={stages[user.activeRole]} />
         </div>
       </div>
       <div className={styles.videosContainer}>
-        <Slider {...settings}>
-          {videos.map((video) => {
+        <Slider {...settingsSlider} beforeChange={startSliding} afterChange={stopSliding}>
+          {videos.map((video, index) => {
             if (!video) {
               return (
-                <div>
+                <div key={`${user.uid} ${index}`}>
                   <div className={styles.imgContainer} />
                 </div>
               )
             }
             return (
-              <div>
-                <div className={styles.imgContainer}>
+              <div key={video.url}>
+                <div className={styles.imgContainer} onClick={() => openModal(video.title)}>
                   <img src={video.img} alt={video.title} />
                 </div>
               </div>
@@ -90,6 +110,11 @@ export const User: FC<IUser> = ({ user }) => {
           })}
         </Slider>
       </div>
+      <Modal title={titleVideo} isOpen={isOpenModal} onClose={toggleModal}>
+        <div>
+          Video modal
+        </div>
+      </Modal>
     </div>
   )
 }

@@ -49,15 +49,14 @@ export const Video: FC<IVideo> = ({ profile }) => {
   return (
     <div className={styles.container}>
       <div className={styles.profileVideoContainer}>
-        <AddVideo modalName="addVideo" />
+        <AddVideo />
         <div className={styles.playListContainer}>
           {videos.map(([key, video]) => (
             <VideoItem
               key={video.asset_id}
               video={video}
-              currentVideo={currentVideo}
-              setCurrentVideo={setCurrentVideo}
-              modalName={`EditVideo ${video.title}`}
+              activeVideoInPlayer={currentVideo}
+              onSetCurrentVideo={setCurrentVideo}
             />
           ))}
         </div>
