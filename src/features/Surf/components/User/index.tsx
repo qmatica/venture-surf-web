@@ -113,7 +113,7 @@ export const User: FC<IUser> = ({ user }) => {
           })}
         </Slider>
       </div>
-      <Modal title={selectedVideo?.title} isOpen={isOpenModal} onClose={toggleModal} width={935}>
+      <Modal title={`Video: ${name} - ${selectedVideo?.title}`} isOpen={isOpenModal} onClose={toggleModal} width={935}>
         <div className={styles.videoPlayerContainer}>
           {selectedVideo && (
             <div className={styles.player}>

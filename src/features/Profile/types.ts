@@ -73,11 +73,7 @@ export type ProfileType = {
             _uploading_: string[]
             Team: string
         }
-        job: {
-            company: string
-            title: string
-            headline: string
-        }
+        job: JobType
         docs: {
             _order_: string[]
         } & {
@@ -90,6 +86,12 @@ export type ProfileType = {
             status: string
         }
     }
+}
+
+export type JobType = {
+    company: string
+    title: string
+    headline: string
 }
 
 export type VideoType = {

@@ -7,6 +7,7 @@ import { SignIn } from 'features/Auth/components/SignIn'
 import { Layout } from 'features/Layout'
 import { Contacts } from 'features/Contacts'
 import { Surf } from 'features/Surf'
+import { Calendar } from 'features/Calendar'
 
 export const App: FC = () => {
   const dispatch = useDispatch()
@@ -21,9 +22,10 @@ export const App: FC = () => {
         <Route path="/*">
           <Layout>
             <Route path="/" exact render={() => <Redirect to="/surf" />} />
-            <Route path="/profile" component={Profile} />
-            <Route path="/contacts" component={Contacts} />
             <Route path="/surf" component={Surf} />
+            <Route path="/contacts" component={Contacts} />
+            <Route path="/calendar" component={Calendar} />
+            <Route path="/profile" component={Profile} />
           </Layout>
         </Route>
       </Switch>

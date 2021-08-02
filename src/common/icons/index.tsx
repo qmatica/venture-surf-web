@@ -62,14 +62,14 @@ export const PlusIcon = () => (
   </svg>
 )
 
-export const Edit2Icon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const Edit2Icon = ({ fill = '#96BAF6', size = '24' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fillRule="evenodd" clipRule="evenodd" d="M21.7071 7.29289L16.7071 2.29289C16.3166 1.90237 15.6834 1.90237 15.2929 2.29289L2.29289 15.2929C2.10536 15.4804 2 15.7348 2 16V21C2 21.5523 2.44772 22 3 22H8C8.26522 22 8.51957 21.8946 8.70711 21.7071L21.7071 8.70711C22.0976 8.31658 22.0976 7.68342 21.7071 7.29289ZM4 20V16.4142L16 4.41421L19.5858 8L7.58579 20H4Z" fill="black" />
     <mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="20" height="20">
       <path fillRule="evenodd" clipRule="evenodd" d="M21.7071 7.29289L16.7071 2.29289C16.3166 1.90237 15.6834 1.90237 15.2929 2.29289L2.29289 15.2929C2.10536 15.4804 2 15.7348 2 16V21C2 21.5523 2.44772 22 3 22H8C8.26522 22 8.51957 21.8946 8.70711 21.7071L21.7071 8.70711C22.0976 8.31658 22.0976 7.68342 21.7071 7.29289ZM4 20V16.4142L16 4.41421L19.5858 8L7.58579 20H4Z" fill="white" />
     </mask>
     <g mask="url(#mask0)">
-      <rect width="24" height="24" fill="#96BAF6" />
+      <rect width="24" height="24" fill={fill} />
     </g>
   </svg>
 )
