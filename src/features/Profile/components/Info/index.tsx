@@ -1,10 +1,11 @@
 import React, { FC, useCallback } from 'react'
 import { ProfileType } from 'features/Profile/types'
-import { stages, profileInteractionUsers, industries } from 'features/Profile/constants'
+import { profileInteractionUsers } from 'features/Profile/constants'
 import { UserIcon } from 'common/icons'
 import { Tags } from 'common/components/Tags'
 import { useDispatch } from 'react-redux'
 import { updateMyProfile } from 'features/Profile/actions'
+import { industries, stages } from 'common/constants'
 import styles from './styles.module.sass'
 
 interface IInfo {

@@ -37,6 +37,8 @@ export const Tags: FC<ITags> = ({
     }
   }
 
+  if (!onSave && !tags?.length) return null
+
   return (
     <div className={styles.infoContainer}>
       <div className={styles.title}>{title}</div>

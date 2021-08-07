@@ -61,3 +61,22 @@ export type DeviceType = {
         bundle: string
     }
 }
+
+export type VideosType = {
+    _order_: string[],
+    _uploading_: string[]
+} & {
+    [key: string]: string
+}
+
+export type DocsType = {
+    _order_: string[]
+} & {
+    [key: string]: string
+}
+
+export type stagesType = {
+    [key: string]: {
+        [key: number]: string
+    }
+}

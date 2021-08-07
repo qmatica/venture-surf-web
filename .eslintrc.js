@@ -61,5 +61,12 @@ module.exports = {
         jest: true
       }
     }
-  ]
+  ],
+  settings: {
+    'import/resolver': {
+      node: {
+        paths: ['src']
+      }
+    }
+  }
 }

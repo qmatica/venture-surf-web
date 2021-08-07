@@ -114,12 +114,6 @@ export type VideoType = {
     upload_url: string
 }
 
-export type stagesType = {
-    [key: string]: {
-        [key: number]: string
-    }
-}
-
 export type profileInteractionUsersType = {
     title: {
         founder: string,
@@ -132,20 +126,22 @@ export type profileInteractionUsersType = {
 }
 
 export type MutualsType = {
-    [key: string]: {
-        headline: string
-        name: string
-        uid: string
-        job_company: string
-        photoURL: string
-        dt: string
-        displayName: string
-        job: {
-            headline: string
-            company: string
-            position: string
-            title: string
-        }
-    }
+    [key: string]: MutualType
 }
 
+export type MutualType = {
+    headline: string
+    name: string
+    displayName: string
+    first_name: string
+    last_name: string
+    uid: string
+    photoURL: string
+    dt: string
+    job: {
+        company: string
+        title: string
+        headline: string
+        position: string
+    }
+}

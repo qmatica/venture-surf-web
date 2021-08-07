@@ -59,6 +59,6 @@ export const Profile = () => {
   )
 }
 
-const FieldsJob = (job: JobType) => (
+const FieldJob = (title: string | undefined) => (
   <div>field</div>
 )
