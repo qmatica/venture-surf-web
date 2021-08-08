@@ -1,5 +1,7 @@
 import React, { FC } from 'react'
+import { Button } from 'common/components/Button'
 import styles from './styles.module.sass'
+import { ActionsUserType } from '../../types'
 
 interface IHeader {
     name: string
@@ -10,7 +12,7 @@ interface IHeader {
         headline?: string
         position?: string
     }
-    activeButtons?: React.FC<any>
+    userActions?: ActionsUserType
     rightSide?: React.ReactElement
 }
 
@@ -18,7 +20,7 @@ export const Header: FC<IHeader> = ({
   name,
   photoURL,
   job,
-  activeButtons,
+  userActions,
   rightSide
 }) => (
   <div className={styles.container}>
@@ -37,7 +39,9 @@ export const Header: FC<IHeader> = ({
           {job.position && <div className={styles.position}>{job.position}</div>}
         </div>
       )}
-      {activeButtons}
+      {userActions?.like && (
+      <Button title="Like" width="135" onClick={userActions.like} />
+      )}
     </div>
     {rightSide}
   </div>

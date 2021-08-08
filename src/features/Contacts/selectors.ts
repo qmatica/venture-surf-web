@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { RootState } from 'common/types'
-import { MutualsType } from '../Profile/types'
+import { UsersType } from 'features/Profile/types'
 
 const getMutualsSelector = (state: RootState) => state.profile.profile?.mutuals
 const getSearchSelector = (state: RootState) => state.contacts.search
@@ -10,7 +10,7 @@ export const getMutuals = createSelector(
   getSearchSelector,
   (mutuals, search) => {
     if (!search) return mutuals ? Object.values(mutuals) : mutuals
-    const filteredMutuals: MutualsType = {}
+    const filteredMutuals: UsersType = {}
     if (mutuals) {
       Object.keys(mutuals).forEach((key) => {
         if (mutuals[key].displayName?.includes(search)

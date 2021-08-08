@@ -27,6 +27,8 @@ instance.interceptors.request.use(
   }
 )
 
+instance.interceptors.response.use((res) => res, (error) => Promise.reject(error.response.data))
+
 export const profileAPI = {
   afterLogin(device: DeviceType) {
     return instance.post('api/afterLogin').then((res) => res.data)

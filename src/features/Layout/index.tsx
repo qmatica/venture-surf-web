@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import { Header } from 'features/Header'
 import { Preloader } from 'common/components/Preloader'
+import { Notifications } from 'features/Notifications'
 import styles from './styles.module.sass'
 
 interface ILayout {
@@ -27,6 +28,7 @@ export const Layout: FC<ILayout> = ({ children }) => {
           {children}
         </div>
       </div>
+      <Notifications />
     </div>
   )
 }

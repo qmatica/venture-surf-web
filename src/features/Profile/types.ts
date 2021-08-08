@@ -2,6 +2,7 @@ import { ThunkAction } from 'redux-thunk'
 import { AppStateType, InferActionsTypes } from 'common/types'
 import { actions as actionsModal } from 'features/Modal/actions'
 import { getFirebase } from 'react-redux-firebase'
+import { UserType } from 'features/User/types'
 import { actions } from './actions'
 
 export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsModal>
@@ -41,7 +42,7 @@ export type ProfileType = {
             job_title: string
         }
     }
-    mutuals: MutualsType
+    mutuals: UsersType
     verified: {
         linkedIn: string
     }
@@ -125,23 +126,6 @@ export type profileInteractionUsersType = {
     }
 }
 
-export type MutualsType = {
-    [key: string]: MutualType
-}
-
-export type MutualType = {
-    headline: string
-    name: string
-    displayName: string
-    first_name: string
-    last_name: string
-    uid: string
-    photoURL: string
-    dt: string
-    job: {
-        company: string
-        title: string
-        headline: string
-        position: string
-    }
+export type UsersType = {
+    [key: string]: UserType
 }

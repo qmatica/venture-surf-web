@@ -11,7 +11,6 @@ import styles from './styles.module.sass'
 interface IUser {
     user: UserType
     rightSide?: 'tags' | 'assets'
-    activeButtons?: React.FC<any>
     viewActions?: boolean
     viewVideos?: boolean
 }
@@ -19,7 +18,6 @@ interface IUser {
 export const User: FC<IUser> = memo(({
   user,
   rightSide,
-  activeButtons,
   viewActions = false,
   viewVideos = false
 }) => {
@@ -53,7 +51,7 @@ export const User: FC<IUser> = memo(({
         name={name}
         photoURL={user.photoURL}
         job={user.job}
-        activeButtons={activeButtons}
+        userActions={user.actions}
         rightSide={rightSideContent}
       />
       {viewActions && <Actions />}

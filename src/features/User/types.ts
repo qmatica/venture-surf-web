@@ -11,15 +11,21 @@ export type UserType = {
     industries?: string[]
     tags?: string[]
     dt?: string
+    actions?: ActionsUserType
+    loading: string[]
     job?: {
         company?: string
         title?: string
         headline?: string
         position?: string
-    },
+    }
     content?: {
         docs?: DocsType,
         videos?: VideosType
-    },
+    }
     activeRole?: 'investor' | 'founder'
+}
+
+export type ActionsUserType = {
+    like?: () => void
 }
