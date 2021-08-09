@@ -48,10 +48,7 @@ export const User: FC<IUser> = memo(({
     <div className={styles.container}>
       <SwitchRoles />
       <Header
-        name={name}
-        photoURL={user.photoURL}
-        job={user.job}
-        userActions={user.actions}
+        user={user}
         rightSide={rightSideContent}
       />
       {viewActions && <Actions />}

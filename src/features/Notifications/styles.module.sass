@@ -6,16 +6,30 @@
   gap: 20px
   width: 500px
   font-family: "Roboto", sans-serif
-  .message
+  .messageContainer
     padding: 20px
-    background: #b39999
+    background: rgba(173, 182, 195, 0.9)
     color: #FFFFFF
     border-radius: 10px
     display: flex
     justify-content: space-between
     align-items: center
     gap: 30px
-    font-size: 18px
+    &.error
+      background: rgba(173, 182, 195, 0.9)
+    &.warning
+      background: rgba(195, 188, 173, 0.9)
+    &.success
+      background: rgba(173, 195, 175, 0.9)
+    .message
+      display: flex
+      flex-direction: column
+      gap: 20px
+      .title
+        font-size: 18px
+        font-weight: bold
+      .value
+        font-size: 17px
     .close
       cursor: pointer
       display: flex

@@ -68,7 +68,7 @@ export const usersAPI = {
     return instance.delete(`/api/user/${userId}`).then((res) => res.data)
   },
   likeUser(userId: string) {
-    return instance.post(`api/like/${userId}`).then((res) => res.data)
+    return instance.post(`api/like/${userId}`).then((res) => res.status)
   },
   getMatches() {
     return instance.get('api/matches').then((res) => res.data)

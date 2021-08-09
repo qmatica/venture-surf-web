@@ -12,7 +12,7 @@ export type UserType = {
     tags?: string[]
     dt?: string
     actions?: ActionsUserType
-    loading: string[]
+    loaders: string[]
     job?: {
         company?: string
         title?: string

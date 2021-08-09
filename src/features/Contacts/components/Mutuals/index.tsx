@@ -2,6 +2,7 @@ import { getMutuals } from 'features/Contacts/selectors'
 import { User } from 'features/User'
 import React, { FC, memo } from 'react'
 import { useSelector } from 'react-redux'
+import notFoundUsers from 'common/images/notFoundUsers.png'
 import styles from './styles.module.sass'
 
 export const Mutuals: FC = memo(() => {
@@ -9,8 +10,8 @@ export const Mutuals: FC = memo(() => {
 
   if (!mutuals?.length) {
     return (
-      <div>
-        No mutuals
+      <div className={styles.containerNotFoundUsers}>
+        <img src={notFoundUsers} alt="Not found users" />
       </div>
     )
   }

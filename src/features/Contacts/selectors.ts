@@ -10,15 +10,16 @@ export const getMutuals = createSelector(
   getSearchSelector,
   (mutuals, search) => {
     if (!search) return mutuals ? Object.values(mutuals) : mutuals
+    const lowerCaseSearch = search.toLowerCase()
     const filteredMutuals: UsersType = {}
     if (mutuals) {
       Object.keys(mutuals).forEach((key) => {
-        if (mutuals[key].displayName?.includes(search)
-            || mutuals[key].name?.includes(search)
-            || mutuals[key].job?.company?.includes(search)
-            || mutuals[key].job?.title?.includes(search)
-            || mutuals[key].job?.headline?.includes(search)
-            || mutuals[key].job?.position?.includes(search)
+        if (mutuals[key].displayName?.toLowerCase().includes(lowerCaseSearch)
+            || mutuals[key].name?.toLowerCase().includes(lowerCaseSearch)
+            || mutuals[key].job?.company?.toLowerCase().includes(lowerCaseSearch)
+            || mutuals[key].job?.title?.toLowerCase().includes(lowerCaseSearch)
+            || mutuals[key].job?.headline?.toLowerCase().includes(lowerCaseSearch)
+            || mutuals[key].job?.position?.toLowerCase().includes(lowerCaseSearch)
         ) {
           filteredMutuals[key] = mutuals[key]
         }
