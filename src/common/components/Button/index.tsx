@@ -19,7 +19,11 @@ export const Button: FC<IButton> = ({
   className,
   width
 }) => (
-  <div onClick={onClick} className={`${styles.button} ${className}`} style={{ width: `${width}px` }}>
+  <div
+    onClick={isLoading ? undefined : onClick}
+    className={`${styles.button} ${className}`}
+    style={{ width: `${width}px`, borderColor: isLoading ? '#BFD5FA' : '' }}
+  >
     {isLoading ? <PreloaderIcon stroke="#96baf6" /> : <>{icon} {title}</>}
   </div>
 )

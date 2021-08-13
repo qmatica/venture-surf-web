@@ -61,14 +61,17 @@ export const profileAPI = {
 }
 
 export const usersAPI = {
-  getUser(userId: string) {
-    return instance.get(`api/user/${userId}`).then((res) => res.data)
+  getUser(uid: string) {
+    return instance.get(`api/user/${uid}`).then((res) => res.data)
   },
-  deleteUser(userId: string) {
-    return instance.delete(`/api/user/${userId}`).then((res) => res.data)
+  deleteUser(uid: string) {
+    return instance.delete(`/api/user/${uid}`).then((res) => res.data)
   },
-  likeUser(userId: string) {
-    return instance.post(`api/like/${userId}`).then((res) => res.status)
+  likeUser(uid: string) {
+    return instance.post(`api/like/${uid}`).then((res) => res.status)
+  },
+  withdrawLike(uid: string) {
+    return instance.delete(`api/like/${uid}`).then((res) => res.status)
   },
   getMatches() {
     return instance.get('api/matches').then((res) => res.data)

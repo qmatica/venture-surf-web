@@ -14,7 +14,7 @@ export const Header: FC<IHeader> = ({
 }) => {
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
   const {
-    photoURL, job, actions, loaders
+    photoURL, job, actions, loaders, activeActions
   } = user
   return (
     <div className={styles.container}>
@@ -33,14 +33,17 @@ export const Header: FC<IHeader> = ({
           {job.position && <div className={styles.position}>{job.position}</div>}
         </div>
         )}
-        {actions?.like && (
-        <Button
-          title="Like"
-          width="135"
-          isLoading={loaders.includes('like')}
-          onClick={actions.like}
-        />
-        )}
+        {activeActions?.map((activeAction) => {
+          if (!actions) return null
+          return (
+            <Button
+              title={activeAction}
+              width="135"
+              isLoading={loaders.includes(activeAction)}
+              onClick={actions[activeAction]}
+            />
+          )
+        })}
       </div>
       {rightSide}
     </div>

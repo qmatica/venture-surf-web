@@ -11,7 +11,8 @@ export type UserType = {
     industries?: string[]
     tags?: string[]
     dt?: string
-    actions?: ActionsUserType
+    actions?: { [key: string]: () => void }
+    activeActions?: string[]
     loaders: string[]
     job?: {
         company?: string
@@ -28,4 +29,5 @@ export type UserType = {
 
 export type ActionsUserType = {
     like?: () => void
+    withdrawLike?: () => void
 }
