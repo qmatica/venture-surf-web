@@ -1,9 +1,9 @@
-import { UserType } from 'features/User/types'
+import { ActiveActionsUserType, UserType } from 'features/User/types'
 
 type UpdateUsersType = {
   users: UserType[]
   updatedUserId: string
-  activeActions?: string[]
+  activeActions?: ActiveActionsUserType[]
   loader?: string
 }
 

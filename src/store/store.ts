@@ -14,6 +14,7 @@ import { ModalReducer } from 'features/Modal/reducer'
 import { ContactsReducer } from 'features/Contacts/reducer'
 import { SurfReducer } from 'features/Surf/reducer'
 import { NotificationsReducer } from 'features/Notifications/reducer'
+import { VideoChatReducer } from 'features/VideoChat/reducer'
 import { config } from 'config/firebase'
 
 firebase.initializeApp(config)
@@ -28,7 +29,8 @@ export const rootReducer = combineReducers({
   contacts: ContactsReducer,
   modal: ModalReducer,
   surf: SurfReducer,
-  notifications: NotificationsReducer
+  notifications: NotificationsReducer,
+  videoChat: VideoChatReducer
 })
 
 const middlewares = [

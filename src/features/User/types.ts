@@ -1,4 +1,5 @@
 import { DocsType, VideosType } from 'common/types'
+import { ReactElement } from 'react'
 
 export type UserType = {
     name?: string
@@ -11,8 +12,9 @@ export type UserType = {
     industries?: string[]
     tags?: string[]
     dt?: string
+    bodyActions?: { [key: string]: () => void }
     actions?: { [key: string]: () => void }
-    activeActions?: string[]
+    activeActions?: ActiveActionsUserType[]
     loaders: string[]
     job?: {
         company?: string
@@ -27,7 +29,8 @@ export type UserType = {
     activeRole?: 'investor' | 'founder'
 }
 
-export type ActionsUserType = {
-    like?: () => void
-    withdrawLike?: () => void
+export type ActiveActionsUserType = {
+    title: string,
+    action: string,
+    icon: () => ReactElement
 }

@@ -1,7 +1,11 @@
+import { connect, ConnectOptions } from 'twilio-video'
 import { profileAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsModal } from 'features/Modal/actions'
+import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import * as UpChunk from '@mux/upchunk'
+import { actionsUser } from 'features/User/constants'
+import { addMessage } from 'features/Notifications/actions'
 import { ThunkType, VideoType } from './types'
 
 export const actions = {
@@ -11,8 +15,28 @@ export const actions = {
 
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
   const response = await Promise.all([profileAPI.getProfile(), profileAPI.getVideos()])
+  const mutuals: any = {}
+  Object.values(response[0].mutuals).forEach((mutual: any) => {
+    mutuals[mutual.uid] = {
+      ...mutual,
+      actions: {
+        callNow() {
+          dispatch(callNow(mutual.uid))
+        },
+        arrangeAMeeting() {
+          console.log('arrangeAMeeting')
+        },
+        recommended() {
+          console.log('recommended')
+        }
+      },
+      activeActions: [actionsUser.callNow, actionsUser.arrangeAMeeting, actionsUser.recommended],
+      loaders: []
+    }
+  })
   const profile = {
     ...response[0],
+    mutuals,
     videos: response[1]
   }
   dispatch(actions.setMyProfile(profile))
@@ -200,4 +224,49 @@ export const deleteVideo = (
   }
   setIsLoadingButton(null)
   setIsOpenModal(false)
+}
+
+type ResponseTypeCallNow = {
+  pushes: {
+    failed: { device: string }[]
+    sent: { device: string }[]
+  }
+  room: string
+  status: string
+  token: string
+}
+
+export const callNow = (uid: string): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
+  if (profile) {
+    const updatedProfile = {
+      ...profile,
+      mutuals: {
+        ...profile.mutuals,
+        [uid]: {
+          ...profile.mutuals[uid],
+          loaders: [actionsUser.callNow.action]
+        }
+      }
+    }
+    dispatch(actions.setMyProfile(updatedProfile))
+
+    const response: ResponseTypeCallNow = await profileAPI.callNow(uid).catch((err) => {
+      dispatch(addMessage({
+        title: 'Error loading room video',
+        value: err,
+        type: 'error'
+      }))
+    })
+
+    connect(response.token, { room: response.room } as ConnectOptions).then((room) => {
+      dispatch(actionsVideoChat.setRoom(room))
+    }).catch((err) => {
+      dispatch(addMessage({
+        title: 'Error connect to video chat',
+        value: err,
+        type: 'error'
+      }))
+    })
+  }
 }

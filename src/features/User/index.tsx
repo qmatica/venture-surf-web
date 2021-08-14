@@ -1,6 +1,6 @@
 import React, { FC, memo } from 'react'
 import { SwitchRoles } from './components/SwitchRoles'
-import { Header } from './components/Header'
+import { Body } from './components/Body'
 import { Actions } from './components/Actions'
 import { Videos } from './components/Videos'
 import { Tags } from './components/Tags'
@@ -47,11 +47,11 @@ export const User: FC<IUser> = memo(({
   return (
     <div className={styles.container}>
       <SwitchRoles />
-      <Header
+      <Body
         user={user}
         rightSide={rightSideContent}
       />
-      {viewActions && <Actions />}
+      {viewActions && <Actions user={user} />}
       {viewVideos && <Videos videos={user.content?.videos} userId={user.uid} userName={name} />}
     </div>
   )

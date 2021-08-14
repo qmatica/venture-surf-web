@@ -57,6 +57,9 @@ export const profileAPI = {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     }).then((res) => res.status)
+  },
+  callNow(uid: string) {
+    return instance.put(`api/call/${uid}/invite`, { variants: ['now'] }).then((res) => res.data)
   }
 }
 

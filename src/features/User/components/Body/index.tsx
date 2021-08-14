@@ -3,18 +3,18 @@ import { Button } from 'common/components/Button'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
 
-interface IHeader {
+interface IBody {
     user: UserType
     rightSide?: React.ReactElement
 }
 
-export const Header: FC<IHeader> = ({
+export const Body: FC<IBody> = ({
   user,
   rightSide
 }) => {
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
   const {
-    photoURL, job, actions, loaders, activeActions
+    photoURL, job, bodyActions, loaders, activeActions
   } = user
   return (
     <div className={styles.container}>
@@ -34,13 +34,13 @@ export const Header: FC<IHeader> = ({
         </div>
         )}
         {activeActions?.map((activeAction) => {
-          if (!actions) return null
+          if (!bodyActions) return null
           return (
             <Button
-              title={activeAction}
-              width="135"
-              isLoading={loaders.includes(activeAction)}
-              onClick={actions[activeAction]}
+              title={activeAction.title}
+              icon={<activeAction.icon />}
+              isLoading={loaders.includes(activeAction.action)}
+              onClick={bodyActions[activeAction.action]}
             />
           )
         })}

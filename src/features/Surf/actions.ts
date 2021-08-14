@@ -26,7 +26,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
   const formattedUsers = users.map((user) => ({
     ...user,
-    actions: {
+    bodyActions: {
       like() {
         dispatch(likeUser(user.uid))
       },
@@ -47,7 +47,7 @@ export const likeUser = (uid: string): ThunkType => async (dispatch, getState) =
   const updatedUsers = updateUsers({
     users,
     updatedUserId: uid,
-    loader: actionsUser.like
+    loader: actionsUser.like.action
   })
 
   dispatch(actions.setUsers(updatedUsers))
@@ -66,7 +66,7 @@ export const likeUser = (uid: string): ThunkType => async (dispatch, getState) =
     const updatedUsers = updateUsers({
       users,
       updatedUserId: uid,
-      loader: actionsUser.like,
+      loader: actionsUser.like.action,
       activeActions: [actionsUser.withdrawLike]
     })
 
@@ -80,7 +80,7 @@ export const withdrawLikeUser = (uid: string): ThunkType => async (dispatch, get
   const updatedUsers = updateUsers({
     users,
     updatedUserId: uid,
-    loader: actionsUser.withdrawLike
+    loader: actionsUser.withdrawLike.action
   })
 
   dispatch(actions.setUsers(updatedUsers))
@@ -99,7 +99,7 @@ export const withdrawLikeUser = (uid: string): ThunkType => async (dispatch, get
     const updatedUsers = updateUsers({
       users,
       updatedUserId: uid,
-      loader: actionsUser.withdrawLike,
+      loader: actionsUser.withdrawLike.action,
       activeActions: [actionsUser.like]
     })
 
