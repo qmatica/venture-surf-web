@@ -1,3 +1,4 @@
+import { FunctionComponent } from 'react'
 import { ThunkAction } from 'redux-thunk'
 import { getFirebase } from 'react-redux-firebase'
 import { AppStateType, InferActionsTypes } from 'common/types'

@@ -5,6 +5,7 @@ import { RootState } from 'common/types'
 import { Header } from 'features/Header'
 import { Preloader } from 'common/components/Preloader'
 import { Notifications } from 'features/Notifications'
+import { Notifications as NotificationsVideoChat } from 'features/VideoChat/components/Notifications'
 import { VideoChat } from 'features/VideoChat'
 import styles from './styles.module.sass'
 
@@ -15,7 +16,6 @@ interface ILayout {
 export const Layout: FC<ILayout> = ({ children }) => {
   const { initialized } = useSelector((state: RootState) => state.app)
   const { auth } = useSelector((state: RootState) => state.auth)
-  const { profile } = useSelector((state: RootState) => state.profile)
 
   if (!initialized || auth === undefined) return <Preloader />
 
@@ -30,6 +30,7 @@ export const Layout: FC<ILayout> = ({ children }) => {
         </div>
       </div>
       <Notifications />
+      <NotificationsVideoChat />
       <VideoChat />
     </div>
   )

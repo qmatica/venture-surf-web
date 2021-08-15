@@ -13,15 +13,14 @@ export const Notifications = () => {
       case 'error': return styles.error
       case 'warning': return styles.warning
       case 'success': return styles.success
-      default: return undefined
+      default: return ''
     }
   }
+
   return (
     <div className={styles.container}>
       {messages.map((message) => (
-        <div
-          className={`${styles.messageContainer} ${getClassName(message.type)}`}
-        >
+        <div className={`${styles.messageContainer} ${getClassName(message.type)}`}>
           <div className={styles.message}>
             <div className={styles.title}>{message.title}</div>
             <div className={styles.value}>{message.value}</div>

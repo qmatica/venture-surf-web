@@ -9,26 +9,19 @@ interface IActions {
 
 export const Actions: FC<IActions> = ({ user }) => (
   <div className={styles.container}>
-    <div>
-      {user.activeActions?.map((activeAction) => {
-        if (!user.actions) return null
-        return (
-          <Button
-            title={activeAction.title}
-            icon={<activeAction.icon />}
-            isLoading={user.loaders.includes(activeAction.action)}
-            className={styles.buttonCall}
-            onClick={user.actions[activeAction.action]}
-          />
-        )
-      })}
-    </div>
-    {/*<div>
-      <Button title="Call now" icon={<PhoneCallIcon />} className={styles.buttonCall} />
-      <Button title="Arrange a meeting" icon={<CalendarMinIcon />} />
-    </div>
-    <div>
-      <Button title="Recommend" icon={<PeopleIcon />} />
-    </div>*/}
+    {user.activeActions?.map((activeAction) => {
+      if (!user.actions) return null
+      let className = ''
+      if (activeAction.action === 'callNow') className = styles.buttonCall
+      return (
+        <Button
+          title={activeAction.title}
+          icon={<activeAction.icon />}
+          isLoading={user.loaders.includes(activeAction.action)}
+          className={className}
+          onClick={user.actions[activeAction.action]}
+        />
+      )
+    })}
   </div>
 )

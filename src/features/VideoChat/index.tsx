@@ -16,7 +16,7 @@ export const VideoChat = () => {
 
   const toggleModal = () => {
     setIsOpenModal(!isOpenModal)
-    dispatch(actions.setRoom(null))
+    room?.disconnect()
   }
 
   const participantConnected = (participant: ParticipantType) => {

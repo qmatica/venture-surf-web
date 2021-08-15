@@ -13,11 +13,12 @@ export const init = (): ThunkType => async (dispatch, getState) => {
   const { getMatches, getRecommended } = usersAPI
 
   const promise = await Promise.all([getMatches(), getRecommended()]).catch((err) => {
-    dispatch(addMessage({
+    /*dispatch(addMessage({
       title: 'Error loading surf users',
       value: err.error,
       type: 'error'
-    }))
+    }))*/
+    console.log(err.error)
   })
 
   if (!promise) return

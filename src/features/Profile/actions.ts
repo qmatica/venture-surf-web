@@ -16,6 +16,7 @@ export const actions = {
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
   const response = await Promise.all([profileAPI.getProfile(), profileAPI.getVideos()])
   const mutuals: any = {}
+
   Object.values(response[0].mutuals).forEach((mutual: any) => {
     mutuals[mutual.uid] = {
       ...mutual,
@@ -34,12 +35,67 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
       loaders: []
     }
   })
+
   const profile = {
     ...response[0],
     mutuals,
     videos: response[1]
   }
   dispatch(actions.setMyProfile(profile))
+
+  const { auth } = getState().firebase
+  await getFirebase().firestore().doc(`profiles/${auth.uid}`).onSnapshot(async (doc) => {
+    console.log('updated profile')
+
+    const myProfile: any = doc.data()
+
+    if (myProfile) {
+      const { slots } = myProfile
+      if (slots.now) {
+        console.log(slots.now)
+
+        if (profile.slots.now.status !== 'waiting') {
+          const { profile } = getState().profile
+          const remoteUser = profile?.mutuals[slots.now.uid]
+
+          if (remoteUser) {
+            dispatch(actionsVideoChat.setNotification({
+              type: 'incomingСall',
+              request: slots.now.request,
+              user: {
+                uid: remoteUser.uid,
+                photoURL: remoteUser.photoURL,
+                displayName: remoteUser.displayName || remoteUser.name || `${remoteUser.first_name} ${remoteUser.last_name}`
+              },
+              actions: {
+                accept() {
+                  connect(slots.now.twilio.token, { room: slots.now.twilio.room } as ConnectOptions).then((room) => {
+                    dispatch(actionsVideoChat.setRoom(room))
+                    dispatch(actionsVideoChat.clearNotification(slots.now.request))
+                  }).catch((err) => {
+                    dispatch(addMessage({
+                      title: 'Error connect to video chat',
+                      value: err,
+                      type: 'error'
+                    }))
+                  })
+                },
+                async decline() {
+                  dispatch(actionsVideoChat.clearNotification(slots.now.request))
+                  const response = await profileAPI.callDecline(remoteUser.uid)
+                  console.log(response)
+                }
+              }
+            }))
+          }
+
+          /*connect(profile.slots.now.twilio.token, { room: profile.slots.now.twilio.room } as ConnectOptions).then((room) => {
+            dispatch(actionsVideoChat.setRoom(room))
+          })*/
+        }
+      }
+    }
+  })
 }
 
 export const updateMyProfile = (value: { [key: string]: any }, modalName?: string): ThunkType => async (dispatch, getState) => {
@@ -260,6 +316,22 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
     })
 
     connect(response.token, { room: response.room } as ConnectOptions).then((room) => {
+      const { profile } = getState().profile
+
+      if (profile) {
+        const updatedProfile = {
+          ...profile,
+          mutuals: {
+            ...profile.mutuals,
+            [uid]: {
+              ...profile.mutuals[uid],
+              loaders: profile.mutuals[uid].loaders.filter((loader) => loader !== actionsUser.callNow.action)
+            }
+          }
+        }
+        dispatch(actions.setMyProfile(updatedProfile))
+      }
+
       dispatch(actionsVideoChat.setRoom(room))
     }).catch((err) => {
       dispatch(addMessage({
