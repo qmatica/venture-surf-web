@@ -1,6 +1,9 @@
 import React, { FC } from 'react'
-import { DownloadIcon, Edit2Icon, EyeIcon } from 'common/icons'
+import {
+  DownloadIcon, Edit2Icon, EyeIcon, PlusIcon
+} from 'common/icons'
 import { ProfileType } from 'features/Profile/types'
+import { Button } from 'common/components/Button'
 import styles from './styles.module.sass'
 
 interface IDeck {
@@ -13,9 +16,14 @@ export const Deck: FC<IDeck> = ({ profile }) => {
     title: key,
     url: docs[key]
   }))
+
+  const isEmpty = sortedDocs.length === 0
+
+  const style = isEmpty ? { alignItems: 'center' } : {}
+
   return (
     <div className={styles.container}>
-      <div className={styles.docsContainer}>
+      <div className={styles.docsContainer} style={style}>
         {sortedDocs.map(({ title, url }) => (
           <div key={title} className={styles.wrapper}>
             <div className={styles.doc}>
@@ -36,9 +44,12 @@ export const Deck: FC<IDeck> = ({ profile }) => {
             </div>
           </div>
         ))}
+        {isEmpty && (
+          <div className={styles.emptyTitle}>Add first document</div>
+        )}
       </div>
-      <div className={styles.buttonsContainer}>
-        <div>+ Add deck</div>
+      <div className={styles.buttonsContainer} style={style}>
+        <Button title="Add deck" icon={<PlusIcon />} />
       </div>
     </div>
   )

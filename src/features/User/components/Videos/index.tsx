@@ -89,7 +89,7 @@ export const Videos: FC<IVideos> = ({
             }
             return (
               <div key={video.url}>
-                <div className={styles.imgContainer} onClick={() => openVideo(video)}>
+                <div className={`${styles.imgContainer} ${styles.withVideo}`} onClick={() => openVideo(video)}>
                   <img src={video.img} alt={video.title} />
                 </div>
               </div>
