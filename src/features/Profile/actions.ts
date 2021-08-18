@@ -54,7 +54,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
       if (slots.now) {
         console.log(slots.now)
 
-        if (profile.slots.now.status !== 'waiting') {
+        if (slots.now.status !== 'waiting') {
           const { profile } = getState().profile
           const remoteUser = profile?.mutuals[slots.now.uid]
 
@@ -82,16 +82,11 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
                 },
                 async decline() {
                   dispatch(actionsVideoChat.clearNotification(slots.now.request))
-                  const response = await profileAPI.callDecline(remoteUser.uid)
-                  console.log(response)
+                  await dispatch(declineCall(remoteUser.uid))
                 }
               }
             }))
           }
-
-          /*connect(profile.slots.now.twilio.token, { room: profile.slots.now.twilio.room } as ConnectOptions).then((room) => {
-            dispatch(actionsVideoChat.setRoom(room))
-          })*/
         }
       }
     }
@@ -341,4 +336,10 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
       }))
     })
   }
+}
+
+export const declineCall = (uid?: string): ThunkType => async (dispatch, getState) => {
+  const { auth } = getState().firebase
+  const response = await profileAPI.callDecline(uid || auth.uid)
+  console.log(response)
 }

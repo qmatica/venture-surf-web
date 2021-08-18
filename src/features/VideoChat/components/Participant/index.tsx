@@ -13,9 +13,12 @@ import styles from './styles.module.sass'
 
 interface IParticipant {
   participant: ParticipantType
+  style?: {
+    [key: string]: any
+  }
 }
 
-export const Participant: FC<IParticipant> = memo(({ participant }) => {
+export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
   const [videoTracks, setVideoTracks] = useState<VideoTrackType[]>([])
   const [audioTracks, setAudioTracks] = useState<AudioTrackType[]>([])
   const videoRef = createRef<HTMLVideoElement>()
@@ -73,7 +76,7 @@ export const Participant: FC<IParticipant> = memo(({ participant }) => {
   }, [audioTracks])
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={style}>
       <video ref={videoRef} autoPlay />
       <audio ref={audioRef} autoPlay muted />
     </div>
