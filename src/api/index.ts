@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { getFirebase } from 'react-redux-firebase'
-import { AuthUserType, DeviceType } from 'common/types'
+import { AuthUserType } from 'common/types'
 import { proj } from 'config/firebase'
+import { DeviceType } from 'features/Profile/types'
 
 const headers = {
   Accept: 'application/json',
@@ -30,14 +31,17 @@ instance.interceptors.request.use(
 instance.interceptors.response.use((res) => res, (error) => Promise.reject(error.response.data))
 
 export const profileAPI = {
-  afterLogin(device: DeviceType) {
-    return instance.post('api/afterLogin').then((res) => res.data)
-  },
   getProfile() {
     return instance.get('api/user').then((res) => res.data)
   },
+  afterLogin(device: DeviceType) {
+    return instance.post('api/afterLogin', { device }).then((res) => res.data)
+  },
   updateMyProfile(value: { [key: string]: any }) {
     return instance.post('api/user', value).then((res) => res.status)
+  },
+  updateActiveRole(activeRole: 'investor' | 'founder', value: { [key: string]: any }) {
+    return instance.post(`api/role/${activeRole}`, value).then((res) => res.status)
   },
   getVideos() {
     return instance.get('/api/videos').then((res) => res.data)

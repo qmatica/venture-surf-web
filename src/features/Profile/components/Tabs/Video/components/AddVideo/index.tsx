@@ -3,9 +3,9 @@ import { PlusIcon } from 'common/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { Modal } from 'features/Modal'
 import { uploadVideo } from 'features/Profile/actions'
-import { DropZone } from 'features/Profile/components/Video/components/AddVideo/DropZone'
+import { DropZone } from 'features/Profile/components/Tabs/Video/components/AddVideo/DropZone'
 import { RootState } from 'common/types'
-import { EditVideo, IFormElement } from 'features/Profile/components/Video/components/EditVideo'
+import { EditVideo, IFormElement } from 'features/Profile/components/Tabs/Video/components/EditVideo'
 import styles from './styles.module.sass'
 
 export const AddVideo: FC = () => {

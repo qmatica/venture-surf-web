@@ -4,8 +4,8 @@ import React, {
 import ReactHlsPlayer from 'react-hls-player'
 import { useDispatch } from 'react-redux'
 import { ProfileType, VideoType } from 'features/Profile/types'
-import { VideoItem } from 'features/Profile/components/Video/components/VideoItem'
-import { AddVideo } from 'features/Profile/components/Video/components/AddVideo'
+import { VideoItem } from 'features/Profile/components/Tabs/Video/components/VideoItem'
+import { AddVideo } from 'features/Profile/components/Tabs/Video/components/AddVideo'
 import styles from './styles.module.sass'
 
 interface IVideo {

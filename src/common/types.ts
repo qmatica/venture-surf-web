@@ -52,21 +52,17 @@ export enum apiCodes {
     error = 400
 }
 
-export type DeviceType = {
-    device: {
-        id: string,
-        os: string,
-        fcm_token: string,
-        voip_token: string,
-        bundle: string
-    }
-}
-
 export type VideosType = {
     _order_: string[],
     _uploading_: string[]
 } & {
-    [key: string]: string
+    [key: string]: {
+        playbackID: string,
+        assetID: string,
+        created_at: number
+        height: number
+
+    }
 }
 
 export type DocsType = {

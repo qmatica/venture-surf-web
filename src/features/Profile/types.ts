@@ -18,9 +18,6 @@ export type ProfileType = {
     zoomID: string
     photoURL: string
     activeRole: 'founder' | 'investor'
-    stages: number[]
-    roles: string[]
-    industries: string[]
     tags: string[]
     liked: {}
     slots: {
@@ -69,6 +66,9 @@ export type ProfileType = {
     }
 } & {
     [key in 'founder' | 'investor']: {
+        stages: number[]
+        roles: string[]
+        industries: string[]
         videos: {
             Technology: string
             _order_: string[]
@@ -91,9 +91,9 @@ export type ProfileType = {
 }
 
 export type JobType = {
-    company: string
-    title: string
-    headline: string
+    company?: string
+    title?: string
+    headline?: string
 }
 
 export type VideoType = {
@@ -129,4 +129,11 @@ export type profileInteractionUsersType = {
 
 export type UsersType = {
     [key: string]: UserType
+}
+export type DeviceType = {
+    id: string,
+    os: string,
+    fcm_token: string,
+    voip_token: string,
+    bundle: string
 }

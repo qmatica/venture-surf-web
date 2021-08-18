@@ -47,7 +47,8 @@ module.exports = {
     'react/void-dom-elements-no-children': 'off',
     'no-underscore-dangle': 'off',
     'jsx-a11y/media-has-caption': 'off',
-    'react/no-array-index-key': 'off'
+    'react/no-array-index-key': 'off',
+    'react/button-has-type': 'off'
   },
   overrides: [
     {

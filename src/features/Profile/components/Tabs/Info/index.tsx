@@ -15,7 +15,7 @@ interface IInfo {
 export const Info: FC<IInfo> = ({ profile }) => {
   const dispatch = useDispatch()
   const updateProfile = useCallback((field: string) => (value: any) => {
-    dispatch(updateMyProfile({ [field]: value }, field))
+    dispatch(updateMyProfile({ [field]: value }))
   }, [profile])
 
   const profileInteraction = {
@@ -32,13 +32,13 @@ export const Info: FC<IInfo> = ({ profile }) => {
       </div>
       <Tags
         title="My startup space is"
-        tags={profile.stages}
+        tags={profile[profile.activeRole].stages}
         dictionary={stages[profile.activeRole]}
         onSave={updateProfile('stages')}
       />
       <Tags
         title="My startup is"
-        tags={profile.industries}
+        tags={profile[profile.activeRole].industries}
         dictionary={industries}
         onSave={updateProfile('industries')}
       />

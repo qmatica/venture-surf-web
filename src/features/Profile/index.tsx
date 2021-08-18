@@ -2,12 +2,11 @@ import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getProfile } from 'features/Profile/selector'
 import { Tabs } from 'common/components/Tabs'
-import { Edit2Icon } from 'common/icons'
-import { Deck } from './components/Deck'
-import { Info } from './components/Info'
-import { Video } from './components/Video'
+import { Deck } from './components/Tabs/Deck'
+import { Info } from './components/Tabs/Info'
+import { Video } from './components/Tabs/Video'
+import { Job } from './components/Job'
 import styles from './styles.module.sass'
-import { JobType } from './types'
 
 const tabs = [
   { title: 'Info', Component: Info },
@@ -28,13 +27,6 @@ export const Profile = () => {
   }
   const name = profile.displayName || `${profile.first_name} ${profile.last_name}`
 
-  const getNotFilledField = (title: string) => (
-    <div className={styles.notFilledContainer}>
-      <div className={styles.notFilled}>{title}</div>
-      <div className={styles.edit}><Edit2Icon size="20" /></div>
-    </div>
-  )
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.headerContainer}>
@@ -44,10 +36,7 @@ export const Profile = () => {
           </div>
           <div className={styles.infoContainer}>
             <div className={styles.displayName}>{name}</div>
-            {job.company ? <div className={styles.companyJob}>{job.company}</div> : getNotFilledField('Company')}
-            {job.title && <div className={styles.titleJob}>{job.title}</div>}
-            {job.headline && <div className={styles.headlineJob}>{job.headline}</div>}
-            {/*<div className={styles.industries}>{profile.industries.join(', ')}</div>*/}
+            <Job job={job} />
           </div>
         </div>
       </div>
@@ -58,7 +47,3 @@ export const Profile = () => {
     </div>
   )
 }
-
-const FieldJob = (title: string | undefined) => (
-  <div>field</div>
-)

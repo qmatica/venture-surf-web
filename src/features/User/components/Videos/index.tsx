@@ -41,7 +41,8 @@ export const Videos: FC<IVideos> = ({
   }
 
   const formattedVideos = videos._order_.reduce((prevVideos: (VideoType | null)[], nextVideo, index, array) => {
-    const playbackID = videos[nextVideo]
+    const { playbackID } = videos[nextVideo]
+
     const video = {
       title: nextVideo,
       img: `https://image.mux.com/${playbackID}/thumbnail.jpg?time=5`,
@@ -55,7 +56,7 @@ export const Videos: FC<IVideos> = ({
         emptyVideos = [null, null]
       }
       if (index === 1) {
-        emptyVideos = null
+        emptyVideos = [null]
       }
       if (emptyVideos) return [...prevVideos, video, ...emptyVideos]
     }

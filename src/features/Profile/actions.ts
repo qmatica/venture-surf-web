@@ -1,4 +1,5 @@
 import { connect, ConnectOptions } from 'twilio-video'
+import { v4 as uuidv4 } from 'uuid'
 import { profileAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsModal } from 'features/Modal/actions'
@@ -14,27 +15,37 @@ export const actions = {
 }
 
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
-  const response = await Promise.all([profileAPI.getProfile(), profileAPI.getVideos()])
+  const device = {
+    id: uuidv4(),
+    os: window.navigator.appVersion,
+    fcm_token: 'fcm_token_web',
+    voip_token: '12428345723486-34639456-4563-4956',
+    bundle: 'opentek.us.VentureSwipe'
+  }
+
+  const response = await Promise.all([profileAPI.afterLogin(device), profileAPI.getVideos()])
   const mutuals: any = {}
 
-  Object.values(response[0].mutuals).forEach((mutual: any) => {
-    mutuals[mutual.uid] = {
-      ...mutual,
-      actions: {
-        callNow() {
-          dispatch(callNow(mutual.uid))
+  if (response[0].mutuals) {
+    Object.values(response[0].mutuals).forEach((mutual: any) => {
+      mutuals[mutual.uid] = {
+        ...mutual,
+        actions: {
+          callNow() {
+            dispatch(callNow(mutual.uid))
+          },
+          arrangeAMeeting() {
+            console.log('arrangeAMeeting')
+          },
+          recommended() {
+            console.log('recommended')
+          }
         },
-        arrangeAMeeting() {
-          console.log('arrangeAMeeting')
-        },
-        recommended() {
-          console.log('recommended')
-        }
-      },
-      activeActions: [actionsUser.callNow, actionsUser.arrangeAMeeting, actionsUser.recommended],
-      loaders: []
-    }
-  })
+        activeActions: [actionsUser.callNow, actionsUser.arrangeAMeeting, actionsUser.recommended],
+        loaders: []
+      }
+    })
+  }
 
   const profile = {
     ...response[0],
@@ -51,7 +62,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
 
     if (myProfile) {
       const { slots } = myProfile
-      if (slots.now) {
+      if (slots?.now) {
         console.log(slots.now)
 
         if (slots.now.status !== 'waiting') {
@@ -93,21 +104,38 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
   })
 }
 
-export const updateMyProfile = (value: { [key: string]: any }, modalName?: string): ThunkType => async (dispatch, getState) => {
-  if (modalName) dispatch(actionsModal.toggleLoadingModal(modalName, true))
+export const updateMyProfile = (value: { [key: string]: any }): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
+  if (profile) {
+    let status
 
-  const status = await profileAPI.updateMyProfile(value)
-  if (status === apiCodes.success) {
-    const { profile } = getState().profile
-    const updatedProfile = {
-      ...profile,
-      ...value
+    if ('tags' in value) {
+      status = await profileAPI.updateMyProfile(value)
+    } else {
+      status = await profileAPI.updateActiveRole(profile.activeRole, value)
     }
-    dispatch(actions.setMyProfile(updatedProfile))
-    if (modalName) dispatch(actionsModal.closeModal(modalName))
-  }
 
-  if (modalName) dispatch(actionsModal.toggleLoadingModal(modalName, false))
+    if (status === apiCodes.success) {
+      let updatedProfile
+
+      if ('tags' in value) {
+        updatedProfile = {
+          ...profile,
+          ...value
+        }
+      } else {
+        updatedProfile = {
+          ...profile,
+          [profile.activeRole]: {
+            ...profile[profile.activeRole],
+            ...value
+          }
+        }
+      }
+
+      dispatch(actions.setMyProfile(updatedProfile))
+    }
+  }
 }
 
 export const uploadVideo = (
@@ -146,26 +174,24 @@ export const uploadVideo = (
         ...profile,
         videos: {
           ...profileVideos,
-          ...{
-            [`${profile.activeRole}.${title}`]: {
-              aspect_ratio: '',
-              asset_id: '',
-              created: Date.now(),
-              duration_secs: 0,
-              encoding_quality: '',
-              encoding_url: '',
-              id: '',
-              max_height: 0,
-              max_width: 0,
-              playbackID: '',
-              role: profile.activeRole,
-              status: 'uploading',
-              thumb_url: '',
-              title,
-              uid,
-              upload_id: '',
-              upload_url: ''
-            }
+          [`${profile.activeRole}.${title}`]: {
+            aspect_ratio: '',
+            asset_id: '',
+            created: Date.now(),
+            duration_secs: 0,
+            encoding_quality: '',
+            encoding_url: '',
+            id: '',
+            max_height: 0,
+            max_width: 0,
+            playbackID: '',
+            role: profile.activeRole,
+            status: 'uploading',
+            thumb_url: '',
+            title,
+            uid,
+            upload_id: '',
+            upload_url: ''
           }
         }
       }
@@ -186,6 +212,7 @@ export const uploadVideo = (
             ...profile,
             videos: updatedVideos,
             [profile.activeRole]: {
+              ...profile[profile.activeRole],
               videos: {
                 _order_: updatedVideosOrder
               }
@@ -227,6 +254,7 @@ export const renameVideo = (
           ...profile,
           videos: updatedVideos,
           [profile.activeRole]: {
+            ...profile[profile.activeRole],
             videos: {
               _order_: updatedVideosOrder
             }
@@ -265,6 +293,7 @@ export const deleteVideo = (
         ...profile,
         videos: updatedVideos,
         [profile.activeRole]: {
+          ...profile[profile.activeRole],
           videos: {
             _order_: updatedVideosOrder
           }

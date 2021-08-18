@@ -3,7 +3,7 @@ import { Edit2Icon, TimeIcon } from 'common/icons'
 import { VideoType } from 'features/Profile/types'
 import { Modal } from 'features/Modal'
 import { useDispatch } from 'react-redux'
-import { IFormElement, EditVideo } from 'features/Profile/components/Video/components/EditVideo'
+import { IFormElement, EditVideo } from 'features/Profile/components/Tabs/Video/components/EditVideo'
 import { deleteVideo as deleteVideoThunk, renameVideo as renameVideoThunk } from 'features/Profile/actions'
 import styles from './styles.module.sass'
 
