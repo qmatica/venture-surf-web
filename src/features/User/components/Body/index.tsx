@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import { Button } from 'common/components/Button'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
+import { EnumActionsUser } from '../../constants'
 
 interface IBody {
     user: UserType
@@ -13,9 +14,11 @@ export const Body: FC<IBody> = ({
   rightSide
 }) => {
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-  const {
-    photoURL, job, bodyActions, loaders, activeActions
-  } = user
+
+  const { photoURL, job } = user
+
+  const actions = Object.values(user.actions).filter((action) => action.type === EnumActionsUser.dynamic)
+
   return (
     <div className={styles.container}>
       <div className={styles.imgContainer}>
@@ -33,14 +36,13 @@ export const Body: FC<IBody> = ({
           {job.position && <div className={styles.position}>{job.position}</div>}
         </div>
         )}
-        {activeActions?.map((activeAction) => {
-          if (!bodyActions) return null
+        {actions.map((action) => {
+          if (!action.isActive) return null
           return (
             <Button
-              title={activeAction.title}
-              icon={<activeAction.icon />}
-              isLoading={loaders.includes(activeAction.action)}
-              onClick={bodyActions[activeAction.action]}
+              title={action.title}
+              isLoading={action.isLoading}
+              onClick={action.onClick}
             />
           )
         })}

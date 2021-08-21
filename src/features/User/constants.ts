@@ -27,5 +27,18 @@ export const actionsUser = {
     title: 'Recommended',
     action: 'recommended',
     icon: PeopleIcon
+  },
+  accept: {
+    title: 'Accept',
+    action: 'accept'
+  },
+  ignore: {
+    title: 'Ignore',
+    action: 'ignore'
   }
+}
+
+export enum EnumActionsUser {
+  dynamic,
+  static
 }

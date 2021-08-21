@@ -61,12 +61,6 @@ export const profileAPI = {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     }).then((res) => res.status)
-  },
-  callNow(uid: string) {
-    return instance.put(`api/call/${uid}/invite`, { variants: ['now'] }).then((res) => res.data)
-  },
-  callDecline(uid: string) {
-    return instance.post(`/api/call/${uid}/all/decline`).then((res) => res.data)
   }
 }
 
@@ -77,11 +71,14 @@ export const usersAPI = {
   deleteUser(uid: string) {
     return instance.delete(`/api/user/${uid}`).then((res) => res.data)
   },
-  likeUser(uid: string) {
+  like(uid: string) {
     return instance.post(`api/like/${uid}`).then((res) => res.status)
   },
   withdrawLike(uid: string) {
     return instance.delete(`api/like/${uid}`).then((res) => res.status)
+  },
+  ignore(uid: string) {
+    return instance.patch(`api/like/${uid}`).then((res) => res.status)
   },
   getMatches() {
     return instance.get('api/matches').then((res) => res.data)
@@ -91,5 +88,11 @@ export const usersAPI = {
   },
   getRecommended() {
     return instance.get('/api/recommend/me').then((res) => res.data)
+  },
+  callNow(uid: string) {
+    return instance.put(`api/call/${uid}/invite`, { variants: ['now'] }).then((res) => res.data)
+  },
+  callDecline(uid: string) {
+    return instance.post(`/api/call/${uid}/all/decline`).then((res) => res.data)
   }
 }

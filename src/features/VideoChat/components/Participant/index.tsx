@@ -24,7 +24,8 @@ export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
   const videoRef = createRef<HTMLVideoElement>()
   const audioRef = createRef<HTMLAudioElement>()
 
-  const trackPubsToTracks = (trackMap: Map<Track.SID, (AudioTrackPublication | VideoTrackPublication)>) => Array.from(trackMap.values()).map((publication: any) => publication.track).filter((track) => track !== null)
+  const trackPubsToTracks = (trackMap: Map<Track.SID, (AudioTrackPublication | VideoTrackPublication)>) =>
+    Array.from(trackMap.values()).map((publication: any) => publication.track).filter((track) => track !== null)
 
   const trackSubscribed = (track: VideoTrackType | AudioTrackType) => {
     if (track.kind === 'video') {

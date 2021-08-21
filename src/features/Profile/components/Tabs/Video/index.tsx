@@ -76,7 +76,9 @@ export const Video: FC<IVideo> = ({ profile }) => {
           <div className={styles.title}>{currentVideo.title}</div>
           <div className={styles.time}>{currentVideo.duration_secs}s</div>
           <div className={styles.description}>
-            Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum.
+            Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia
+            non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad
+            minima veniam, quis nostrum.
           </div>
         </div>
         )}

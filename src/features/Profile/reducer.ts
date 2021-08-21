@@ -11,6 +11,15 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
       return { ...state, profile: action.profile }
     case 'PROFILE__SET_PROGRESS_FILE':
       return { ...state, progressLoadingFile: action.progressLoadingFile }
+    case 'PROFILE__UPDATE_MY_CONTACTS': {
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          ...action.updatedUsers
+        }
+      }
+    }
     default: return state
   }
 }

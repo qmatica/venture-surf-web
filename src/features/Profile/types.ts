@@ -3,11 +3,11 @@ import { AppStateType, InferActionsTypes } from 'common/types'
 import { actions as actionsModal } from 'features/Modal/actions'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { getFirebase } from 'react-redux-firebase'
-import { UserType } from 'features/User/types'
+import { UsersType } from 'features/User/types'
 import { actions } from './actions'
 
 export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsModal | typeof actionsVideoChat>
-export type ThunkType = ThunkAction<Promise<void | boolean>, AppStateType, typeof getFirebase, ActionTypes>
+export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ProfileType = {
     first_name: string
@@ -19,7 +19,7 @@ export type ProfileType = {
     photoURL: string
     activeRole: 'founder' | 'investor'
     tags: string[]
-    liked: {}
+    liked: UsersType
     slots: {
         [key: string]: {
             status: string
@@ -28,18 +28,7 @@ export type ProfileType = {
             reccurent: string
         }
     }
-    likes: {
-        [key: string]: {
-            name: string
-            photoURL: string
-            displayName: string
-            headline: string
-            dt: string
-            job_company: string
-            uid: string
-            job_title: string
-        }
-    }
+    likes: UsersType
     mutuals: UsersType
     verified: {
         linkedIn: string
@@ -127,13 +116,20 @@ export type profileInteractionUsersType = {
     }
 }
 
-export type UsersType = {
-    [key: string]: UserType
-}
 export type DeviceType = {
     id: string,
     os: string,
     fcm_token: string,
     voip_token: string,
     bundle: string
+}
+
+export type ResponseCallNowType = {
+    pushes: {
+        failed: { device: string }[]
+        sent: { device: string }[]
+    }
+    room: string
+    status: string
+    token: string
 }

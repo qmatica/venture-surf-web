@@ -82,7 +82,11 @@ export const VideoChat = () => {
           minHeight: heightContainer || 'auto'
         }}
       >
-        <Participant key={room.localParticipant.sid} participant={room.localParticipant} style={styleLocalParticipant} />
+        <Participant
+          key={room.localParticipant.sid}
+          participant={room.localParticipant}
+          style={styleLocalParticipant}
+        />
         {remoteParticipants}
         <Button title="End call" className={styles.button} onClick={endCall} />
       </div>

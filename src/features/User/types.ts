@@ -1,5 +1,6 @@
 import { DocsType, VideosType } from 'common/types'
 import { ReactElement } from 'react'
+import { EnumActionsUser } from './constants'
 
 export type UserType = {
     name?: string
@@ -12,10 +13,7 @@ export type UserType = {
     industries?: string[]
     tags?: string[]
     dt?: string
-    bodyActions?: { [key: string]: () => void }
-    actions?: { [key: string]: () => void }
-    activeActions?: ActiveActionsUserType[]
-    loaders: string[]
+    actions: ActionUserType
     job?: {
         company?: string
         title?: string
@@ -29,8 +27,14 @@ export type UserType = {
     activeRole?: 'investor' | 'founder'
 }
 
-export type ActiveActionsUserType = {
-    title: string,
-    action: string,
-    icon: () => ReactElement
+export type UsersType = { [key: string]: UserType }
+
+export type ActionUserType = {
+    [key: string]: {
+        onClick: () => void
+        title: string
+        isActive: boolean
+        isLoading: boolean
+        type: EnumActionsUser
+    }
 }

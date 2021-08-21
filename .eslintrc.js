@@ -3,10 +3,7 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: [
-    'plugin:react/recommended',
-    'airbnb'
-  ],
+  extends: ['plugin:react/recommended', 'airbnb'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
@@ -15,10 +12,7 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module'
   },
-  plugins: [
-    'react',
-    '@typescript-eslint'
-  ],
+  plugins: ['react', '@typescript-eslint'],
   rules: {
     'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
     semi: ['error', 'never'],
@@ -30,12 +24,23 @@ module.exports = {
     'import/extensions': 'off',
     'jsx-a11y/no-static-element-interactions': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
-    'max-len': 'off',
+    'max-len': [
+      'error',
+      120,
+      2,
+      {
+        ignoreUrls: true,
+        ignoreComments: false,
+        ignoreRegExpLiterals: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true
+      }
+    ],
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     'no-shadow': 'off',
     'spaced-comment': 'off',
-    'no-debugger': 'off',
+    'no-debugger': 'warn',
     'react/jsx-one-expression-per-line': 'off',
     'no-restricted-globals': ['error', 'event', 'fdescribe'],
     'import/no-extraneous-dependencies': 'off',
@@ -48,16 +53,13 @@ module.exports = {
     'no-underscore-dangle': 'off',
     'jsx-a11y/media-has-caption': 'off',
     'react/no-array-index-key': 'off',
-    'react/button-has-type': 'off'
+    'react/button-has-type': 'off',
+    'implicit-arrow-linebreak': 'off',
+    'operator-linebreak': 'off'
   },
   overrides: [
     {
-      files: [
-        '**/*.spec.ts',
-        '**/*.test.ts',
-        '**/*.spec.tsx',
-        '**/*.test.tsx'
-      ],
+      files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.tsx', '**/*.test.tsx'],
       env: {
         jest: true
       }

@@ -1,9 +1,10 @@
 import { createSelector } from 'reselect'
 import { RootState } from 'common/types'
-import { UsersType } from 'features/Profile/types'
+import { UsersType } from 'features/User/types'
+
+const getSearchSelector = (state: RootState) => state.contacts.search
 
 const getMutualsSelector = (state: RootState) => state.profile.profile?.mutuals
-const getSearchSelector = (state: RootState) => state.contacts.search
 
 export const getMutuals = createSelector(
   getMutualsSelector,
@@ -27,4 +28,18 @@ export const getMutuals = createSelector(
     }
     return Object.values(filteredMutuals)
   }
+)
+
+const getSentSelector = (state: RootState) => state.profile.profile?.likes
+
+export const getSent = createSelector(
+  getSentSelector,
+  (sent) => (sent ? Object.values(sent) : [])
+)
+
+const getReceivedSelector = (state: RootState) => state.profile.profile?.liked
+
+export const getReceived = createSelector(
+  getReceivedSelector,
+  (received) => (received ? Object.values(received) : [])
 )
