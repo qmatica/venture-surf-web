@@ -6,4 +6,4 @@ import {
 import { actions } from './actions'
 
 export type ActionTypes = InferActionsTypes<typeof actions>
-export type ThunkType = ThunkAction<Promise<void | boolean>, AppStateType, typeof getFirebase, ActionTypes>
+export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>

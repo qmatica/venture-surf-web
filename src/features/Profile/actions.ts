@@ -80,7 +80,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
         actions: {
           like: {
             onClick() {
-              dispatch(likeUser(user.uid))
+              dispatch(like(user.uid))
             },
             title: 'Like',
             isActive: false,
@@ -485,7 +485,7 @@ const toggleActions = (
   }
 }
 
-const likeUser = (uid: string): ThunkType => async (dispatch) => {
+const like = (uid: string): ThunkType => async (dispatch) => {
   const contacts = 'likes'
 
   dispatch(togglePreloader(contacts, uid, 'like'))

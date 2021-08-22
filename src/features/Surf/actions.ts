@@ -29,8 +29,8 @@ export const init = (): ThunkType => async (dispatch, getState) => {
     ...user,
     actions: {
       like: {
-        async onClick() {
-          await usersAPI.like(user.uid)
+        onClick() {
+          dispatch(like(user.uid))
         },
         title: 'Like',
         isActive: true,
@@ -39,9 +39,9 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       },
       withdrawLike: {
         onClick() {
-          console.log('Withdraw like')
+          dispatch(withdrawLike(user.uid))
         },
-        title: 'Like',
+        title: 'Withdraw like',
         isActive: false,
         isLoading: false,
         type: EnumActionsUser.dynamic
@@ -50,4 +50,94 @@ export const init = (): ThunkType => async (dispatch, getState) => {
   }))
 
   dispatch(actions.setUsers(formattedUsers))
+}
+
+const togglePreloader = (
+  uid: string,
+  action: string
+): ThunkType => (dispatch, getState) => {
+  const { users } = getState().surf
+
+  if (users) {
+    const updatedUsers = [...users]
+    const updatedUserIndex = users.findIndex((user) => user.uid === uid)
+
+    if (updatedUserIndex >= 0) {
+      updatedUsers[updatedUserIndex] = {
+        ...updatedUsers[updatedUserIndex],
+        actions: {
+          ...updatedUsers[updatedUserIndex].actions,
+          [action]: {
+            ...updatedUsers[updatedUserIndex].actions[action],
+            isLoading: !updatedUsers[updatedUserIndex].actions[action].isLoading
+          }
+        }
+      }
+
+      dispatch(actions.setUsers(updatedUsers))
+    }
+  }
+}
+
+const toggleActions = (
+  uid: string,
+  toggleActions: string[]
+): ThunkType => (dispatch, getState) => {
+  const { users } = getState().surf
+
+  if (users) {
+    const updatedUsers = [...users]
+    const updatedUserIndex = users.findIndex((user) => user.uid === uid)
+
+    if (updatedUserIndex >= 0) {
+      updatedUsers[updatedUserIndex] = {
+        ...updatedUsers[updatedUserIndex],
+        actions: toggleActions.reduce((updatedActions, nextAction) => ({
+          ...updatedActions,
+          [nextAction]: {
+            ...updatedActions[nextAction],
+            isActive: !updatedActions[nextAction].isActive
+          }
+        }), updatedUsers[updatedUserIndex].actions)
+      }
+
+      dispatch(actions.setUsers(updatedUsers))
+    }
+  }
+}
+
+const like = (uid: string): ThunkType => async (dispatch) => {
+  dispatch(togglePreloader(uid, 'like'))
+
+  const status = await usersAPI.like(uid).catch((err) => {
+    dispatch(addMessage({
+      title: 'Error',
+      value: err.error,
+      type: 'error'
+    }))
+  })
+
+  dispatch(togglePreloader(uid, 'like'))
+
+  if (status === apiCodes.success) {
+    dispatch(toggleActions(uid, ['like', 'withdrawLike']))
+  }
+}
+
+const withdrawLike = (uid: string): ThunkType => async (dispatch) => {
+  dispatch(togglePreloader(uid, 'withdrawLike'))
+
+  const status = await usersAPI.withdrawLike(uid).catch((err) => {
+    dispatch(addMessage({
+      title: 'Error',
+      value: err.error,
+      type: 'error'
+    }))
+  })
+
+  dispatch(togglePreloader(uid, 'withdrawLike'))
+
+  if (status === apiCodes.success) {
+    dispatch(toggleActions(uid, ['like', 'withdrawLike']))
+  }
 }
