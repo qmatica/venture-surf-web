@@ -3,6 +3,7 @@ import { addMessage } from 'features/Notifications/actions'
 import { actionsUser, EnumActionsUser } from 'features/User/constants'
 import { apiCodes } from 'common/types'
 import { UserType } from 'features/User/types'
+import { addUserInLikesFromSurf } from 'features/Profile/actions'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -117,11 +118,12 @@ const like = (uid: string): ThunkType => async (dispatch) => {
     }))
   })
 
-  dispatch(togglePreloader(uid, 'like'))
-
   if (status === apiCodes.success) {
     dispatch(toggleActions(uid, ['like', 'withdrawLike']))
+    dispatch(addUserInLikesFromSurf(uid))
   }
+
+  dispatch(togglePreloader(uid, 'like'))
 }
 
 const withdrawLike = (uid: string): ThunkType => async (dispatch) => {
@@ -135,9 +137,9 @@ const withdrawLike = (uid: string): ThunkType => async (dispatch) => {
     }))
   })
 
-  dispatch(togglePreloader(uid, 'withdrawLike'))
-
   if (status === apiCodes.success) {
     dispatch(toggleActions(uid, ['like', 'withdrawLike']))
   }
+
+  dispatch(togglePreloader(uid, 'withdrawLike'))
 }

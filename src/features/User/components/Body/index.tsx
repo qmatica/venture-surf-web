@@ -28,7 +28,7 @@ export const Body: FC<IBody> = ({
         <div className={styles.name}>
           {name}
         </div>
-        {job && (
+        {job && Object.keys(job).length > 0 && (
         <div className={styles.jobContainer}>
           {job.company && <div className={styles.company}>{job.company}</div>}
           {job.title && <div className={styles.title}>{job.title}</div>}
@@ -36,18 +36,24 @@ export const Body: FC<IBody> = ({
           {job.position && <div className={styles.position}>{job.position}</div>}
         </div>
         )}
-        {actions.map((action) => {
-          if (!action.isActive) return null
-          return (
-            <Button
-              title={action.title}
-              isLoading={action.isLoading}
-              onClick={action.onClick}
-            />
-          )
-        })}
+        {actions.length > 0 && (
+        <div className={styles.buttonsContainer}>
+          {actions.map((action) => {
+            if (!action.isActive) return null
+            return (
+              <Button
+                title={action.title}
+                isLoading={action.isLoading}
+                onClick={action.onClick}
+              />
+            )
+          })}
+        </div>
+        )}
       </div>
-      {rightSide}
+      <div className={styles.rightSide}>
+        {rightSide}
+      </div>
     </div>
   )
 }

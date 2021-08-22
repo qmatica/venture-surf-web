@@ -498,11 +498,11 @@ const like = (uid: string): ThunkType => async (dispatch) => {
     }))
   })
 
-  dispatch(togglePreloader(contacts, uid, 'like'))
-
   if (status === apiCodes.success) {
     dispatch(toggleActions(contacts, uid, ['like', 'withdrawLike']))
   }
+
+  dispatch(togglePreloader(contacts, uid, 'like'))
 }
 
 const withdrawLike = (uid: string): ThunkType => async (dispatch) => {
@@ -518,11 +518,11 @@ const withdrawLike = (uid: string): ThunkType => async (dispatch) => {
     }))
   })
 
-  dispatch(togglePreloader(contacts, uid, 'withdrawLike'))
-
   if (status === apiCodes.success) {
     dispatch(toggleActions(contacts, uid, ['like', 'withdrawLike']))
   }
+
+  dispatch(togglePreloader(contacts, uid, 'withdrawLike'))
 }
 
 const accept = (uid: string): ThunkType => async (dispatch) => {
@@ -538,11 +538,12 @@ const accept = (uid: string): ThunkType => async (dispatch) => {
     }))
   })
 
-  dispatch(togglePreloader(contacts, uid, 'accept'))
-
   if (status === apiCodes.success) {
     dispatch(toggleActions(contacts, uid, ['accept', 'ignore', 'cancel']))
+    dispatch(addUserInMutualsFromReceived(uid))
   }
+
+  dispatch(togglePreloader(contacts, uid, 'accept'))
 }
 
 const ignore = (uid: string): ThunkType => async (dispatch) => {
@@ -558,11 +559,11 @@ const ignore = (uid: string): ThunkType => async (dispatch) => {
     }))
   })
 
-  dispatch(togglePreloader(contacts, uid, 'ignore'))
-
   if (status === apiCodes.success) {
     dispatch(toggleActions(contacts, uid, ['accept', 'ignore', 'cancel']))
   }
+
+  dispatch(togglePreloader(contacts, uid, 'ignore'))
 }
 
 export const callNow = (uid: string): ThunkType => async (dispatch) => {
@@ -599,4 +600,88 @@ export const declineCall = (uid?: string): ThunkType => async (dispatch, getStat
   const response = await usersAPI.callDecline(uid || auth.uid)
 
   console.log(response)
+}
+
+export const addUserInLikesFromSurf = (uid: string): ThunkType => (dispatch, getState) => {
+  const contacts = 'likes'
+
+  const { profile } = getState().profile
+  const { users } = getState().surf
+
+  const userIndex = users.findIndex((user) => user.uid === uid)
+  const user = {
+    ...users[userIndex],
+    actions: {
+      like: {
+        onClick() {
+          dispatch(like(user.uid))
+        },
+        title: 'Like',
+        isActive: false,
+        isLoading: false,
+        type: EnumActionsUser.dynamic
+      },
+      withdrawLike: {
+        onClick() {
+          dispatch(withdrawLike(user.uid))
+        },
+        title: 'Withdraw like',
+        isActive: true,
+        isLoading: false,
+        type: EnumActionsUser.dynamic
+      }
+    }
+  }
+
+  if (profile) {
+    const updatedUsers = {
+      ...profile[contacts],
+      [uid]: user
+    }
+    dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
+  }
+}
+
+export const addUserInMutualsFromReceived = (uid: string): ThunkType => (dispatch, getState) => {
+  const contacts = 'mutuals'
+  const { profile } = getState().profile
+
+  if (profile) {
+    const updatedUsers = {
+      ...profile[contacts],
+      [uid]: {
+        ...profile.liked[uid],
+        actions: {
+          callNow: {
+            onClick() {
+              dispatch(callNow(uid))
+            },
+            title: 'Call now',
+            isActive: true,
+            isLoading: false,
+            type: EnumActionsUser.static
+          },
+          arrangeAMeeting: {
+            onClick() {
+              console.log('Arrange a meeting')
+            },
+            title: 'Arrange a meeting',
+            isActive: true,
+            isLoading: false,
+            type: EnumActionsUser.static
+          },
+          recommended: {
+            onClick() {
+              console.log('Recommended')
+            },
+            title: 'Recommended',
+            isActive: true,
+            isLoading: false,
+            type: EnumActionsUser.static
+          }
+        }
+      }
+    }
+    dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
+  }
 }
