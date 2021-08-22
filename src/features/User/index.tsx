@@ -13,13 +13,15 @@ interface IUser {
     rightSide?: 'tags' | 'assets'
     viewActions?: boolean
     viewVideos?: boolean
+    switchRoles?: boolean
 }
 
 export const User: FC<IUser> = memo(({
   user,
   rightSide,
   viewActions = false,
-  viewVideos = false
+  viewVideos = false,
+  switchRoles = false
 }) => {
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
@@ -46,7 +48,7 @@ export const User: FC<IUser> = memo(({
 
   return (
     <div className={styles.container}>
-      <SwitchRoles />
+      {switchRoles && <SwitchRoles />}
       <Body
         user={user}
         rightSide={rightSideContent}

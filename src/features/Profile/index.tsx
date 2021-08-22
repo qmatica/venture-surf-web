@@ -7,6 +7,7 @@ import { Info } from './components/Tabs/Info'
 import { Video } from './components/Tabs/Video'
 import { Job } from './components/Job'
 import styles from './styles.module.sass'
+import { UserPhotoIcon } from '../../common/icons'
 
 const tabs = [
   { title: 'Info', Component: Info },
@@ -32,7 +33,9 @@ export const Profile = () => {
       <div className={styles.headerContainer}>
         <div className={styles.aboutProfileContainer}>
           <div className={styles.photoContainer}>
-            <img src={profile.photoURL} alt={`${profile.first_name} ${profile.last_name}`} />
+            {profile.photoURL
+              ? <img src={profile.photoURL} alt={`${profile.first_name} ${profile.last_name}`} />
+              : <UserPhotoIcon />}
           </div>
           <div className={styles.infoContainer}>
             <div className={styles.displayName}>{name}</div>

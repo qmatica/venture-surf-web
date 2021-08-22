@@ -1,5 +1,6 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Button } from 'common/components/Button'
+import { UserPhotoIcon } from 'common/icons'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
 import { EnumActionsUser } from '../../constants'
@@ -22,7 +23,7 @@ export const Body: FC<IBody> = ({
   return (
     <div className={styles.container}>
       <div className={styles.imgContainer}>
-        {photoURL && <img src={photoURL} alt={name} />}
+        {photoURL ? <img src={photoURL} alt="" /> : <UserPhotoIcon />}
       </div>
       <div className={styles.infoContainer}>
         <div className={styles.name}>
