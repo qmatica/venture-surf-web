@@ -1,11 +1,13 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Button } from 'common/components/Button'
 import { PlusIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { Input } from 'common/components/Input'
 import { industries as dictionaryIndustries, stages as dictionaryStages } from 'common/constants'
 import { ChoiceTags } from 'common/components/ChoiceTags'
+import { useDispatch } from 'react-redux'
 import styles from './styles.module.sass'
+import { createNewRole, switchRole } from '../../actions'
 
 interface ISwitchRoles {
   activeRole: 'founder' | 'investor'
@@ -16,11 +18,19 @@ interface ISwitchRoles {
 }
 
 export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles }) => {
+  const dispatch = useDispatch()
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [step, setStep] = useState(1)
   const [stages, setStages] = useState<(string | number)[]>([])
   const [industries, setIndustries] = useState<(string | number)[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingSwitchRole, setIsLoadingSwitchRole] = useState<'founder' | 'investor' | null>(null)
+
+  useEffect(() => {
+    if (isOpenModal) setIsOpenModal(false)
+    if (isLoading) setIsLoading(false)
+    if (isLoadingSwitchRole) setIsLoadingSwitchRole(null)
+  }, [activeRole])
 
   let newRole = ''
   if (!createdRoles.founder) newRole = 'Founder'
@@ -52,21 +62,47 @@ export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles }) => {
       email: target.email.value
     }
 
-    console.log(job)
-    console.log(stages)
-    console.log(industries)
+    const jobInfo = {
+      job,
+      stages,
+      industries
+    }
+
     setIsLoading(true)
+
+    dispatch(createNewRole(newRole.toLowerCase() as 'investor' | 'founder', jobInfo))
+  }
+
+  const switchCurrentRole = (role: 'founder' | 'investor') => {
+    setIsLoadingSwitchRole(role)
+    dispatch(switchRole())
   }
 
   return (
     <>
       <div className={styles.container}>
-        {createdRoles.founder
-          ? <Button title="Founder" className={activeRole !== 'founder' ? styles.noActive : ''} />
-          : <Button title="" icon={<PlusIcon />} className={styles.noActive} onClick={toggleModal} />}
-        {createdRoles.investor
-          ? <Button title="Investor" className={activeRole !== 'investor' ? styles.noActive : ''} />
-          : <Button title="" icon={<PlusIcon />} className={styles.noActive} onClick={toggleModal} />}
+        {createdRoles.founder ? (
+          <Button
+            title="Founder"
+            className={activeRole !== 'founder' ? styles.default : styles.active}
+            onClick={() => switchCurrentRole('founder')}
+            isLoading={isLoadingSwitchRole === 'founder'}
+            disabled={!!isLoadingSwitchRole}
+          />
+        ) : (
+          <Button title="" icon={<PlusIcon />} className={styles.default} onClick={toggleModal} />
+        )}
+        {createdRoles.investor ? (
+          <Button
+            title="Investor"
+            className={activeRole !== 'investor' ? styles.default : styles.active}
+            onClick={() => switchCurrentRole('investor')}
+            isLoading={isLoadingSwitchRole === 'investor'}
+            disabled={!!isLoadingSwitchRole}
+          />
+        ) : (
+          <Button title="" icon={<PlusIcon />} className={styles.default} onClick={toggleModal} />
+        )}
       </div>
       <Modal title={`Create role: ${newRole}`} isOpen={isOpenModal} onClose={toggleModal}>
         <form onSubmit={onSubmit}>

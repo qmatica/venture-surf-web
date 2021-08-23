@@ -4,11 +4,12 @@ import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import * as UpChunk from '@mux/upchunk'
-import { actionsUser, EnumActionsUser } from 'features/User/constants'
+import { EnumActionsUser } from 'features/User/constants'
 import { addMessage } from 'features/Notifications/actions'
-import { pipe } from 'common/utils'
-import { UsersType, UserType } from 'features/User/types'
-import { ResponseCallNowType, ThunkType, VideoType } from './types'
+import { UsersType } from 'features/User/types'
+import {
+  JobType, ResponseCallNowType, ThunkType, VideoType
+} from './types'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
@@ -682,6 +683,64 @@ export const addUserInMutualsFromReceived = (uid: string): ThunkType => (dispatc
         }
       }
     }
+
     dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
+  }
+}
+
+export const createNewRole = (
+  role: 'investor' | 'founder',
+  jobInfo: {
+    job: JobType,
+    stages: (number | string)[],
+    industries: (number | string)[]
+  }
+): ThunkType => async (dispatch, getState) => {
+  const status = await profileAPI.updateActiveRole(role, jobInfo)
+  const videos = await profileAPI.getVideos()
+
+  if (status === apiCodes.success) {
+    const { profile } = getState().profile
+
+    if (profile) {
+      const updatedProfile = {
+        ...profile,
+        activeRole: role,
+        [role]: {
+          ...jobInfo,
+          videos: {
+            _order_: [],
+            _uploading_: []
+          },
+          docs: {
+            _order_: []
+          }
+        },
+        videos
+      }
+
+      dispatch(actions.setMyProfile(updatedProfile))
+    }
+  }
+}
+
+export const switchRole = (): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
+
+  if (profile) {
+    const activeRole = profile.activeRole === 'founder' ? 'investor' : 'founder'
+
+    const status = await profileAPI.updateActiveRole(activeRole)
+    const videos = await profileAPI.getVideos()
+
+    if (status === apiCodes.success) {
+      const updatedProfile = {
+        ...profile,
+        activeRole,
+        videos
+      }
+
+      dispatch(actions.setMyProfile(updatedProfile))
+    }
   }
 }

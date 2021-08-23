@@ -83,6 +83,8 @@ export type JobType = {
     company?: string
     title?: string
     headline?: string
+    web?: string,
+    email?: string
 }
 
 export type VideoType = {

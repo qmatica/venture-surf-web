@@ -11,6 +11,7 @@ interface IButton {
     title: string
     icon?: React.ReactElement
     className?: string
+    disabled?: boolean
 }
 
 export const Button: FC<IButton> = ({
@@ -19,7 +20,8 @@ export const Button: FC<IButton> = ({
   isLoading,
   title,
   icon,
-  className
+  className,
+  disabled
 }) => {
   const buttonRef = createRef<HTMLButtonElement>()
   const [width, setWidth] = useState<number | undefined>()
@@ -39,6 +41,7 @@ export const Button: FC<IButton> = ({
       className={`${styles.button} ${className}`}
       style={{ borderColor: isLoading ? '#BFD5FA' : '', ...style }}
       ref={buttonRef}
+      disabled={disabled}
     >
       {isLoading ? <PreloaderIcon stroke="#96baf6" /> : <>{icon} {title}</>}
     </button>

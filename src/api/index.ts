@@ -40,7 +40,7 @@ export const profileAPI = {
   updateMyProfile(value: { [key: string]: any }) {
     return instance.post('api/user', value).then((res) => res.status)
   },
-  updateActiveRole(activeRole: 'investor' | 'founder', value: { [key: string]: any }) {
+  updateActiveRole(activeRole: 'investor' | 'founder', value?: { [key: string]: any }) {
     return instance.post(`api/role/${activeRole}`, value).then((res) => res.status)
   },
   getVideos() {
