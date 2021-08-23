@@ -1,9 +1,10 @@
 import { usersAPI } from 'api'
 import { addMessage } from 'features/Notifications/actions'
-import { actionsUser, EnumActionsUser } from 'features/User/constants'
+import { EnumActionsUser } from 'features/User/constants'
 import { apiCodes } from 'common/types'
 import { UserType } from 'features/User/types'
 import { addUserInLikesFromSurf } from 'features/Profile/actions'
+import { LikeIcon, WithdrawLikeIcon } from 'common/icons'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -36,7 +37,8 @@ export const init = (): ThunkType => async (dispatch, getState) => {
         title: 'Like',
         isActive: true,
         isLoading: false,
-        type: EnumActionsUser.dynamic
+        type: EnumActionsUser.dynamic,
+        icon: LikeIcon
       },
       withdrawLike: {
         onClick() {
@@ -45,7 +47,8 @@ export const init = (): ThunkType => async (dispatch, getState) => {
         title: 'Withdraw like',
         isActive: false,
         isLoading: false,
-        type: EnumActionsUser.dynamic
+        type: EnumActionsUser.dynamic,
+        icon: WithdrawLikeIcon
       }
     }
   }))

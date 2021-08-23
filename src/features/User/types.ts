@@ -36,5 +36,6 @@ export type ActionUserType = {
         isActive: boolean
         isLoading: boolean
         type: EnumActionsUser
+        icon?: () => ReactElement<any, any>
     }
 }

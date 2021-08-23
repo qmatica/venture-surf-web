@@ -43,11 +43,13 @@ export const Body: FC<IBody> = ({
         <div className={styles.buttonsContainer}>
           {actions.map((action) => {
             if (!action.isActive) return null
+            debugger
             return (
               <Button
                 title={action.title}
                 isLoading={action.isLoading}
                 onClick={action.onClick}
+                icon={action.icon && <action.icon />}
               />
             )
           })}

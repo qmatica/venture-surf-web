@@ -22,6 +22,7 @@ export const Actions: FC<IActions> = ({ user }) => {
             isLoading={action.isLoading}
             className={className}
             onClick={action.onClick}
+            icon={action.icon && <action.icon />}
           />
         )
       })}

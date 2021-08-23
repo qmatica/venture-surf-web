@@ -8,6 +8,9 @@ import { EnumActionsUser } from 'features/User/constants'
 import { addMessage } from 'features/Notifications/actions'
 import { UsersType } from 'features/User/types'
 import {
+  CalendarMinIcon, LikeIcon, PeopleIcon, PhoneCallIcon, WithdrawLikeIcon
+} from 'common/icons'
+import {
   JobType, ResponseCallNowType, ThunkType, VideoType
 } from './types'
 
@@ -49,7 +52,8 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             title: 'Call now',
             isActive: true,
             isLoading: false,
-            type: EnumActionsUser.static
+            type: EnumActionsUser.static,
+            icon: PhoneCallIcon
           },
           arrangeAMeeting: {
             onClick() {
@@ -58,7 +62,8 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             title: 'Arrange a meeting',
             isActive: true,
             isLoading: false,
-            type: EnumActionsUser.static
+            type: EnumActionsUser.static,
+            icon: CalendarMinIcon
           },
           recommended: {
             onClick() {
@@ -67,7 +72,8 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             title: 'Recommended',
             isActive: true,
             isLoading: false,
-            type: EnumActionsUser.static
+            type: EnumActionsUser.static,
+            icon: PeopleIcon
           }
         }
       }
@@ -86,7 +92,8 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             title: 'Like',
             isActive: false,
             isLoading: false,
-            type: EnumActionsUser.dynamic
+            type: EnumActionsUser.dynamic,
+            icon: LikeIcon
           },
           withdrawLike: {
             onClick() {
@@ -95,7 +102,8 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             title: 'Withdraw like',
             isActive: true,
             isLoading: false,
-            type: EnumActionsUser.dynamic
+            type: EnumActionsUser.dynamic,
+            icon: WithdrawLikeIcon
           }
         }
       }
