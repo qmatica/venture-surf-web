@@ -2,12 +2,13 @@ import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getProfile } from 'features/Profile/selector'
 import { Tabs } from 'common/components/Tabs'
+import { UserPhotoIcon } from 'common/icons'
 import { Deck } from './components/Tabs/Deck'
 import { Info } from './components/Tabs/Info'
 import { Video } from './components/Tabs/Video'
 import { Job } from './components/Job'
 import styles from './styles.module.sass'
-import { UserPhotoIcon } from '../../common/icons'
+import { SwitchRoles } from './components/SwitchRoles'
 
 const tabs = [
   { title: 'Info', Component: Info },
@@ -26,7 +27,13 @@ export const Profile = () => {
     title: profile[profile.activeRole].job?.title,
     headline: profile[profile.activeRole].job?.headline
   }
+
   const name = profile.displayName || `${profile.first_name} ${profile.last_name}`
+
+  const createdRoles = {
+    founder: !!profile.founder,
+    investor: !!profile.investor
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -42,6 +49,7 @@ export const Profile = () => {
             <Job job={job} />
           </div>
         </div>
+        <SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} />
       </div>
       <Tabs tabs={tabs} activeTab={tab} onChange={setTab} />
       <div>

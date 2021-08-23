@@ -22,6 +22,10 @@ export const Info: FC<IInfo> = ({ profile }) => {
     title: profileInteractionUsers.title[profile.activeRole],
     value: profile[profileInteractionUsers.content[profile.activeRole]]
   }
+
+  const titleStages = profile.activeRole === 'founder' ? 'My startup space is' : 'My investors industries'
+  const titleIndustries = profile.activeRole === 'founder' ? 'My startup is' : 'My investments stages'
+
   return (
     <div className={styles.container}>
       <div className={styles.infoContainer}>
@@ -32,13 +36,13 @@ export const Info: FC<IInfo> = ({ profile }) => {
         </div>
       </div>
       <Tags
-        title="My startup space is"
+        title={titleStages}
         tags={profile[profile.activeRole].stages}
         dictionary={stages[profile.activeRole]}
         onSave={updateProfile('stages')}
       />
       <Tags
-        title="My startup is"
+        title={titleIndustries}
         tags={profile[profile.activeRole].industries}
         dictionary={industries}
         onSave={updateProfile('industries')}

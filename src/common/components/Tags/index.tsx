@@ -10,13 +10,15 @@ interface ITags {
     tags?: (string | number)[]
     onSave?: (value: any) => void
     dictionary?: { [key: string]: string } | string[]
+    minSize?: boolean
 }
 
 export const Tags: FC<ITags> = ({
   title,
   tags,
   onSave,
-  dictionary
+  dictionary,
+  minSize
 }) => {
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [updatableTags, setUpdatableTags] = useState<(string | number)[]>([])
@@ -39,14 +41,20 @@ export const Tags: FC<ITags> = ({
 
   if (!onSave && !tags?.length) return null
 
+  let className = ''
+
+  if (minSize) {
+    className = styles.minSize
+  }
+
   return (
     <div className={styles.infoContainer}>
-      <div className={styles.title}>{title}</div>
+      <div className={styles.title} style={{ fontSize: minSize ? '15px' : 'default' }}>{title}</div>
       <div className={styles.content}>
         {tags?.length ? (
           <div className={styles.flex}>
             {tags.map((tag: string | number) => (
-              <Tag key={tag} value={tag} dictionary={dictionary} />
+              <Tag key={tag} value={tag} dictionary={dictionary} className={className} />
             ))}
             {onSave && <Tag value={<Edit2Icon />} action={toggleModal} className={styles.editTagButton} />}
           </div>

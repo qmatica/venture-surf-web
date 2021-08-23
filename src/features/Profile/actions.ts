@@ -156,7 +156,7 @@ const subscribeOnListenIncomingCalls = (): ThunkType => async (dispatch, getStat
   await getFirebase().firestore()
     .doc(`profiles/${auth.uid}`)
     .onSnapshot(async (doc) => {
-      console.log('subscribeOnListenIncomingCalls: message with updated profile')
+      console.log('subscribeOnListenIncomingCalls: updated profile')
 
       const myProfile: any = doc.data()
 
