@@ -108,9 +108,9 @@ export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles }) => {
         <form onSubmit={onSubmit}>
           <div className={styles.createRoleContainer}>
             <div className={styles.stepContainer} style={{ display: step === 1 ? 'flex' : 'none' }}>
-              <Input name="title" title="Title" placeholder="Type title" />
-              <Input name="headline" title="Headline" placeholder="Type headline" />
               <Input name="company" title="Company" placeholder="Type company" />
+              <Input name="headline" title="Headline" placeholder="Type headline" />
+              <Input name="title" title="Title" placeholder="Type title" />
               <Input name="web" title="Web" placeholder="Type web" />
               <Input name="email" title="Email" placeholder="Type email" />
             </div>

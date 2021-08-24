@@ -93,6 +93,6 @@ export const usersAPI = {
     return instance.put(`api/call/${uid}/invite`, { variants: ['now'] }).then((res) => res.data)
   },
   callDecline(uid: string) {
-    return instance.post(`/api/call/${uid}/all/decline`).then((res) => res.data)
+    return instance.post(`/api/call/${uid}/all/decline`).then((res) => res.status)
   }
 }

@@ -79,7 +79,7 @@ export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
   return (
     <div className={styles.container} style={style}>
       <video ref={videoRef} autoPlay />
-      <audio ref={audioRef} autoPlay muted />
+      <audio ref={audioRef} autoPlay />
     </div>
   )
 })

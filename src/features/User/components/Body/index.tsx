@@ -45,6 +45,7 @@ export const Body: FC<IBody> = ({
             if (!action.isActive) return null
             return (
               <Button
+                key={action.title}
                 title={action.title}
                 isLoading={action.isLoading}
                 onClick={action.onClick}

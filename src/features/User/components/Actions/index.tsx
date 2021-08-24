@@ -18,6 +18,7 @@ export const Actions: FC<IActions> = ({ user }) => {
         if (key === 'callNow') className = styles.buttonCall
         return (
           <Button
+            key={key}
             title={action.title}
             isLoading={action.isLoading}
             className={className}

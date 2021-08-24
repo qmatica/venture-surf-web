@@ -168,6 +168,7 @@ const subscribeOnListenIncomingCalls = (): ThunkType => async (dispatch, getStat
       console.log('subscribeOnListenIncomingCalls: updated profile')
 
       const myProfile: any = doc.data()
+      console.log(myProfile)
 
       if (myProfile) {
         const { slots } = myProfile
@@ -190,7 +191,7 @@ const subscribeOnListenIncomingCalls = (): ThunkType => async (dispatch, getStat
                 actions: {
                   accept() {
                     connect(slots.now.twilio.token, { room: slots.now.twilio.room } as ConnectOptions).then((room) => {
-                      dispatch(actionsVideoChat.setRoom(room))
+                      dispatch(actionsVideoChat.setRoom(room, remoteUser.uid))
                       dispatch(actionsVideoChat.clearNotification(slots.now.request))
                     }).catch((err) => {
                       dispatch(addMessage({
@@ -597,18 +598,20 @@ export const callNow = (uid: string): ThunkType => async (dispatch) => {
       }))
     })
 
-    if (room) dispatch(actionsVideoChat.setRoom(room))
+    if (room) dispatch(actionsVideoChat.setRoom(room, uid))
   }
 
   dispatch(togglePreloader(contacts, uid, 'callNow'))
 }
 
 export const declineCall = (uid?: string): ThunkType => async (dispatch, getState) => {
-  const { auth } = getState().firebase
+  const { room, remoteUserUid } = getState().videoChat
 
-  const response = await usersAPI.callDecline(uid || auth.uid)
-
-  console.log(response)
+  const status = await usersAPI.callDecline((uid || remoteUserUid) as string)
+  if (status === apiCodes.success) {
+    room?.disconnect()
+    dispatch(actionsVideoChat.setRoom(null, null))
+  }
 }
 
 export const addUserInLikesFromSurf = (uid: string): ThunkType => (dispatch, getState) => {

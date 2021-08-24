@@ -6,7 +6,6 @@ import { RootState } from 'common/types'
 import { Button } from 'common/components/Button'
 import { declineCall } from 'features/Profile/actions'
 import { Participant } from './components/Participant'
-import { actions } from './actions'
 import styles from './styles.module.sass'
 
 export const VideoChat = () => {
@@ -46,7 +45,11 @@ export const VideoChat = () => {
   }
 
   useEffect(() => {
-    if (!isOpenModal) setIsOpenModal(true)
+    if (room && !isOpenModal) setIsOpenModal(true)
+    if (!room && isOpenModal) {
+      setIsOpenModal(false)
+      setParticipants([])
+    }
 
     if (room) {
       room.on('participantConnected', participantConnected)
