@@ -1,43 +1,43 @@
-import { ActionTypes, DialogType } from './types'
+import { ActionTypes, ChatType } from './types'
 
 const initialState = {
-  dialogs: {} as DialogType,
+  chats: {} as ChatType,
   preloader: false
 }
 
 export const InboxReducer = (state = initialState, action: ActionTypes): typeof initialState => {
   switch (action.type) {
-    case 'INBOX__SET_DIALOGS':
+    case 'INBOX__SET_CHATS':
       return {
         ...state,
-        dialogs: action.dialogs
+        chats: action.chats
       }
     case 'INBOX__ADD_MESSAGE':
       return {
         ...state,
-        dialogs: {
-          ...state.dialogs,
+        chats: {
+          ...state.chats,
           [action.payload.chat]: {
-            ...state.dialogs[action.payload.chat],
+            ...state.chats[action.payload.chat],
             messages: [
-              ...state.dialogs[action.payload.chat].messages,
+              ...state.chats[action.payload.chat].messages,
               action.payload.message
             ]
           }
         }
       }
     case 'INBOX__UPDATE_MESSAGE': {
-      const updatedDialogMessages = [...state.dialogs[action.payload.chat].messages]
+      const updatedChatMessages = [...state.chats[action.payload.chat].messages]
 
-      updatedDialogMessages[action.payload.message.index] = action.payload.message
+      updatedChatMessages[action.payload.message.index] = action.payload.message
 
       return {
         ...state,
-        dialogs: {
-          ...state.dialogs,
+        chats: {
+          ...state.chats,
           [action.payload.chat]: {
-            ...state.dialogs[action.payload.chat],
-            messages: updatedDialogMessages
+            ...state.chats[action.payload.chat],
+            messages: updatedChatMessages
           }
         }
       }

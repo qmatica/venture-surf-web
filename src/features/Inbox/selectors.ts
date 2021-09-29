@@ -1,13 +1,13 @@
 import { createSelector } from 'reselect'
 import moment from 'moment'
 import { RootState } from 'common/types'
-import { DialogType } from './types'
+import { ChatType } from './types'
 
-const getDialogsSelector = (state: RootState) => state.inbox.dialogs
+const getChatsSelector = (state: RootState) => state.inbox.chats
 
-export const getDialogs = createSelector(getDialogsSelector, (dialogs) => {
-  const sortedDialogs: DialogType = {}
-  Object.entries(dialogs).sort(([, a], [, b]) => {
+export const getChats = createSelector(getChatsSelector, (chats) => {
+  const sortedChats: ChatType = {}
+  Object.entries(chats).sort(([, a], [, b]) => {
     const lastMsgA = a.messages[a.messages.length - 1]
       ? moment(a.messages[a.messages.length - 1].date_updated).unix()
       : 0
@@ -18,8 +18,8 @@ export const getDialogs = createSelector(getDialogsSelector, (dialogs) => {
 
     return lastMsgB - lastMsgA
   }).forEach(([key, value]) => {
-    sortedDialogs[key] = value
+    sortedChats[key] = value
   })
 
-  return sortedDialogs
+  return sortedChats
 })

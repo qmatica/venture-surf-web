@@ -1,10 +1,10 @@
 import moment from 'moment'
 import { config } from 'config/twilio'
-import { DialogType, MessageType, ThunkType } from './types'
+import { ChatType, MessageType, ThunkType } from './types'
 
 export const actions = {
-  setDialogs: (dialogs: DialogType) => (
-    { type: 'INBOX__SET_DIALOGS', dialogs } as const
+  setChats: (chats: ChatType) => (
+    { type: 'INBOX__SET_CHATS', chats } as const
   ),
   addMessage: (message: MessageType, chat: string) => (
     { type: 'INBOX__ADD_MESSAGE', payload: { message, chat } } as const
@@ -19,14 +19,14 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
   if (profile) {
     if (profile.mutuals) {
-      const dialogs: DialogType = {}
+      const chats: ChatType = {}
 
       Object.values(profile.mutuals).forEach(({
         chat, name, displayName, first_name, last_name, photoURL
       }) => {
         if (chat) {
-          dialogs[chat] = {
-            ...dialogs,
+          chats[chat] = {
+            ...chats,
             chat,
             name: name || displayName || `${first_name} ${last_name}`,
             photoUrl: photoURL,
@@ -36,23 +36,23 @@ export const init = (): ThunkType => async (dispatch, getState) => {
         }
       })
 
-      const arrayRequestsOfDialogs = Object.keys(dialogs).map((dialog) => getDialogs(dialog))
+      const arrayRequestsOfChats = Object.keys(chats).map((chat) => getChats(chat))
 
-      await Promise.all(arrayRequestsOfDialogs).then((response: any) => {
-        Object.keys(dialogs).forEach((chat, i) => {
-          dialogs[chat] = {
-            ...dialogs[chat],
+      await Promise.all(arrayRequestsOfChats).then((response: any) => {
+        Object.keys(chats).forEach((chat, i) => {
+          chats[chat] = {
+            ...chats[chat],
             messages: response[i].messages
           }
         })
       })
 
-      dispatch(actions.setDialogs(dialogs))
+      dispatch(actions.setChats(chats))
     }
   }
 }
 
-export const getDialogs = async (chat: string) =>
+export const getChats = async (chat: string) =>
   fetch(`https://conversations.twilio.com/v1/Conversations/${chat}/Messages`, {
     headers: {
       Authorization: `Basic ${Buffer.from(`${config.accountSid}:${config.authToken}`).toString('base64')}`
@@ -62,7 +62,7 @@ export const getDialogs = async (chat: string) =>
 
 export const sendMessage = (message: string, chat: string): ThunkType => async (dispatch, getState) => {
   const { auth } = getState().firebase
-  const { dialogs } = getState().inbox
+  const { chats } = getState().inbox
 
   const newMessage: MessageType = {
     account_sid: '',
@@ -73,7 +73,7 @@ export const sendMessage = (message: string, chat: string): ThunkType => async (
     date_created: moment().toISOString(),
     date_updated: moment().toISOString(),
     delivery: null,
-    index: dialogs[chat].messages.length,
+    index: chats[chat].messages.length,
     links: {
       delivery_receipts: ''
     },

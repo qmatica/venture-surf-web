@@ -9,17 +9,17 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import styles from './styles.module.sass'
 import { init, sendMessage } from './actions'
-import { getDialogs } from './selectors'
+import { getChats } from './selectors'
 
 export const Inbox: FC = () => {
   const dispatch = useDispatch()
 
   const messagesContainerRef = useRef<HTMLDivElement | null>(null)
 
-  const dialogs = useSelector(getDialogs)
+  const chats = useSelector(getChats)
   const { auth } = useSelector((state: RootState) => state.firebase)
 
-  const [activeDialog, setActiveDialog] = useState<string>('')
+  const [activeChat, setActiveChat] = useState<string>('')
   const [prevScrollHeightMessagesContainer, setPrevScrollHeightMessagesContainer] = useState(0)
   const [message, setMessage] = useState('')
 
@@ -29,7 +29,7 @@ export const Inbox: FC = () => {
 
   useEffect(() => {
     scrollToBottom()
-  }, [activeDialog])
+  }, [activeChat])
 
   useEffect(() => {
     if (messagesContainerRef.current) {
@@ -43,7 +43,7 @@ export const Inbox: FC = () => {
         }
       }
     }
-  }, [dialogs[activeDialog]?.messages.length])
+  }, [chats[activeChat]?.messages.length])
 
   const onMessageChanged = (e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)
 
@@ -56,7 +56,7 @@ export const Inbox: FC = () => {
 
     scrollToBottom()
 
-    dispatch(sendMessage(message, activeDialog))
+    dispatch(sendMessage(message, activeChat))
 
     setMessage('')
   }
@@ -66,19 +66,19 @@ export const Inbox: FC = () => {
       <div className={styles.leftSideContainer}>
         <div className={styles.dialogsHeader} />
         <div className={styles.dialogsContainer}>
-          {Object.entries(dialogs).map(([key, value]) => {
+          {Object.entries(chats).map(([key, value]) => {
             const {
               name, photoUrl, messages, missedMessages
             } = value
 
-            const activeClassName = key === activeDialog ? styles.activeDialog : ''
+            const activeClassName = key === activeChat ? styles.activeDialog : ''
 
             const lastMessage = messages.length ? messages[messages.length - 1] : null
 
             return (
               <div
                 className={`${styles.dialogItem} ${activeClassName}`}
-                onClick={() => setActiveDialog(key)}
+                onClick={() => setActiveChat(key)}
                 key={key}
               >
                 <div className={styles.imgContainer}>
@@ -108,11 +108,11 @@ export const Inbox: FC = () => {
         </div>
       </div>
       <div className={styles.rightSideContainer}>
-        <div className={styles.dialogHeaderContainer}>{activeDialog && dialogs[activeDialog].name}</div>
+        <div className={styles.dialogHeaderContainer}>{activeChat && chats[activeChat].name}</div>
         <div className={styles.dialogBodyContainer}>
           <div className={styles.messagesContainer} ref={messagesContainerRef}>
-            {activeDialog
-              ? dialogs[activeDialog].messages.map((message) => {
+            {activeChat
+              ? chats[activeChat].messages.map((message) => {
                 const myMessage = message.author === auth.uid
 
                 const className = myMessage ? styles.ownerMessage : styles.otherOwnerMessage
@@ -138,7 +138,7 @@ export const Inbox: FC = () => {
               )}
           </div>
         </div>
-        {activeDialog && (
+        {activeChat && (
           <div className={styles.dialogFooterContainer}>
             <form onSubmit={onSubmit}>
               <div className={styles.textInputContainer}>
