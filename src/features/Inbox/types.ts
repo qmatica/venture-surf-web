@@ -1,9 +1,10 @@
 import { ThunkAction } from 'redux-thunk'
 import { getFirebase } from 'react-redux-firebase'
 import { AppStateType, InferActionsTypes } from 'common/types'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { actions } from './actions'
 
-export type ActionTypes = InferActionsTypes<typeof actions>
+export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsNotifications>
 export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ChatType = {

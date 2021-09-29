@@ -116,7 +116,11 @@ export const Inbox: FC = () => {
       <div className={styles.rightSideContainer}>
         <div className={styles.dialogHeaderContainer}>{chats[openedChat] && chats[openedChat].name}</div>
         <div className={styles.dialogBodyContainer}>
-          <div className={styles.messagesContainer} ref={messagesContainerRef}>
+          <div
+            className={styles.messagesContainer}
+            ref={messagesContainerRef}
+            style={{ height: openedChat && chats[openedChat] ? 'auto' : '100%' }}
+          >
             {openedChat && chats[openedChat]
               ? chats[openedChat].messages.map((message) => {
                 const myMessage = message.author === auth.uid

@@ -1,5 +1,6 @@
 import moment from 'moment'
 import { config } from 'config/twilio'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { ChatType, MessageType, ThunkType } from './types'
 
 export const actions = {
@@ -115,8 +116,16 @@ export const sendMessage = (message: string, chat: string): ThunkType => async (
     },
     body: formBody,
     method: 'POST'
-  }).then((res) => res.json())
+  }).then((res) => res.json()).catch(() => {
+    dispatch(actionsNotifications.addMessage({
+      title: 'Error',
+      value: 'Fucked CORS',
+      type: 'error'
+    }))
+  })
 
-  console.log(updatedMessage)
-  dispatch(actions.updateMessage(updatedMessage, chat))
+  if (updatedMessage) {
+    console.log(updatedMessage)
+    dispatch(actions.updateMessage(updatedMessage, chat))
+  }
 }
