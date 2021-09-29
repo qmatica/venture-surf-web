@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
-import { getProfile } from 'features/Profile/selector'
+import { getProfile } from 'features/Profile/selectors'
 import { Tabs } from 'common/components/Tabs'
 import { UserPhotoIcon } from 'common/icons'
 import { Deck } from './components/Tabs/Deck'

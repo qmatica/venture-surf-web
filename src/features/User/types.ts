@@ -25,6 +25,7 @@ export type UserType = {
         videos?: VideosType
     }
     activeRole?: 'investor' | 'founder'
+    chat?: string
 }
 
 export type UsersType = { [key: string]: UserType }

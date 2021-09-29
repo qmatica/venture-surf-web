@@ -1,7 +1,7 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import {
-  CalendarIcon, ExploreIcon, UserCircleIcon, UsersIcon
+  CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon
 } from 'common/icons'
 import styles from './styles.module.sass'
 
@@ -20,6 +20,11 @@ const pages = [
     url: '/calendar',
     title: 'Calendar',
     icon: <CalendarIcon />
+  },
+  {
+    url: '/inbox',
+    title: 'Inbox',
+    icon: <MailIcon />
   },
   {
     url: '/profile',

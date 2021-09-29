@@ -94,5 +94,8 @@ export const usersAPI = {
   },
   callDecline(uid: string) {
     return instance.post(`/api/call/${uid}/all/decline`).then((res) => res.status)
+  },
+  createChat(uid: string) {
+    return instance.post(`api/mutuals/chat/${uid}`).then((res) => res.data)
   }
 }
