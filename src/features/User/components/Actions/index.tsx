@@ -1,4 +1,5 @@
 import React, { FC } from 'react'
+import { useHistory } from 'react-router-dom'
 import { Button } from 'common/components/Button'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
@@ -15,7 +16,23 @@ export const Actions: FC<IActions> = ({ user }) => {
     <div className={styles.container}>
       {actions.map(([key, action]) => {
         let className = ''
+
         if (key === 'callNow') className = styles.buttonCall
+
+        if (key === 'openChat') {
+          const history = useHistory()
+
+          const openChatAction = { ...action }
+
+          // eslint-disable-next-line no-param-reassign
+          action = {
+            ...action,
+            onClick: async () => {
+              await openChatAction.onClick()
+              history.push('inbox')
+            }
+          }
+        }
         return (
           <Button
             key={key}

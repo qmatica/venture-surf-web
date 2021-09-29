@@ -1,6 +1,6 @@
 import moment from 'moment'
 import {
-  NotReadMessageIcon, PapersDialogIcon, ReadMessageIcon, SendMessageIcon
+  NotReadMessageIcon, PapersDialogIcon, PreloaderIcon, ReadMessageIcon, SendMessageIcon
 } from 'common/icons'
 import React, {
   FC, useEffect, useRef, useState
@@ -8,8 +8,8 @@ import React, {
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import styles from './styles.module.sass'
-import { init, sendMessage } from './actions'
-import { getChats } from './selectors'
+import { actions, init, sendMessage } from './actions'
+import { getChats, getOpenedChat, getPreloader } from './selectors'
 
 export const Inbox: FC = () => {
   const dispatch = useDispatch()
@@ -17,19 +17,23 @@ export const Inbox: FC = () => {
   const messagesContainerRef = useRef<HTMLDivElement | null>(null)
 
   const chats = useSelector(getChats)
+  const openedChat = useSelector(getOpenedChat)
+  const preloader = useSelector(getPreloader)
   const { auth } = useSelector((state: RootState) => state.firebase)
 
-  const [activeChat, setActiveChat] = useState<string>('')
   const [prevScrollHeightMessagesContainer, setPrevScrollHeightMessagesContainer] = useState(0)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
     dispatch(init())
+    return () => {
+      dispatch(actions.reset())
+    }
   }, [])
 
   useEffect(() => {
     scrollToBottom()
-  }, [activeChat])
+  }, [openedChat])
 
   useEffect(() => {
     if (messagesContainerRef.current) {
@@ -43,7 +47,7 @@ export const Inbox: FC = () => {
         }
       }
     }
-  }, [chats[activeChat]?.messages.length])
+  }, [chats[openedChat]?.messages.length])
 
   const onMessageChanged = (e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)
 
@@ -52,11 +56,13 @@ export const Inbox: FC = () => {
   const onSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
 
-    if (!message) return
+    const trimMessage = message.trim()
+
+    if (!trimMessage) return
 
     scrollToBottom()
 
-    dispatch(sendMessage(message, activeChat))
+    dispatch(sendMessage(trimMessage, openedChat))
 
     setMessage('')
   }
@@ -66,53 +72,53 @@ export const Inbox: FC = () => {
       <div className={styles.leftSideContainer}>
         <div className={styles.dialogsHeader} />
         <div className={styles.dialogsContainer}>
-          {Object.entries(chats).map(([key, value]) => {
-            const {
-              name, photoUrl, messages, missedMessages
-            } = value
+          {preloader
+            ? <div className={styles.preloaderContainer}><PreloaderIcon stroke="#96baf6" /></div>
+            : Object.values(chats).map(({
+              name, photoUrl, messages, missedMessages, chat
+            }) => {
+              const activeClassName = chat === openedChat ? styles.activeDialog : ''
 
-            const activeClassName = key === activeChat ? styles.activeDialog : ''
+              const lastMessage = messages.length ? messages[messages.length - 1] : null
 
-            const lastMessage = messages.length ? messages[messages.length - 1] : null
-
-            return (
-              <div
-                className={`${styles.dialogItem} ${activeClassName}`}
-                onClick={() => setActiveChat(key)}
-                key={key}
-              >
-                <div className={styles.imgContainer}>
-                  {photoUrl
-                    ? <img className={styles.photo} src={photoUrl} alt={name} />
-                    : <div className={styles.noPhoto} />}
-                </div>
-                <div className={styles.bodyContainer}>
-                  <div className={styles.name}>{name}</div>
-                  {lastMessage && <div className={styles.lastMessage}>{lastMessage.body}</div>}
-                </div>
-                <div className={styles.notificationsContainer}>
-                  {lastMessage && (
+              return (
+                <div
+                  className={`${styles.dialogItem} ${activeClassName}`}
+                  onClick={() => dispatch(actions.setOpenedChat(chat))}
+                  key={chat}
+                >
+                  <div className={styles.imgContainer}>
+                    {photoUrl
+                      ? <img className={styles.photo} src={photoUrl} alt={name} />
+                      : <div className={styles.noPhoto} />}
+                  </div>
+                  <div className={styles.bodyContainer}>
+                    <div className={styles.name}>{name}</div>
+                    {lastMessage && <div className={styles.lastMessage}>{lastMessage.body}</div>}
+                  </div>
+                  <div className={styles.notificationsContainer}>
+                    {lastMessage && (
                     <div className={styles.date}>
                       {moment(new Date(lastMessage.date_created)).format('HH:mm')}
                     </div>
-                  )}
-                  {missedMessages > 0 && (
+                    )}
+                    {missedMessages > 0 && (
                     <div className={styles.missedMessagesContainer}>
                       <div className={styles.missedMessages}>{missedMessages}</div>
                     </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
         </div>
       </div>
       <div className={styles.rightSideContainer}>
-        <div className={styles.dialogHeaderContainer}>{activeChat && chats[activeChat].name}</div>
+        <div className={styles.dialogHeaderContainer}>{chats[openedChat] && chats[openedChat].name}</div>
         <div className={styles.dialogBodyContainer}>
           <div className={styles.messagesContainer} ref={messagesContainerRef}>
-            {activeChat
-              ? chats[activeChat].messages.map((message) => {
+            {openedChat && chats[openedChat]
+              ? chats[openedChat].messages.map((message) => {
                 const myMessage = message.author === auth.uid
 
                 const className = myMessage ? styles.ownerMessage : styles.otherOwnerMessage
@@ -138,7 +144,7 @@ export const Inbox: FC = () => {
               )}
           </div>
         </div>
-        {activeChat && (
+        {chats[openedChat] && (
           <div className={styles.dialogFooterContainer}>
             <form onSubmit={onSubmit}>
               <div className={styles.textInputContainer}>

@@ -2,6 +2,7 @@ import { ActionTypes, ChatType } from './types'
 
 const initialState = {
   chats: {} as ChatType,
+  openedChat: '',
   preloader: false
 }
 
@@ -11,6 +12,11 @@ export const InboxReducer = (state = initialState, action: ActionTypes): typeof 
       return {
         ...state,
         chats: action.chats
+      }
+    case 'INBOX__SET_OPENED_CHAT':
+      return {
+        ...state,
+        openedChat: action.chat
       }
     case 'INBOX__ADD_MESSAGE':
       return {
@@ -42,6 +48,13 @@ export const InboxReducer = (state = initialState, action: ActionTypes): typeof 
         }
       }
     }
+    case 'INBOX__TOGGLE_PRELOADER':
+      return {
+        ...state,
+        preloader: !state.preloader
+      }
+    case 'INBOX__RESET':
+      return initialState
     default: return state
   }
 }

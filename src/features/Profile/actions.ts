@@ -1,14 +1,16 @@
 import { connect, ConnectOptions } from 'twilio-video'
+import { useHistory } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
+import { actions as actionsInbox } from 'features/Inbox/actions'
 import * as UpChunk from '@mux/upchunk'
 import { EnumActionsUser } from 'features/User/constants'
 import { addMessage } from 'features/Notifications/actions'
 import { UsersType } from 'features/User/types'
 import {
-  CalendarMinIcon, LikeIcon, PeopleIcon, PhoneCallIcon, WithdrawLikeIcon
+  CalendarMinIcon, LikeIcon, MailIconMin, PeopleIcon, PhoneCallIcon, WithdrawLikeIcon
 } from 'common/icons'
 import {
   JobType, ResponseCallNowType, ThunkType, VideoType
@@ -54,6 +56,16 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             isLoading: false,
             type: EnumActionsUser.static,
             icon: PhoneCallIcon
+          },
+          openChat: {
+            onClick: () => {
+              dispatch(openChat(user.uid))
+            },
+            title: 'Open chat',
+            isActive: true,
+            isLoading: false,
+            type: EnumActionsUser.static,
+            icon: MailIconMin
           },
           arrangeAMeeting: {
             onClick() {
@@ -682,6 +694,16 @@ export const addUserInMutualsFromReceived = (uid: string): ThunkType => (dispatc
             isLoading: false,
             type: EnumActionsUser.static
           },
+          openChat: {
+            onClick: () => {
+              dispatch(openChat(uid))
+            },
+            title: 'Open chat',
+            isActive: true,
+            isLoading: false,
+            type: EnumActionsUser.static,
+            icon: MailIconMin
+          },
           recommended: {
             onClick() {
               console.log('Recommended')
@@ -754,4 +776,39 @@ export const switchRole = (): ThunkType => async (dispatch, getState) => {
       dispatch(actions.setMyProfile(updatedProfile))
     }
   }
+}
+
+export const openChat = (uid: string): ThunkType => async (dispatch, getState) => {
+  const contacts = 'mutuals'
+
+  dispatch(togglePreloader(contacts, uid, 'openChat'))
+
+  const { profile } = getState().profile
+
+  if (profile) {
+    const users = profile[contacts]
+    const { chat } = users[uid]
+    if (chat) {
+      dispatch(actionsInbox.setOpenedChat(chat.chat))
+    } else {
+      const createdChat: { chat_sid: string, token: string } = await usersAPI.createChat(uid)
+
+      const updatedUsers = {
+        ...profile[contacts],
+        [uid]: {
+          ...users[uid],
+          chat: {
+            chat: createdChat.chat_sid,
+            token: createdChat.token
+          }
+        }
+      }
+
+      dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
+
+      dispatch(actionsInbox.setOpenedChat(createdChat.chat_sid))
+    }
+  }
+
+  dispatch(togglePreloader(contacts, uid, 'openChat'))
 }

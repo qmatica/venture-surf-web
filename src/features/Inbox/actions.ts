@@ -6,16 +6,27 @@ export const actions = {
   setChats: (chats: ChatType) => (
     { type: 'INBOX__SET_CHATS', chats } as const
   ),
+  setOpenedChat: (chat: string) => (
+    { type: 'INBOX__SET_OPENED_CHAT', chat } as const
+  ),
   addMessage: (message: MessageType, chat: string) => (
     { type: 'INBOX__ADD_MESSAGE', payload: { message, chat } } as const
   ),
   updateMessage: (message: MessageType, chat: string) => (
     { type: 'INBOX__UPDATE_MESSAGE', payload: { message, chat } } as const
+  ),
+  togglePreloader: () => (
+    { type: 'INBOX__TOGGLE_PRELOADER' } as const
+  ),
+  reset: () => (
+    { type: 'INBOX__RESET' } as const
   )
 }
 
 export const init = (): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
+
+  dispatch(actions.togglePreloader())
 
   if (profile) {
     if (profile.mutuals) {
@@ -24,10 +35,10 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       Object.values(profile.mutuals).forEach(({
         chat, name, displayName, first_name, last_name, photoURL
       }) => {
-        if (chat) {
-          chats[chat] = {
+        if (chat?.chat) {
+          chats[chat.chat] = {
             ...chats,
-            chat,
+            chat: chat.chat,
             name: name || displayName || `${first_name} ${last_name}`,
             photoUrl: photoURL,
             messages: [],
@@ -48,6 +59,8 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       })
 
       dispatch(actions.setChats(chats))
+
+      dispatch(actions.togglePreloader())
     }
   }
 }
@@ -87,21 +100,23 @@ export const sendMessage = (message: string, chat: string): ThunkType => async (
 
   dispatch(actions.addMessage(newMessage, chat))
 
-  // const body = {
-  //   Body: message,
-  //   Author: auth.uid
-  // }
-  //
-  // const formBody = Object.entries(body).map(([key, value]) => `${key}=${value}`).join('&')
-  //
-  // const updatedMessage = await fetch(`https://conversations.twilio.com/v1/Conversations/${chat}/Messages`, {
-  //   headers: {
-  //     Authorization: `Basic ${Buffer.from(`${config.accountSid}:${config.authToken}`).toString('base64')}`,
-  //     'Content-Type': 'application/x-www-form-urlencoded'
-  //   },
-  //   body: formBody,
-  //   method: 'POST'
-  // }).then((res) => res.json())
-  //
-  // dispatch(actions.updateMessage(updatedMessage, chat))
+  const body = {
+    Body: message,
+    Author: auth.uid
+  }
+
+  const formBody = Object.entries(body).map(([key, value]) => `${key}=${value}`).join('&')
+
+  const updatedMessage = await fetch(`http://conversations.twilio.com/v1/Conversations/${chat}/Messages`, {
+    headers: {
+      'X-Twilio-Webhook-Enabled': 'true',
+      Authorization: `Basic ${Buffer.from(`${config.accountSid}:${config.authToken}`).toString('base64')}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: formBody,
+    method: 'POST'
+  }).then((res) => res.json())
+
+  console.log(updatedMessage)
+  dispatch(actions.updateMessage(updatedMessage, chat))
 }
