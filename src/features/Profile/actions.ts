@@ -12,6 +12,7 @@ import { UsersType } from 'features/User/types'
 import {
   CalendarMinIcon, LikeIcon, MailIconMin, PeopleIcon, PhoneCallIcon, WithdrawLikeIcon
 } from 'common/icons'
+import { log } from 'util'
 import {
   JobType, ResponseCallNowType, ThunkType, VideoType
 } from './types'
@@ -58,8 +59,8 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             icon: PhoneCallIcon
           },
           openChat: {
-            onClick: () => {
-              dispatch(openChat(user.uid))
+            onClick: (redirect: () => void) => {
+              dispatch(openChat(user.uid, redirect))
             },
             title: 'Open chat',
             isActive: true,
@@ -695,8 +696,8 @@ export const addUserInMutualsFromReceived = (uid: string): ThunkType => (dispatc
             type: EnumActionsUser.static
           },
           openChat: {
-            onClick: () => {
-              dispatch(openChat(uid))
+            onClick: (redirect: () => void) => {
+              dispatch(openChat(uid, redirect))
             },
             title: 'Open chat',
             isActive: true,
@@ -778,7 +779,7 @@ export const switchRole = (): ThunkType => async (dispatch, getState) => {
   }
 }
 
-export const openChat = (uid: string): ThunkType => async (dispatch, getState) => {
+export const openChat = (uid: string, redirect: () => void): ThunkType => async (dispatch, getState) => {
   const contacts = 'mutuals'
 
   dispatch(togglePreloader(contacts, uid, 'openChat'))
@@ -791,10 +792,12 @@ export const openChat = (uid: string): ThunkType => async (dispatch, getState) =
     if (chat) {
       dispatch(actionsInbox.setOpenedChat(chat.chat))
     } else {
-      const createdChat: { chat_sid: string, token: string } = await usersAPI.createChat(uid)
+      const createdChat: { chat_sid: string, token: string } = await usersAPI
+        .createChat(uid)
+        .catch((err) => console.log(err))
 
       const updatedUsers = {
-        ...profile[contacts],
+        ...users,
         [uid]: {
           ...users[uid],
           chat: {
@@ -811,4 +814,5 @@ export const openChat = (uid: string): ThunkType => async (dispatch, getState) =
   }
 
   dispatch(togglePreloader(contacts, uid, 'openChat'))
+  redirect()
 }

@@ -35,7 +35,7 @@ export type UsersType = { [key: string]: UserType }
 
 export type ActionUserType = {
     [key: string]: {
-        onClick: () => void
+        onClick: (value?: any) => void
         title: string
         isActive: boolean
         isLoading: boolean
