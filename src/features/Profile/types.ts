@@ -2,12 +2,12 @@ import { ThunkAction } from 'redux-thunk'
 import { AppStateType, InferActionsTypes } from 'common/types'
 import { actions as actionsModal } from 'features/Modal/actions'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
-import { actions as inboxActions } from 'features/Inbox/actions'
+import { actions as actionsConversations } from 'features/Conversations/actions'
 import { getFirebase } from 'react-redux-firebase'
 import { UsersType } from 'features/User/types'
 import { actions } from './actions'
 
-export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsModal | typeof actionsVideoChat | typeof inboxActions>
+export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsModal | typeof actionsVideoChat | typeof actionsConversations>
 export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ProfileType = {

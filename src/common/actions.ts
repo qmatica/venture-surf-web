@@ -1,6 +1,7 @@
 import { actions as authActions } from 'features/Auth/actions'
 import { init as initProfile } from 'features/Profile/actions'
 import { init as initSurf } from 'features/Surf/actions'
+import { init as initConversations } from 'features/Conversations/actions'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -13,6 +14,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     if (userAuth) {
       await Promise.all([dispatch(initProfile()), dispatch(initSurf())])
       dispatch(authActions.setAuth(true))
+      dispatch(initConversations())
     } else {
       dispatch(authActions.setAuth(false))
     }

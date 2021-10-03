@@ -1,10 +1,9 @@
 import { connect, ConnectOptions } from 'twilio-video'
-import { useHistory } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
-import { actions as actionsInbox } from 'features/Inbox/actions'
+import { actions as actionsConversations } from 'features/Conversations/actions'
 import * as UpChunk from '@mux/upchunk'
 import { EnumActionsUser } from 'features/User/constants'
 import { addMessage } from 'features/Notifications/actions'
@@ -12,7 +11,6 @@ import { UsersType } from 'features/User/types'
 import {
   CalendarMinIcon, LikeIcon, MailIconMin, PeopleIcon, PhoneCallIcon, WithdrawLikeIcon
 } from 'common/icons'
-import { log } from 'util'
 import {
   JobType, ResponseCallNowType, ThunkType, VideoType
 } from './types'
@@ -27,7 +25,7 @@ export const actions = {
 
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
   const device = {
-    id: uuidv4(),
+    id: 'uniqueIdDevice-12345',
     os: window.navigator.appVersion,
     fcm_token: 'fcm_token_web',
     voip_token: '12428345723486-34639456-4563-4956',
@@ -790,9 +788,9 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
     const users = profile[contacts]
     const { chat } = users[uid]
     if (chat) {
-      dispatch(actionsInbox.setOpenedChat(chat.chat))
+      dispatch(actionsConversations.setOpenedChat(chat))
     } else {
-      const createdChat: { chat_sid: string, token: string } = await usersAPI
+      const createdChat: { chat: string } = await usersAPI
         .createChat(uid)
         .catch((err) => console.log(err))
 
@@ -800,16 +798,13 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
         ...users,
         [uid]: {
           ...users[uid],
-          chat: {
-            chat: createdChat.chat_sid,
-            token: createdChat.token
-          }
+          chat: createdChat.chat
         }
       }
 
       dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
 
-      dispatch(actionsInbox.setOpenedChat(createdChat.chat_sid))
+      dispatch(actionsConversations.setOpenedChat(createdChat.chat))
     }
   }
 

@@ -27,7 +27,7 @@ export const Actions: FC<IActions> = ({ user }) => {
           // eslint-disable-next-line no-param-reassign
           action = {
             ...action,
-            onClick: () => openChatAction.onClick(() => history.push('inbox'))
+            onClick: () => openChatAction.onClick(() => history.push('conversations'))
           }
         }
         return (

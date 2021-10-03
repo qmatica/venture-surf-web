@@ -1,0 +1,41 @@
+.container
+  min-height: 57px
+  width: 100%
+  padding-left: 20px
+  border-top: 1px solid #D7DFED
+  order: 3
+  form
+    width: 100%
+    height: 100%
+    display: flex
+    align-items: center
+    .textInputContainer
+      display: flex
+      flex-grow: 1
+      height: 100%
+      .textInput
+        border: none
+        font-size: 17px
+        color: #030D21
+        width: 100%
+        height: 100%
+        &::placeholder
+          color: #CDD5E5
+        &:focus
+          outline: none
+    .sendMessageButton
+      display: flex
+      width: 60px
+      justify-content: center
+      align-items: center
+      cursor: pointer
+      height: 100%
+      background: none
+      border: none
+      svg
+        path
+          transition: 0.2s
+      &:hover
+        svg
+          path
+            fill: #8798cf

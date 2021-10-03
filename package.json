@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@mux/upchunk": "^2.2.2",
+    "@twilio/conversations": "^1.2.3",
     "@types/moment": "^2.13.0",
     "@types/react-slick": "^0.23.5",
     "@types/twilio": "^3.19.3",
@@ -13,6 +14,7 @@
     "firebase": "^8.8.0",
     "moment": "^2.29.1",
     "react": "^17.0.2",
+    "react-contextmenu": "^2.14.0",
     "react-dom": "^17.0.2",
     "react-dropzone": "^11.3.4",
     "react-hls-player": "^3.0.7",

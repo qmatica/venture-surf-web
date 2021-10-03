@@ -2,6 +2,8 @@ import { ThunkAction } from 'redux-thunk'
 import { getFirebase } from 'react-redux-firebase'
 import { AppStateType, InferActionsTypes } from 'common/types'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
+import Conversation from '@twilio/conversations/lib/conversation'
+import { Message } from '@twilio/conversations/lib/message'
 import { actions } from './actions'
 
 export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsNotifications>
@@ -12,28 +14,18 @@ export type ChatType = {
     chat: string
     name: string
     photoUrl: string
-    messages: MessageType[]
+    messages: (Message | MessageType)[]
     missedMessages: number
+    conversation?: Conversation.Conversation
   }
 }
 
 export type MessageType = {
-  account_sid: string,
-  attributes: string,
-  author: string,
-  body: string,
-  conversation_sid: string,
-  date_created: string,
-  date_updated: string,
-  delivery: null,
-  index: number,
-  links: {
-    delivery_receipts: string
-  },
-  delivery_receipts: string,
-  media: null,
-  participant_sid: null,
-  sid: string,
-  url: string,
-  notRead: boolean // Не прочитанное сообщение
+  author: string
+  body: string
+  dateCreated: Date
+  dateUpdated: Date
+  index: number
+  sid: string
+  aggregatedDeliveryReceipt: null
 }

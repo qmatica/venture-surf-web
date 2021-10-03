@@ -3,20 +3,19 @@ import moment from 'moment'
 import { RootState } from 'common/types'
 import { ChatType } from './types'
 
-const getChatsSelector = (state: RootState) => state.inbox.chats
-const getOpenedChatSelector = (state: RootState) => state.inbox.openedChat
-const getPreloaderSelector = (state: RootState) => state.inbox.preloader
+const getChatsSelector = (state: RootState) => state.conversations.chats
+const getOpenedChatSelector = (state: RootState) => state.conversations.openedChat
 
 export const getChats = createSelector(getChatsSelector, (chats) => {
   const sortedChats: ChatType = {}
 
   Object.values(chats).sort((a, b) => {
     const lastMsgA = a.messages[a.messages.length - 1]
-      ? moment(a.messages[a.messages.length - 1].date_updated).unix()
+      ? moment(a.messages[a.messages.length - 1].dateUpdated).unix()
       : 0
 
     const lastMsgB = b.messages[b.messages.length - 1]
-      ? moment(b.messages[b.messages.length - 1].date_updated).unix()
+      ? moment(b.messages[b.messages.length - 1].dateUpdated).unix()
       : 0
 
     return lastMsgB - lastMsgA
@@ -28,5 +27,3 @@ export const getChats = createSelector(getChatsSelector, (chats) => {
 })
 
 export const getOpenedChat = createSelector(getOpenedChatSelector, (openedChat) => openedChat)
-
-export const getPreloader = createSelector(getPreloaderSelector, (preloader) => preloader)

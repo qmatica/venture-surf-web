@@ -1,0 +1,80 @@
+.container
+  display: flex
+  flex-direction: column
+  width: 320px
+  border-right: 1px solid #D7DFED
+  flex-shrink: 0
+  .headerContainer
+    padding-left: 20px
+    border-bottom: 1px solid #D7DFED
+    height: 57px
+    display: flex
+    align-items: center
+    flex-shrink: 0
+  .listContainer
+    display: flex
+    flex-direction: column
+    height: 100%
+    .preloaderContainer
+      width: 100%
+      height: 100%
+      display: flex
+      justify-content: center
+      align-items: center
+    .dialogItem
+      height: 61px
+      display: flex
+      width: 100%
+      cursor: pointer
+      &.activeDialog
+        background: #F3F5F9
+      .imgContainer
+        width: 78px
+        display: flex
+        align-items: center
+        justify-content: center
+        .photo
+          width: 39px
+          height: 39px
+          border-radius: 100%
+        .noPhoto
+          width: 39px
+          height: 39px
+          border-radius: 100%
+          background: #ececec
+      .bodyContainer
+        width: 180px
+        display: flex
+        flex-direction: column
+        justify-content: center
+        border-bottom: 1px solid #D7DFED
+        .name
+          font-size: 17px
+          color: #030D21
+        .lastMessage
+          font-size: 13px
+          line-height: 17px
+          color: #ACACAC
+          width: 160px
+          text-overflow: ellipsis
+          white-space: nowrap
+          overflow: hidden
+      .notificationsContainer
+        display: flex
+        flex-direction: column
+        justify-content: center
+        flex-grow: 1
+        border-bottom: 1px solid #D7DFED
+        align-items: center
+        .date
+          font-size: 11px
+          color: #030D21
+        .missedMessagesContainer
+          display: flex
+          .missedMessages
+            margin-top: 5px
+            padding: 5px 8px
+            background: #E6EAF1
+            border-radius: 100%
+            text-align: center
+            font-size: 9px

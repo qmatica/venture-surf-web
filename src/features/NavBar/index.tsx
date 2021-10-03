@@ -22,8 +22,8 @@ const pages = [
     icon: <CalendarIcon />
   },
   {
-    url: '/inbox',
-    title: 'Inbox',
+    url: '/conversations',
+    title: 'Conversations',
     icon: <MailIcon />
   },
   {

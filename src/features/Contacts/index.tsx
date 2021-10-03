@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Tabs } from 'common/components/Tabs'
 import { FilterIcon } from 'common/icons'
@@ -17,8 +17,19 @@ const tabs = [
 
 export const Contacts = () => {
   const dispatch = useDispatch()
+
   const { search } = useSelector((state: RootState) => state.contacts)
+
   const [tab, setTab] = useState(tabs[0])
+
+  useEffect(() => () => {
+    dispatch(actions.setSearch(''))
+  }, [])
+
+  const onSearchChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { target: { value } } = e
+    dispatch(actions.setSearch(value))
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -28,7 +39,7 @@ export const Contacts = () => {
           className={styles.input}
           placeholder="Search"
           value={search}
-          onChange={({ target: { value } }) => dispatch(actions.setSearch(value))}
+          onChange={onSearchChanged}
         />
         <div className={styles.filterButton}>
           <FilterIcon />

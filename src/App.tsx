@@ -8,7 +8,7 @@ import { Layout } from 'features/Layout'
 import { Contacts } from 'features/Contacts'
 import { Surf } from 'features/Surf'
 import { Calendar } from 'features/Calendar'
-import { Inbox } from 'features/Inbox'
+import { Conversations } from 'features/Conversations'
 
 export const App: FC = () => {
   const dispatch = useDispatch()
@@ -26,7 +26,7 @@ export const App: FC = () => {
             <Route path="/surf" component={Surf} />
             <Route path="/contacts" component={Contacts} />
             <Route path="/calendar" component={Calendar} />
-            <Route path="/inbox" component={Inbox} />
+            <Route path="/conversations" component={Conversations} />
             <Route path="/profile" component={Profile} />
           </Layout>
         </Route>

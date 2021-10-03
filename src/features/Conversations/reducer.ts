@@ -1,24 +1,31 @@
+import { Client as ConversationsClient } from '@twilio/conversations'
 import { ActionTypes, ChatType } from './types'
 
 const initialState = {
+  client: null as ConversationsClient | null,
   chats: {} as ChatType,
   openedChat: '',
   preloader: false
 }
 
-export const InboxReducer = (state = initialState, action: ActionTypes): typeof initialState => {
+export const ConversationsReducer = (state = initialState, action: ActionTypes): typeof initialState => {
   switch (action.type) {
-    case 'INBOX__SET_CHATS':
+    case 'CONVERSATIONS__SET_CONVERSATIONS_CLIENT':
+      return {
+        ...state,
+        client: action.client
+      }
+    case 'CONVERSATIONS__SET_CHATS':
       return {
         ...state,
         chats: action.chats
       }
-    case 'INBOX__SET_OPENED_CHAT':
+    case 'CONVERSATIONS__SET_OPENED_CHAT':
       return {
         ...state,
         openedChat: action.chat
       }
-    case 'INBOX__ADD_MESSAGE':
+    case 'CONVERSATIONS__ADD_MESSAGE':
       return {
         ...state,
         chats: {
@@ -32,7 +39,7 @@ export const InboxReducer = (state = initialState, action: ActionTypes): typeof 
           }
         }
       }
-    case 'INBOX__UPDATE_MESSAGE': {
+    case 'CONVERSATIONS__UPDATE_MESSAGE': {
       const updatedChatMessages = [...state.chats[action.payload.chat].messages]
 
       updatedChatMessages[action.payload.message.index] = action.payload.message
@@ -48,12 +55,12 @@ export const InboxReducer = (state = initialState, action: ActionTypes): typeof 
         }
       }
     }
-    case 'INBOX__TOGGLE_PRELOADER':
+    case 'CONVERSATIONS__TOGGLE_PRELOADER':
       return {
         ...state,
         preloader: !state.preloader
       }
-    case 'INBOX__RESET':
+    case 'CONVERSATIONS__RESET':
       return initialState
     default: return state
   }

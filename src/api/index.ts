@@ -61,6 +61,9 @@ export const profileAPI = {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     }).then((res) => res.status)
+  },
+  getToken() {
+    return instance.get('/api/chat/token').then((res) => res.data)
   }
 }
 
