@@ -24,8 +24,13 @@ export const actions = {
 }
 
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
+  let deviceId = localStorage.getItem('deviceId')
+  if (!deviceId) {
+    deviceId = uuidv4()
+    localStorage.setItem('deviceId', deviceId)
+  }
   const device = {
-    id: 'uniqueIdDevice-12345',
+    id: deviceId,
     os: window.navigator.appVersion,
     fcm_token: 'fcm_token_web',
     voip_token: '12428345723486-34639456-4563-4956',
