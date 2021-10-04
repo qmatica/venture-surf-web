@@ -11,9 +11,11 @@ import { UsersType } from 'features/User/types'
 import {
   CalendarMinIcon, LikeIcon, MailIconMin, PeopleIcon, PhoneCallIcon, WithdrawLikeIcon
 } from 'common/icons'
+import { Message } from '@twilio/conversations/lib/message'
 import {
   JobType, ResponseCallNowType, ThunkType, VideoType
 } from './types'
+import { ChatType } from '../Conversations/types'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
@@ -25,10 +27,12 @@ export const actions = {
 
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
   let deviceId = localStorage.getItem('deviceId')
+
   if (!deviceId) {
     deviceId = uuidv4()
     localStorage.setItem('deviceId', deviceId)
   }
+
   const device = {
     id: deviceId,
     os: window.navigator.appVersion,
@@ -795,21 +799,43 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
     if (chat) {
       dispatch(actionsConversations.setOpenedChat(chat))
     } else {
-      const createdChat: { chat: string } = await usersAPI
+      const { client, chats } = getState().conversations
+
+      const createdChat: { chat_sid: string, status: string } = await usersAPI
         .createChat(uid)
         .catch((err) => console.log(err))
 
-      const updatedUsers = {
-        ...users,
-        [uid]: {
-          ...users[uid],
-          chat: createdChat.chat
+      const conversation = await client?.getConversationBySid(createdChat.chat_sid)
+
+      const {
+        name, displayName, first_name, last_name, photoURL
+      } = users[uid]
+
+      const updatedChats: ChatType = {
+        ...chats,
+        [createdChat.chat_sid]: {
+          chat: createdChat.chat_sid,
+          name: name || displayName || `${first_name} ${last_name}`,
+          photoUrl: photoURL,
+          messages: [],
+          missedMessages: 0,
+          conversation
         }
       }
 
-      dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
+      dispatch(actionsConversations.setChats(updatedChats))
 
-      dispatch(actionsConversations.setOpenedChat(createdChat.chat))
+      // const updatedUsers = {
+      //   ...users,
+      //   [uid]: {
+      //     ...users[uid],
+      //     chat: createdChat.chat
+      //   }
+      // }
+      //
+      // dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
+
+      dispatch(actionsConversations.setOpenedChat(createdChat.chat_sid))
     }
   }
 

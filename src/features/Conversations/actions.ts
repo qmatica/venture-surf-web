@@ -2,6 +2,7 @@ import { Client as ConversationsClient } from '@twilio/conversations'
 import { Message } from '@twilio/conversations/lib/message'
 import { config } from 'config/twilio'
 import { profileAPI } from 'api'
+import Conversation from '@twilio/conversations/lib/conversation'
 import { ChatType, MessageType, ThunkType } from './types'
 
 export const actions = {
@@ -30,6 +31,7 @@ export const actions = {
 
 export const init = (): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
+  const { auth: { uid } } = getState().firebase
 
   if (profile) {
     if (profile.mutuals) {
@@ -40,7 +42,6 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       }) => {
         if (chat) {
           chats[chat] = {
-            ...chats,
             chat,
             name: name || displayName || `${first_name} ${last_name}`,
             photoUrl: photoURL,
@@ -52,93 +53,130 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
       dispatch(actions.setChats(chats))
 
-      dispatch(initConversations(chats))
-    }
-  }
-}
+      const conversationsToken = await profileAPI.getToken()
+      const client = await ConversationsClient.create(conversationsToken.token)
 
-export const initConversations = (chats: ChatType): ThunkType => async (dispatch, getState) => {
-  const { auth: { uid } } = getState().firebase
+      dispatch(actions.setClient(client))
 
-  const conversationsToken = await profileAPI.getToken()
-  const client = await ConversationsClient.create(conversationsToken.token)
+      client.on('connectionStateChanged', (state) => {
+        if (state === 'connecting') {
+          console.log('Connecting to Twilio…')
+        }
+        if (state === 'connected') {
+          console.log('You are connected.')
+        }
+        if (state === 'disconnecting') {
+          console.log('Disconnecting from Twilio…')
+        }
+        if (state === 'disconnected') {
+          console.log('Disconnected.')
+        }
+        if (state === 'denied') {
+          console.log('Failed to connect.')
+        }
+      })
 
-  dispatch(actions.setClient(client))
+      client.on('conversationJoined', (conversation: Conversation.Conversation) => {
+        const { chats } = getState().conversations
 
-  client.on('connectionStateChanged', (state) => {
-    if (state === 'connecting') {
-      console.log('Connecting to Twilio…')
-    }
-    if (state === 'connected') {
-      console.log('You are connected.')
-    }
-    if (state === 'disconnecting') {
-      console.log('Disconnecting from Twilio…')
-    }
-    if (state === 'disconnected') {
-      console.log('Disconnected.')
-    }
-    if (state === 'denied') {
-      console.log('Failed to connect.')
-    }
-  })
+        if (!chats[conversation.sid]) {
+          console.log(`New Conversation: ${conversation}`)
 
-  client.on('conversationJoined', (conversation) => {
-    console.log(conversation)
-  })
-  client.on('conversationLeft', (thisConversation) => {
-    console.log(thisConversation)
-  })
+          conversation.getParticipants()
+            .then((participant) => {
+              participant.forEach((p) => {
+                if (p.identity !== uid) {
+                  const { profile } = getState().profile
+                  if (profile) {
+                    const user = profile.mutuals[p.identity]
 
-  const subscribedConversations = await client.getSubscribedConversations()
+                    if (user) {
+                      const {
+                        name, displayName, first_name, last_name, photoURL
+                      } = user
 
-  if (subscribedConversations.items.length) {
-    const chatsWithConversation: ChatType = {}
+                      conversation.getMessages()
+                        .then((m) => {
+                          const updatedChats = {
+                            ...chats,
+                            [conversation.sid]: {
+                              chat: conversation.sid,
+                              name: name || displayName || `${first_name} ${last_name}`,
+                              photoUrl: photoURL,
+                              messages: m.items || [],
+                              missedMessages: 0,
+                              conversation
+                            }
+                          }
 
-    subscribedConversations.items.forEach((item) => {
-      chatsWithConversation[item.sid] = {
-        ...chats[item.sid],
-        conversation: item
+                          dispatch(actions.setChats(updatedChats))
+
+                          conversation.on('messageAdded', (m: Message) => {
+                            if (m.author === uid) {
+                              dispatch(actions.updateMessage(m, conversation.sid))
+                            } else {
+                              dispatch(actions.addMessage(m, conversation.sid))
+                            }
+                          })
+                        })
+                        .catch((err) => console.log(err))
+                    }
+                  }
+                }
+              })
+            })
+            .catch((err) => console.log(err))
+        }
+      })
+
+      client.on('conversationLeft', (thisConversation) => {
+        console.log(`Conversation Left: ${thisConversation}`)
+      })
+
+      const subscribedConversations = await client.getSubscribedConversations()
+
+      if (subscribedConversations.items.length) {
+        const chatsWithConversation: ChatType = {}
+
+        subscribedConversations.items.forEach((item) => {
+          chatsWithConversation[item.sid] = {
+            ...chats[item.sid],
+            conversation: item
+          }
+        })
+
+        dispatch(actions.setChats(chatsWithConversation))
+
+        Object.values(chatsWithConversation).forEach((chat) => {
+          chat.conversation?.on('messageAdded', (m: Message) => {
+            if (m.author === uid) {
+              dispatch(actions.updateMessage(m, chat.chat))
+            } else {
+              dispatch(actions.addMessage(m, chat.chat))
+            }
+          })
+        })
+
+        const getAllMessages = () =>
+          Object.values(chatsWithConversation).map((chat) => chat.conversation?.getMessages())
+
+        const allMessages = await Promise.all(getAllMessages())
+
+        if (allMessages.length) {
+          const chatsWithMessages: ChatType = {}
+
+          Object.values(chatsWithConversation).forEach((chat, index) => {
+            chatsWithMessages[chat.chat] = {
+              ...chat,
+              messages: allMessages[index]?.items || []
+            }
+          })
+
+          dispatch(actions.setChats(chatsWithMessages))
+        }
       }
-    })
-
-    dispatch(actions.setChats(chatsWithConversation))
-
-    Object.values(chatsWithConversation).forEach((chat) => {
-      chat.conversation?.on('messageAdded', (m: Message) => {
-        if (m.author === uid) {
-          dispatch(actions.updateMessage(m, chat.chat))
-        } else {
-          dispatch(actions.addMessage(m, chat.chat))
-        }
-      })
-    })
-
-    const getAllMessages = () => Object.values(chatsWithConversation).map((chat) => chat.conversation?.getMessages())
-
-    const allMessages = await Promise.all(getAllMessages())
-
-    if (allMessages.length) {
-      const chatsWithMessages: ChatType = {}
-
-      Object.values(chatsWithConversation).forEach((chat, index) => {
-        chatsWithMessages[chat.chat] = {
-          ...chat,
-          messages: allMessages[index]?.items || []
-        }
-      })
-
-      dispatch(actions.setChats(chatsWithMessages))
     }
   }
-
-  // subscribedConversations.items[0].on('messageAdded', (m) => {
-  //   console.log(m)
-  // })
-
-  // const chat = await client.getConversationBySid('CHd959cc020b7d4e27b3a7a00e6b312388')
-  //
-  // const sendedMessage = await chat.sendMessage('1234')
 }
 
 export const getMessages = async (chat: string) =>
