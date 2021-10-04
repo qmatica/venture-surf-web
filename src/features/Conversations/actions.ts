@@ -1,6 +1,5 @@
 import { Client as ConversationsClient } from '@twilio/conversations'
 import { Message } from '@twilio/conversations/lib/message'
-import { config } from 'config/twilio'
 import { profileAPI } from 'api'
 import Conversation from '@twilio/conversations/lib/conversation'
 import { ChatType, MessageType, ThunkType } from './types'
@@ -178,14 +177,6 @@ export const init = (): ThunkType => async (dispatch, getState) => {
     }
   }
 }
-
-export const getMessages = async (chat: string) =>
-  fetch(`https://conversations.twilio.com/v1/Conversations/${chat}/Messages`, {
-    headers: {
-      Authorization: `Basic ${Buffer.from(`${config.accountSid}:${config.authToken}`).toString('base64')}`
-    },
-    method: 'GET'
-  }).then((response: any) => response.json())
 
 export const sendMessage = (message: string, chat: string): ThunkType => async (dispatch, getState) => {
   const { auth } = getState().firebase
