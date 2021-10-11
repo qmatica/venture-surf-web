@@ -1,16 +1,16 @@
 import React, { FC, useState } from 'react'
 import { Edit2Icon, TimeIcon } from 'common/icons'
-import { VideoType } from 'features/Profile/types'
+import { FormattedVideoType } from 'features/Profile/components/Tabs/Video'
 import { Modal } from 'features/Modal'
 import { useDispatch } from 'react-redux'
 import { IFormElement, EditVideo } from 'features/Profile/components/Tabs/Video/components/EditVideo'
-import { deleteVideo as deleteVideoThunk, renameVideo as renameVideoThunk } from 'features/Profile/actions'
+import { deleteVideo, renameVideo } from 'features/Profile/actions'
 import styles from './styles.module.sass'
 
 interface IVideoItem {
-    video: VideoType
-    activeVideoInPlayer: VideoType | null
-    onSetCurrentVideo: (video: VideoType) => void
+    video: FormattedVideoType
+    activeVideoInPlayer: FormattedVideoType | null
+    onSetCurrentVideo: (video: FormattedVideoType) => void
 }
 
 export const VideoItem: FC<IVideoItem> = ({
@@ -24,11 +24,11 @@ export const VideoItem: FC<IVideoItem> = ({
 
   const toggleModal = () => setIsOpenModal(!isOpenModal)
 
-  const renameVideo = (e: React.FormEvent<IFormElement>) => {
+  const onRenameVideo = (e: React.FormEvent<IFormElement>) => {
     e.preventDefault()
     setIsLoadingButton('onSaveButton')
-    dispatch(renameVideoThunk(
-      video.asset_id,
+    dispatch(renameVideo(
+      video.assetID,
       video.title,
       e.currentTarget.elements.videoName.value,
       setIsOpenModal,
@@ -36,31 +36,32 @@ export const VideoItem: FC<IVideoItem> = ({
     ))
   }
 
-  const deleteVideo = () => {
+  const onDeleteVideo = () => {
     setIsLoadingButton('onDeleteButton')
-    dispatch(deleteVideoThunk(video.title, setIsOpenModal, setIsLoadingButton))
+    dispatch(deleteVideo(video.title, setIsOpenModal, setIsLoadingButton))
   }
 
-  const selectVideo = () => onSetCurrentVideo(video)
+  const onSelectVideo = () => onSetCurrentVideo(video)
 
   return (
     <>
       <div
-        className={`${styles.videoContainer} ${activeVideoInPlayer?.asset_id === video.asset_id ? styles.active : ''}`}
+        className={`${styles.videoContainer} ${activeVideoInPlayer?.assetID === video.assetID ? styles.active : ''}`}
         title={video.title}
       >
-        <div className={styles.imgContainer} onClick={selectVideo}>
-          {video.status === 'uploading' && <TimeIcon />}
-          {video.thumb_url && <img src={video.thumb_url} alt="" />}
+        <div className={styles.imgContainer} onClick={onSelectVideo}>
+          {!video.assetID && <TimeIcon />}
+          {video.img && <img src={video.img} alt="" />}
         </div>
-        <div className={styles.infoContainer} onClick={selectVideo}>
+        <div className={styles.infoContainer} onClick={onSelectVideo}>
           <div className={styles.title}>{video.title}</div>
-          <div className={styles.time}>{video.duration_secs}s</div>
         </div>
         <div className={styles.actionContainer}>
-          <div className={styles.editButton} onClick={toggleModal}>
-            <Edit2Icon />
-          </div>
+          {video.assetID && (
+            <div className={styles.editButton} onClick={toggleModal}>
+              <Edit2Icon />
+            </div>
+          )}
         </div>
       </div>
       <Modal
@@ -71,10 +72,10 @@ export const VideoItem: FC<IVideoItem> = ({
         <>
           <EditVideo
             titleVideo={video.title}
-            imageVideo={video.thumb_url}
+            imageVideo={video.img}
             isLoadingButton={isLoadingButton}
-            onSaveVideo={renameVideo}
-            onDeleteVideo={deleteVideo}
+            onSaveVideo={onRenameVideo}
+            onDeleteVideo={onDeleteVideo}
           />
         </>
       </Modal>

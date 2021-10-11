@@ -7,7 +7,8 @@ import { getFirebase } from 'react-redux-firebase'
 import { UsersType } from 'features/User/types'
 import { actions } from './actions'
 
-export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsModal | typeof actionsVideoChat | typeof actionsConversations>
+export type ActionTypes =
+  InferActionsTypes<typeof actions | typeof actionsModal | typeof actionsVideoChat | typeof actionsConversations>
 export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ProfileType = {
@@ -60,10 +61,10 @@ export type ProfileType = {
         roles: string[]
         industries: string[]
         videos: {
-            Technology: string
             _order_: string[]
             _uploading_: string[]
-            Team: string
+        } & {
+            [key: string]: VideoType
         }
         job: JobType
         docs: {
@@ -89,6 +90,14 @@ export type JobType = {
 }
 
 export type VideoType = {
+    width: number
+    height: number
+    playbackID: string
+    assetID: string
+    created_at: number
+}
+
+export type onSnapshotVideoType = {
     aspect_ratio: string
     asset_id: string
     created: string
