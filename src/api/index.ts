@@ -31,7 +31,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use((res) => res, (error) => Promise.reject(error.response.data))
 
 export const profileAPI = {
-  getProfile() {
+  getMyProfile() {
     return instance.get('api/user').then((res) => res.data)
   },
   afterLogin(device: DeviceType) {
@@ -42,9 +42,6 @@ export const profileAPI = {
   },
   updateActiveRole(activeRole: 'investor' | 'founder', value?: { [key: string]: any }) {
     return instance.post(`api/role/${activeRole}`, value).then((res) => res.status)
-  },
-  getVideos() {
-    return instance.get('/api/videos').then((res) => res.data)
   },
   uploadVideo(title: string) {
     return instance.put('/api/video', { title }).then((res) => res.data as { ref: string, upload_url: string })

@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react'
 import { PreloaderIcon, TrashCanIcon, VideoIcon } from 'common/icons'
 import { useSelector } from 'react-redux'
-import { RootState } from 'common/types'
+import { getMyProfile } from 'features/Profile/selectors'
 import styles from './styles.module.sass'
 
 interface IEditVideo {
@@ -29,7 +29,7 @@ export const EditVideo: FC<IEditVideo> = ({
   onSetSelectedVideo,
   onDeleteVideo
 }) => {
-  const { profile } = useSelector((state: RootState) => state.profile)
+  const profile = useSelector(getMyProfile)
   const [title, setTitle] = useState('')
   const [isErrorNameExist, setIsErrorNameExist] = useState(false)
 

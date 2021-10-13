@@ -8,7 +8,7 @@ import { updateMyProfile } from '../../actions'
 import { JobType } from '../../types'
 import styles from './styles.module.sass'
 
-export const Job = ({ job }: { job: JobType }) => {
+export const Job = ({ job, isOnlyView }: { job: JobType, isOnlyView: boolean }) => {
   const dispatch = useDispatch()
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -41,7 +41,7 @@ export const Job = ({ job }: { job: JobType }) => {
 
   return (
     <div className={styles.jobContainer}>
-      {isEmptyJob ? (
+      {isEmptyJob ? !isOnlyView && (
         <Button title="Add Job" onClick={toggleModal} />
       ) : (
         <>
@@ -50,9 +50,11 @@ export const Job = ({ job }: { job: JobType }) => {
             {job.title && <div className={styles.title}>{job.title}</div>}
             {job.headline && <div className={styles.headline}>{job.headline}</div>}
           </div>
-          <div className={styles.edit} onClick={toggleModal}>
-            <Button title="Edit" icon={<Edit2Icon size="17" />} />
-          </div>
+          {!isOnlyView && (
+            <div className={styles.edit} onClick={toggleModal}>
+              <Button title="Edit" icon={<Edit2Icon size="17" />} />
+            </div>
+          )}
         </>
       )}
       <Modal title={titleModal} onClose={toggleModal} isOpen={isOpenModal}>

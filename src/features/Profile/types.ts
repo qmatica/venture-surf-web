@@ -12,6 +12,7 @@ export type ActionTypes =
 export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ProfileType = {
+    uid?: string
     first_name: string
     last_name: string
     displayName: string

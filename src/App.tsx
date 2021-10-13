@@ -27,7 +27,7 @@ export const App: FC = () => {
             <Route path="/contacts" component={Contacts} />
             <Route path="/calendar" component={Calendar} />
             <Route path="/conversations" component={Conversations} />
-            <Route path="/profile" component={Profile} />
+            <Route path="/profile/:uid" component={Profile} />
           </Layout>
         </Route>
       </Switch>

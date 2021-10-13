@@ -6,6 +6,8 @@ const getSearchSelector = (state: RootState) => state.contacts.search
 
 const getMutualsSelector = (state: RootState) => state.profile.profile?.mutuals
 
+const getOtherProfileSelector = (state: RootState) => state.contacts.selectedProfile
+
 export const getMutuals = createSelector(
   getMutualsSelector,
   getSearchSelector,
@@ -43,3 +45,5 @@ export const getReceived = createSelector(
   getReceivedSelector,
   (received) => (received ? Object.values(received) : [])
 )
+
+export const getOtherProfile = createSelector(getOtherProfileSelector, (profile) => profile)

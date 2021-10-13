@@ -10,6 +10,7 @@ import styles from './styles.module.sass'
 
 interface IVideo {
   profile: ProfileType
+  isOnlyView: boolean
 }
 
 export type FormattedVideoType = {
@@ -21,7 +22,7 @@ export type FormattedVideoType = {
   created_at: number
 }
 
-export const Video: FC<IVideo> = ({ profile }) => {
+export const Video: FC<IVideo> = ({ profile, isOnlyView }) => {
   const dispatch = useDispatch()
   const playerRef = createRef<HTMLVideoElement>()
   const [currentVideo, setCurrentVideo] = useState<FormattedVideoType | null>(null)
@@ -79,7 +80,7 @@ export const Video: FC<IVideo> = ({ profile }) => {
   return (
     <div className={styles.container}>
       <div className={styles.profileVideoContainer}>
-        <AddVideo />
+        {!isOnlyView && <AddVideo />}
         <div className={styles.playListContainer}>
           {uploadingVideos.map((video, i) => (
             <VideoItem

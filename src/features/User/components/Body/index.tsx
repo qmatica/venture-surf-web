@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 import { Button } from 'common/components/Button'
 import { UserPhotoIcon } from 'common/icons'
+import { Link } from 'react-router-dom'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
 import { EnumActionsUser } from '../../constants'
@@ -24,13 +25,17 @@ export const Body: FC<IBody> = ({
 
   return (
     <div className={styles.container}>
-      <div className={styles.imgContainer}>
-        {photoURL ? <img src={photoURL} alt="" /> : <UserPhotoIcon />}
-      </div>
-      <div className={styles.infoContainer}>
-        <div className={styles.name}>
-          {name}
+      <Link to={`/profile/${user.uid}`}>
+        <div className={styles.imgContainer}>
+          {photoURL ? <img src={photoURL} alt="" /> : <UserPhotoIcon />}
         </div>
+      </Link>
+      <div className={styles.infoContainer}>
+        <Link to={`/profile/${user.uid}`}>
+          <div className={styles.name}>
+            {name}
+          </div>
+        </Link>
         {job && !emptyJob && (
         <div className={styles.jobContainer}>
           {job.company && <div className={styles.company}>{job.company}</div>}

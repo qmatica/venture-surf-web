@@ -5,7 +5,7 @@ import {
   ArrowBottomIcon, NotReadMessageIcon, ReadMessageIcon
 } from 'common/icons'
 import { ContextMenu, ContextMenuTrigger } from 'react-contextmenu'
-import { RootState } from 'common/types'
+import { getMyUid } from 'features/Auth/selectors'
 import { getChats, getOpenedChat } from '../../../selectors'
 import { InputField } from './InputField'
 import styles from './styles.module.sass'
@@ -15,7 +15,7 @@ export const Messages = () => {
 
   const [prevScrollHeightMessagesContainer, setPrevScrollHeightMessagesContainer] = useState(0)
 
-  const { auth } = useSelector((state: RootState) => state.firebase)
+  const uid = useSelector(getMyUid)
   const chats = useSelector(getChats)
   const openedChat = useSelector(getOpenedChat)
 
@@ -45,7 +45,7 @@ export const Messages = () => {
           style={{ height: openedChat && chats[openedChat] ? 'auto' : '100%' }}
         >
           {chats[openedChat].messages.map((message) => {
-            const myMessage = message.author === auth.uid
+            const myMessage = message.author === uid
 
             const className = myMessage ? styles.ownerMessage : styles.otherOwnerMessage
 

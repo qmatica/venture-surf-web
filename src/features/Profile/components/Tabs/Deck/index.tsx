@@ -8,9 +8,10 @@ import styles from './styles.module.sass'
 
 interface IDeck {
   profile: ProfileType
+  isOnlyView: boolean
 }
 
-export const Deck: FC<IDeck> = ({ profile }) => {
+export const Deck: FC<IDeck> = ({ profile, isOnlyView }) => {
   const { docs } = profile[profile.activeRole]
   const sortedDocs = docs._order_.map((key) => ({
     title: key,
@@ -38,8 +39,8 @@ export const Deck: FC<IDeck> = ({ profile }) => {
               </a>
               <div className={styles.actions}>
                 <div><EyeIcon /></div>
-                <div><DownloadIcon /></div>
-                <div><Edit2Icon /></div>
+                <div className={styles.download}><DownloadIcon /></div>
+                {!isOnlyView && <div><Edit2Icon /></div>}
               </div>
             </div>
           </div>
