@@ -1,8 +1,9 @@
-import firebase from 'firebase/app'
+import firebase from 'firebase/compat/app'
 import { getFirebase, firebaseReducer } from 'react-redux-firebase'
 import { firestoreReducer } from 'redux-firestore'
-import 'firebase/auth'
-import 'firebase/firestore'
+import 'firebase/compat/auth'
+import 'firebase/compat/firestore'
+import 'firebase/compat/messaging'
 import {
   applyMiddleware, combineReducers, compose, createStore
 } from 'redux'
@@ -17,9 +18,11 @@ import { NotificationsReducer } from 'features/Notifications/reducer'
 import { VideoChatReducer } from 'features/VideoChat/reducer'
 import { ConversationsReducer } from 'features/Conversations/reducer'
 import { config } from 'config/firebase'
+import { getMessaging } from 'firebase/messaging'
 
-firebase.initializeApp(config)
-firebase.firestore()
+const firebaseApp = firebase.initializeApp(config)
+export const messaging = getMessaging(firebaseApp)
+// firebase.firestore()
 
 export const rootReducer = combineReducers({
   firebase: firebaseReducer,

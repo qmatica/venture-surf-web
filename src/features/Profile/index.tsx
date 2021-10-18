@@ -52,6 +52,10 @@ export const Profile: FC<IProfile> = ({ match }) => {
     if (otherProfile) setProfile(otherProfile)
   }, [otherProfile])
 
+  useEffect(() => {
+    if (profile?.uid === myProfile?.uid) setProfile(myProfile)
+  }, [myProfile])
+
   if (!profile) return <>Loading profile</>
 
   const job = {

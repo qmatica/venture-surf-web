@@ -7,11 +7,14 @@ import { actions as actionsConversations } from 'features/Conversations/actions'
 import * as UpChunk from '@mux/upchunk'
 import { EnumActionsUser } from 'features/User/constants'
 import { addMessage } from 'features/Notifications/actions'
+import { init as initSurf } from 'features/Surf/actions'
 import { UsersType } from 'features/User/types'
 import {
   CalendarMinIcon, LikeIcon, MailIconMin, PeopleIcon, PhoneCallIcon, WithdrawLikeIcon
 } from 'common/icons'
 import { Message } from '@twilio/conversations/lib/message'
+import { getToken, onMessage } from 'firebase/messaging'
+import { messaging } from 'store/store'
 import {
   JobType, ResponseCallNowType, ThunkType, onSnapshotVideoType
 } from './types'
@@ -33,10 +36,14 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     localStorage.setItem('deviceId', deviceId)
   }
 
+  const fcm_token = await getToken(messaging).catch((err) => {
+    console.log('An error occurred while retrieving token. ', err)
+  })
+
   const device = {
     id: deviceId,
     os: window.navigator.appVersion,
-    fcm_token: 'fcm_token_web',
+    fcm_token,
     voip_token: '12428345723486-34639456-4563-4956',
     bundle: 'opentek.us.VentureSwipe'
   }
@@ -164,13 +171,21 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     })
   }
 
+  const { auth: { uid } } = getState().firebase
+
   const updatedProfile = {
     ...profile,
+    uid,
     mutuals,
     likes,
     liked
   }
   dispatch(actions.setMyProfile(updatedProfile))
+
+  onMessage(messaging, (payload) => {
+    console.log('Message received. ', payload)
+    // ...
+  })
 
   dispatch(subscribeOnListenIncomingCalls())
 }
@@ -741,6 +756,8 @@ export const switchRole = (): ThunkType => async (dispatch, getState) => {
     const status = await profileAPI.updateActiveRole(activeRole)
 
     if (status === apiCodes.success) {
+      await dispatch(initSurf())
+
       const updatedProfile = {
         ...profile,
         activeRole

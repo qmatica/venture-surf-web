@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import logo from 'common/images/logo.jpg'
 import { useDispatch, useSelector } from 'react-redux'
-import firebase from 'firebase/app'
+import firebase from 'firebase/compat/app'
 import { PreloaderIcon } from 'common/icons'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
