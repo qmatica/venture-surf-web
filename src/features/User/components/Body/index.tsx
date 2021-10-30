@@ -1,27 +1,138 @@
 import React, { FC } from 'react'
+import { like } from 'features/Surf/actions'
+import { accept, withdrawLike } from 'features/Contacts/actions'
 import { Button } from 'common/components/Button'
 import { UserPhotoIcon } from 'common/icons'
 import { Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { determineJobWithActiveRole, determineJobWithoutActiveRole } from 'common/typeGuards'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
-import { EnumActionsUser } from '../../constants'
 
 interface IBody {
     user: UserType
     rightSide?: React.ReactElement
+    typeUser: 'mutuals' | 'received' | 'sent' | 'surf'
 }
 
 export const Body: FC<IBody> = ({
   user,
-  rightSide
+  rightSide,
+  typeUser
 }) => {
+  const dispatch = useDispatch()
+
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
-  const { photoURL, job } = user
+  const {
+    uid, photoURL, job, loading, clickedAction, activeRole
+  } = user
 
-  const actions = Object.values(user.actions).filter((action) => action.type === EnumActionsUser.dynamic)
+  const getButtons = () => {
+    switch (typeUser) {
+      case 'surf': {
+        const isCLicked = clickedAction === 'surf-like'
 
-  const emptyJob = job && Object.values(job).every((value) => value === '')
+        const onClick = () => {
+          dispatch(like(uid, isCLicked ? 'withdrawLike' : 'like'))
+        }
+
+        return (
+          <Button
+            title={isCLicked ? 'Withdraw like' : 'Like'}
+            isLoading={loading?.some((el) => ['like', 'withdrawLike'].includes(el))}
+            onClick={onClick}
+            icon={isCLicked ? 'withdrawLike' : 'like'}
+          />
+        )
+      }
+      case 'sent': {
+        const isCLicked = clickedAction === 'sent-withdrawLike'
+
+        const onClick = () => {
+          dispatch(withdrawLike(uid, isCLicked ? 'like' : 'withdrawLike'))
+        }
+
+        return (
+          <Button
+            title={isCLicked ? 'Like' : 'Withdraw like'}
+            isLoading={loading?.some((el) => ['withdrawLike', 'like'].includes(el))}
+            onClick={onClick}
+            icon={isCLicked ? 'like' : 'withdrawLike'}
+          />
+        )
+      }
+      case 'received': {
+        const onClickAccept = () => {
+          dispatch(accept(user.uid))
+        }
+        const onClickIgnore = () => {}
+
+        return (
+          <>
+            <Button
+              title="Accept"
+              isLoading={loading?.includes('accept')}
+              onClick={onClickAccept}
+              icon="like"
+            />
+            <Button
+              title="Ignore"
+              isLoading={loading?.includes('ignore')}
+              onClick={onClickIgnore}
+              icon="withdrawLike"
+            />
+          </>
+        )
+      }
+      default: return null
+    }
+  }
+
+  const getJob = () => {
+    switch (typeUser) {
+      case 'surf': {
+        if (determineJobWithoutActiveRole(job)) {
+          const emptyJob = job && Object.values(job).every((value) => value === '')
+
+          return (
+            <>
+              {job && !emptyJob && (
+                <div className={styles.jobContainer}>
+                  {job.company && <div className={styles.company}>{job.company}</div>}
+                  {job.title && <div className={styles.title}>{job.title}</div>}
+                  {job.headline && <div className={styles.headline}>{job.headline}</div>}
+                  {job.position && <div className={styles.position}>{job.position}</div>}
+                </div>
+              )}
+            </>
+          )
+        }
+        break
+      }
+      default: {
+        if (determineJobWithActiveRole(job)) {
+          if (!activeRole) return null
+
+          const emptyJob = job && activeRole && Object.values(job[activeRole]).every((value) => value === '')
+
+          return (
+            <>
+              {job && !emptyJob && (
+                <div className={styles.jobContainer}>
+                  {job[activeRole].company && <div className={styles.company}>{job[activeRole].company}</div>}
+                  {job[activeRole].title && <div className={styles.title}>{job[activeRole].title}</div>}
+                  {job[activeRole].headline && <div className={styles.headline}>{job[activeRole].headline}</div>}
+                  {job[activeRole].position && <div className={styles.position}>{job[activeRole].position}</div>}
+                </div>
+              )}
+            </>
+          )
+        }
+      }
+    }
+    return null
+  }
 
   return (
     <div className={styles.container}>
@@ -36,29 +147,11 @@ export const Body: FC<IBody> = ({
             {name}
           </div>
         </Link>
-        {job && !emptyJob && (
-        <div className={styles.jobContainer}>
-          {job.company && <div className={styles.company}>{job.company}</div>}
-          {job.title && <div className={styles.title}>{job.title}</div>}
-          {job.headline && <div className={styles.headline}>{job.headline}</div>}
-          {job.position && <div className={styles.position}>{job.position}</div>}
-        </div>
-        )}
-        {actions.length > 0 && (
-        <div className={styles.buttonsContainer}>
-          {actions.map((action) => {
-            if (!action.isActive) return null
-            return (
-              <Button
-                key={action.title}
-                title={action.title}
-                isLoading={action.isLoading}
-                onClick={action.onClick}
-                icon={action.icon && <action.icon />}
-              />
-            )
-          })}
-        </div>
+        {getJob()}
+        {typeUser !== 'mutuals' && (
+          <div className={styles.buttonsContainer}>
+            {getButtons()}
+          </div>
         )}
       </div>
       <div className={styles.rightSide}>

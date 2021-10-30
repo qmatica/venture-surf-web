@@ -76,3 +76,9 @@ export type stagesType = {
         [key: number]: string
     }
 }
+
+export type StatisticVideoType = {
+    stop_time: number
+    percent: number
+    action: string
+}

@@ -2,11 +2,12 @@ import { ThunkAction } from 'redux-thunk'
 import { getFirebase } from 'react-redux-firebase'
 import { AppStateType, InferActionsTypes } from 'common/types'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
+import { actions as actionsProfile } from 'features/Profile/actions'
 import Conversation from '@twilio/conversations/lib/conversation'
 import { Message } from '@twilio/conversations/lib/message'
 import { actions } from './actions'
 
-export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsNotifications>
+export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsNotifications | typeof actionsProfile>
 export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ChatType = {

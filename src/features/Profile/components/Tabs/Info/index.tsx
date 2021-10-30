@@ -38,13 +38,13 @@ export const Info: FC<IInfo> = ({ profile, isOnlyView }) => {
       </div>
       <Tags
         title={titleStages}
-        tags={profile[profile.activeRole].stages}
+        tags={profile[profile.activeRole]?.stages}
         dictionary={stages[profile.activeRole]}
         onSave={isOnlyView ? undefined : updateProfile('stages')}
       />
       <Tags
         title={titleIndustries}
-        tags={profile[profile.activeRole].industries}
+        tags={profile[profile.activeRole]?.industries}
         dictionary={industries}
         onSave={isOnlyView ? undefined : updateProfile('industries')}
       />

@@ -2,6 +2,7 @@ import { ActionTypes, ProfileType } from './types'
 
 const initialState = {
   profile: null as ProfileType | null,
+  isActiveFcm: false,
   progressLoadingFile: null as number | null
 }
 
@@ -20,6 +21,53 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         }
       }
     }
+    case 'PROFILE__ADD_USER_IN_MY_CONTACTS': {
+      if (!state.profile) return state
+
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          [action.payload.contacts]: {
+            ...state.profile[action.payload.contacts],
+            [action.payload.user.uid]: action.payload.user
+          }
+        }
+      }
+    }
+    case 'PROFILE__REMOVE_USER_IN_MY_CONTACTS': {
+      if (!state.profile) return state
+
+      const users = { ...state.profile[action.payload.contacts] }
+      delete users[action.payload.user.uid]
+
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          [action.payload.contacts]: users
+        }
+      }
+    }
+    case 'PROFILE__UPDATE_USER_IN_MY_CONTACTS': {
+      if (!state.profile) return state
+
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          [action.payload.contacts]: {
+            ...state.profile[action.payload.contacts],
+            [action.payload.user.uid]: action.payload.user
+          }
+        }
+      }
+    }
+    case 'PROFILE__SET_IS_ACTIVE_FCM':
+      return {
+        ...state,
+        isActiveFcm: action.isActiveFcm
+      }
     default: return state
   }
 }

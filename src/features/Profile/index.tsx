@@ -14,6 +14,7 @@ import { Job } from './components/Job'
 import styles from './styles.module.sass'
 import { SwitchRoles } from './components/SwitchRoles'
 import { ProfileType } from './types'
+import { Avatar } from './components/Avatar'
 
 interface Identifiable { uid: string }
 
@@ -59,9 +60,9 @@ export const Profile: FC<IProfile> = ({ match }) => {
   if (!profile) return <>Loading profile</>
 
   const job = {
-    company: profile[profile.activeRole].job?.company,
-    title: profile[profile.activeRole].job?.title,
-    headline: profile[profile.activeRole].job?.headline
+    company: profile[profile.activeRole]?.job?.company,
+    title: profile[profile.activeRole]?.job?.title,
+    headline: profile[profile.activeRole]?.job?.headline
   }
 
   const name = profile.displayName || `${profile.first_name} ${profile.last_name}`
@@ -75,11 +76,7 @@ export const Profile: FC<IProfile> = ({ match }) => {
     <div className={styles.wrapper}>
       <div className={styles.headerContainer}>
         <div className={styles.aboutProfileContainer}>
-          <div className={styles.photoContainer}>
-            {profile.photoURL
-              ? <img src={profile.photoURL} alt={`${profile.first_name} ${profile.last_name}`} />
-              : <UserPhotoIcon />}
-          </div>
+          <Avatar profile={profile} />
           <div className={styles.infoContainer}>
             <div className={styles.displayName}>{name}</div>
             <Job job={job} isOnlyView={!!otherProfile} />

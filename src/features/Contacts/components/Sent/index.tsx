@@ -12,6 +12,7 @@ export const Sent: FC = () => {
         <User
           key={user.uid}
           user={user}
+          typeUser="sent"
         />
       ))}
     </div>

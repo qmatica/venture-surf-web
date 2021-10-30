@@ -10,11 +10,11 @@ export const getChats = createSelector(getChatsSelector, (chats) => {
   const sortedChats: ChatType = {}
 
   Object.values(chats).sort((a, b) => {
-    const lastMsgA = a.messages[a.messages.length - 1]
+    const lastMsgA = a.messages && a.messages[a.messages.length - 1]
       ? moment(a.messages[a.messages.length - 1].dateUpdated).unix()
       : 0
 
-    const lastMsgB = b.messages[b.messages.length - 1]
+    const lastMsgB = b.messages && b.messages[b.messages.length - 1]
       ? moment(b.messages[b.messages.length - 1].dateUpdated).unix()
       : 0
 

@@ -1,20 +1,23 @@
 import { usersAPI } from 'api'
 import { addMessage } from 'features/Notifications/actions'
-import { EnumActionsUser } from 'features/User/constants'
 import { apiCodes } from 'common/types'
 import { UserType } from 'features/User/types'
-import { addUserInLikesFromSurf } from 'features/Profile/actions'
-import { LikeIcon, WithdrawLikeIcon } from 'common/icons'
+import { actions as profileActions } from 'features/Profile/actions'
 import { ThunkType } from './types'
 
 export const actions = {
-  setUsers: (users: UserType[]) => ({ type: 'SURF__SET_USERS', users } as const)
+  setRecommendedUsers: (recommendedUsers: UserType[]) => (
+    { type: 'SURF__SET_RECOMMENDED_USERS', recommendedUsers } as const
+  ),
+  setUsers: (users: UserType[]) => ({ type: 'SURF__SET_USERS', users } as const),
+  addUser: (user: UserType) => ({ type: 'SURF__ADD_USER', user } as const),
+  removeUser: (user: UserType) => ({ type: 'SURF__REMOVE_USER', user } as const)
 }
 
 export const init = (): ThunkType => async (dispatch, getState) => {
   const { getMatches, getRecommended } = usersAPI
 
-  const promise = await Promise.all([getMatches(), getRecommended()]).catch((err) => {
+  const response = await Promise.all([getRecommended(), getMatches()]).catch((err) => {
     /*dispatch(addMessage({
       title: 'Error loading surf users',
       value: err.error,
@@ -23,43 +26,20 @@ export const init = (): ThunkType => async (dispatch, getState) => {
     console.log(err.error)
   })
 
-  if (!promise) return
+  if (!response) return
 
-  const users: UserType[] = [...promise[0].matches, ...promise[1].recommendations]
+  const recommendedUsers: UserType[] = response[0].recommendations
 
-  const formattedUsers = users.map((user) => ({
-    ...user,
-    actions: {
-      like: {
-        onClick() {
-          dispatch(like(user.uid))
-        },
-        title: 'Like',
-        isActive: true,
-        isLoading: false,
-        type: EnumActionsUser.dynamic,
-        icon: LikeIcon
-      },
-      withdrawLike: {
-        onClick() {
-          dispatch(withdrawLike(user.uid))
-        },
-        title: 'Withdraw like',
-        isActive: false,
-        isLoading: false,
-        type: EnumActionsUser.dynamic,
-        icon: WithdrawLikeIcon
-      }
-    }
-  }))
+  // const formattedRecommendedUsers = recommendedUsers.reduce((prevUsers, nextUser) => {}, [])
 
-  dispatch(actions.setUsers(formattedUsers))
+  dispatch(actions.setRecommendedUsers(recommendedUsers))
+
+  const users: UserType[] = response[1].matches
+
+  dispatch(actions.setUsers(users))
 }
 
-const togglePreloader = (
-  uid: string,
-  action: string
-): ThunkType => (dispatch, getState) => {
+export const like = (uid: string, action: 'like' | 'withdrawLike'): ThunkType => async (dispatch, getState) => {
   const { users } = getState().surf
 
   if (users) {
@@ -69,80 +49,33 @@ const togglePreloader = (
     if (updatedUserIndex >= 0) {
       updatedUsers[updatedUserIndex] = {
         ...updatedUsers[updatedUserIndex],
-        actions: {
-          ...updatedUsers[updatedUserIndex].actions,
-          [action]: {
-            ...updatedUsers[updatedUserIndex].actions[action],
-            isLoading: !updatedUsers[updatedUserIndex].actions[action].isLoading
-          }
+        loading: [action],
+        clickedAction: `surf-${action}`
+      }
+      dispatch(actions.setUsers(updatedUsers))
+
+      const status = await usersAPI[action](uid).catch((err) => {
+        dispatch(addMessage({
+          title: 'Error',
+          value: err.error,
+          type: 'error'
+        }))
+      })
+
+      if (status === apiCodes.success) {
+        const { users } = getState().surf
+        const updatedUsers = [...users]
+
+        updatedUsers[updatedUserIndex] = {
+          ...updatedUsers[updatedUserIndex],
+          loading: []
         }
-      }
+        dispatch(actions.setUsers(updatedUsers))
 
-      dispatch(actions.setUsers(updatedUsers))
+        const profileAction = action === 'like' ? 'addUserInMyContacts' : 'removeUserInMyContacts'
+
+        dispatch(profileActions[profileAction](updatedUsers[updatedUserIndex], 'likes'))
+      }
     }
   }
-}
-
-const toggleActions = (
-  uid: string,
-  toggleActions: string[]
-): ThunkType => (dispatch, getState) => {
-  const { users } = getState().surf
-
-  if (users) {
-    const updatedUsers = [...users]
-    const updatedUserIndex = users.findIndex((user) => user.uid === uid)
-
-    if (updatedUserIndex >= 0) {
-      updatedUsers[updatedUserIndex] = {
-        ...updatedUsers[updatedUserIndex],
-        actions: toggleActions.reduce((updatedActions, nextAction) => ({
-          ...updatedActions,
-          [nextAction]: {
-            ...updatedActions[nextAction],
-            isActive: !updatedActions[nextAction].isActive
-          }
-        }), updatedUsers[updatedUserIndex].actions)
-      }
-
-      dispatch(actions.setUsers(updatedUsers))
-    }
-  }
-}
-
-const like = (uid: string): ThunkType => async (dispatch) => {
-  dispatch(togglePreloader(uid, 'like'))
-
-  const status = await usersAPI.like(uid).catch((err) => {
-    dispatch(addMessage({
-      title: 'Error',
-      value: err.error,
-      type: 'error'
-    }))
-  })
-
-  if (status === apiCodes.success) {
-    dispatch(toggleActions(uid, ['like', 'withdrawLike']))
-    dispatch(addUserInLikesFromSurf(uid))
-  }
-
-  dispatch(togglePreloader(uid, 'like'))
-}
-
-const withdrawLike = (uid: string): ThunkType => async (dispatch) => {
-  dispatch(togglePreloader(uid, 'withdrawLike'))
-
-  const status = await usersAPI.withdrawLike(uid).catch((err) => {
-    dispatch(addMessage({
-      title: 'Error',
-      value: err.error,
-      type: 'error'
-    }))
-  })
-
-  if (status === apiCodes.success) {
-    dispatch(toggleActions(uid, ['like', 'withdrawLike']))
-  }
-
-  dispatch(togglePreloader(uid, 'withdrawLike'))
 }

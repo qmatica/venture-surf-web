@@ -1,10 +1,11 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { User } from 'features/User'
-import { getSurfUsers } from './selectors'
+import { getSurfRecommendedUsers, getSurfUsers } from './selectors'
 import styles from './styles.module.sass'
 
 export const Surf = () => {
+  const recommendedUsers = useSelector(getSurfRecommendedUsers)
   const users = useSelector(getSurfUsers)
   return (
     <div className={styles.container}>
@@ -14,6 +15,7 @@ export const Surf = () => {
           user={user}
           rightSide="tags"
           viewVideos
+          typeUser="surf"
         />
       ))}
     </div>

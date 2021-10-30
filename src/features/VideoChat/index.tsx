@@ -4,7 +4,7 @@ import React, { createRef, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import { Button } from 'common/components/Button'
-import { declineCall } from 'features/Profile/actions'
+// import { declineCall } from 'features/Profile/actions'
 import { Participant } from './components/Participant'
 import styles from './styles.module.sass'
 
@@ -23,7 +23,7 @@ export const VideoChat = () => {
     room?.disconnect()
   }
 
-  const endCall = () => dispatch(declineCall())
+  // const endCall = () => dispatch(declineCall())
 
   const participantConnected = (participant: ParticipantType) => {
     if (!heightContainer) {
@@ -91,7 +91,7 @@ export const VideoChat = () => {
           style={styleLocalParticipant}
         />
         {remoteParticipants}
-        <Button title="End call" className={styles.button} onClick={endCall} />
+        {/*<Button title="End call" className={styles.button} onClick={endCall} />*/}
       </div>
     </Modal>
   )

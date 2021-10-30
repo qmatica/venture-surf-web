@@ -13,30 +13,36 @@ export type UserType = {
     industries?: string[]
     tags?: string[]
     dt?: string
-    actions: ActionUserType
-    job?: {
-        company?: string
-        title?: string
-        headline?: string
-        position?: string
-    }
+    job: { [key in 'founder' | 'investor']: Job } | Job
     content?: {
         docs?: DocsType,
         videos?: VideosType
     }
-    activeRole?: 'investor' | 'founder'
+    activeRole: 'investor' | 'founder'
+    recommended_by?: {
+        uid: string,
+        job: {},
+        photoURL: string,
+        roles: [
+            'investor',
+            'founder'
+        ],
+        dt: Date,
+        displayName: string
+    }
+    recommended_at?: Date
+    recommended_message?: string
+    reason: string
     chat?: string
+    loading?: string[]
+    clickedAction?: string
+}
+
+export type Job = {
+    company?: string
+    title?: string
+    headline?: string
+    position?: string
 }
 
 export type UsersType = { [key: string]: UserType }
-
-export type ActionUserType = {
-    [key: string]: {
-        onClick: (value?: any) => void
-        title: string
-        isActive: boolean
-        isLoading: boolean
-        type: EnumActionsUser
-        icon?: () => ReactElement<any, any>
-    }
-}

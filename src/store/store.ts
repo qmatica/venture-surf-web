@@ -1,9 +1,8 @@
 import firebase from 'firebase/compat/app'
-import { getFirebase, firebaseReducer } from 'react-redux-firebase'
-import { firestoreReducer } from 'redux-firestore'
 import 'firebase/compat/auth'
 import 'firebase/compat/firestore'
 import 'firebase/compat/messaging'
+import { getFirebase, firebaseReducer } from 'react-redux-firebase'
 import {
   applyMiddleware, combineReducers, compose, createStore
 } from 'redux'
@@ -21,12 +20,11 @@ import { config } from 'config/firebase'
 import { getMessaging } from 'firebase/messaging'
 
 const firebaseApp = firebase.initializeApp(config)
+
 export const messaging = getMessaging(firebaseApp)
-// firebase.firestore()
 
 export const rootReducer = combineReducers({
   firebase: firebaseReducer,
-  firestore: firestoreReducer,
   app: AppReducer,
   auth: AuthReducer,
   profile: ProfileReducer,

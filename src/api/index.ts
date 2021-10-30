@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { getFirebase } from 'react-redux-firebase'
-import { AuthUserType } from 'common/types'
+import { AuthUserType, StatisticVideoType } from 'common/types'
 import { proj } from 'config/firebase'
 import { DeviceType } from 'features/Profile/types'
 
@@ -28,7 +28,8 @@ instance.interceptors.request.use(
   }
 )
 
-instance.interceptors.response.use((res) => res, (error) => Promise.reject(error.response.data))
+instance.interceptors.response.use((res) => res, (error) =>
+  Promise.reject(error.response?.data || error.response || error))
 
 export const profileAPI = {
   getMyProfile() {
@@ -52,6 +53,20 @@ export const profileAPI = {
   deleteVideo(title: string) {
     return instance.post('/api/video/delete', { title }).then((res) => res.status)
   },
+  updateProfilePhoto(file: File) {
+    const data = new FormData()
+    data.append('fileName', file)
+
+    return instance.post('/api/user/photo', null, {
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Accept: 'application/json',
+        type: 'formData'
+      },
+      body: data
+    } as any).then((res) => res.data)
+  },
   uploadDoc(title: string, file: File) {
     return instance.post(`/api/doc?title=${title}`, { file }, {
       headers: {
@@ -59,7 +74,7 @@ export const profileAPI = {
       }
     }).then((res) => res.status)
   },
-  getToken() {
+  getChatToken() {
     return instance.get('/api/chat/token').then((res) => res.data)
   }
 }
@@ -89,13 +104,16 @@ export const usersAPI = {
   getRecommended() {
     return instance.get('/api/recommend/me').then((res) => res.data)
   },
-  callNow(uid: string) {
-    return instance.put(`api/call/${uid}/invite`, { variants: ['now'] }).then((res) => res.data)
+  callNow(uid: string, device_id: string) {
+    return instance.put(`api/call/${uid}/invite`, { variants: ['now'], device_id }).then((res) => res.data)
   },
   callDecline(uid: string) {
     return instance.post(`/api/call/${uid}/all/decline`).then((res) => res.status)
   },
   createChat(uid: string) {
     return instance.post(`api/chat/${uid}`).then((res) => res.data)
+  },
+  sendStatisticVideo(uid: string, playbackID: string, data: StatisticVideoType) {
+    return instance.post(`api/videos/${uid}/${playbackID}`, data).then((res) => res.data)
   }
 }

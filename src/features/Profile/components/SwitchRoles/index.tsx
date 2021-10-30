@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useState } from 'react'
 import { Button } from 'common/components/Button'
-import { PlusIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { Input } from 'common/components/Input'
 import { industries as dictionaryIndustries, stages as dictionaryStages } from 'common/constants'
@@ -90,7 +89,7 @@ export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles, isOnly
             isLoading={isLoadingSwitchRole === 'founder'}
             disabled={!!isLoadingSwitchRole || isOnlyView}
           />
-        ) : !isOnlyView && <Button title="" icon={<PlusIcon />} className={styles.default} onClick={toggleModal} />}
+        ) : !isOnlyView && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
         {createdRoles.investor ? (
           <Button
             title="Investor"
@@ -99,7 +98,7 @@ export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles, isOnly
             isLoading={isLoadingSwitchRole === 'investor'}
             disabled={!!isLoadingSwitchRole || isOnlyView}
           />
-        ) : !isOnlyView && <Button title="" icon={<PlusIcon />} className={styles.default} onClick={toggleModal} />}
+        ) : !isOnlyView && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
       </div>
       <Modal title={`Create role: ${newRole}`} isOpen={isOpenModal} onClose={toggleModal}>
         <form onSubmit={onSubmit}>

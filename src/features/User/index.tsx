@@ -14,6 +14,7 @@ interface IUser {
     viewActions?: boolean
     viewVideos?: boolean
     switchRoles?: boolean
+    typeUser: 'mutuals' | 'received' | 'sent' | 'surf'
 }
 
 export const User: FC<IUser> = memo(({
@@ -21,7 +22,8 @@ export const User: FC<IUser> = memo(({
   rightSide,
   viewActions = false,
   viewVideos = false,
-  switchRoles = false
+  switchRoles = false,
+  typeUser
 }) => {
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
@@ -52,6 +54,7 @@ export const User: FC<IUser> = memo(({
       <Body
         user={user}
         rightSide={rightSideContent}
+        typeUser={typeUser}
       />
       {viewActions && <Actions user={user} />}
       {viewVideos && <Videos videos={user.content?.videos} userId={user.uid} userName={name} />}

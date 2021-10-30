@@ -25,6 +25,7 @@ export const Mutuals: FC = memo(() => {
           rightSide="assets"
           viewActions
           switchRoles
+          typeUser="mutuals"
         />
       ))}
     </div>

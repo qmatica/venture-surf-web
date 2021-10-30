@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux'
 import { Button } from 'common/components/Button'
 import { Modal } from 'features/Modal'
 import { Input } from 'common/components/Input'
-import { Edit2Icon } from 'common/icons'
 import { updateMyProfile } from '../../actions'
 import { JobType } from '../../types'
 import styles from './styles.module.sass'
@@ -52,7 +51,7 @@ export const Job = ({ job, isOnlyView }: { job: JobType, isOnlyView: boolean }) 
           </div>
           {!isOnlyView && (
             <div className={styles.edit} onClick={toggleModal}>
-              <Button title="Edit" icon={<Edit2Icon size="17" />} />
+              <Button title="Edit" icon="edit" />
             </div>
           )}
         </>

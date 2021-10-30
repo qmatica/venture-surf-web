@@ -20,7 +20,7 @@ export const ChatsList = () => {
         }) => {
           const activeClassName = chat === openedChat ? styles.activeDialog : ''
 
-          const lastMessage = messages.length ? messages[messages.length - 1] : null
+          const lastMessage = messages?.length ? messages[messages.length - 1] : null
 
           return (
             <div

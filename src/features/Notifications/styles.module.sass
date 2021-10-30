@@ -37,3 +37,144 @@
       align-items: center
       > *
         stroke: #FFFFFF
+.errorMsgContainer
+  position: fixed
+  bottom: 0
+  left: 0
+  padding: 10px 40px 10px 20px
+  background: #ff9086
+  font-family: "Roboto", sans-serif
+  font-size: 13px
+  width: 100%
+  border-radius: 10px 10px 0 0
+  text-overflow: ellipsis
+  white-space: nowrap
+  overflow: hidden
+  .close
+    position: absolute
+    width: 30px
+    height: 100%
+    right: 0
+    bottom: 0
+    cursor: pointer
+    display: flex
+    justify-content: center
+    align-items: center
+    svg
+      margin-bottom: -1px
+      transform: scale(0.6)
+      stroke: white
+.rightSideMsgsContainer
+  position: fixed
+  right: 50px
+  bottom: 50px
+  width: 350px
+  .msg
+    width: 100%
+    padding: 20px
+    background: #FFFFFF
+    border-radius: 10px
+    overflow: hidden
+    box-shadow: 0px 0px 6px 1px #d5d5d5
+    position: relative
+    margin-bottom: 20px
+    font-family: "Roboto", sans-serif
+    &:last-child
+      margin-bottom: 0
+    > div
+      display: flex
+      align-items: center
+      cursor: pointer
+    .photoContainer
+      width: 50px
+      height: 50px
+      border-radius: 100%
+      border: 1px solid #e1e1e1
+      flex-shrink: 0
+      margin-right: 20px
+      background: #e1e1e1
+      display: flex
+      justify-content: center
+      align-items: center
+      overflow: hidden
+      svg
+        margin-right: -2px
+        transform: scale(0.5)
+      img
+        width: 100%
+    .contentContainer
+      display: flex
+      flex-direction: column
+      .displayName
+        font-size: 17px
+        color: #030D21
+        margin-bottom: 5px
+      .text
+        font-size: 15px
+        color: #818181
+    .close
+      position: absolute
+      top: 0
+      right: 0
+      width: 30px
+      height: 30px
+      display: flex
+      justify-content: center
+      align-items: center
+      cursor: pointer
+      svg
+        stroke: #646464
+        transform: scale(0.6)
+.incomingCallContainer
+  position: fixed
+  display: flex
+  align-items: center
+  justify-content: center
+  flex-direction: column
+  width: 400px
+  height: 400px
+  background: #9a9a9a
+  top: 50%
+  left: 50%
+  margin-left: -200px
+  margin-top: -200px
+  border-radius: 20px
+  animation: incomingCallColors 2s infinite
+  .photoContainer
+    width: 200px
+    height: 200px
+    border-radius: 100%
+    background: #d2d2d2
+    flex-shrink: 0
+    display: flex
+    justify-content: center
+    align-items: center
+  .displayName
+    font-family: "Roboto", sans-serif
+    font-size: 20px
+    margin-top: 20px
+    margin-bottom: 10px
+  .event
+    margin-bottom: 20px
+  .buttonsContainer
+    display: flex
+    .button
+      width: 50px
+      height: 50px
+      background: #FFFFFF
+      border-radius: 100%
+      margin-right: 30px
+      cursor: pointer
+      display: flex
+      justify-content: center
+      align-items: center
+      &:last-child
+        margin-right: 0
+
+@keyframes incomingCallColors
+  0%
+    background-color: #9a9a9a
+  50%
+    background-color: #838383
+  100%
+    background-color: #9a9a9a

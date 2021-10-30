@@ -19,7 +19,7 @@ export const Layout: FC<ILayout> = ({ children }) => {
 
   if (!initialized || auth === undefined) return <Preloader />
 
-  if (auth === false) return <Redirect to="/signin" />
+  if (auth === false) return <Redirect to="/auth" />
 
   return (
     <div className={styles.wrapper}>

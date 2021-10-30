@@ -3,12 +3,16 @@ import { AppStateType, InferActionsTypes } from 'common/types'
 import { actions as actionsModal } from 'features/Modal/actions'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { getFirebase } from 'react-redux-firebase'
-import { UsersType } from 'features/User/types'
+import { UsersType, UserType } from 'features/User/types'
 import { actions } from './actions'
 
-export type ActionTypes =
-  InferActionsTypes<typeof actions | typeof actionsModal | typeof actionsVideoChat | typeof actionsConversations>
+export type ActionTypes = InferActionsTypes<typeof actions
+                                          | typeof actionsModal
+                                          | typeof actionsVideoChat
+                                          | typeof actionsConversations
+                                          | typeof actionsNotifications>
 export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ProfileType = {
@@ -23,14 +27,9 @@ export type ProfileType = {
     activeRole: 'founder' | 'investor'
     tags: string[]
     liked: UsersType
-    slots: {
-        [key: string]: {
-            status: string
-            duration: number
-            disabled: []
-            reccurent: string
-        }
-    }
+    currentDeviceId: string
+    isActiveFcm: boolean
+    slots: SlotsType
     likes: UsersType
     mutuals: UsersType
     verified: {
@@ -90,6 +89,25 @@ export type JobType = {
     email?: string
 }
 
+export type SlotsType = {
+    [key: string]: {
+        duration: number
+        request: string
+        status: string
+        twilio: {
+            made: {
+                seconds: number
+                nanoseconds: number
+            }
+            room: string
+            token: string
+        }
+        uid: string
+        disabled: []
+        reccurent: string
+    }
+}
+
 export type VideoType = {
     width: number
     height: number
@@ -146,3 +164,20 @@ export type ResponseCallNowType = {
     status: string
     token: string
 }
+
+export type ResultCompareContactsType = {
+    contact: UserType,
+    action: 'addUserInMyContacts' | 'removeUserInMyContacts'
+}
+
+export type ResultCompareInstanceCallType = {
+    made: {
+        seconds: number
+        nanoseconds: number
+    }
+    token: string
+    uid: string
+    room: string
+}
+
+export type ContactsListType = 'mutuals' | 'likes' | 'liked'

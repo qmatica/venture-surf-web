@@ -4,31 +4,46 @@ import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
+import { addMessage, actions as actionsNotifications } from 'features/Notifications/actions'
 import * as UpChunk from '@mux/upchunk'
-import { EnumActionsUser } from 'features/User/constants'
-import { addMessage } from 'features/Notifications/actions'
 import { init as initSurf } from 'features/Surf/actions'
-import { UsersType } from 'features/User/types'
-import {
-  CalendarMinIcon, LikeIcon, MailIconMin, PeopleIcon, PhoneCallIcon, WithdrawLikeIcon
-} from 'common/icons'
-import { Message } from '@twilio/conversations/lib/message'
+import { UserType } from 'features/User/types'
 import { getToken, onMessage } from 'firebase/messaging'
 import { messaging } from 'store/store'
+import { IncomingCallType } from 'features/Notifications/types'
 import {
-  JobType, ResponseCallNowType, ThunkType, onSnapshotVideoType
+  JobType,
+  ResponseCallNowType,
+  ThunkType,
+  onSnapshotVideoType,
+  ProfileType,
+  ResultCompareContactsType,
+  ContactsListType,
+  ResultCompareInstanceCallType
 } from './types'
 import { ChatType } from '../Conversations/types'
+import { compareContacts, compareSlots } from './utils'
+import { determineNotificationContactsOrCall } from '../../common/typeGuards'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
-  setProgressLoadingFile: (progressLoadingFile: number | null) => (
-      { type: 'PROFILE__SET_PROGRESS_FILE', progressLoadingFile } as const
+  updateMyContacts: (updatedUsers: any) => ({ type: 'PROFILE__UPDATE_MY_CONTACTS', updatedUsers } as const),
+  addUserInMyContacts: (user: UserType, contacts: 'mutuals' | 'likes' | 'liked') => (
+    { type: 'PROFILE__ADD_USER_IN_MY_CONTACTS', payload: { user, contacts } } as const
   ),
-  updateMyContacts: (updatedUsers: any) => ({ type: 'PROFILE__UPDATE_MY_CONTACTS', updatedUsers } as const)
+  removeUserInMyContacts: (user: UserType, contacts: 'mutuals' | 'likes' | 'liked') => (
+    { type: 'PROFILE__REMOVE_USER_IN_MY_CONTACTS', payload: { user, contacts } } as const
+  ),
+  updateUserInMyContacts: (user: UserType, contacts: 'mutuals' | 'likes' | 'liked') => (
+    { type: 'PROFILE__UPDATE_USER_IN_MY_CONTACTS', payload: { user, contacts } } as const
+  ),
+  setIsActiveFcm: (isActiveFcm: boolean) => ({ type: 'PROFILE__SET_IS_ACTIVE_FCM', isActiveFcm } as const),
+  setProgressLoadingFile: (progressLoadingFile: number | null) => (
+    { type: 'PROFILE__SET_PROGRESS_FILE', progressLoadingFile } as const
+  )
 }
 
-export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
+export const init = (): ThunkType => async (dispatch, getState) => {
   let deviceId = localStorage.getItem('deviceId')
 
   if (!deviceId) {
@@ -36,9 +51,15 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     localStorage.setItem('deviceId', deviceId)
   }
 
-  const fcm_token = await getToken(messaging).catch((err) => {
-    console.log('An error occurred while retrieving token. ', err)
-  })
+  // const fcm_token = await getToken(messaging).catch((err) => {
+  //   console.log('An error occurred while retrieving token. ', err)
+  // })
+
+  const fcm_token = 'null'
+
+  if (fcm_token) {
+    dispatch(actions.setIsActiveFcm(true))
+  }
 
   const device = {
     id: deviceId,
@@ -50,200 +71,145 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
 
   const profile = await profileAPI.afterLogin(device)
 
-  const mutuals: UsersType = {}
-  const likes: UsersType = {}
-  const liked: UsersType = {}
-
-  if (profile.mutuals) {
-    Object.values(profile.mutuals as UsersType).forEach((user) => {
-      mutuals[user.uid] = {
-        ...user,
-        actions: {
-          callNow: {
-            onClick() {
-              dispatch(callNow(user.uid))
-            },
-            title: 'Call now',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.static,
-            icon: PhoneCallIcon
-          },
-          openChat: {
-            onClick: (redirect: () => void) => {
-              dispatch(openChat(user.uid, redirect))
-            },
-            title: 'Open chat',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.static,
-            icon: MailIconMin
-          },
-          arrangeAMeeting: {
-            onClick() {
-              console.log('Arrange a meeting')
-            },
-            title: 'Arrange a meeting',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.static,
-            icon: CalendarMinIcon
-          },
-          recommended: {
-            onClick() {
-              console.log('Recommended')
-            },
-            title: 'Recommended',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.static,
-            icon: PeopleIcon
-          }
-        }
-      }
-    })
-  }
-
-  if (profile.likes) {
-    Object.values(profile.likes as UsersType).forEach((user) => {
-      likes[user.uid] = {
-        ...user,
-        actions: {
-          like: {
-            onClick() {
-              dispatch(like(user.uid))
-            },
-            title: 'Like',
-            isActive: false,
-            isLoading: false,
-            type: EnumActionsUser.dynamic,
-            icon: LikeIcon
-          },
-          withdrawLike: {
-            onClick() {
-              dispatch(withdrawLike(user.uid))
-            },
-            title: 'Withdraw like',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.dynamic,
-            icon: WithdrawLikeIcon
-          }
-        }
-      }
-    })
-  }
-
-  if (profile.liked) {
-    Object.values(profile.liked as UsersType).forEach((user) => {
-      liked[user.uid] = {
-        ...user,
-        actions: {
-          accept: {
-            onClick() {
-              dispatch(accept(user.uid))
-            },
-            title: 'Accept',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.dynamic
-          },
-          ignore: {
-            onClick() {
-              dispatch(ignore(user.uid))
-            },
-            title: 'Ignore',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.dynamic
-          },
-          cancel: {
-            onClick() {
-              console.log('Cancel')
-            },
-            title: 'Cancel',
-            isActive: false,
-            isLoading: false,
-            type: EnumActionsUser.dynamic
-          }
-        }
-      }
-    })
-  }
-
   const { auth: { uid } } = getState().firebase
+
+  const contactsList: any = {
+    mutuals: {},
+    likes: {},
+    liked: {}
+  }
+
+  Object.keys(contactsList).forEach((contacts) => {
+    Object.keys(profile[contacts]).forEach((key) => {
+      contactsList[contacts][key] = {
+        ...profile[contacts][key],
+        uid: key
+      }
+    })
+  })
 
   const updatedProfile = {
     ...profile,
+    ...contactsList,
     uid,
-    mutuals,
-    likes,
-    liked
+    currentDeviceId: deviceId
   }
   dispatch(actions.setMyProfile(updatedProfile))
 
   onMessage(messaging, (payload) => {
     console.log('Message received. ', payload)
-    // ...
+    dispatch(checkIncomingCall(payload))
   })
 
-  dispatch(subscribeOnListenIncomingCalls())
+  dispatch(listenUpdateMyProfile())
 }
 
-const subscribeOnListenIncomingCalls = (): ThunkType => async (dispatch, getState, getFirebase) => {
+const checkIncomingCall = (payload: IncomingCallType | any): ThunkType => async (dispatch, getState) => {
+  if (payload?.notification?.title === 'Incoming call from') {
+    if (payload.data.slots.includes('now')) {
+      dispatch(actionsNotifications.addIncomingCall(payload))
+    }
+  }
+}
+
+const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFirebase) => {
   const { auth } = getState().firebase
 
-  await getFirebase().firestore()
-    .doc(`profiles/${auth.uid}`)
-    .onSnapshot(async (doc) => {
-      console.log('subscribeOnListenIncomingCalls: updated profile')
+  getFirebase().firestore().doc(`profiles/${auth.uid}`).onSnapshot(async (doc) => {
+    const { profile } = getState().profile
+    const newProfile = doc.data() as ProfileType
 
-      const myProfile: any = doc.data()
-      console.log(myProfile)
+    console.log('My profile updated: ', newProfile)
 
-      if (myProfile) {
-        const { slots } = myProfile
-        if (slots?.now) {
-          console.log(slots.now)
+    if (profile) {
+      const contactsList = ['mutuals', 'likes', 'liked'] as const
 
-          if (slots.now.status !== 'waiting') {
-            const { profile } = getState().profile
-            const remoteUser = profile?.mutuals[slots.now.uid]
+      contactsList.forEach((contacts) => {
+        const result = compareContacts(profile[contacts], newProfile[contacts])
+        if (result) {
+          if (!profile.isActiveFcm) {
+            dispatch(showNotification(result, contacts))
+          }
+          dispatch(actions[result.action](result.contact, contacts))
+        }
+      })
 
-            if (remoteUser) {
-              dispatch(actionsVideoChat.setNotification({
-                type: 'incomingСall',
-                request: slots.now.request,
-                user: {
-                  uid: remoteUser.uid,
-                  photoURL: remoteUser.photoURL,
-                  displayName: remoteUser.displayName || remoteUser.name || `${remoteUser.first_name} ${remoteUser.last_name}`
-                },
-                actions: {
-                  accept() {
-                    connect(slots.now.twilio.token, { room: slots.now.twilio.room } as ConnectOptions).then((room) => {
-                      dispatch(actionsVideoChat.setRoom(room, remoteUser.uid))
-                      dispatch(actionsVideoChat.clearNotification(slots.now.request))
-                    }).catch((err) => {
-                      dispatch(addMessage({
-                        title: 'Error connect to video chat',
-                        value: err,
-                        type: 'error'
-                      }))
-                    })
-                  },
-                  async decline() {
-                    dispatch(actionsVideoChat.clearNotification(slots.now.request))
-                    await dispatch(declineCall(remoteUser.uid))
-                  }
-                }
-              }))
+      const result = compareSlots(profile.slots, newProfile.slots)
+      if (result) {
+        dispatch(showNotification(result))
+      }
+    }
+  })
+}
+
+export const showNotification =
+  (result: ResultCompareContactsType | ResultCompareInstanceCallType | 'declinedCall', contacts?: ContactsListType): ThunkType =>
+    async (dispatch, getState) => {
+      const { profile } = getState().profile
+
+      if (profile) {
+        if (result === 'declinedCall') {
+          const { room } = getState().videoChat
+          if (room) {
+            room.disconnect()
+            dispatch(actionsVideoChat.setRoom(null, null))
+          }
+          return
+        }
+        if (determineNotificationContactsOrCall(result)) {
+          const {
+            room, made, token, uid
+          } = result
+
+          const {
+            displayName, first_name, last_name, name
+          } = profile.mutuals[uid]
+
+          const userName = name || displayName || `${first_name} ${last_name}`
+
+          const payload = {
+            data: {
+              made,
+              room,
+              slots: 'now',
+              token,
+              uid
+            },
+            notification: {
+              body: userName,
+              title: ''
             }
+          }
+          dispatch(actionsNotifications.addIncomingCall(payload))
+          return
+        }
+
+        if (result.action === 'addUserInMyContacts') {
+          if (contacts && (profile.mutuals[result.contact.uid] || profile.liked[result.contact.uid])) return
+
+          switch (contacts) {
+            case 'mutuals': {
+              dispatch(actionsNotifications.addContactsEventMsg(
+                result.contact,
+                'approved your request and would like to talk.',
+                uuidv4()
+              ))
+              break
+            }
+            case 'liked': {
+              const msg = profile.activeRole === 'investor' ? 'New prospective investor!' : 'New investment opportunity!'
+              dispatch(actionsNotifications.addContactsEventMsg(
+                result.contact,
+                msg,
+                uuidv4()
+              ))
+              break
+            }
+            default: break
           }
         }
       }
-    })
-}
+    }
 
 export const updateMyProfile = (value: { [key: string]: any }): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
@@ -451,265 +417,67 @@ const togglePreloader = (
   const { profile } = getState().profile
 
   if (profile) {
-    const users = profile[contacts]
+    const user = profile[contacts][uid]
 
-    const updatedUsers = {
-      ...users,
-      [uid]: {
-        ...users[uid],
-        actions: {
-          ...users[uid].actions,
-          [action]: {
-            ...users[uid].actions[action],
-            isLoading: !users[uid].actions[action].isLoading
-          }
-        }
+    const updatedUser = { ...user }
+    let loading
+
+    if (user.loading) {
+      if (user.loading?.some((el) => el === action)) {
+        loading = user.loading.filter((el) => el !== action)
+      } else {
+        loading = [...user.loading, action]
       }
+    } else {
+      loading = [action]
     }
 
-    dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
+    updatedUser.loading = loading
+
+    dispatch(actions.updateUserInMyContacts(updatedUser, contacts))
   }
 }
 
-const toggleActions = (
-  contacts: 'mutuals' | 'likes' | 'liked',
-  uid: string,
-  toggleActions: string[]
-): ThunkType => (dispatch, getState) => {
+export const callNow = (uid: string): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
 
   if (profile) {
-    const users = profile[contacts]
+    const contacts = 'mutuals'
 
-    const updatedUsers = toggleActions.reduce((updatedUsers, nextAction) => ({
-      ...updatedUsers,
-      [uid]: {
-        ...updatedUsers[uid],
-        actions: {
-          ...updatedUsers[uid].actions,
-          [nextAction]: {
-            ...updatedUsers[uid].actions[nextAction],
-            isActive: !updatedUsers[uid].actions[nextAction].isActive
-          }
-        }
-      }
-    }), users)
+    dispatch(togglePreloader(contacts, uid, 'callNow'))
 
-    dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
-  }
-}
-
-const like = (uid: string): ThunkType => async (dispatch) => {
-  const contacts = 'likes'
-
-  dispatch(togglePreloader(contacts, uid, 'like'))
-
-  const status = await usersAPI.like(uid).catch((err) => {
-    dispatch(addMessage({
-      title: 'Error',
-      value: err.error,
-      type: 'error'
-    }))
-  })
-
-  if (status === apiCodes.success) {
-    dispatch(toggleActions(contacts, uid, ['like', 'withdrawLike']))
-  }
-
-  dispatch(togglePreloader(contacts, uid, 'like'))
-}
-
-const withdrawLike = (uid: string): ThunkType => async (dispatch) => {
-  const contacts = 'likes'
-
-  dispatch(togglePreloader(contacts, uid, 'withdrawLike'))
-
-  const status = await usersAPI.withdrawLike(uid).catch((err) => {
-    dispatch(addMessage({
-      title: 'Error',
-      value: err.error,
-      type: 'error'
-    }))
-  })
-
-  if (status === apiCodes.success) {
-    dispatch(toggleActions(contacts, uid, ['like', 'withdrawLike']))
-  }
-
-  dispatch(togglePreloader(contacts, uid, 'withdrawLike'))
-}
-
-const accept = (uid: string): ThunkType => async (dispatch) => {
-  const contacts = 'liked'
-
-  dispatch(togglePreloader(contacts, uid, 'accept'))
-
-  const status = await usersAPI.like(uid).catch((err) => {
-    dispatch(addMessage({
-      title: 'Error',
-      value: err.error,
-      type: 'error'
-    }))
-  })
-
-  if (status === apiCodes.success) {
-    dispatch(toggleActions(contacts, uid, ['accept', 'ignore', 'cancel']))
-    dispatch(addUserInMutualsFromReceived(uid))
-  }
-
-  dispatch(togglePreloader(contacts, uid, 'accept'))
-}
-
-const ignore = (uid: string): ThunkType => async (dispatch) => {
-  const contacts = 'liked'
-
-  dispatch(togglePreloader(contacts, uid, 'ignore'))
-
-  const status = await usersAPI.ignore(uid).catch((err) => {
-    dispatch(addMessage({
-      title: 'Error',
-      value: err.error,
-      type: 'error'
-    }))
-  })
-
-  if (status === apiCodes.success) {
-    dispatch(toggleActions(contacts, uid, ['accept', 'ignore', 'cancel']))
-  }
-
-  dispatch(togglePreloader(contacts, uid, 'ignore'))
-}
-
-export const callNow = (uid: string): ThunkType => async (dispatch) => {
-  const contacts = 'mutuals'
-
-  dispatch(togglePreloader(contacts, uid, 'callNow'))
-
-  const response: ResponseCallNowType = await usersAPI.callNow(uid).catch((err) => {
-    dispatch(addMessage({
-      title: 'Error loading room video',
-      value: err,
-      type: 'error'
-    }))
-  })
-
-  if (response) {
-    const room = await connect(response.token, { room: response.room } as ConnectOptions).catch((err) => {
+    const response: ResponseCallNowType = await usersAPI.callNow(uid, profile.currentDeviceId).catch((err) => {
       dispatch(addMessage({
-        title: 'Error connect to video chat',
+        title: 'Error loading room video',
         value: err,
         type: 'error'
       }))
     })
 
-    if (room) dispatch(actionsVideoChat.setRoom(room, uid))
-  }
+    if (response) {
+      const room = await connect(response.token, { room: response.room } as ConnectOptions).catch((err) => {
+        dispatch(addMessage({
+          title: 'Error connect to video chat',
+          value: err,
+          type: 'error'
+        }))
+      })
 
-  dispatch(togglePreloader(contacts, uid, 'callNow'))
+      if (room) dispatch(actionsVideoChat.setRoom(room, uid))
+    }
+
+    dispatch(togglePreloader(contacts, uid, 'callNow'))
+  }
 }
 
-export const declineCall = (uid?: string): ThunkType => async (dispatch, getState) => {
-  const { room, remoteUserUid } = getState().videoChat
+export const declineCall = (uid: string): ThunkType => async (dispatch, getState) => {
+  const { room } = getState().videoChat
 
-  const status = await usersAPI.callDecline((uid || remoteUserUid) as string)
+  const status = await usersAPI.callDecline(uid)
+
   if (status === apiCodes.success) {
     room?.disconnect()
     dispatch(actionsVideoChat.setRoom(null, null))
-  }
-}
-
-export const addUserInLikesFromSurf = (uid: string): ThunkType => (dispatch, getState) => {
-  const contacts = 'likes'
-
-  const { profile } = getState().profile
-  const { users } = getState().surf
-
-  const userIndex = users.findIndex((user) => user.uid === uid)
-  const user = {
-    ...users[userIndex],
-    actions: {
-      like: {
-        onClick() {
-          dispatch(like(user.uid))
-        },
-        title: 'Like',
-        isActive: false,
-        isLoading: false,
-        type: EnumActionsUser.dynamic
-      },
-      withdrawLike: {
-        onClick() {
-          dispatch(withdrawLike(user.uid))
-        },
-        title: 'Withdraw like',
-        isActive: true,
-        isLoading: false,
-        type: EnumActionsUser.dynamic
-      }
-    }
-  }
-
-  if (profile) {
-    const updatedUsers = {
-      ...profile[contacts],
-      [uid]: user
-    }
-    dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
-  }
-}
-
-export const addUserInMutualsFromReceived = (uid: string): ThunkType => (dispatch, getState) => {
-  const contacts = 'mutuals'
-  const { profile } = getState().profile
-
-  if (profile) {
-    const updatedUsers = {
-      ...profile[contacts],
-      [uid]: {
-        ...profile.liked[uid],
-        actions: {
-          callNow: {
-            onClick() {
-              dispatch(callNow(uid))
-            },
-            title: 'Call now',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.static
-          },
-          arrangeAMeeting: {
-            onClick() {
-              console.log('Arrange a meeting')
-            },
-            title: 'Arrange a meeting',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.static
-          },
-          openChat: {
-            onClick: (redirect: () => void) => {
-              dispatch(openChat(uid, redirect))
-            },
-            title: 'Open chat',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.static,
-            icon: MailIconMin
-          },
-          recommended: {
-            onClick() {
-              console.log('Recommended')
-            },
-            title: 'Recommended',
-            isActive: true,
-            isLoading: false,
-            type: EnumActionsUser.static
-          }
-        }
-      }
-    }
-
-    dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
   }
 }
 
@@ -780,12 +548,16 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
     const { chat } = users[uid]
     if (chat) {
       dispatch(actionsConversations.setOpenedChat(chat))
+      redirect()
     } else {
       const { client, chats } = getState().conversations
 
       const createdChat: { chat_sid: string, status: string } = await usersAPI
         .createChat(uid)
-        .catch((err) => console.log(err))
+        .catch((err) => {
+          console.log(err)
+          dispatch(actionsNotifications.addErrorMsg(err))
+        })
 
       const conversation = await client?.getConversationBySid(createdChat.chat_sid)
 
@@ -807,20 +579,18 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
 
       dispatch(actionsConversations.setChats(updatedChats))
 
-      // const updatedUsers = {
-      //   ...users,
-      //   [uid]: {
-      //     ...users[uid],
-      //     chat: createdChat.chat
-      //   }
-      // }
-      //
-      // dispatch(actions.updateMyContacts({ [contacts]: updatedUsers }))
+      const updatedUser = {
+        ...users[uid],
+        chat: createdChat.chat_sid
+      }
+
+      dispatch(actions.updateUserInMyContacts(updatedUser, contacts))
 
       dispatch(actionsConversations.setOpenedChat(createdChat.chat_sid))
+
+      redirect()
     }
   }
 
   dispatch(togglePreloader(contacts, uid, 'openChat'))
-  redirect()
 }

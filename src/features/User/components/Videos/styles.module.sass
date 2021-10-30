@@ -5,34 +5,69 @@
     left: -22px!important
   \:global(.slick-prev:before)
     color: #bcc2cc!important
+    line-height: 0
     font-size: 28px!important
-    content: '◂'!important
+    content: '❮'!important
     position: absolute
-    top: -11px
+    top: -13px
     right: 0
     transition: 0.2s!important
   \:global(.slick-next:before)
     color: #bcc2cc!important
+    line-height: 0
     font-size: 28px!important
-    content: '▸'!important
+    content: '❯'!important
     position: absolute
-    top: -11px
+    top: -13px
     left: 0
     transition: 0.2s!important
-  .imgContainer
-    height: 135px
-    margin: 0 10px
-    border: 1px solid #D7DFED
-    border-radius: 10px
-    overflow: hidden
+  .videoContainer
     cursor: pointer
-    display: flex
-    justify-content: center
-    align-content: center
-    &.withVideo
-      background: #f2f5f9
-    img
-      height: 100%
+    &:hover
+      .title
+        color: #000000
+      .imgContainer
+        border: 1px solid #c4cddd
+    &.empty
+      .imgContainer
+        border: 1px solid #D7DFED
+    .imgContainer
+      height: 135px
+      margin: 0 10px
+      border: 1px solid #D7DFED
+      border-radius: 10px
+      overflow: hidden
+      display: flex
+      justify-content: center
+      align-content: center
+      position: relative
+      transition: 0.2s
+      &.withVideo
+        background: #f2f5f9
+      img
+        height: 100%
+        z-index: 20
+      .overlayCover
+        background-size: cover
+        background-position: center
+        filter: blur(5px)
+        z-index: 10
+        width: 120%
+        height: 120%
+        position: absolute
+        top: -10%
+    .title
+      width: 100%
+      text-align: center
+      line-height: 40px
+      font-family: "Roboto", sans-serif
+      color: #030D21
+      font-size: 15px
+      text-overflow: ellipsis
+      overflow: hidden
+      white-space: nowrap
+      padding: 0 15px
+      transition: 0.2s
 .videoPlayerContainer
   display: flex
   gap: 20px

@@ -1,8 +1,11 @@
-import React, { createRef, FC, useState } from 'react'
+import React, {
+  createRef, FC, useEffect, useState
+} from 'react'
 import Slider from 'react-slick'
 import ReactHlsPlayer from 'react-hls-player'
 import { Modal } from 'features/Modal'
-import { VideosType } from 'common/types'
+import { StatisticVideoType, VideosType } from 'common/types'
+import { usersAPI } from 'api'
 import styles from './styles.module.sass'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
@@ -10,7 +13,8 @@ import 'slick-carousel/slick/slick-theme.css'
 type VideoType = {
     title: string,
     img: string,
-    url: string
+    url: string,
+    playbackID: string
 }
 
 interface IVideos {
@@ -19,6 +23,12 @@ interface IVideos {
     userName: string
 }
 
+const statisticVideo = {
+  exitedFromPlaylist: 'exitedFromPlaylist',
+  clickedToNext: 'clickedToNext',
+  fullView: 'fullView'
+} as const
+
 export const Videos: FC<IVideos> = ({
   videos,
   userId,
@@ -26,13 +36,60 @@ export const Videos: FC<IVideos> = ({
 }) => {
   if (!videos) return null
 
+  const playerRef = createRef<HTMLVideoElement>()
+  const [formattedVideos, setFormattedVideos] = useState<(VideoType | null)[]>([])
   const [isSliding, setIsSliding] = useState(false)
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState<VideoType | null>(null)
-  const playerRef = createRef<HTMLVideoElement>()
+
+  useEffect(() => {
+    const fv = videos._order_.reduce((prevVideos: (VideoType | null)[], nextVideo, index, array) => {
+      const { playbackID } = videos[nextVideo]
+
+      const video = {
+        title: nextVideo,
+        img: `https://image.mux.com/${playbackID}/thumbnail.jpg?time=5`,
+        url: `https://stream.mux.com/${playbackID}.m3u8`,
+        playbackID
+      }
+
+      // generate empty carts for carousel videos
+      if (index === array.length - 1) {
+        let emptyVideos
+        if (index === 0) {
+          emptyVideos = [null, null]
+        }
+        if (index === 1) {
+          emptyVideos = [null]
+        }
+        if (emptyVideos) return [...prevVideos, video, ...emptyVideos]
+      }
+
+      return [...prevVideos, video]
+    }, [])
+    setFormattedVideos(fv)
+  }, [])
+
   const startSliding = () => setIsSliding(true)
+
   const stopSliding = () => setIsSliding(false)
-  const toggleModal = () => setIsOpenModal(!isOpenModal)
+
+  const toggleModal = () => {
+    setIsOpenModal(!isOpenModal)
+    if (selectedVideo) {
+      setSelectedVideo(null)
+
+      if (playerRef.current) {
+        const { duration, currentTime } = playerRef.current
+
+        if (formattedVideos[formattedVideos.length - 1]?.playbackID === selectedVideo.playbackID
+          && currentTime === duration) {
+          return
+        }
+        sendStatisticVideo(statisticVideo.exitedFromPlaylist)
+      }
+    }
+  }
   const openVideo = (video: VideoType) => {
     if (!isSliding) {
       setSelectedVideo(video)
@@ -40,29 +97,46 @@ export const Videos: FC<IVideos> = ({
     }
   }
 
-  const formattedVideos = videos._order_.reduce((prevVideos: (VideoType | null)[], nextVideo, index, array) => {
-    const { playbackID } = videos[nextVideo]
+  const onSetSelectedVideo = (video: VideoType) => {
+    sendStatisticVideo(statisticVideo.clickedToNext)
+    setSelectedVideo(video)
+  }
 
-    const video = {
-      title: nextVideo,
-      img: `https://image.mux.com/${playbackID}/thumbnail.jpg?time=5`,
-      url: `https://stream.mux.com/${playbackID}.m3u8`
-    }
+  const onEndedVideo = () => {
+    sendStatisticVideo(statisticVideo.fullView)
 
-    // generate empty carts for carousel videos
-    if (index === array.length - 1) {
-      let emptyVideos
-      if (index === 0) {
-        emptyVideos = [null, null]
+    const videoIndex = formattedVideos.findIndex((video) => video?.playbackID === selectedVideo?.playbackID)
+
+    if (videoIndex !== -1) {
+      const nextVideo = formattedVideos[videoIndex + 1]
+
+      if (nextVideo) {
+        setSelectedVideo(nextVideo)
       }
-      if (index === 1) {
-        emptyVideos = [null]
-      }
-      if (emptyVideos) return [...prevVideos, video, ...emptyVideos]
     }
+  }
 
-    return [...prevVideos, video]
-  }, [])
+  const sendStatisticVideo = (action: 'exitedFromPlaylist' | 'clickedToNext' | 'fullView') => {
+    if (selectedVideo) {
+      if (playerRef.current) {
+        const { duration, currentTime } = playerRef.current
+
+        const statistic: StatisticVideoType = {
+          stop_time: currentTime,
+          percent: Math.round((currentTime / duration) * 100),
+          action
+        }
+
+        console.log('user uid: ', userId)
+        console.log('playbackID: ', selectedVideo.playbackID)
+        console.log('stop_time: ', currentTime)
+        console.log('percent: ', Math.round((currentTime / duration) * 100))
+        console.log('action: ', action)
+
+        usersAPI.sendStatisticVideo(userId, selectedVideo.playbackID, statistic)
+      }
+    }
+  }
 
   const settingsSlider = {
     arrows: true,
@@ -83,14 +157,27 @@ export const Videos: FC<IVideos> = ({
             if (!video) {
               return (
                 <div key={`${userId} ${index}`}>
-                  <div className={styles.imgContainer} />
+                  <div className={`${styles.videoContainer} ${styles.empty}`}>
+                    <div className={styles.imgContainer} />
+                  </div>
                 </div>
               )
             }
             return (
               <div key={video.url}>
-                <div className={`${styles.imgContainer} ${styles.withVideo}`} onClick={() => openVideo(video)}>
-                  <img src={video.img} alt={video.title} />
+                <div className={styles.videoContainer} onClick={() => openVideo(video)}>
+                  <div className={`${styles.imgContainer} ${styles.withVideo}`}>
+                    {video.img && (
+                      <div
+                        className={styles.overlayCover}
+                        style={{
+                          backgroundImage: `url(${video.img})`
+                        }}
+                      />
+                    )}
+                    <img src={video.img} alt={video.title} />
+                  </div>
+                  <div className={styles.title}>{video.title}</div>
                 </div>
               </div>
             )
@@ -106,6 +193,7 @@ export const Videos: FC<IVideos> = ({
                 src={selectedVideo.url}
                 autoPlay
                 controls
+                onEnded={onEndedVideo}
               />
             </div>
           )}
@@ -116,7 +204,7 @@ export const Videos: FC<IVideos> = ({
                 <div
                   key={video.url}
                   className={`${styles.item} ${selectedVideo?.url === video.url ? styles.active : ''}`}
-                  onClick={() => setSelectedVideo(video)}
+                  onClick={() => onSetSelectedVideo(video)}
                 >
                   <div className={styles.imgContainer}>
                     <img src={video.img} alt={video.title} />

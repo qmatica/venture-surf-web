@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import firebase from 'firebase/compat/app'
 import { ReactReduxFirebaseProvider } from 'react-redux-firebase'
-import { createFirestoreInstance } from 'redux-firestore'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { store } from 'store/store'
@@ -14,8 +13,7 @@ import './index.css'
 const rrfProps = {
   firebase,
   config: rrfConfig,
-  dispatch: store.dispatch,
-  createFirestoreInstance
+  dispatch: store.dispatch
 }
 
 ReactDOM.render(

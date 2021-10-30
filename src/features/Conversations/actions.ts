@@ -1,6 +1,8 @@
 import { Client as ConversationsClient } from '@twilio/conversations'
 import { Message } from '@twilio/conversations/lib/message'
 import { profileAPI } from 'api'
+import { actions as actionsProfile } from 'features/Profile/actions'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
 import Conversation from '@twilio/conversations/lib/conversation'
 import { ChatType, MessageType, ThunkType } from './types'
 
@@ -30,7 +32,6 @@ export const actions = {
 
 export const init = (): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
-  const { auth: { uid } } = getState().firebase
 
   if (profile) {
     if (profile.mutuals) {
@@ -52,7 +53,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
       dispatch(actions.setChats(chats))
 
-      const conversationsToken = await profileAPI.getToken()
+      const conversationsToken = await profileAPI.getChatToken()
       const client = await ConversationsClient.create(conversationsToken.token)
 
       dispatch(actions.setClient(client))
@@ -62,16 +63,16 @@ export const init = (): ThunkType => async (dispatch, getState) => {
           console.log('Connecting to Twilio…')
         }
         if (state === 'connected') {
-          console.log('You are connected.')
+          console.log('You are connected to Twilio.')
         }
         if (state === 'disconnecting') {
           console.log('Disconnecting from Twilio…')
         }
         if (state === 'disconnected') {
-          console.log('Disconnected.')
+          console.log('Disconnected from Twilio.')
         }
         if (state === 'denied') {
-          console.log('Failed to connect.')
+          console.log('Failed to connect to Twilio.')
         }
       })
 
@@ -79,12 +80,12 @@ export const init = (): ThunkType => async (dispatch, getState) => {
         const { chats } = getState().conversations
 
         if (!chats[conversation.sid]) {
-          console.log(`New Conversation: ${conversation}`)
+          console.log('New Conversation: ', conversation)
 
           conversation.getParticipants()
             .then((participant) => {
               participant.forEach((p) => {
-                if (p.identity !== uid) {
+                if (p.identity !== profile.uid) {
                   const { profile } = getState().profile
                   if (profile) {
                     const user = profile.mutuals[p.identity]
@@ -108,23 +109,42 @@ export const init = (): ThunkType => async (dispatch, getState) => {
                             }
                           }
 
+                          const updatedUser = {
+                            ...user,
+                            chat: conversation.sid
+                          }
+
+                          dispatch(actionsProfile.updateUserInMyContacts(updatedUser, 'mutuals'))
                           dispatch(actions.setChats(updatedChats))
 
+                          // TODO: Убрать дублирование
                           conversation.on('messageAdded', (m: Message) => {
-                            if (m.author === uid) {
+                            if (m.author === profile.uid) {
                               dispatch(actions.updateMessage(m, conversation.sid))
                             } else {
-                              dispatch(actions.addMessage(m, conversation.sid))
+                              const { profile } = getState().profile
+
+                              if (profile) {
+                                const user = profile.mutuals[m.author]
+                                dispatch(actionsNotifications.addReceivedChatMsg(user, m))
+                                dispatch(actions.addMessage(m, conversation.sid))
+                              }
                             }
                           })
                         })
-                        .catch((err) => console.log(err))
+                        .catch((err) => {
+                          console.log(err)
+                          dispatch(actionsNotifications.addErrorMsg(err))
+                        })
                     }
                   }
                 }
               })
             })
-            .catch((err) => console.log(err))
+            .catch((err) => {
+              console.log(err)
+              dispatch(actionsNotifications.addErrorMsg(err))
+            })
         }
       })
 
@@ -132,9 +152,12 @@ export const init = (): ThunkType => async (dispatch, getState) => {
         console.log(`Conversation Left: ${thisConversation}`)
       })
 
-      const subscribedConversations = await client.getSubscribedConversations()
+      const subscribedConversations = await client.getSubscribedConversations().catch((err) => {
+        console.log(err)
+        dispatch(actionsNotifications.addErrorMsg(err))
+      })
 
-      if (subscribedConversations.items.length) {
+      if (subscribedConversations?.items.length) {
         const chatsWithConversation: ChatType = {}
 
         subscribedConversations.items.forEach((item) => {
@@ -148,10 +171,16 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
         Object.values(chatsWithConversation).forEach((chat) => {
           chat.conversation?.on('messageAdded', (m: Message) => {
-            if (m.author === uid) {
+            if (m.author === profile.uid) {
               dispatch(actions.updateMessage(m, chat.chat))
             } else {
-              dispatch(actions.addMessage(m, chat.chat))
+              const { profile } = getState().profile
+
+              if (profile) {
+                const user = profile.mutuals[m.author]
+                dispatch(actionsNotifications.addReceivedChatMsg(user, m))
+                dispatch(actions.addMessage(m, chat.chat))
+              }
             }
           })
         })
@@ -159,9 +188,12 @@ export const init = (): ThunkType => async (dispatch, getState) => {
         const getAllMessages = () =>
           Object.values(chatsWithConversation).map((chat) => chat.conversation?.getMessages())
 
-        const allMessages = await Promise.all(getAllMessages())
+        const allMessages = await Promise.all(getAllMessages()).catch((err) => {
+          console.log(err)
+          dispatch(actionsNotifications.addErrorMsg(err))
+        })
 
-        if (allMessages.length) {
+        if (allMessages?.length) {
           const chatsWithMessages: ChatType = {}
 
           Object.values(chatsWithConversation).forEach((chat, index) => {

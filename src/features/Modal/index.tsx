@@ -7,7 +7,7 @@ interface IModal {
   isOpen: boolean
   onClose: () => void
   children?: ReactElement | null
-  width?: number
+  width?: number | string
 }
 
 export const Modal: FC<IModal> = ({

@@ -19,10 +19,6 @@ export const getMutuals = createSelector(
       Object.keys(mutuals).forEach((key) => {
         if (mutuals[key].displayName?.toLowerCase().includes(lowerCaseSearch)
             || mutuals[key].name?.toLowerCase().includes(lowerCaseSearch)
-            || mutuals[key].job?.company?.toLowerCase().includes(lowerCaseSearch)
-            || mutuals[key].job?.title?.toLowerCase().includes(lowerCaseSearch)
-            || mutuals[key].job?.headline?.toLowerCase().includes(lowerCaseSearch)
-            || mutuals[key].job?.position?.toLowerCase().includes(lowerCaseSearch)
         ) {
           filteredMutuals[key] = mutuals[key]
         }

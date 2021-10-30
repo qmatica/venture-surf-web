@@ -13,6 +13,7 @@ export const Received: FC = () => {
         <User
           key={user.uid}
           user={user}
+          typeUser="received"
         />
       ))}
     </div>

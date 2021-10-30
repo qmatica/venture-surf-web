@@ -2,7 +2,6 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import { Button } from 'common/components/Button'
-import { VideoOffIcon, VideoOnIcon } from 'common/icons'
 import styles from './styles.module.sass'
 
 export const Notifications = () => {
@@ -23,13 +22,13 @@ export const Notifications = () => {
           <div className={styles.buttonsContainer}>
             <Button
               title="Accept"
-              icon={<VideoOnIcon />}
+              icon="onVideo"
               className={styles.accept}
               onClick={actions.accept}
             />
             <Button
               title="Decline"
-              icon={<VideoOffIcon />}
+              icon="offVideo"
               className={styles.decline}
               onClick={actions.decline}
             />
@@ -37,6 +36,5 @@ export const Notifications = () => {
         </div>
       ))}
     </div>
-
   )
 }

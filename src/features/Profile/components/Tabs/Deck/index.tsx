@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import {
-  DownloadIcon, Edit2Icon, EyeIcon, PlusIcon
+  DownloadIcon, Edit2Icon, EyeIcon
 } from 'common/icons'
 import { ProfileType } from 'features/Profile/types'
 import { Button } from 'common/components/Button'
@@ -50,7 +50,7 @@ export const Deck: FC<IDeck> = ({ profile, isOnlyView }) => {
         )}
       </div>
       <div className={styles.buttonsContainer} style={style}>
-        <Button title="Add deck" icon={<PlusIcon />} />
+        <Button title="Add deck" icon="plus" />
       </div>
     </div>
   )
