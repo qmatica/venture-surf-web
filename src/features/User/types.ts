@@ -19,23 +19,27 @@ export type UserType = {
         videos?: VideosType
     }
     activeRole: 'investor' | 'founder'
-    recommended_by?: {
-        uid: string,
-        job: {},
-        photoURL: string,
-        roles: [
-            'investor',
-            'founder'
-        ],
-        dt: Date,
-        displayName: string
-    }
+    recommended_by?: RecommendedUserType
     recommended_at?: Date
     recommended_message?: string
-    reason: string
+    reason?: string
+    recommendedByList: RecommendedUserType[]
     chat?: string
     loading?: string[]
     clickedAction?: string
+}
+
+export type RecommendedUserType = {
+    uid: string,
+    job: {},
+    photoURL: string,
+    roles: [
+        'investor',
+        'founder'
+    ],
+    dt: Date,
+    displayName: string
+    recommended_message?: string
 }
 
 export type Job = {

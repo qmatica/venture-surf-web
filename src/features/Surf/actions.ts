@@ -1,13 +1,17 @@
 import { usersAPI } from 'api'
-import { addMessage } from 'features/Notifications/actions'
 import { apiCodes } from 'common/types'
 import { UserType } from 'features/User/types'
 import { actions as profileActions } from 'features/Profile/actions'
+import { actions as notificationsActions } from 'features/Notifications/actions'
+import { deleteFieldsOfObject } from 'common/utils'
 import { ThunkType } from './types'
 
 export const actions = {
   setRecommendedUsers: (recommendedUsers: UserType[]) => (
     { type: 'SURF__SET_RECOMMENDED_USERS', recommendedUsers } as const
+  ),
+  updateRecommendedUser: (recommendedUser: UserType) => (
+    { type: 'SURF__UPDATE_RECOMMENDED_USER', recommendedUser } as const
   ),
   setUsers: (users: UserType[]) => ({ type: 'SURF__SET_USERS', users } as const),
   addUser: (user: UserType) => ({ type: 'SURF__ADD_USER', user } as const),
@@ -30,17 +34,48 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
   const recommendedUsers: UserType[] = response[0].recommendations
 
-  // const formattedRecommendedUsers = recommendedUsers.reduce((prevUsers, nextUser) => {}, [])
+  const formattedRecommendedUsers = recommendedUsers.reduce((prevUsers, nextUser) => {
+    if (nextUser.recommended_by) {
+      const { recommended_message } = nextUser
 
-  dispatch(actions.setRecommendedUsers(recommendedUsers))
+      const recommendedByList = !prevUsers[nextUser.uid]
+        ? [{ ...nextUser.recommended_by, recommended_message }]
+        : [...prevUsers[nextUser.uid].recommendedByList, { ...nextUser.recommended_by, recommended_message }]
+
+      let newUser = {
+        ...nextUser,
+        recommendedByList
+      }
+
+      newUser = deleteFieldsOfObject(
+        newUser,
+        ['recommended_message', 'recommended_by', 'reason', 'recommended_at']
+      )
+
+      return {
+        ...prevUsers,
+        [nextUser.uid]: newUser
+      }
+    }
+    return prevUsers
+  }, {} as { [key: string]: UserType })
+
+  dispatch(actions.setRecommendedUsers(Object.values(formattedRecommendedUsers)))
 
   const users: UserType[] = response[1].matches
 
   dispatch(actions.setUsers(users))
 }
 
-export const like = (uid: string, action: 'like' | 'withdrawLike'): ThunkType => async (dispatch, getState) => {
-  const { users } = getState().surf
+export const like = (
+  uid: string,
+  isRecommended: boolean,
+  action: 'like' | 'withdrawLike'
+): ThunkType => async (dispatch, getState) => {
+  const usersList = isRecommended ? 'recommendedUsers' : 'users'
+  const actionType = isRecommended ? 'setRecommendedUsers' : 'setUsers'
+
+  const users = getState().surf[usersList]
 
   if (users) {
     const updatedUsers = [...users]
@@ -52,25 +87,21 @@ export const like = (uid: string, action: 'like' | 'withdrawLike'): ThunkType =>
         loading: [action],
         clickedAction: `surf-${action}`
       }
-      dispatch(actions.setUsers(updatedUsers))
+      dispatch(actions[actionType](updatedUsers))
 
       const status = await usersAPI[action](uid).catch((err) => {
-        dispatch(addMessage({
-          title: 'Error',
-          value: err.error,
-          type: 'error'
-        }))
+        dispatch(notificationsActions.addErrorMsg(JSON.stringify(err)))
       })
 
       if (status === apiCodes.success) {
-        const { users } = getState().surf
+        const users = getState().surf[usersList]
         const updatedUsers = [...users]
 
         updatedUsers[updatedUserIndex] = {
           ...updatedUsers[updatedUserIndex],
           loading: []
         }
-        dispatch(actions.setUsers(updatedUsers))
+        dispatch(actions[actionType](updatedUsers))
 
         const profileAction = action === 'like' ? 'addUserInMyContacts' : 'removeUserInMyContacts'
 

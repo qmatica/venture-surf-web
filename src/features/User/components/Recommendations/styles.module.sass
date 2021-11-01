@@ -1,0 +1,36 @@
+.container
+  display: flex
+  flex-direction: column
+  position: absolute
+  right: 50px
+  top: -42px
+  background: #FFF
+  .title
+    line-height: 20px
+    font-family: "Roboto", sans-serif
+    font-size: 15px
+    color: #D7DFED
+    position: absolute
+    left: -135px
+    top: 17px
+  .recommendedUsersContainer
+    display: flex
+    position: relative
+    .photoContainer
+      width: 70px
+      height: 70px
+      border-radius: 100%
+      overflow: hidden
+      display: flex
+      flex-shrink: 0
+      justify-content: center
+      align-items: center
+      margin-left: -40px
+      cursor: pointer
+      border: 3px solid #FFF
+      &:hover
+        z-index: 50
+      &:first-child
+        margin-left: 0
+      img
+        width: 100%

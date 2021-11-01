@@ -14,10 +14,10 @@ interface ISwitchRoles {
     founder: boolean,
     investor: boolean
   }
-  isOnlyView: boolean
+  isEdit: boolean
 }
 
-export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles, isOnlyView }) => {
+export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles, isEdit }) => {
   const dispatch = useDispatch()
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [step, setStep] = useState(1)
@@ -87,18 +87,18 @@ export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles, isOnly
             className={activeRole !== 'founder' ? styles.default : styles.active}
             onClick={() => switchCurrentRole('founder')}
             isLoading={isLoadingSwitchRole === 'founder'}
-            disabled={!!isLoadingSwitchRole || isOnlyView}
+            disabled={!!isLoadingSwitchRole || !isEdit}
           />
-        ) : !isOnlyView && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
+        ) : isEdit && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
         {createdRoles.investor ? (
           <Button
             title="Investor"
             className={activeRole !== 'investor' ? styles.default : styles.active}
             onClick={() => switchCurrentRole('investor')}
             isLoading={isLoadingSwitchRole === 'investor'}
-            disabled={!!isLoadingSwitchRole || isOnlyView}
+            disabled={!!isLoadingSwitchRole || !isEdit}
           />
-        ) : !isOnlyView && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
+        ) : isEdit && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
       </div>
       <Modal title={`Create role: ${newRole}`} isOpen={isOpenModal} onClose={toggleModal}>
         <form onSubmit={onSubmit}>

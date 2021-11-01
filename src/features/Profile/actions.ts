@@ -4,7 +4,9 @@ import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
-import { addMessage, actions as actionsNotifications } from 'features/Notifications/actions'
+import {
+  actions as actionsNotifications
+} from 'features/Notifications/actions'
 import * as UpChunk from '@mux/upchunk'
 import { init as initSurf } from 'features/Surf/actions'
 import { UserType } from 'features/User/types'
@@ -40,6 +42,9 @@ export const actions = {
   setIsActiveFcm: (isActiveFcm: boolean) => ({ type: 'PROFILE__SET_IS_ACTIVE_FCM', isActiveFcm } as const),
   setProgressLoadingFile: (progressLoadingFile: number | null) => (
     { type: 'PROFILE__SET_PROGRESS_FILE', progressLoadingFile } as const
+  ),
+  toggleLoader: (loader: string) => (
+    { type: 'PROFILE__TOGGLE_LOADER', loader } as const
   )
 }
 
@@ -447,20 +452,12 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
     dispatch(togglePreloader(contacts, uid, 'callNow'))
 
     const response: ResponseCallNowType = await usersAPI.callNow(uid, profile.currentDeviceId).catch((err) => {
-      dispatch(addMessage({
-        title: 'Error loading room video',
-        value: err,
-        type: 'error'
-      }))
+      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
     })
 
     if (response) {
       const room = await connect(response.token, { room: response.room } as ConnectOptions).catch((err) => {
-        dispatch(addMessage({
-          title: 'Error connect to video chat',
-          value: err,
-          type: 'error'
-        }))
+        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
       })
 
       if (room) dispatch(actionsVideoChat.setRoom(room, uid))
@@ -556,7 +553,7 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
         .createChat(uid)
         .catch((err) => {
           console.log(err)
-          dispatch(actionsNotifications.addErrorMsg(err))
+          dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
         })
 
       const conversation = await client?.getConversationBySid(createdChat.chat_sid)
@@ -593,4 +590,34 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
   }
 
   dispatch(togglePreloader(contacts, uid, 'openChat'))
+}
+
+export const shareMyProfile = (): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
+
+  if (profile) {
+    dispatch(actions.toggleLoader('shareMyProfile'))
+
+    const { token } = await usersAPI.createPublicToken().catch((err) => {
+      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+    })
+    if (token) {
+      const baseURL = window.location.origin
+      const publicLinkProfile = `${baseURL}/profile/${profile.uid}?publicToken=${token}`
+
+      navigator.clipboard.writeText(publicLinkProfile).then(() => {
+        console.log('Public link profile copied: ', publicLinkProfile)
+
+        dispatch(actionsNotifications.addAnyMsg({
+          msg: 'Public link for my profile copied!',
+          uid: uuidv4()
+        }))
+
+        dispatch(actions.toggleLoader('shareMyProfile'))
+      }).catch((err) => {
+        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+        dispatch(actions.toggleLoader('shareMyProfile'))
+      })
+    }
+  }
 }

@@ -7,12 +7,6 @@ import { actions } from './actions'
 export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsConversations>
 export type ThunkType = ThunkAction<Promise<void | boolean>, AppStateType, typeof getFirebase, ActionTypes>
 
-export type MessageType = {
-    title: string
-    value: string
-    type: 'error' | 'warning' | 'success'
-}
-
 export type IncomingCallType = {
     data: {
         made: Date | { seconds: number, nanoseconds: number }

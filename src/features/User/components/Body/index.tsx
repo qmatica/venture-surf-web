@@ -5,7 +5,7 @@ import { Button } from 'common/components/Button'
 import { UserPhotoIcon } from 'common/icons'
 import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { determineJobWithActiveRole, determineJobWithoutActiveRole } from 'common/typeGuards'
+import { determineJobWithoutActiveRole } from 'common/typeGuards'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
 
@@ -13,12 +13,14 @@ interface IBody {
     user: UserType
     rightSide?: React.ReactElement
     typeUser: 'mutuals' | 'received' | 'sent' | 'surf'
+    isRecommended: boolean
 }
 
 export const Body: FC<IBody> = ({
   user,
   rightSide,
-  typeUser
+  typeUser,
+  isRecommended
 }) => {
   const dispatch = useDispatch()
 
@@ -34,7 +36,7 @@ export const Body: FC<IBody> = ({
         const isCLicked = clickedAction === 'surf-like'
 
         const onClick = () => {
-          dispatch(like(uid, isCLicked ? 'withdrawLike' : 'like'))
+          dispatch(like(uid, isRecommended, isCLicked ? 'withdrawLike' : 'like'))
         }
 
         return (
@@ -49,8 +51,10 @@ export const Body: FC<IBody> = ({
       case 'sent': {
         const isCLicked = clickedAction === 'sent-withdrawLike'
 
+        const isUserFromRecommended = !!(user.recommendedByList)
+
         const onClick = () => {
-          dispatch(withdrawLike(uid, isCLicked ? 'like' : 'withdrawLike'))
+          dispatch(withdrawLike(uid, isUserFromRecommended, isCLicked ? 'like' : 'withdrawLike'))
         }
 
         return (
@@ -90,48 +94,41 @@ export const Body: FC<IBody> = ({
   }
 
   const getJob = () => {
-    switch (typeUser) {
-      case 'surf': {
-        if (determineJobWithoutActiveRole(job)) {
-          const emptyJob = job && Object.values(job).every((value) => value === '')
+    if (!job || !Object.values(job).length) return null
 
-          return (
-            <>
-              {job && !emptyJob && (
-                <div className={styles.jobContainer}>
-                  {job.company && <div className={styles.company}>{job.company}</div>}
-                  {job.title && <div className={styles.title}>{job.title}</div>}
-                  {job.headline && <div className={styles.headline}>{job.headline}</div>}
-                  {job.position && <div className={styles.position}>{job.position}</div>}
-                </div>
-              )}
-            </>
-          )
-        }
-        break
-      }
-      default: {
-        if (determineJobWithActiveRole(job)) {
-          if (!activeRole) return null
+    if (determineJobWithoutActiveRole(job)) {
+      const emptyJob = job && Object.values(job).every((value) => value === '')
 
-          const emptyJob = job && activeRole && Object.values(job[activeRole]).every((value) => value === '')
-
-          return (
-            <>
-              {job && !emptyJob && (
-                <div className={styles.jobContainer}>
-                  {job[activeRole].company && <div className={styles.company}>{job[activeRole].company}</div>}
-                  {job[activeRole].title && <div className={styles.title}>{job[activeRole].title}</div>}
-                  {job[activeRole].headline && <div className={styles.headline}>{job[activeRole].headline}</div>}
-                  {job[activeRole].position && <div className={styles.position}>{job[activeRole].position}</div>}
-                </div>
-              )}
-            </>
-          )
-        }
-      }
+      return (
+        <>
+          {job && !emptyJob && (
+            <div className={styles.jobContainer}>
+              {job.company && <div className={styles.company}>{job.company}</div>}
+              {job.title && <div className={styles.title}>{job.title}</div>}
+              {job.headline && <div className={styles.headline}>{job.headline}</div>}
+              {job.position && <div className={styles.position}>{job.position}</div>}
+            </div>
+          )}
+        </>
+      )
     }
-    return null
+
+    if (!activeRole) return null
+
+    const emptyJob = job && activeRole && Object.values(job[activeRole]).every((value) => value === '')
+
+    return (
+      <>
+        {job && !emptyJob && (
+          <div className={styles.jobContainer}>
+            {job[activeRole].company && <div className={styles.company}>{job[activeRole].company}</div>}
+            {job[activeRole].title && <div className={styles.title}>{job[activeRole].title}</div>}
+            {job[activeRole].headline && <div className={styles.headline}>{job[activeRole].headline}</div>}
+            {job[activeRole].position && <div className={styles.position}>{job[activeRole].position}</div>}
+          </div>
+        )}
+      </>
+    )
   }
 
   return (

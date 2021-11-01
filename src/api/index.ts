@@ -115,5 +115,15 @@ export const usersAPI = {
   },
   sendStatisticVideo(uid: string, playbackID: string, data: StatisticVideoType) {
     return instance.post(`api/videos/${uid}/${playbackID}`, data).then((res) => res.data)
+  },
+  createPublicToken() {
+    return instance.get('api/publicToken').then((res) => res.data)
+  },
+  getPublicProfile(uid: string, token: string) {
+    const notAuthorizedInstance = axios.create({
+      baseURL: `https://us-central1-${proj}.cloudfunctions.net/`,
+      headers
+    })
+    return notAuthorizedInstance.get(`publicProfile?uid=${uid}&token=${token}`).then((res) => res.data)
   }
 }

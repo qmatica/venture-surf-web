@@ -1,9 +1,9 @@
 import { UserType } from 'features/User/types'
 import { Message } from '@twilio/conversations/lib/message'
-import { ActionTypes, IncomingCallType, MessageType } from './types'
+import { ActionTypes, IncomingCallType } from './types'
 
 const initialState = {
-  messages: [] as MessageType[],
+  anyMsgs: [] as { msg: string, uid: string }[],
   errorMsg: null as string | null,
   contactsEventsMsgs: [] as { user: UserType, msg: string, uidMsg: string }[],
   receivedChatMsgs: [] as { user: UserType, msg: Message }[],
@@ -12,16 +12,16 @@ const initialState = {
 
 export const NotificationsReducer = (state = initialState, action: ActionTypes) => {
   switch (action.type) {
-    case 'NOTIFICATIONS__ADD_MESSAGE': {
+    case 'NOTIFICATIONS__ADD_ANY_MESSAGE': {
       return {
         ...state,
-        messages: [...state.messages, action.message]
+        anyMsgs: [...state.anyMsgs, action.message]
       }
     }
-    case 'NOTIFICATIONS__CLEAR_MESSAGE':
+    case 'NOTIFICATIONS__REMOVE_ANY_MESSAGE':
       return {
         ...state,
-        messages: state.messages.filter((message) => message.value !== action.message.value)
+        anyMsgs: state.anyMsgs.filter((message) => message.uid !== action.uid)
       }
     case 'NOTIFICATIONS__ADD_ERROR_MSG':
       return {

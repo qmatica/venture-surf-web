@@ -22,7 +22,7 @@ export const Notifications = () => {
   const [playIncomingCall, { stop }] = useSound(incomingCallAudio)
 
   const {
-    errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall
+    anyMsgs, errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall
   } = useSelector((state: RootState) => state.notifications)
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export const Notifications = () => {
           dispatch(actions.removeIncomingCall())
           stop()
         }).catch((err) => {
-          dispatch(actions.addErrorMsg(err))
+          dispatch(actions.addErrorMsg(JSON.stringify(err)))
         })
     }
   }
@@ -60,6 +60,10 @@ export const Notifications = () => {
     dispatch(actions.removeContactsEventMsg(uidMsg))
   }
 
+  const removeAnyMsg = (uid: string) => {
+    dispatch(actions.removeAnyMsg(uid))
+  }
+
   const viewMessage = (chat: string | undefined, sid: string) => {
     if (chat) {
       removeReceivedChatMsg(sid)
@@ -67,15 +71,6 @@ export const Notifications = () => {
       dispatch(actionsConversations.setOpenedChat(chat))
     }
   }
-
-  // const getClassName = (type: 'error' | 'warning' | 'success') => {
-  //   switch (type) {
-  //     case 'error': return styles.error
-  //     case 'warning': return styles.warning
-  //     case 'success': return styles.success
-  //     default: return ''
-  //   }
-  // }
 
   return (
     <>
@@ -88,7 +83,7 @@ export const Notifications = () => {
         </div>
       )}
 
-      {(receivedChatMsgs.length > 0 || contactsEventsMsgs.length > 0) && (
+      {(receivedChatMsgs.length > 0 || contactsEventsMsgs.length > 0 || anyMsgs.length > 0) && (
         <div className={styles.rightSideMsgsContainer}>
           {receivedChatMsgs.map(({ user, msg }) => {
             const userName = user.displayName || `${user.first_name} ${user.last_name}`
@@ -126,6 +121,16 @@ export const Notifications = () => {
               </div>
             )
           })}
+          {anyMsgs.map(({ msg, uid }) => (
+            <div className={styles.msg} key={`notificationsMsgs-${uid}`} style={{ cursor: 'pointer' }}>
+              <div>
+                <div className={styles.contentContainer}>
+                  <div className={styles.text}>{msg}</div>
+                </div>
+              </div>
+              <div className={styles.close} onClick={() => removeAnyMsg(uid)}><CloseIcon /></div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -149,20 +154,6 @@ export const Notifications = () => {
           </div>
         </div>
       )}
-
-      {/*<div className={styles.container}>*/}
-      {/*  {messages.map((message) => (*/}
-      {/*    <div className={`${styles.messageContainer} ${getClassName(message.type)}`}>*/}
-      {/*      <div className={styles.message}>*/}
-      {/*        <div className={styles.title}>{message.title}</div>*/}
-      {/*        <div className={styles.value}>{message.value}</div>*/}
-      {/*      </div>*/}
-      {/*      <div className={styles.close} onClick={() => dispatch(actions.clearMessage(message))}>*/}
-      {/*        <CloseIcon />*/}
-      {/*      </div>*/}
-      {/*    </div>*/}
-      {/*  ))}*/}
-      {/*</div>*/}
     </>
   )
 }

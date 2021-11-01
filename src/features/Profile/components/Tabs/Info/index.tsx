@@ -10,10 +10,10 @@ import styles from './styles.module.sass'
 
 interface IInfo {
     profile: ProfileType
-    isOnlyView: boolean
+    isEdit: boolean
 }
 
-export const Info: FC<IInfo> = ({ profile, isOnlyView }) => {
+export const Info: FC<IInfo> = ({ profile, isEdit }) => {
   const dispatch = useDispatch()
   const updateProfile = useCallback((field: string) => (value: any) => {
     dispatch(updateMyProfile({ [field]: value }))
@@ -40,18 +40,18 @@ export const Info: FC<IInfo> = ({ profile, isOnlyView }) => {
         title={titleStages}
         tags={profile[profile.activeRole]?.stages}
         dictionary={stages[profile.activeRole]}
-        onSave={isOnlyView ? undefined : updateProfile('stages')}
+        onSave={isEdit ? updateProfile('stages') : undefined}
       />
       <Tags
         title={titleIndustries}
         tags={profile[profile.activeRole]?.industries}
         dictionary={industries}
-        onSave={isOnlyView ? undefined : updateProfile('industries')}
+        onSave={isEdit ? updateProfile('industries') : undefined}
       />
       <Tags
         title="Keywords"
         tags={profile.tags}
-        onSave={isOnlyView ? undefined : updateProfile('tags')}
+        onSave={isEdit ? updateProfile('tags') : undefined}
       />
       {profileInteraction.value && (
       <div className={styles.infoContainer}>

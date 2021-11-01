@@ -13,6 +13,23 @@ export const SurfReducer = (state = initialState, action: ActionTypes): typeof i
         ...state,
         recommendedUsers: action.recommendedUsers
       }
+    case 'SURF__UPDATE_RECOMMENDED_USER':
+      /* eslint-disable no-case-declarations */
+      /* eslint-disable arrow-body-style */
+      const updatedRecommendedUserIndex = state.recommendedUsers.findIndex((user) => {
+        return user.uid === action.recommendedUser.uid
+      })
+
+      if (updatedRecommendedUserIndex !== -1) {
+        const updatedRecommendedUsers = [...state.recommendedUsers]
+        updatedRecommendedUsers.splice(updatedRecommendedUserIndex, 1, action.recommendedUser)
+
+        return {
+          ...state,
+          recommendedUsers: updatedRecommendedUsers
+        }
+      }
+      return state
     case 'SURF__SET_USERS':
       return {
         ...state,

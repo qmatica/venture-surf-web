@@ -1,10 +1,10 @@
 import { UserType } from 'features/User/types'
 import { Message } from '@twilio/conversations/lib/message'
-import { IncomingCallType, MessageType, ThunkType } from './types'
+import { IncomingCallType } from './types'
 
 export const actions = {
-  addMessage: (message: MessageType) => ({ type: 'NOTIFICATIONS__ADD_MESSAGE', message } as const),
-  clearMessage: (message: MessageType) => ({ type: 'NOTIFICATIONS__CLEAR_MESSAGE', message } as const),
+  addAnyMsg: (message: { msg: string, uid: string }) => ({ type: 'NOTIFICATIONS__ADD_ANY_MESSAGE', message } as const),
+  removeAnyMsg: (uid: string) => ({ type: 'NOTIFICATIONS__REMOVE_ANY_MESSAGE', uid } as const),
   addErrorMsg: (msg: string) => ({ type: 'NOTIFICATIONS__ADD_ERROR_MSG', msg } as const),
   removeErrorMsg: () => ({ type: 'NOTIFICATIONS__REMOVE_ERROR_MSG' } as const),
   addContactsEventMsg: (user: UserType, msg: string, uidMsg: string) => (
@@ -17,11 +17,4 @@ export const actions = {
   removeReceivedChatMsg: (sid: string) => ({ type: 'NOTIFICATIONS__REMOVE_RECEIVED_CHAT_MSG', sid } as const),
   addIncomingCall: (payload: IncomingCallType) => ({ type: 'NOTIFICATIONS__ADD_INCOMING_CALL', payload } as const),
   removeIncomingCall: () => ({ type: 'NOTIFICATIONS__REMOVE_INCOMING_CALL' } as const)
-}
-
-export const addMessage = (message: MessageType): ThunkType => async (dispatch, getState) => {
-  setTimeout(() => {
-    dispatch(actions.clearMessage(message))
-  }, 150000)
-  dispatch(actions.addMessage(message))
 }

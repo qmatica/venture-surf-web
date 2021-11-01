@@ -5,16 +5,16 @@ import { getMyProfile } from 'features/Profile/selectors'
 import { getMyUid } from 'features/Auth/selectors'
 import { getOtherProfile } from 'features/Contacts/selectors'
 import { Tabs } from 'common/components/Tabs'
-import { UserPhotoIcon } from 'common/icons'
 import { match } from 'react-router-dom'
 import { Deck } from './components/Tabs/Deck'
 import { Info } from './components/Tabs/Info'
 import { Video } from './components/Tabs/Video'
 import { Job } from './components/Job'
-import styles from './styles.module.sass'
 import { SwitchRoles } from './components/SwitchRoles'
 import { ProfileType } from './types'
 import { Avatar } from './components/Avatar'
+import { ShareLinkProfile } from './components/ShareLinkProfile'
+import styles from './styles.module.sass'
 
 interface Identifiable { uid: string }
 
@@ -79,14 +79,15 @@ export const Profile: FC<IProfile> = ({ match }) => {
           <Avatar profile={profile} />
           <div className={styles.infoContainer}>
             <div className={styles.displayName}>{name}</div>
-            <Job job={job} isOnlyView={!!otherProfile} />
+            <Job job={job} isEdit={!otherProfile} />
           </div>
         </div>
-        <SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isOnlyView={!!otherProfile} />
+        <SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isEdit={!otherProfile} />
+        <ShareLinkProfile isEdit={!otherProfile} />
       </div>
       <Tabs tabs={tabs} activeTab={tab} onChange={setTab} />
       <div>
-        <tab.Component profile={profile} isOnlyView={!!otherProfile} />
+        <tab.Component profile={profile} isEdit={!otherProfile} />
       </div>
     </div>
   )

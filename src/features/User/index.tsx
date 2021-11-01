@@ -6,6 +6,7 @@ import { Videos } from './components/Videos'
 import { Tags } from './components/Tags'
 import { Assets } from './components/Assets'
 import { UserType } from './types'
+import { Recommendations } from './components/Recommendations'
 import styles from './styles.module.sass'
 
 interface IUser {
@@ -15,6 +16,7 @@ interface IUser {
     viewVideos?: boolean
     switchRoles?: boolean
     typeUser: 'mutuals' | 'received' | 'sent' | 'surf'
+    isRecommended?: boolean
 }
 
 export const User: FC<IUser> = memo(({
@@ -23,7 +25,8 @@ export const User: FC<IUser> = memo(({
   viewActions = false,
   viewVideos = false,
   switchRoles = false,
-  typeUser
+  typeUser,
+  isRecommended = false
 }) => {
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
@@ -50,11 +53,13 @@ export const User: FC<IUser> = memo(({
 
   return (
     <div className={styles.container}>
+      {isRecommended && <Recommendations user={user} />}
       {switchRoles && <SwitchRoles />}
       <Body
         user={user}
         rightSide={rightSideContent}
         typeUser={typeUser}
+        isRecommended={isRecommended}
       />
       {viewActions && <Actions user={user} />}
       {viewVideos && <Videos videos={user.content?.videos} userId={user.uid} userName={name} />}

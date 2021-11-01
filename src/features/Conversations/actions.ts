@@ -134,7 +134,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
                         })
                         .catch((err) => {
                           console.log(err)
-                          dispatch(actionsNotifications.addErrorMsg(err))
+                          dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
                         })
                     }
                   }
@@ -143,7 +143,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
             })
             .catch((err) => {
               console.log(err)
-              dispatch(actionsNotifications.addErrorMsg(err))
+              dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
             })
         }
       })
@@ -154,7 +154,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
       const subscribedConversations = await client.getSubscribedConversations().catch((err) => {
         console.log(err)
-        dispatch(actionsNotifications.addErrorMsg(err))
+        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
       })
 
       if (subscribedConversations?.items.length) {
@@ -190,7 +190,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
         const allMessages = await Promise.all(getAllMessages()).catch((err) => {
           console.log(err)
-          dispatch(actionsNotifications.addErrorMsg(err))
+          dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
         })
 
         if (allMessages?.length) {

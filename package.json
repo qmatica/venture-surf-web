@@ -19,6 +19,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "react-slick": "^0.28.1",
+    "react-tooltip": "^4.2.21",
     "redux-firestore": "^0.15.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
@@ -42,6 +43,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.8",
     "@types/react-slick": "^0.23.5",
+    "@types/react-tooltip": "^4.2.4",
     "@types/twilio": "^3.19.3",
     "@types/twilio-video": "^2.11.0",
     "@types/uuid": "^8.3.1",
@@ -68,7 +70,7 @@
   "browserslist": {
     "production": [
       "last 10 chrome version",
-      "last 10 firefox version",
+      "last 20 firefox version",
       "last 10 safari version",
       ">0.2%",
       "not dead",
@@ -76,7 +78,7 @@
     ],
     "development": [
       "last 10 chrome version",
-      "last 10 firefox version",
+      "last 20 firefox version",
       "last 10 safari version",
       ">0.2%",
       "not dead",

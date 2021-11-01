@@ -19,7 +19,11 @@ export const getUser = (uid: string): ThunkType => async (dispatch, getState) =>
   }
 }
 
-export const withdrawLike = (uid: string, action: 'withdrawLike' | 'like'): ThunkType => async (dispatch, getState) => {
+export const withdrawLike = (
+  uid: string,
+  isUserFromRecommended: boolean,
+  action: 'withdrawLike' | 'like'
+): ThunkType => async (dispatch, getState) => {
   const contacts = 'likes'
   const { profile } = getState().profile
 
@@ -31,7 +35,7 @@ export const withdrawLike = (uid: string, action: 'withdrawLike' | 'like'): Thun
     dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
 
     const status = await usersAPI[action](uid).catch((err) => {
-      dispatch(notificationsActions.addErrorMsg(err))
+      dispatch(notificationsActions.addErrorMsg(JSON.stringify(err)))
     })
 
     if (status === apiCodes.success) {
@@ -43,9 +47,13 @@ export const withdrawLike = (uid: string, action: 'withdrawLike' | 'like'): Thun
 
       const surfAction = action === 'withdrawLike' ? 'addUser' : 'removeUser'
 
-      // TODO: if user was in sent, he don't have all fields for surf. Need GET all available fields.
-
       dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
+
+      if (isUserFromRecommended) {
+        dispatch(surfActions.updateRecommendedUser(updatedUser))
+        return
+      }
+      // TODO: if user was in sent, he don't have all fields for surf. Need GET all available fields.
       dispatch(surfActions[surfAction](updatedUser))
     }
   }
@@ -63,7 +71,7 @@ export const accept = (uid: string): ThunkType => async (dispatch, getState) => 
     dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
 
     const status = await usersAPI.like(uid).catch((err) => {
-      dispatch(notificationsActions.addErrorMsg(err))
+      dispatch(notificationsActions.addErrorMsg(JSON.stringify(err)))
     })
 
     if (status === apiCodes.success) {
