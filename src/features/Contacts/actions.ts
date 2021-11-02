@@ -4,7 +4,6 @@ import { actions as surfActions } from 'features/Surf/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { usersAPI } from 'api'
 import { apiCodes } from 'common/types'
-import publicProfileJson from './publicProfile.json'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -102,7 +101,7 @@ export const getPublicProfile = (uid: string, token: string): ThunkType => async
   })
 
   if (response) {
-    if (profile?.uid !== publicProfileJson.uid) {
+    if (profile?.uid !== response.uid) {
       // @ts-ignore
       dispatch(actions.setOtherProfile(response))
     }
