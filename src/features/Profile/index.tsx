@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { actions as actionsContacts, getUser } from 'features/Contacts/actions'
 import { getMyProfile } from 'features/Profile/selectors'
 import { getMyUid } from 'features/Auth/selectors'
-import { getOtherProfile } from 'features/Contacts/selectors'
+import { getIsViewPublicProfile, getOtherProfile } from 'features/Contacts/selectors'
 import { Tabs } from 'common/components/Tabs'
 import { match } from 'react-router-dom'
 import { Deck } from './components/Tabs/Deck'
@@ -32,30 +32,32 @@ export const Profile: FC<IProfile> = ({ match }) => {
   const dispatch = useDispatch()
   const myProfile = useSelector(getMyProfile)
   const myUid = useSelector(getMyUid)
+  const isViewPublicProfile = useSelector(getIsViewPublicProfile)
   const otherProfile = useSelector(getOtherProfile)
 
   const [profile, setProfile] = useState<ProfileType | null>(null)
   const [tab, setTab] = useState(tabs[0])
 
   useEffect(() => {
-    if (match.params.uid !== myUid) {
-      dispatch(getUser(match.params.uid))
-    } else {
-      dispatch(actionsContacts.setOtherProfile(null))
-      setProfile(myProfile)
+    if (!isViewPublicProfile) {
+      if (match.params.uid !== myUid) {
+        dispatch(getUser(match.params.uid))
+      } else {
+        dispatch(actionsContacts.setOtherProfile(null))
+        setProfile(myProfile)
+      }
     }
     return () => {
       dispatch(actionsContacts.setOtherProfile(null))
+      if (isViewPublicProfile) dispatch(actionsContacts.setIsViewPublicProfile(false))
     }
   }, [match])
 
   useEffect(() => {
-    if (otherProfile) setProfile(otherProfile)
+    if (otherProfile) {
+      setProfile(otherProfile)
+    }
   }, [otherProfile])
-
-  useEffect(() => {
-    if (profile?.uid === myProfile?.uid) setProfile(myProfile)
-  }, [myProfile])
 
   if (!profile) return <>Loading profile</>
 

@@ -1,10 +1,9 @@
 import { Room } from 'twilio-video'
-import { ActionTypes, NotificationType } from './types'
+import { ActionTypes } from './types'
 
 const initialState = {
   room: null as Room | null,
-  remoteUserUid: null as string | null,
-  notifications: [] as NotificationType[]
+  remoteUserUid: null as string | null
 }
 
 export const VideoChatReducer = (state = initialState, action: ActionTypes): typeof initialState => {
@@ -14,18 +13,6 @@ export const VideoChatReducer = (state = initialState, action: ActionTypes): typ
         ...state,
         room: action.payload.room,
         remoteUserUid: action.payload.remoteUserUid
-      }
-    }
-    case 'VIDEO_CHAT__SET_NOTIFICATION': {
-      return {
-        ...state,
-        notifications: [...state.notifications, action.notification]
-      }
-    }
-    case 'VIDEO_CHAT__CLEAR_NOTIFICATION': {
-      return {
-        ...state,
-        notifications: state.notifications.filter((notification) => notification.request !== action.notificationRequest)
       }
     }
     default: return state

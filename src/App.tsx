@@ -1,5 +1,7 @@
 import React, { FC, useEffect } from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import {
+  Switch, Route, Redirect, useHistory
+} from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { Auth } from 'features/Auth'
 import { Profile } from 'features/Profile'
@@ -9,11 +11,14 @@ import { Contacts } from 'features/Contacts'
 import { Surf } from 'features/Surf'
 import { Calendar } from 'features/Calendar'
 import { Conversations } from 'features/Conversations'
+import { Notifications } from './features/Notifications'
 
 export const App: FC = () => {
   const dispatch = useDispatch()
+  const history = useHistory()
+
   useEffect(() => {
-    dispatch(init())
+    dispatch(init(history))
   }, [])
 
   return (
@@ -31,6 +36,7 @@ export const App: FC = () => {
           </Layout>
         </Route>
       </Switch>
+      <Notifications />
     </>
   )
 }

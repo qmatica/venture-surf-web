@@ -1,11 +1,11 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import {
-  CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon
+  CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon, AuthIcon
 } from 'common/icons'
 import { useSelector } from 'react-redux'
 import styles from './styles.module.sass'
-import { getMyUid } from '../Auth/selectors'
+import { getAuth, getMyUid } from '../Auth/selectors'
 
 const pages = [
   {
@@ -35,8 +35,34 @@ const pages = [
   }
 ]
 
+const pagesForUnauthorized = [
+  {
+    url: '/auth',
+    title: 'Auth',
+    icon: <AuthIcon />
+  }
+]
+
 export const NavBar = () => {
+  const auth = useSelector(getAuth)
   const myUid = useSelector(getMyUid)
+
+  if (!auth) {
+    return (
+      <div className={`${styles.container} ${styles.unauthorized}`}>
+        {pagesForUnauthorized.map(({ url, title, icon }) => (
+          <NavLink
+            key={title}
+            to={url}
+            title={title}
+            activeClassName={styles.activeLink}
+          >
+            {icon}
+          </NavLink>
+        ))}
+      </div>
+    )
+  }
   return (
     <div className={styles.container}>
       {pages.map(({ url, title, icon }) => {

@@ -75,7 +75,7 @@ export const Notifications = () => {
   return (
     <>
       {errorMsg && (
-        <div className={styles.errorMsgContainer}>
+        <div className={styles.errorMsgContainer} title={errorMsg}>
           {errorMsg}
           <div className={styles.close} onClick={removeErrorMsg}>
             <CloseIcon />

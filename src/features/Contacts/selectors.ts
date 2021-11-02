@@ -6,8 +6,6 @@ const getSearchSelector = (state: RootState) => state.contacts.search
 
 const getMutualsSelector = (state: RootState) => state.profile.profile?.mutuals
 
-const getOtherProfileSelector = (state: RootState) => state.contacts.selectedProfile
-
 export const getMutuals = createSelector(
   getMutualsSelector,
   getSearchSelector,
@@ -42,4 +40,19 @@ export const getReceived = createSelector(
   (received) => (received ? Object.values(received) : [])
 )
 
+const getOtherProfileSelector = (state: RootState) => state.contacts.selectedProfile
+
 export const getOtherProfile = createSelector(getOtherProfileSelector, (profile) => profile)
+
+const getIsLoadingPublicProfileSelector = (state: RootState) => state.contacts.isLoadingPublicProfile
+
+export const getIsLoadingPublicProfile = createSelector(
+  getIsLoadingPublicProfileSelector, (isLoadingPublicProfile) => isLoadingPublicProfile
+)
+
+const getIsViewPublicProfileSelector = (state: RootState) => state.contacts.isViewPublicProfile
+
+export const getIsViewPublicProfile = createSelector(
+  getIsViewPublicProfileSelector,
+  (isViewPublicProfile) => isViewPublicProfile
+)
