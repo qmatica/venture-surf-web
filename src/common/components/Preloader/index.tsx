@@ -6,6 +6,8 @@ import styles from './styles.module.sass'
 export const Preloader = () => (
   <div className={styles.wrapper}>
     <img src={logoPreloader} alt="Venture Surf" />
-    <img src={preloaderGif} alt="Venture Surf" />
+    <div className={styles.ticker}>
+      <img src={preloaderGif} alt="Venture Surf" />
+    </div>
   </div>
 )

@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom'
 import { Button } from 'common/components/Button'
 import { useDispatch } from 'react-redux'
 import { callNow, openChat } from 'features/Profile/actions'
+import { shareLinkProfile } from 'features/Contacts/actions'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
 
@@ -19,8 +20,12 @@ export const Actions: FC<IActions> = ({ user }) => {
   }
 
   const onOpenChat = () => {
-    const redirectToCreatedChat = () => history.push('conversations')
-    dispatch(openChat(user.uid, redirectToCreatedChat))
+    const redirectToConversations = () => history.push('conversations')
+    dispatch(openChat(user.uid, redirectToConversations))
+  }
+
+  const onShareLinkProfile = () => {
+    dispatch(shareLinkProfile(user.uid))
   }
 
   const onArrangeAMeeting = () => {}
@@ -47,6 +52,11 @@ export const Actions: FC<IActions> = ({ user }) => {
         isLoading={false}
         onClick={onArrangeAMeeting}
         icon="calendar"
+      />
+      <Button
+        title="Share link profile"
+        isLoading={user.loading?.includes('shareLinkProfile')}
+        onClick={onShareLinkProfile}
       />
       <Button
         title="Recommended"

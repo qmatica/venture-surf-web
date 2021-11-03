@@ -2,6 +2,7 @@ import { ThunkAction } from 'redux-thunk'
 import { rootReducer } from 'store/store'
 import { getFirebase } from 'react-redux-firebase'
 import { actions as authActions } from 'features/Auth/actions'
+import { actions as contactsActions } from 'features/Contacts/actions'
 import { actions } from './actions'
 
 type RootReducerType = typeof rootReducer
@@ -10,7 +11,7 @@ export type InferActionsTypes<T extends { [key: string]: (...args: any[]) => any
 export type AppStateType = ReturnType<RootReducerType>
 export type RootState = ReturnType<typeof rootReducer>
 
-export type ActionTypes = InferActionsTypes<typeof actions | typeof authActions>
+export type ActionTypes = InferActionsTypes<typeof actions | typeof authActions | typeof contactsActions>
 export type ThunkType = ThunkAction<Promise<void>, AppStateType, typeof getFirebase, ActionTypes>
 
 export type AuthUserType = {

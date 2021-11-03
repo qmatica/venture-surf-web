@@ -116,8 +116,8 @@ export const usersAPI = {
   sendStatisticVideo(uid: string, playbackID: string, data: StatisticVideoType) {
     return instance.post(`api/videos/${uid}/${playbackID}`, data).then((res) => res.data)
   },
-  createPublicToken() {
-    return instance.get('api/publicToken').then((res) => res.data)
+  createPublicToken(uid: string) {
+    return instance.get(`api/publicToken/${uid}`).then((res) => res.data)
   },
   getPublicProfile(uid: string, token: string) {
     const notAuthorizedInstance = axios.create({

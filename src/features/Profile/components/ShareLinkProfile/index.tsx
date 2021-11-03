@@ -3,7 +3,7 @@ import { Button } from 'common/components/Button'
 import { useDispatch, useSelector } from 'react-redux'
 import { getLoadersProfile } from 'features/Profile/selectors'
 import styles from './styles.module.sass'
-import { shareMyProfile } from '../../actions'
+import { shareLinkMyProfile } from '../../actions'
 
 interface IShareLinkProfile {
   isEdit: boolean
@@ -14,7 +14,7 @@ export const ShareLinkProfile: FC<IShareLinkProfile> = ({ isEdit }) => {
   const loaders = useSelector(getLoadersProfile)
 
   const onClick = () => {
-    dispatch(shareMyProfile())
+    dispatch(shareLinkMyProfile())
   }
 
   if (!isEdit) return null

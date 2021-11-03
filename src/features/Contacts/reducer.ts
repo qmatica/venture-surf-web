@@ -3,9 +3,9 @@ import { ActionTypes } from './types'
 
 const initialState = {
   search: '',
-  selectedProfile: null as ProfileType | null,
-  isViewPublicProfile: false,
-  isLoadingPublicProfile: false
+  otherProfile: null as ProfileType | null,
+  isPublicProfile: false,
+  isLoadingOtherProfile: false
 }
 
 export const ContactsReducer = (state = initialState, action: ActionTypes): typeof initialState => {
@@ -15,20 +15,20 @@ export const ContactsReducer = (state = initialState, action: ActionTypes): type
         ...state,
         search: action.search
       }
-    case 'CONTACTS__SET_IS_VIEW_PUBLIC_PROFILE':
+    case 'CONTACTS__SET_IS_PUBLIC_PROFILE':
       return {
         ...state,
-        isViewPublicProfile: action.isViewPublicProfile
+        isPublicProfile: action.isPublicProfile
       }
     case 'CONTACTS__SET_OTHER_PROFILE':
       return {
         ...state,
-        selectedProfile: action.profile
+        otherProfile: action.otherProfile
       }
-    case 'CONTACTS__SET_IS_LOADING_PUBLIC_PROFILE':
+    case 'CONTACTS__SET_IS_LOADING_OTHER_PROFILE':
       return {
         ...state,
-        isLoadingPublicProfile: action.isLoadingPublicProfile
+        isLoadingOtherProfile: action.isLoadingOtherProfile
       }
     default:
       return state

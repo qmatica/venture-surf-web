@@ -4,25 +4,27 @@ import { actions as surfActions } from 'features/Surf/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { usersAPI } from 'api'
 import { apiCodes } from 'common/types'
+import { v4 as uuidv4 } from 'uuid'
 import { ThunkType } from './types'
 
 export const actions = {
   setSearch: (search: string) => ({ type: 'CONTACTS__SET_SEARCH', search } as const),
-  setOtherProfile: (profile: ProfileType | null) => ({ type: 'CONTACTS__SET_OTHER_PROFILE', profile } as const),
-  setIsViewPublicProfile: (isViewPublicProfile: boolean) => (
-    { type: 'CONTACTS__SET_IS_VIEW_PUBLIC_PROFILE', isViewPublicProfile } as const
+  setOtherProfile: (otherProfile: ProfileType | null) => ({ type: 'CONTACTS__SET_OTHER_PROFILE', otherProfile } as const),
+  setIsPublicProfile: (isPublicProfile: boolean) => (
+    { type: 'CONTACTS__SET_IS_PUBLIC_PROFILE', isPublicProfile } as const
   ),
-  setIsLoadingPublicProfile: (isLoadingPublicProfile: boolean) => (
-    { type: 'CONTACTS__SET_IS_LOADING_PUBLIC_PROFILE', isLoadingPublicProfile } as const
+  setIsLoadingOtherProfile: (isLoadingOtherProfile: boolean) => (
+    { type: 'CONTACTS__SET_IS_LOADING_OTHER_PROFILE', isLoadingOtherProfile } as const
   )
 }
 
-export const getUser = (uid: string): ThunkType => async (dispatch, getState) => {
-  dispatch(actions.setOtherProfile(null))
+export const getUser = (uid: string): ThunkType => async (dispatch) => {
+  dispatch(actions.setIsLoadingOtherProfile(true))
   const userProfile = await usersAPI.getUser(uid).catch((err) => console.log(err))
   if (userProfile) {
     dispatch(actions.setOtherProfile({ ...userProfile, uid }))
   }
+  dispatch(actions.setIsLoadingOtherProfile(false))
 }
 
 export const withdrawLike = (
@@ -92,20 +94,64 @@ export const accept = (uid: string): ThunkType => async (dispatch, getState) => 
   }
 }
 
+export const shareLinkProfile = (uid: string): ThunkType => async (dispatch, getState) => {
+  const contacts = 'mutuals'
+  const { profile } = getState().profile
+
+  if (profile) {
+    const updatedUser = {
+      ...profile[contacts][uid],
+      loading: ['shareLinkProfile']
+    }
+
+    dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
+
+    const { token } = await usersAPI.createPublicToken(uid).catch((err) => {
+      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+    })
+    if (token) {
+      const baseURL = window.location.origin
+      const publicLinkProfile = `${baseURL}/profile/${uid}?publicToken=${token}`
+
+      navigator.clipboard.writeText(publicLinkProfile).then(() => {
+        console.log('Public link profile copied: ', publicLinkProfile)
+
+        dispatch(actionsNotifications.addAnyMsg({
+          msg: 'Public link for profile copied!',
+          uid: uuidv4()
+        }))
+
+        const updatedUser = {
+          ...profile[contacts][uid],
+          loading: []
+        }
+
+        dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
+      }).catch((err) => {
+        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+        dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
+      })
+    }
+  }
+}
+
 export const getPublicProfile = (uid: string, token: string): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
-  dispatch(actions.setIsLoadingPublicProfile(true))
-  const response = await usersAPI.getPublicProfile(uid, token).catch((err) => {
-    dispatch(actions.setIsLoadingPublicProfile(false))
+  if (profile?.uid === uid) {
+    dispatch(actions.setIsPublicProfile(false))
+    return
+  }
+  dispatch(actions.setIsLoadingOtherProfile(true))
+  const publicProfile = await usersAPI.getPublicProfile(uid, token).catch((err) => {
+    dispatch(actions.setIsLoadingOtherProfile(true))
     dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err) || 'Error loading public profile ☹️'))
   })
 
-  if (response) {
-    if (profile?.uid !== response.uid) {
+  if (publicProfile) {
+    if (profile?.uid !== publicProfile.uid) {
       // @ts-ignore
-      dispatch(actions.setOtherProfile(response))
+      dispatch(actions.setOtherProfile(publicProfile))
+      dispatch(actions.setIsLoadingOtherProfile(false))
     }
-    dispatch(actions.setIsViewPublicProfile(true))
-    dispatch(actions.setIsLoadingPublicProfile(false))
   }
 }

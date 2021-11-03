@@ -1,17 +1,18 @@
 import React, { FC, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { actions as actionsContacts, getUser } from 'features/Contacts/actions'
-import { getMyProfile } from 'features/Profile/selectors'
+import { actions as actionsContacts, getPublicProfile, getUser } from 'features/Contacts/actions'
+import { getProfile } from 'features/Profile/selectors'
 import { getMyUid } from 'features/Auth/selectors'
-import { getIsViewPublicProfile, getOtherProfile } from 'features/Contacts/selectors'
+import { getIsLoadingOtherProfile, getIsPublicProfile, getOtherProfile } from 'features/Contacts/selectors'
 import { Tabs } from 'common/components/Tabs'
-import { match } from 'react-router-dom'
+import { match, useHistory } from 'react-router-dom'
+import { checkRequestPublicProfile } from 'common/utils'
+import { Preloader } from 'common/components/Preloader'
 import { Deck } from './components/Tabs/Deck'
 import { Info } from './components/Tabs/Info'
 import { Video } from './components/Tabs/Video'
 import { Job } from './components/Job'
 import { SwitchRoles } from './components/SwitchRoles'
-import { ProfileType } from './types'
 import { Avatar } from './components/Avatar'
 import { ShareLinkProfile } from './components/ShareLinkProfile'
 import styles from './styles.module.sass'
@@ -30,36 +31,43 @@ const tabs = [
 
 export const Profile: FC<IProfile> = ({ match }) => {
   const dispatch = useDispatch()
-  const myProfile = useSelector(getMyProfile)
+  const history = useHistory()
+  const isLoadingOtherProfile = useSelector(getIsLoadingOtherProfile)
   const myUid = useSelector(getMyUid)
-  const isViewPublicProfile = useSelector(getIsViewPublicProfile)
+  const profile = useSelector(getProfile)
+  const isPublicProfile = useSelector(getIsPublicProfile)
   const otherProfile = useSelector(getOtherProfile)
 
-  const [profile, setProfile] = useState<ProfileType | null>(null)
+  const [initialized, setInitialized] = useState(false)
   const [tab, setTab] = useState(tabs[0])
 
   useEffect(() => {
-    if (!isViewPublicProfile) {
-      if (match.params.uid !== myUid) {
-        dispatch(getUser(match.params.uid))
-      } else {
-        dispatch(actionsContacts.setOtherProfile(null))
-        setProfile(myProfile)
+    if (isPublicProfile) {
+      const result = checkRequestPublicProfile(history)
+
+      if (result) {
+        const { uid, token } = result
+        dispatch(getPublicProfile(uid, token))
       }
+    } else if (match.params.uid !== myUid) {
+      dispatch(getUser(match.params.uid))
+    } else {
+      if (otherProfile) dispatch(actionsContacts.setOtherProfile(null))
+      setInitialized(true)
     }
     return () => {
       dispatch(actionsContacts.setOtherProfile(null))
-      if (isViewPublicProfile) dispatch(actionsContacts.setIsViewPublicProfile(false))
+      if (isPublicProfile) dispatch(actionsContacts.setIsPublicProfile(false))
     }
-  }, [match])
+  }, [match, isPublicProfile])
 
   useEffect(() => {
-    if (otherProfile) {
-      setProfile(otherProfile)
+    if (otherProfile && !isLoadingOtherProfile) {
+      setInitialized(true)
     }
-  }, [otherProfile])
+  }, [isLoadingOtherProfile])
 
-  if (!profile) return <>Loading profile</>
+  if (!profile || !initialized) return <Preloader />
 
   const job = {
     company: profile[profile.activeRole]?.job?.company,

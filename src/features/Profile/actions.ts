@@ -592,32 +592,36 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
   dispatch(togglePreloader(contacts, uid, 'openChat'))
 }
 
-export const shareMyProfile = (): ThunkType => async (dispatch, getState) => {
+export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
 
   if (profile) {
-    dispatch(actions.toggleLoader('shareMyProfile'))
+    const { uid } = profile
 
-    const { token } = await usersAPI.createPublicToken().catch((err) => {
-      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-    })
-    if (token) {
-      const baseURL = window.location.origin
-      const publicLinkProfile = `${baseURL}/profile/${profile.uid}?publicToken=${token}`
+    if (uid) {
+      dispatch(actions.toggleLoader('shareMyProfile'))
 
-      navigator.clipboard.writeText(publicLinkProfile).then(() => {
-        console.log('Public link profile copied: ', publicLinkProfile)
-
-        dispatch(actionsNotifications.addAnyMsg({
-          msg: 'Public link for my profile copied!',
-          uid: uuidv4()
-        }))
-
-        dispatch(actions.toggleLoader('shareMyProfile'))
-      }).catch((err) => {
+      const { token } = await usersAPI.createPublicToken(uid).catch((err) => {
         dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-        dispatch(actions.toggleLoader('shareMyProfile'))
       })
+      if (token) {
+        const baseURL = window.location.origin
+        const publicLinkProfile = `${baseURL}/profile/${profile.uid}?publicToken=${token}`
+
+        navigator.clipboard.writeText(publicLinkProfile).then(() => {
+          console.log('Public link profile copied: ', publicLinkProfile)
+
+          dispatch(actionsNotifications.addAnyMsg({
+            msg: 'Public link for my profile copied!',
+            uid: uuidv4()
+          }))
+
+          dispatch(actions.toggleLoader('shareMyProfile'))
+        }).catch((err) => {
+          dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+          dispatch(actions.toggleLoader('shareMyProfile'))
+        })
+      }
     }
   }
 }

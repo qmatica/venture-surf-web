@@ -40,19 +40,20 @@ export const getReceived = createSelector(
   (received) => (received ? Object.values(received) : [])
 )
 
-const getOtherProfileSelector = (state: RootState) => state.contacts.selectedProfile
+const getOtherProfileSelector = (state: RootState) => state.contacts.otherProfile
 
 export const getOtherProfile = createSelector(getOtherProfileSelector, (profile) => profile)
 
-const getIsLoadingPublicProfileSelector = (state: RootState) => state.contacts.isLoadingPublicProfile
+const getIsPublicProfileSelector = (state: RootState) => state.contacts.isPublicProfile
 
-export const getIsLoadingPublicProfile = createSelector(
-  getIsLoadingPublicProfileSelector, (isLoadingPublicProfile) => isLoadingPublicProfile
+export const getIsPublicProfile = createSelector(
+  getIsPublicProfileSelector,
+  (isPublicProfile) => isPublicProfile
 )
 
-const getIsViewPublicProfileSelector = (state: RootState) => state.contacts.isViewPublicProfile
+const getIsLoadingOtherProfileSelector = (state: RootState) => state.contacts.isLoadingOtherProfile
 
-export const getIsViewPublicProfile = createSelector(
-  getIsViewPublicProfileSelector,
-  (isViewPublicProfile) => isViewPublicProfile
+export const getIsLoadingOtherProfile = createSelector(
+  getIsLoadingOtherProfileSelector,
+  (isLoadingOtherProfile) => isLoadingOtherProfile
 )

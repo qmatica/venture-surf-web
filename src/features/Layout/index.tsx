@@ -6,7 +6,7 @@ import { Preloader } from 'common/components/Preloader'
 import { VideoChat } from 'features/VideoChat'
 import { getAppInitialized } from 'common/selectors'
 import { getAuth } from 'features/Auth/selectors'
-import { getIsLoadingPublicProfile, getIsViewPublicProfile } from 'features/Contacts/selectors'
+import { getIsPublicProfile } from 'features/Contacts/selectors'
 import styles from './styles.module.sass'
 
 interface ILayout {
@@ -16,12 +16,11 @@ interface ILayout {
 export const Layout: FC<ILayout> = ({ children }) => {
   const initialized = useSelector(getAppInitialized)
   const auth = useSelector(getAuth)
-  const isLoadingPublicProfile = useSelector(getIsLoadingPublicProfile)
-  const isViewPublicProfile = useSelector(getIsViewPublicProfile)
+  const isPublicProfile = useSelector(getIsPublicProfile)
 
-  if (!initialized || auth === undefined || isLoadingPublicProfile) return <Preloader />
+  if (!initialized || auth === undefined) return <Preloader />
 
-  if (auth === false && !isViewPublicProfile) return <Redirect to="/auth" />
+  if (auth === false && !isPublicProfile) return <Redirect to="/auth" />
 
   return (
     <div className={styles.wrapper}>
