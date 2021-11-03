@@ -10,8 +10,8 @@ import { ThunkType } from './types'
 export const actions = {
   setSearch: (search: string) => ({ type: 'CONTACTS__SET_SEARCH', search } as const),
   setOtherProfile: (otherProfile: ProfileType | null) => ({ type: 'CONTACTS__SET_OTHER_PROFILE', otherProfile } as const),
-  setIsPublicProfile: (isPublicProfile: boolean) => (
-    { type: 'CONTACTS__SET_IS_PUBLIC_PROFILE', isPublicProfile } as const
+  setParamsPublicProfile: (paramsPublicProfile: { uid: string, token: string } | null) => (
+    { type: 'CONTACTS__SET_PARAMS_PUBLIC_PROFILE', paramsPublicProfile } as const
   ),
   setIsLoadingOtherProfile: (isLoadingOtherProfile: boolean) => (
     { type: 'CONTACTS__SET_IS_LOADING_OTHER_PROFILE', isLoadingOtherProfile } as const
@@ -138,7 +138,7 @@ export const shareLinkProfile = (uid: string): ThunkType => async (dispatch, get
 export const getPublicProfile = (uid: string, token: string): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
   if (profile?.uid === uid) {
-    dispatch(actions.setIsPublicProfile(false))
+    dispatch(actions.setParamsPublicProfile(null))
     return
   }
   dispatch(actions.setIsLoadingOtherProfile(true))

@@ -12,10 +12,10 @@ export const actions = {
 }
 
 export const init = (history: History): ThunkType => async (dispatch, getState, getFirebase) => {
-  const isPublicProfile = checkRequestPublicProfile(history)
+  const paramsPublicProfile = checkRequestPublicProfile(history)
 
-  if (isPublicProfile) {
-    dispatch(contactsActions.setIsPublicProfile(true))
+  if (paramsPublicProfile) {
+    dispatch(contactsActions.setParamsPublicProfile(paramsPublicProfile))
   }
 
   getFirebase().auth().onAuthStateChanged(async (userAuth) => {

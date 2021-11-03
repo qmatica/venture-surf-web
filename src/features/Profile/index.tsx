@@ -3,10 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { actions as actionsContacts, getPublicProfile, getUser } from 'features/Contacts/actions'
 import { getProfile } from 'features/Profile/selectors'
 import { getMyUid } from 'features/Auth/selectors'
-import { getIsLoadingOtherProfile, getIsPublicProfile, getOtherProfile } from 'features/Contacts/selectors'
+import { getIsLoadingOtherProfile, getParamsPublicProfile, getOtherProfile } from 'features/Contacts/selectors'
 import { Tabs } from 'common/components/Tabs'
-import { match, useHistory } from 'react-router-dom'
-import { checkRequestPublicProfile } from 'common/utils'
+import { match } from 'react-router-dom'
 import { Preloader } from 'common/components/Preloader'
 import { Deck } from './components/Tabs/Deck'
 import { Info } from './components/Tabs/Info'
@@ -31,24 +30,19 @@ const tabs = [
 
 export const Profile: FC<IProfile> = ({ match }) => {
   const dispatch = useDispatch()
-  const history = useHistory()
   const isLoadingOtherProfile = useSelector(getIsLoadingOtherProfile)
   const myUid = useSelector(getMyUid)
   const profile = useSelector(getProfile)
-  const isPublicProfile = useSelector(getIsPublicProfile)
+  const paramsPublicProfile = useSelector(getParamsPublicProfile)
   const otherProfile = useSelector(getOtherProfile)
 
   const [initialized, setInitialized] = useState(false)
   const [tab, setTab] = useState(tabs[0])
 
   useEffect(() => {
-    if (isPublicProfile) {
-      const result = checkRequestPublicProfile(history)
-
-      if (result) {
-        const { uid, token } = result
-        dispatch(getPublicProfile(uid, token))
-      }
+    if (paramsPublicProfile) {
+      const { uid, token } = paramsPublicProfile
+      dispatch(getPublicProfile(uid, token))
     } else if (match.params.uid !== myUid) {
       dispatch(getUser(match.params.uid))
     } else {
@@ -57,9 +51,9 @@ export const Profile: FC<IProfile> = ({ match }) => {
     }
     return () => {
       dispatch(actionsContacts.setOtherProfile(null))
-      if (isPublicProfile) dispatch(actionsContacts.setIsPublicProfile(false))
+      if (paramsPublicProfile) dispatch(actionsContacts.setParamsPublicProfile(null))
     }
-  }, [match, isPublicProfile])
+  }, [match, paramsPublicProfile])
 
   useEffect(() => {
     if (otherProfile && !isLoadingOtherProfile) {

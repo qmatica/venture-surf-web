@@ -4,7 +4,7 @@ import { ActionTypes } from './types'
 const initialState = {
   search: '',
   otherProfile: null as ProfileType | null,
-  isPublicProfile: false,
+  paramsPublicProfile: null as { uid: string, token: string } | null,
   isLoadingOtherProfile: false
 }
 
@@ -15,10 +15,10 @@ export const ContactsReducer = (state = initialState, action: ActionTypes): type
         ...state,
         search: action.search
       }
-    case 'CONTACTS__SET_IS_PUBLIC_PROFILE':
+    case 'CONTACTS__SET_PARAMS_PUBLIC_PROFILE':
       return {
         ...state,
-        isPublicProfile: action.isPublicProfile
+        paramsPublicProfile: action.paramsPublicProfile
       }
     case 'CONTACTS__SET_OTHER_PROFILE':
       return {

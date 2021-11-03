@@ -44,11 +44,11 @@ const getOtherProfileSelector = (state: RootState) => state.contacts.otherProfil
 
 export const getOtherProfile = createSelector(getOtherProfileSelector, (profile) => profile)
 
-const getIsPublicProfileSelector = (state: RootState) => state.contacts.isPublicProfile
+const getParamsPublicProfileSelector = (state: RootState) => state.contacts.paramsPublicProfile
 
-export const getIsPublicProfile = createSelector(
-  getIsPublicProfileSelector,
-  (isPublicProfile) => isPublicProfile
+export const getParamsPublicProfile = createSelector(
+  getParamsPublicProfileSelector,
+  (paramsPublicProfile) => paramsPublicProfile
 )
 
 const getIsLoadingOtherProfileSelector = (state: RootState) => state.contacts.isLoadingOtherProfile
