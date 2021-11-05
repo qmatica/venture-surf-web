@@ -113,11 +113,6 @@ export const Video: FC<IVideo> = ({ profile, isEdit }) => {
         {currentVideo && (
         <div className={styles.infoContainer}>
           <div className={styles.title}>{currentVideo.title}</div>
-          <div className={styles.description}>
-            Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia
-            non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad
-            minima veniam, quis nostrum.
-          </div>
         </div>
         )}
       </div>
