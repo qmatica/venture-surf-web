@@ -22,6 +22,11 @@ jobs:
       run: |
         yarn install
         yarn build
+      env:
+        REACT_APP_FIREBASE_PROJECT: ${{ secrets.REACT_APP_FIREBASE_PROJECT }}
+        REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY }}
+        REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
+        REACT_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }}
     - name: Archive Build
       uses: actions/upload-artifact@v2
       with:
@@ -45,7 +50,3 @@ jobs:
           args: deploy --only hosting --project venturesurfdev
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          REACT_APP_FIREBASE_PROJECT: ${{ secrets.REACT_APP_FIREBASE_PROJECT }}
-          REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY }}
-          REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
-          REACT_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }}
