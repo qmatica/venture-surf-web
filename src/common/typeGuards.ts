@@ -10,5 +10,5 @@ export function determineNotificationContactsOrCall(result: ContactsOrCall): res
 type JobOrJobWithActiveRole = { [key in 'founder' | 'investor']: Job } | Job
 
 export function determineJobWithoutActiveRole(job: JobOrJobWithActiveRole): job is Job {
-  return !!((job as Job).company || (job as Job).company === '')
+  return !!((job as Job).company || (job as Job).company === '' || (job as Job).company === null)
 }

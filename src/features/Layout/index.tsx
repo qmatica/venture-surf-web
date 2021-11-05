@@ -21,7 +21,7 @@ export const Layout: FC<ILayout> = ({ children }) => {
   if (!initialized || auth === undefined) return <Preloader />
 
   if (auth === false && !paramsPublicProfile) return <Redirect to="/auth" />
-  // test
+
   return (
     <div className={styles.wrapper}>
       <Header />
