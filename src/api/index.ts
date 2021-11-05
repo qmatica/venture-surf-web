@@ -7,7 +7,7 @@ import { DeviceType } from 'features/Profile/types'
 const headers = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*'
+  'Access-Control-Allow-Origin': 'https://venturesurfdev.web.app'
 }
 
 const instance = axios.create({
