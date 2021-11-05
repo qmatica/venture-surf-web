@@ -1,9 +1,9 @@
 name: Firebase CI
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -18,10 +18,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install and build
+    - name: yarn install and build
       run: |
-        npm install
-        npm run build:dev
+        yarn install
+        yarn build:dev
     - name: Archive Build
       uses: actions/upload-artifact@v2
       with:
