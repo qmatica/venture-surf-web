@@ -17,11 +17,8 @@ import { NotificationsReducer } from 'features/Notifications/reducer'
 import { VideoChatReducer } from 'features/VideoChat/reducer'
 import { ConversationsReducer } from 'features/Conversations/reducer'
 import { config } from 'config/firebase'
-import { getMessaging } from 'firebase/messaging'
 
-const firebaseApp = firebase.initializeApp(config)
-
-export const messaging = getMessaging(firebaseApp)
+export const firebaseApp = firebase.initializeApp(config)
 
 export const rootReducer = combineReducers({
   firebase: firebaseReducer,

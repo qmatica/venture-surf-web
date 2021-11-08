@@ -18,9 +18,8 @@ export const Recommendations: FC<IRecommendations> = ({ user }) => {
       <div className={styles.title}>Recommended by:</div>
       <div className={styles.recommendedUsersContainer}>
         {user.recommendedByList.map((u) => (
-          <Link to={`profile/${u.uid}`}>
+          <Link to={`profile/${u.uid}`} key={`${user.uid}-${u.uid}`}>
             <div
-              key={u.uid}
               className={styles.photoContainer}
               data-tip={u.recommended_message}
               data-place="bottom"

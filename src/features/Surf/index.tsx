@@ -14,7 +14,7 @@ export const Surf = () => {
         <div className={styles.recommendedUsersContainer}>
           {recommendedUsers.map((user) => (
             <User
-              key={user.uid}
+              key={`${user.uid}-recommended`}
               user={user}
               rightSide="tags"
               viewVideos

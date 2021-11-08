@@ -1,14 +1,18 @@
 import React, {
-  createRef, FC, useEffect, useState
+  createRef, FC, useEffect, useRef, useState
 } from 'react'
-import Slider from 'react-slick'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import SwiperClassType from 'swiper/types/swiper-class'
+import SwiperCore, { Navigation } from 'swiper'
 import ReactHlsPlayer from 'react-hls-player'
 import { Modal } from 'features/Modal'
 import { StatisticVideoType, VideosType } from 'common/types'
 import { usersAPI } from 'api'
 import styles from './styles.module.sass'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+import 'swiper/swiper-bundle.css'
+import 'swiper/components/navigation/navigation.min.css'
+
+SwiperCore.use([Navigation])
 
 type VideoType = {
     title: string,
@@ -37,42 +41,39 @@ export const Videos: FC<IVideos> = ({
   if (!videos) return null
 
   const playerRef = createRef<HTMLVideoElement>()
-  const [formattedVideos, setFormattedVideos] = useState<(VideoType | null)[]>([])
-  const [isSliding, setIsSliding] = useState(false)
+  const [formattedVideos, setFormattedVideos] = useState<VideoType[]>([])
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState<VideoType | null>(null)
+  const [imagesIsReady, setImagesIsReady] = useState(false)
 
   useEffect(() => {
-    const fv = videos._order_.reduce((prevVideos: (VideoType | null)[], nextVideo, index, array) => {
-      const { playbackID } = videos[nextVideo]
+    const fv = videos._order_.map((video) => {
+      const { playbackID } = videos[video]
 
-      const video = {
-        title: nextVideo,
+      return {
+        title: video,
         img: `https://image.mux.com/${playbackID}/thumbnail.jpg?time=5`,
         url: `https://stream.mux.com/${playbackID}.m3u8`,
         playbackID
       }
-
-      // generate empty carts for carousel videos
-      if (index === array.length - 1) {
-        let emptyVideos
-        if (index === 0) {
-          emptyVideos = [null, null]
-        }
-        if (index === 1) {
-          emptyVideos = [null]
-        }
-        if (emptyVideos) return [...prevVideos, video, ...emptyVideos]
-      }
-
-      return [...prevVideos, video]
-    }, [])
+    })
     setFormattedVideos(fv)
+    cacheImages(fv)
   }, [])
 
-  const startSliding = () => setIsSliding(true)
+  const cacheImages = async (videos: VideoType[]) => {
+    const promises = await videos.map((video) => new Promise((resolve, reject) => {
+      const img = new Image()
 
-  const stopSliding = () => setIsSliding(false)
+      img.onload = () => resolve('loaded')
+      img.onerror = () => reject()
+      img.src = video.img
+    }))
+
+    await Promise.all(promises)
+
+    setImagesIsReady(true)
+  }
 
   const toggleModal = () => {
     setIsOpenModal(!isOpenModal)
@@ -91,10 +92,8 @@ export const Videos: FC<IVideos> = ({
     }
   }
   const openVideo = (video: VideoType) => {
-    if (!isSliding) {
-      setSelectedVideo(video)
-      toggleModal()
-    }
+    setSelectedVideo(video)
+    toggleModal()
   }
 
   const onSetSelectedVideo = (video: VideoType) => {
@@ -138,51 +137,31 @@ export const Videos: FC<IVideos> = ({
     }
   }
 
-  const settingsSlider = {
-    arrows: true,
-    infinite: false,
-    swipeToSlide: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    beforeChange: startSliding,
-    afterChange: stopSliding
+  if (!imagesIsReady) {
+    return null
   }
 
   return (
     <>
       <div className={styles.videosContainer}>
-        <Slider {...settingsSlider}>
-          {formattedVideos.map((video, index) => {
-            if (!video) {
-              return (
-                <div key={`${userId} ${index}`}>
-                  <div className={`${styles.videoContainer} ${styles.empty}`}>
-                    <div className={styles.imgContainer} />
-                  </div>
+        <Swiper
+          spaceBetween={20}
+          slidesPerView="auto"
+          onSlideChange={() => console.log('slide change')}
+          navigation
+          centerInsufficientSlides
+        >
+          {formattedVideos.map((video, index) => (
+            <SwiperSlide key={video.url}>
+              <div className={styles.videoContainer} onClick={() => openVideo(video)}>
+                <div className={styles.imgContainer}>
+                  <img src={video.img} alt={video.title} />
                 </div>
-              )
-            }
-            return (
-              <div key={video.url}>
-                <div className={styles.videoContainer} onClick={() => openVideo(video)}>
-                  <div className={`${styles.imgContainer} ${styles.withVideo}`}>
-                    {video.img && (
-                      <div
-                        className={styles.overlayCover}
-                        style={{
-                          backgroundImage: `url(${video.img})`
-                        }}
-                      />
-                    )}
-                    <img src={video.img} alt={video.title} />
-                  </div>
-                  <div className={styles.title}>{video.title}</div>
-                </div>
+                <div className={styles.title}>{video.title}</div>
               </div>
-            )
-          })}
-        </Slider>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
       <Modal title={`Video: ${userName} - ${selectedVideo?.title}`} isOpen={isOpenModal} onClose={toggleModal} width={935}>
         <div className={styles.videoPlayerContainer}>

@@ -150,7 +150,7 @@ export type profileInteractionUsersType = {
 export type DeviceType = {
     id: string,
     os: string,
-    fcm_token: string | void,
+    fcm_token: string | void | null,
     voip_token: string,
     bundle: string
 }

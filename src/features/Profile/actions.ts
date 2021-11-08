@@ -10,9 +10,9 @@ import {
 import * as UpChunk from '@mux/upchunk'
 import { init as initSurf } from 'features/Surf/actions'
 import { UserType } from 'features/User/types'
-import { getToken, onMessage } from 'firebase/messaging'
-import { messaging } from 'store/store'
+import { getMessaging, onMessage } from 'firebase/messaging'
 import { IncomingCallType } from 'features/Notifications/types'
+import { firebaseApp } from 'store/store'
 import {
   JobType,
   ResponseCallNowType,
@@ -24,7 +24,7 @@ import {
   ResultCompareInstanceCallType
 } from './types'
 import { ChatType } from '../Conversations/types'
-import { compareContacts, compareSlots } from './utils'
+import { compareContacts, compareSlots, getTokenFcm } from './utils'
 import { determineNotificationContactsOrCall } from '../../common/typeGuards'
 
 export const actions = {
@@ -56,11 +56,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
     localStorage.setItem('deviceId', deviceId)
   }
 
-  // const fcm_token = await getToken(messaging).catch((err) => {
-  //   console.log('An error occurred while retrieving token. ', err)
-  // })
-
-  const fcm_token = 'null'
+  const fcm_token = await getTokenFcm()
 
   if (fcm_token) {
     dispatch(actions.setIsActiveFcm(true))
@@ -101,10 +97,14 @@ export const init = (): ThunkType => async (dispatch, getState) => {
   }
   dispatch(actions.setMyProfile(updatedProfile))
 
-  onMessage(messaging, (payload) => {
-    console.log('Message received. ', payload)
-    dispatch(checkIncomingCall(payload))
-  })
+  if (fcm_token) {
+    const messaging = getMessaging(firebaseApp)
+
+    onMessage(messaging, (payload) => {
+      console.log('Message received. ', payload)
+      dispatch(checkIncomingCall(payload))
+    })
+  }
 
   dispatch(listenUpdateMyProfile())
 }

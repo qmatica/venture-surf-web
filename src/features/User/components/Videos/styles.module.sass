@@ -1,61 +1,37 @@
 .videosContainer
   width: 100%
-  padding: 0 20px
-  \:global(.slick-prev)
-    left: -22px!important
-  \:global(.slick-prev:before)
-    color: #bcc2cc!important
-    line-height: 0
-    font-size: 28px!important
-    content: '❮'!important
-    position: absolute
-    top: -13px
-    right: 0
-    transition: 0.2s!important
-  \:global(.slick-next:before)
-    color: #bcc2cc!important
-    line-height: 0
-    font-size: 28px!important
-    content: '❯'!important
-    position: absolute
-    top: -13px
-    left: 0
-    transition: 0.2s!important
+  \:global(.swiper-slide)
+    width: auto!important
+  \:global(.swiper-button-next)
+    margin-top: -40px
+    &:after
+      color: #d0d0d0
+      font-size: 26px
+  \:global(.swiper-button-prev)
+    margin-top: -40px
+    &:after
+      color: #d0d0d0
+      font-size: 26px
   .videoContainer
+    width: auto
     cursor: pointer
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-direction: column
     &:hover
       .title
         color: #000000
-      .imgContainer
-        border: 1px solid #c4cddd
-    &.empty
-      .imgContainer
-        border: 1px solid #D7DFED
     .imgContainer
-      height: 135px
-      margin: 0 10px
-      border: 1px solid #D7DFED
+      height: 230px
+      width: auto
       border-radius: 10px
       overflow: hidden
-      display: flex
-      justify-content: center
-      align-content: center
       position: relative
       transition: 0.2s
-      &.withVideo
-        background: #f2f5f9
       img
         height: 100%
         z-index: 20
-      .overlayCover
-        background-size: cover
-        background-position: center
-        filter: blur(5px)
-        z-index: 10
-        width: 120%
-        height: 120%
-        position: absolute
-        top: -10%
     .title
       width: 100%
       text-align: center

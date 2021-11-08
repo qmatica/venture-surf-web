@@ -1,4 +1,6 @@
 import { UsersType, UserType } from 'features/User/types'
+import { isSupported, getToken, getMessaging } from 'firebase/messaging'
+import { firebaseApp } from 'store/store'
 import { SlotsType } from './types'
 
 export const compareContacts = (prevContacts: UsersType, nextContacts: UsersType) => {
@@ -51,4 +53,24 @@ export const compareSlots = (prevSlots: SlotsType, nextSlots: SlotsType) => {
   }
 
   return null
+}
+
+export const getTokenFcm = async () => {
+  const supported = await isSupported().catch(() => false)
+  if (!supported) {
+    console.log('Browser not supported SW!')
+    return null
+  }
+
+  const sw = await window.navigator.serviceWorker.register('/sw.js')
+
+  const messaging = getMessaging(firebaseApp)
+
+  const token = await getToken(messaging, {
+    serviceWorkerRegistration: sw
+  }).catch((err) => {
+    console.log('An error occurred while retrieving token. ', err)
+  })
+
+  return token
 }
