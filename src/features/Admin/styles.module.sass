@@ -1,0 +1,103 @@
+.photoContainer
+  width: 70px
+  height: 70px
+  border-radius: 100%
+  overflow: hidden
+  display: flex
+  justify-content: center
+  align-items: center
+  background: #dfe2e6
+  img
+    width: 100%
+  svg
+    transform: scale(1.5)
+.container
+  table
+    display: inline-block
+    border-spacing: 0
+    color: #030D21
+    font-size: 12px
+    thead
+      position: sticky
+      top: 0
+      background: #FFF
+      z-index: 50
+    tr
+      &:last-child
+        td
+          border-bottom: 0
+    th, td
+      margin: 0
+      padding: 0.5rem
+      border-right: 1px solid #D7DFED
+      border-bottom: 1px solid #D7DFED
+      &:last-child
+        border-right: none
+.errorRow
+  background: #f3e9e9
+.default
+  background: #FFF
+.devicesContainer
+  max-height: 300px
+  overflow-y: auto
+  > div
+    margin-bottom: 10px
+    &:last-child
+      margin-bottom: 0
+.uid
+  cursor: pointer
+  height: 70px
+  display: flex
+  align-items: center
+.contactsContainer
+  max-height: 300px
+  overflow-y: auto
+  .contact
+    display: flex
+    align-items: center
+    margin-bottom: 10px
+    cursor: pointer
+    color: #030D21
+    &:last-child
+      margin-bottom: 0
+    .minPhotoContainer
+      width: 20px
+      height: 20px
+      background: #c8c8c8
+      border-radius: 100%
+      overflow: hidden
+      display: flex
+      justify-content: center
+      align-items: center
+      margin-right: 10px
+      flex-shrink: 0
+      img
+        width: 100%
+      svg
+        transform: scale(0.5)
+        margin-left: 0!important
+        margin-top: 0!important
+.interactionsContainer
+  max-height: 300px
+  overflow: auto
+  .interactionContainer
+    margin-bottom: 10px
+    color: #030D21
+    .status
+      color: #bbb
+.slotsContainer
+  max-height: 300px
+  overflow: auto
+.slotContainer
+  margin-bottom: 10px
+  color: #030D21
+  .status
+    color: #bbb
+.tagsContainer
+  max-height: 300px
+  overflow: auto
+.contextMenu
+  background: #FFF
+  border-radius: 5px
+  font-size: 12px
+  color: #030D21

@@ -1,9 +1,11 @@
 .container
-  width: 300px
   display: flex
   justify-content: space-between
   a
+    margin-right: 42px
     align-items: center
+    &:last-child
+      margin-right: 0
   &.unauthorized
     justify-content: flex-end
     a
@@ -13,3 +15,10 @@
 .activeLink
   path
     fill: #2676fc
+  rect
+    fill: #2676fc
+.activeLinkAdmin
+  path
+    fill: #FFB600
+  rect
+    fill: #FFB600

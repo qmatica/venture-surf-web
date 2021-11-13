@@ -12,6 +12,7 @@ import { Surf } from 'features/Surf'
 import { Calendar } from 'features/Calendar'
 import { Conversations } from 'features/Conversations'
 import { Notifications } from './features/Notifications'
+import { Admin } from './features/Admin'
 
 export const App: FC = () => {
   const dispatch = useDispatch()
@@ -28,6 +29,7 @@ export const App: FC = () => {
         <Route path="/*">
           <Layout>
             <Route path="/" exact render={() => <Redirect to="/surf" />} />
+            <Route path="/admin" component={Admin} />
             <Route path="/surf" component={Surf} />
             <Route path="/contacts" component={Contacts} />
             <Route path="/calendar" component={Calendar} />

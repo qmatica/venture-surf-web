@@ -1,7 +1,8 @@
 import { ActionTypes } from './types'
 
 const initialState = {
-  initialized: false
+  initialized: false,
+  isFullScreen: false
 }
 
 export const AppReducer = (state = initialState, action: ActionTypes): typeof initialState => {
@@ -10,6 +11,11 @@ export const AppReducer = (state = initialState, action: ActionTypes): typeof in
       return {
         ...state,
         initialized: action.initialized
+      }
+    case 'APP__SET_IS_FULL_SCREEN':
+      return {
+        ...state,
+        isFullScreen: action.isFullScreen
       }
     default: return state
   }

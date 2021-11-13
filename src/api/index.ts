@@ -127,3 +127,12 @@ export const usersAPI = {
     return notAuthorizedInstance.get(`publicProfile?uid=${uid}&token=${token}`).then((res) => res.data)
   }
 }
+
+export const adminAPI = {
+  getAllUsers() {
+    return instance.get('api/admin/users').then((res) => res.data)
+  },
+  deleteUser(uid: string) {
+    return instance.delete(`api/user/${uid}`).then((res) => res.data)
+  }
+}

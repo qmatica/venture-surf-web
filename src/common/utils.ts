@@ -30,3 +30,37 @@ export const checkRequestPublicProfile = (history: History) => {
   }
   return null
 }
+
+export function executeAllPromises(promises: (() => Promise<any>)[]) {
+  const resolvingPromises = promises.map((promise: any) => new Promise((resolve) => {
+    const payload = new Array(2)
+    promise.then((result: any) => {
+      payload[0] = result
+    })
+      .catch((error: any) => {
+        payload[1] = error
+      })
+      .then(() => {
+        resolve(payload)
+      })
+  }))
+
+  const errors: any[] = []
+  const results: any[] = []
+
+  return Promise.all(resolvingPromises)
+    .then((items: any) => {
+      items.forEach((payload: any) => {
+        if (payload[1]) {
+          errors.push(payload[1])
+        } else {
+          results.push(payload[0])
+        }
+      })
+
+      return {
+        errors,
+        results
+      }
+    })
+}

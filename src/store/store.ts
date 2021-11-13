@@ -16,6 +16,7 @@ import { SurfReducer } from 'features/Surf/reducer'
 import { NotificationsReducer } from 'features/Notifications/reducer'
 import { VideoChatReducer } from 'features/VideoChat/reducer'
 import { ConversationsReducer } from 'features/Conversations/reducer'
+import { AdminReducer } from 'features/Admin/reducer'
 import { config } from 'config/firebase'
 
 export const firebaseApp = firebase.initializeApp(config)
@@ -30,7 +31,8 @@ export const rootReducer = combineReducers({
   surf: SurfReducer,
   notifications: NotificationsReducer,
   videoChat: VideoChatReducer,
-  conversations: ConversationsReducer
+  conversations: ConversationsReducer,
+  admin: AdminReducer
 })
 
 const middlewares = [

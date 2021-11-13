@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
-  CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon, AuthIcon
+  CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon, AuthIcon, Unlock
 } from 'common/icons'
 import { useSelector } from 'react-redux'
 import styles from './styles.module.sass'
 import { getAuth, getMyUid } from '../Auth/selectors'
+import { PageType } from './types'
+import { getIsAdminMode } from '../Admin/selectors'
 
 const pages = [
   {
@@ -43,9 +45,27 @@ const pagesForUnauthorized = [
   }
 ]
 
+const pagesAdmin = [
+  {
+    url: '/admin',
+    title: 'Admin',
+    icon: <Unlock />
+  }
+]
+
 export const NavBar = () => {
   const auth = useSelector(getAuth)
   const myUid = useSelector(getMyUid)
+  const isAdminMode = useSelector(getIsAdminMode)
+  const [currentPages, setCurrentPages] = useState<PageType[]>([])
+
+  useEffect(() => {
+    let viewPages = [...pages]
+    if (isAdminMode) {
+      viewPages = [...pagesAdmin, ...viewPages]
+    }
+    setCurrentPages(viewPages)
+  }, [isAdminMode])
 
   if (!auth) {
     return (
@@ -65,7 +85,7 @@ export const NavBar = () => {
   }
   return (
     <div className={styles.container}>
-      {pages.map(({ url, title, icon }) => {
+      {currentPages.map(({ url, title, icon }) => {
         let formattedUrl = url
 
         if (title === 'Profile') {
@@ -77,7 +97,7 @@ export const NavBar = () => {
             key={title}
             to={formattedUrl}
             title={title}
-            activeClassName={styles.activeLink}
+            activeClassName={title === 'Admin' ? styles.activeLinkAdmin : styles.activeLink}
           >
             {icon}
           </NavLink>
