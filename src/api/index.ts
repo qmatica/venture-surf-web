@@ -5,9 +5,7 @@ import { proj } from 'config/firebase'
 import { DeviceType } from 'features/Profile/types'
 
 const headers = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': 'https://venturesurfdev.web.app'
+  Accept: 'application/json'
 }
 
 const instance = axios.create({
@@ -134,5 +132,22 @@ export const adminAPI = {
   },
   deleteUser(uid: string) {
     return instance.delete(`api/user/${uid}`).then((res) => res.data)
+  }
+}
+
+export const lokalizeAPI = {
+  getStrings() {
+    const project_id = '5091063960119c253e2299.10910139'
+    const token = '8852c162579071d7e6faaa713a4aa0e7a5768e1d'
+
+    const headers = {
+      'X-Api-Token': token
+    }
+
+    const lokaliseInstance = axios.create({
+      baseURL: `https://api.lokalise.com/api2/projects/${project_id}/`,
+      headers
+    })
+    return lokaliseInstance.get('branches').then((res) => res.data)
   }
 }
