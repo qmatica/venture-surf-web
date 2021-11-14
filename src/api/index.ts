@@ -5,7 +5,8 @@ import { proj } from 'config/firebase'
 import { DeviceType } from 'features/Profile/types'
 
 const headers = {
-  Accept: 'application/json'
+  Accept: 'application/json',
+  'Content-Type': 'application/json'
 }
 
 const instance = axios.create({
