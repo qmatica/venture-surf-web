@@ -92,9 +92,9 @@ export type JobType = {
 export type SlotsType = {
     [key: string]: {
         duration: number
-        request: string
+        request?: string
         status: string
-        twilio: {
+        twilio?: {
             made: {
                 seconds: number
                 nanoseconds: number
@@ -102,9 +102,9 @@ export type SlotsType = {
             room: string
             token: string
         }
-        uid: string
-        disabled: []
-        reccurent: string
+        uid?: string
+        disabled?: []
+        reccurent?: string
     }
 }
 

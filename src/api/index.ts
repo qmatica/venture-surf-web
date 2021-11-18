@@ -3,6 +3,7 @@ import { getFirebase } from 'react-redux-firebase'
 import { AuthUserType, StatisticVideoType } from 'common/types'
 import { proj } from 'config/firebase'
 import { DeviceType } from 'features/Profile/types'
+import { timeSlotsType } from '../features/Calendar/types'
 
 const headers = {
   Accept: 'application/json',
@@ -57,7 +58,6 @@ export const profileAPI = {
     data.append('fileName', file)
 
     return instance.post('/api/user/photo', null, {
-      mode: 'no-cors',
       headers: {
         'Content-Type': 'multipart/form-data',
         Accept: 'application/json',
@@ -75,6 +75,9 @@ export const profileAPI = {
   },
   getChatToken() {
     return instance.get('/api/chat/token').then((res) => res.data)
+  },
+  updateMyTimeSlots(timeSlots: timeSlotsType) {
+    return instance.post('api/call', timeSlots).then((res) => res.data)
   }
 }
 

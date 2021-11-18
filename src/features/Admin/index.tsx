@@ -242,7 +242,9 @@ export const Admin = () => {
         Header: 'disabled',
         accessor: 'disabled',
         Cell: ({ row }: any) => (
-          <div>{row.values.disabled ? 'true' : 'false'}</div>
+          <div className={styles.checkboxContainer}>
+            <input type="checkbox" checked={row.values.disabled} />
+          </div>
         )
       },
       {
@@ -266,7 +268,9 @@ export const Admin = () => {
         id: 'admin',
         accessor: 'customClaims.admin',
         Cell: ({ row }: any) => (
-          <div>{row.values.admin ? 'true' : 'false'}</div>
+          <div className={styles.checkboxContainer}>
+            <input type="checkbox" checked={row.values.admin} />
+          </div>
         )
       },
       {
@@ -334,7 +338,9 @@ export const Admin = () => {
         id: 'disable_instant_calls',
         accessor: 'props.settings.disable_instant_calls',
         Cell: ({ row }: any) => (
-          <div>{row.values.disable_instant_calls ? 'true' : 'false'}</div>
+          <div className={styles.checkboxContainer}>
+            <input type="checkbox" checked={row.values.disable_instant_calls} />
+          </div>
         )
       },
       {
@@ -342,7 +348,9 @@ export const Admin = () => {
         id: 'allow_new_matches',
         accessor: 'props.settings.allow_new_matches',
         Cell: ({ row }: any) => (
-          <div>{row.values.allow_new_matches ? 'true' : 'false'}</div>
+          <div className={styles.checkboxContainer}>
+            <input type="checkbox" checked={row.values.allow_new_matches} />
+          </div>
         )
       }
     ],

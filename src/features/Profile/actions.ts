@@ -45,6 +45,9 @@ export const actions = {
   ),
   toggleLoader: (loader: string) => (
     { type: 'PROFILE__TOGGLE_LOADER', loader } as const
+  ),
+  updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string) => (
+    { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   )
 }
 
@@ -141,6 +144,7 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
 
       const result = compareSlots(profile.slots, newProfile.slots)
       if (result) {
+        // @ts-ignore
         dispatch(showNotification(result))
       }
     }
@@ -622,6 +626,21 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
           dispatch(actions.toggleLoader('shareMyProfile'))
         })
       }
+    }
+  }
+}
+
+export const updateTimeSlots = (
+  action: 'add' | 'del' | 'disable' | 'enable',
+  timeSlot: string
+): ThunkType => async (dispatch, getState) => {
+  const result = await profileAPI.updateMyTimeSlots({ [action]: [timeSlot] }).catch((err) => {
+    dispatch(actionsNotifications.addErrorMsg(err.toString()))
+  })
+
+  if (result) {
+    if (!result.errors.length) {
+      dispatch(actions.updateMySlots(action, timeSlot))
     }
   }
 }

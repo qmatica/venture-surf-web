@@ -41,10 +41,12 @@ const prepareContact = (contact: UserType, key: string) => ({
 export const compareSlots = (prevSlots: SlotsType, nextSlots: SlotsType) => {
   if (nextSlots.now && nextSlots.now.status === 'proposed') {
     const { uid } = nextSlots.now
-    const { room, token, made } = nextSlots.now.twilio
+    if (nextSlots.now.twilio) {
+      const { room, token, made } = nextSlots.now.twilio
 
-    return {
-      made, room, token, uid
+      return {
+        made, room, token, uid
+      }
     }
   }
 
