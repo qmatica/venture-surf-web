@@ -34,7 +34,7 @@ export const ScheduledMeetMsgs: FC<IScheduledMeetMsgs> = ({ msgs }) => {
 
     setTimeout(() => {
       dispatch(actions.addScheduledMeetMsg(date, name, uid, uidMsg, 0))
-    }, secondsToNotify)
+    }, secondsToNotify * 1000)
   }
 
   const removeScheduledMeetMsg = (date: string, uidMsg: string) => {
