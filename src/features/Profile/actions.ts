@@ -9,10 +9,14 @@ import {
 } from 'features/Notifications/actions'
 import * as UpChunk from '@mux/upchunk'
 import { init as initSurf } from 'features/Surf/actions'
-import { UserType } from 'features/User/types'
+import { UsersType, UserType } from 'features/User/types'
 import { getMessaging, onMessage } from 'firebase/messaging'
 import { IncomingCallType } from 'features/Notifications/types'
 import { firebaseApp } from 'store/store'
+import { determineNotificationContactsOrCall } from 'common/typeGuards'
+import { executeAllPromises } from 'common/utils'
+import moment from 'moment'
+import { FormattedSlotsType } from 'features/Calendar/types'
 import {
   JobType,
   ResponseCallNowType,
@@ -21,11 +25,11 @@ import {
   ProfileType,
   ResultCompareContactsType,
   ContactsListType,
-  ResultCompareInstanceCallType
+  ResultCompareInstanceCallType,
+  SlotsType
 } from './types'
 import { ChatType } from '../Conversations/types'
 import { compareContacts, compareSlots, getTokenFcm } from './utils'
-import { determineNotificationContactsOrCall } from '../../common/typeGuards'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
@@ -46,7 +50,7 @@ export const actions = {
   toggleLoader: (loader: string) => (
     { type: 'PROFILE__TOGGLE_LOADER', loader } as const
   ),
-  updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string) => (
+  updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   )
 }
@@ -100,6 +104,8 @@ export const init = (): ThunkType => async (dispatch, getState) => {
   }
   dispatch(actions.setMyProfile(updatedProfile))
 
+  dispatch(getFullProfiles(contactsList.mutuals, 'mutuals'))
+
   if (fcm_token) {
     const messaging = getMessaging(firebaseApp)
 
@@ -109,7 +115,104 @@ export const init = (): ThunkType => async (dispatch, getState) => {
     })
   }
 
+  dispatch(listenSchedulesMeetings())
   dispatch(listenUpdateMyProfile())
+}
+
+const listenSchedulesMeetings = (): ThunkType => async (dispatch, getState) => {
+  const checkStartMeeting = () => {
+    const { profile } = getState().profile
+    const { scheduledMeetMsgs } = getState().notifications
+    const { closedNotify } = getState().calendar
+
+    if (profile) {
+      const { slots, mutuals } = profile
+
+      if (slots) {
+        const formattedSlots: FormattedSlotsType = []
+
+        Object.entries(slots).forEach(([date, value]) => {
+          if (
+            value.status === 'scheduled'
+            && moment().format('DD-MM-YYYY') === moment(date).format('DD-MM-YYYY')
+            && moment(date).isAfter(moment())
+          ) {
+            formattedSlots.push({
+              date: moment(date).format('YYYY-MM-DDTHH:mm:00'),
+              ...value
+            })
+          }
+        })
+        const foundedMeeting =
+          formattedSlots.find((slot) => {
+            const slotDateSubtract = moment(slot.date).subtract(5, 'minutes')
+            const slotDate = moment(slot.date)
+            const currentDate = moment()
+
+            return slotDateSubtract <= currentDate && slotDate >= currentDate
+          })
+
+        if (
+          foundedMeeting
+          && foundedMeeting.uid
+          && !scheduledMeetMsgs.find((msg) => msg.date === foundedMeeting.date)
+          && !closedNotify.find((notify) => notify === foundedMeeting.date)
+        ) {
+          const mutual = mutuals[foundedMeeting.uid]
+          const name = mutual.name || mutual.displayName || `${mutual.first_name} ${mutual.last_name}`
+          const secondsToMeet = Math.abs(moment().diff(foundedMeeting.date, 'seconds'))
+
+          dispatch(actionsNotifications.addScheduledMeetMsg(
+            foundedMeeting.date,
+            name,
+            foundedMeeting.uid,
+            uuidv4(),
+            secondsToMeet
+          ))
+        }
+      }
+    }
+  }
+
+  checkStartMeeting()
+
+  setInterval(() => {
+    checkStartMeeting()
+  }, 5000)
+}
+
+const getFullProfiles = (
+  contactsList: UsersType,
+  contactsType: 'mutuals' | 'liked' | 'likes'
+): ThunkType => async (dispatch) => {
+  executeAllPromises(Object.keys(contactsList).map((uid) => usersAPI.getUser(uid))).then((items) => {
+    const errors = items.errors.map((err) => err.error.replace('Profile for user ', '').replace(' not found!', ''))
+    const { results } = items
+
+    let contacts = {
+      [contactsType]: {}
+    }
+
+    console.log(`— ${results.length} Promises were successful: `, results)
+
+    results.forEach((user) => {
+      contacts = {
+        ...contacts,
+        [contactsType]: {
+          ...contacts[contactsType],
+          [user.uid]: {
+            ...user,
+            ...contactsList[user.uid],
+            fullLoaded: true
+          }
+        }
+      }
+    })
+
+    dispatch(actions.updateMyContacts(contacts))
+
+    console.log(`— ${items.errors.length} Promises failed: `, errors)
+  })
 }
 
 const checkIncomingCall = (payload: IncomingCallType | any): ThunkType => async (dispatch, getState) => {
@@ -632,15 +735,53 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
 
 export const updateTimeSlots = (
   action: 'add' | 'del' | 'disable' | 'enable',
-  timeSlot: string
-): ThunkType => async (dispatch, getState) => {
-  const result = await profileAPI.updateMyTimeSlots({ [action]: [timeSlot] }).catch((err) => {
+  date: string
+): ThunkType => async (dispatch) => {
+  const timeZone = moment(new Date()).utcOffset()
+  const formattedDate = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}Z`
+
+  const result = await profileAPI.updateMyTimeSlots({ [action]: [formattedDate] }).catch((err) => {
     dispatch(actionsNotifications.addErrorMsg(err.toString()))
   })
 
   if (result) {
     if (!result.errors.length) {
+      let timeSlot: string | SlotsType = formattedDate
+      if (action === 'add') {
+        timeSlot = {
+          [formattedDate]: { status: 'free', duration: 15 }
+        }
+      }
       dispatch(actions.updateMySlots(action, timeSlot))
+    }
+  }
+}
+
+export const connectToCall = (date: string, uid: string): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
+
+  if (profile) {
+    const companion = profile.mutuals[uid]
+    const companionName = companion.name || companion.displayName || `${companion.first_name} ${companion.last_name}`
+
+    const timeZone = moment(new Date()).utcOffset()
+    const formattedDate = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}Z`
+
+    const res = await usersAPI.connectToCall(formattedDate, uid).catch((err) => {
+      dispatch(actionsNotifications.addErrorMsg(err.toString()))
+    })
+
+    if (res?.data.status === 'scheduled') {
+      const newSlot = {
+        status: 'scheduled',
+        duration: 15,
+        uid
+      }
+      dispatch(actions.updateMySlots('add', { [formattedDate]: newSlot }))
+      dispatch(actionsNotifications.addAnyMsg({
+        msg: `You have scheduled a meeting with ${companionName}`,
+        uid: uuidv4()
+      }))
     }
   }
 }

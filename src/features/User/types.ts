@@ -27,6 +27,8 @@ export type UserType = {
     chat?: string
     loading?: string[]
     clickedAction?: string
+    slots: any
+    fullLoaded?: boolean
 }
 
 export type RecommendedUserType = {

@@ -388,7 +388,7 @@ export const Admin = () => {
         </thead>
         <tbody {...getTableBodyProps()}>
           {rows.map((row) => {
-            const className = row.original.props.withError ? styles.errorRow : styles.default
+            const className = row.original.props?.withError ? styles.errorRow : styles.default
             prepareRow(row)
             return (
               <tr className={className} {...row.getRowProps()}>

@@ -7,6 +7,7 @@ const initialState = {
   errorMsg: null as string | null,
   contactsEventsMsgs: [] as { user: UserType, msg: string, uidMsg: string }[],
   receivedChatMsgs: [] as { user: UserType, msg: Message }[],
+  scheduledMeetMsgs: [] as { date: string, name: string, uid: string, uidMsg: string, secondsToMeet: number }[],
   incomingCall: null as IncomingCallType | null
 }
 
@@ -52,6 +53,16 @@ export const NotificationsReducer = (state = initialState, action: ActionTypes) 
       return {
         ...state,
         receivedChatMsgs: state.receivedChatMsgs.filter((msg) => msg.msg.sid !== action.sid)
+      }
+    case 'NOTIFICATIONS__ADD_SCHEDULED_MEET_MSG':
+      return {
+        ...state,
+        scheduledMeetMsgs: [...state.scheduledMeetMsgs, action.payload]
+      }
+    case 'NOTIFICATIONS__REMOVE_SCHEDULED_MEET_MSG':
+      return {
+        ...state,
+        scheduledMeetMsgs: state.scheduledMeetMsgs.filter((msg) => msg.uidMsg !== action.uidMsg)
       }
     case 'NOTIFICATIONS__ADD_INCOMING_CALL':
       return {

@@ -7,6 +7,15 @@ export const actions = {
   removeAnyMsg: (uid: string) => ({ type: 'NOTIFICATIONS__REMOVE_ANY_MESSAGE', uid } as const),
   addErrorMsg: (msg: string) => ({ type: 'NOTIFICATIONS__ADD_ERROR_MSG', msg } as const),
   removeErrorMsg: () => ({ type: 'NOTIFICATIONS__REMOVE_ERROR_MSG' } as const),
+  addScheduledMeetMsg: (date: string, name: string, uid: string, uidMsg: string, secondsToMeet: number) => (
+    {
+      type: 'NOTIFICATIONS__ADD_SCHEDULED_MEET_MSG',
+      payload: {
+        date, name, uid, uidMsg, secondsToMeet
+      }
+    } as const
+  ),
+  removeScheduledMeetMsg: (uidMsg: string) => ({ type: 'NOTIFICATIONS__REMOVE_SCHEDULED_MEET_MSG', uidMsg } as const),
   addContactsEventMsg: (user: UserType, msg: string, uidMsg: string) => (
     { type: 'NOTIFICATIONS__ADD_CONTACTS_EVENT_MSG', payload: { user, msg, uidMsg } } as const
   ),

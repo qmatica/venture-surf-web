@@ -1,5 +1,7 @@
 import { createSelector } from 'reselect'
+import moment from 'moment'
 import { RootState } from 'common/types'
+import { FormattedSlotsType } from 'features/Calendar/types'
 
 const getMyProfileSelector = (state: RootState) => state.profile.profile
 
@@ -18,4 +20,21 @@ export const getProfile = createSelector(getOtherProfileSelector, getMyProfileSe
   return myProfile
 })
 
-export const getMySlots = createSelector(getSlotsMyProfileSelector, (slots) => slots)
+export const getMySlots = createSelector(getSlotsMyProfileSelector, (slots) => {
+  const formattedSlots: FormattedSlotsType = []
+
+  if (slots) {
+    Object.entries(slots).forEach(([date, value]) => {
+      formattedSlots.push({
+        date: moment(`${date
+          .replace('Z', '')
+          .replace('W', '')
+          .replace('D1', '')
+          .replace('D2', '')
+          .replace('D', '')}Z`).format('YYYY-MM-DDTHH:mm:00'),
+        ...value
+      })
+    })
+  }
+  return formattedSlots
+})

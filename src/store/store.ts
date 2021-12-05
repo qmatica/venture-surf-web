@@ -16,6 +16,7 @@ import { SurfReducer } from 'features/Surf/reducer'
 import { NotificationsReducer } from 'features/Notifications/reducer'
 import { VideoChatReducer } from 'features/VideoChat/reducer'
 import { ConversationsReducer } from 'features/Conversations/reducer'
+import { CalendarReducer } from 'features/Calendar/reducer'
 import { AdminReducer } from 'features/Admin/reducer'
 import { config } from 'config/firebase'
 
@@ -32,6 +33,7 @@ export const rootReducer = combineReducers({
   notifications: NotificationsReducer,
   videoChat: VideoChatReducer,
   conversations: ConversationsReducer,
+  calendar: CalendarReducer,
   admin: AdminReducer
 })
 

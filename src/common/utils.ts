@@ -31,7 +31,7 @@ export const checkRequestPublicProfile = (history: History) => {
   return null
 }
 
-export function executeAllPromises(promises: (() => Promise<any>)[]) {
+export function executeAllPromises(promises: Promise<any>[]) {
   const resolvingPromises = promises.map((promise: any) => new Promise((resolve) => {
     const payload = new Array(2)
     promise.then((result: any) => {
@@ -63,4 +63,9 @@ export function executeAllPromises(promises: (() => Promise<any>)[]) {
         results
       }
     })
+}
+
+export const setCharAt = (str: string, index: number, chr: string) => {
+  if (index > str.length - 1) return str
+  return str.substring(0, index) + chr + str.substring(index + chr.length)
 }

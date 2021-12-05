@@ -1,9 +1,13 @@
-import React, { FC } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Button } from 'common/components/Button'
 import { useDispatch } from 'react-redux'
 import { callNow, openChat } from 'features/Profile/actions'
 import { shareLinkProfile } from 'features/Contacts/actions'
+import { Modal } from 'features/Modal'
+import { Calendar } from 'features/Calendar'
+import moment from 'moment'
+import { FormattedSlotsType } from 'features/Calendar/types'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
 
@@ -14,6 +18,26 @@ interface IActions {
 export const Actions: FC<IActions> = ({ user }) => {
   const dispatch = useDispatch()
   const history = useHistory()
+  const [isOpenModalArrangeAMeeting, setIsOpenModalArrangeAMeeting] = useState(false)
+
+  const slots = useMemo(() => {
+    const formattedSlots: FormattedSlotsType = []
+
+    if (user.slots) {
+      Object.entries(user.slots).forEach(([date, value]: any) => {
+        formattedSlots.push({
+          date: moment(`${date
+            .replace('Z', '')
+            .replace('W', '')
+            .replace('D1', '')
+            .replace('D2', '')
+            .replace('D', '')}Z`).format('YYYY-MM-DDTHH:mm:00'),
+          ...value
+        })
+      })
+    }
+    return formattedSlots
+  }, [user])
 
   const onCall = () => {
     dispatch(callNow(user.uid))
@@ -28,7 +52,7 @@ export const Actions: FC<IActions> = ({ user }) => {
     dispatch(shareLinkProfile(user.uid))
   }
 
-  const onArrangeAMeeting = () => {}
+  const toggleIsOpenModalArrangeAMeeting = () => setIsOpenModalArrangeAMeeting(!isOpenModalArrangeAMeeting)
 
   const onRecommended = () => {}
 
@@ -50,7 +74,7 @@ export const Actions: FC<IActions> = ({ user }) => {
       <Button
         title="Arrange a meeting"
         isLoading={false}
-        onClick={onArrangeAMeeting}
+        onClick={toggleIsOpenModalArrangeAMeeting}
         icon="calendar"
       />
       <Button
@@ -64,6 +88,14 @@ export const Actions: FC<IActions> = ({ user }) => {
         onClick={onRecommended}
         icon="people"
       />
+      <Modal
+        title="Arrange a meeting"
+        isOpen={isOpenModalArrangeAMeeting}
+        onClose={toggleIsOpenModalArrangeAMeeting}
+        width={935}
+      >
+        <Calendar otherSlots={slots} uid={user.uid} />
+      </Modal>
     </div>
   )
 }

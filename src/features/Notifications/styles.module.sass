@@ -11,6 +11,7 @@
   text-overflow: ellipsis
   white-space: nowrap
   overflow: hidden
+  z-index: 100
   .close
     position: absolute
     width: 30px
@@ -30,13 +31,14 @@
   right: 50px
   bottom: 50px
   width: 350px
+  z-index: 150
   .msg
     width: 100%
     padding: 20px
     background: #FFFFFF
     border-radius: 10px
     overflow: hidden
-    box-shadow: 0px 0px 6px 1px #d5d5d5
+    box-shadow: 0px 0px 6px 1px #00000029
     position: relative
     margin-bottom: 20px
     font-family: "Roboto", sans-serif
@@ -45,7 +47,6 @@
     > div
       display: flex
       align-items: center
-      cursor: pointer
     .photoContainer
       width: 50px
       height: 50px
@@ -131,6 +132,23 @@
       align-items: center
       &:last-child
         margin-right: 0
+
+.scheduledMeet
+  > div
+    margin-bottom: 6px
+  .title
+    font-size: 17px
+    font-weight: bold
+    color: #242424
+  .date
+    color: #030D21
+  .remainder
+    color: #3a2cff
+  .buttons
+    display: flex
+    margin-top: 10px
+    margin-bottom: 0
+    justify-content: space-between
 
 @keyframes incomingCallColors
   0%

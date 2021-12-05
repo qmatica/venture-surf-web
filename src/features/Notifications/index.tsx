@@ -14,6 +14,7 @@ import { actions as actionsConversations } from 'features/Conversations/actions'
 import { useHistory } from 'react-router-dom'
 import { declineCall } from 'features/Profile/actions'
 import { actions } from './actions'
+import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
 import styles from './styles.module.sass'
 
 export const Notifications = () => {
@@ -22,7 +23,7 @@ export const Notifications = () => {
   const [playIncomingCall, { stop }] = useSound(incomingCallAudio)
 
   const {
-    anyMsgs, errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall
+    anyMsgs, errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall, scheduledMeetMsgs
   } = useSelector((state: RootState) => state.notifications)
 
   useEffect(() => {
@@ -83,7 +84,10 @@ export const Notifications = () => {
         </div>
       )}
 
-      {(receivedChatMsgs.length > 0 || contactsEventsMsgs.length > 0 || anyMsgs.length > 0) && (
+      {(scheduledMeetMsgs.length > 0
+        || receivedChatMsgs.length > 0
+        || contactsEventsMsgs.length > 0
+        || anyMsgs.length > 0) && (
         <div className={styles.rightSideMsgsContainer}>
           {receivedChatMsgs.map(({ user, msg }) => {
             const userName = user.displayName || `${user.first_name} ${user.last_name}`
@@ -131,27 +135,28 @@ export const Notifications = () => {
               <div className={styles.close} onClick={() => removeAnyMsg(uid)}><CloseIcon /></div>
             </div>
           ))}
-        </div>
-      )}
+          <ScheduledMeetMsgs msgs={scheduledMeetMsgs} />
 
-      {incomingCall && (
-        <div className={styles.incomingCallContainer}>
-          <div className={styles.photoContainer}>
-            <UserPhotoIcon />
-          </div>
-          <div className={styles.displayName}>{incomingCall.notification.body}</div>
-          <div className={styles.event}>Incoming call...</div>
-          <div className={styles.buttonsContainer}>
-            <div className={styles.button} onClick={onDeclineCall}>
-              <img src={phoneEnd} alt="Throw off" />
+          {incomingCall && (
+          <div className={styles.incomingCallContainer}>
+            <div className={styles.photoContainer}>
+              <UserPhotoIcon />
             </div>
-            {/*<div className={styles.button}>*/}
-            {/*  <img src={phoneStart} alt="Reply without video" />*/}
-            {/*</div>*/}
-            <div className={styles.button} onClick={replyWithVideo}>
-              <img src={videoStart} alt="Reply with video" />
+            <div className={styles.displayName}>{incomingCall.notification.body}</div>
+            <div className={styles.event}>Incoming call...</div>
+            <div className={styles.buttonsContainer}>
+              <div className={styles.button} onClick={onDeclineCall}>
+                <img src={phoneEnd} alt="Throw off" />
+              </div>
+              {/*<div className={styles.button}>*/}
+              {/*  <img src={phoneStart} alt="Reply without video" />*/}
+              {/*</div>*/}
+              <div className={styles.button} onClick={replyWithVideo}>
+                <img src={videoStart} alt="Reply with video" />
+              </div>
             </div>
           </div>
+          )}
         </div>
       )}
     </>

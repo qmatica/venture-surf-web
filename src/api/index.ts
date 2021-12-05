@@ -127,6 +127,9 @@ export const usersAPI = {
       headers
     })
     return notAuthorizedInstance.get(`publicProfile?uid=${uid}&token=${token}`).then((res) => res.data)
+  },
+  connectToCall(startTime: string, uid: string) {
+    return instance.post(`/api/call/${uid}/${startTime}`).then((res) => res.data)
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { FC, ReactElement } from 'react'
+import React, { FC, ReactElement, useEffect } from 'react'
 import { CloseIcon } from 'common/icons'
 import styles from './styles.module.sass'
 
@@ -17,6 +17,13 @@ export const Modal: FC<IModal> = ({
   children,
   width = 560
 }) => {
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : 'auto'
+    return () => {
+      document.body.style.overflow = 'auto'
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   return (
