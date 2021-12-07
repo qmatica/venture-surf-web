@@ -13,6 +13,20 @@ export const actions = {
   setChats: (chats: ChatType) => (
     { type: 'CONVERSATIONS__SET_CHATS', chats } as const
   ),
+  addChat: (
+    chat: string,
+    name: string,
+    photoUrl: string,
+    conversation: Conversation.Conversation,
+    messages: (Message | MessageType)[]
+  ) => (
+    {
+      type: 'CONVERSATIONS__ADD_CHAT',
+      payload: {
+        chat, name, photoUrl, conversation, messages
+      }
+    } as const
+  ),
   setOpenedChat: (chat: string) => (
     { type: 'CONVERSATIONS__SET_OPENED_CHAT', chat } as const
   ),
@@ -77,75 +91,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       })
 
       client.on('conversationJoined', (conversation: Conversation.Conversation) => {
-        const { chats } = getState().conversations
-
-        if (!chats[conversation.sid]) {
-          console.log('New Conversation: ', conversation)
-
-          conversation.getParticipants()
-            .then((participant) => {
-              participant.forEach((p) => {
-                if (p.identity !== profile.uid) {
-                  const { profile } = getState().profile
-                  if (profile) {
-                    const user = profile.mutuals[p.identity]
-
-                    if (user) {
-                      const {
-                        name, displayName, first_name, last_name, photoURL
-                      } = user
-
-                      conversation.getMessages()
-                        .then((m) => {
-                          const updatedChats = {
-                            ...chats,
-                            [conversation.sid]: {
-                              chat: conversation.sid,
-                              name: name || displayName || `${first_name} ${last_name}`,
-                              photoUrl: photoURL,
-                              messages: m.items || [],
-                              missedMessages: 0,
-                              conversation
-                            }
-                          }
-
-                          const updatedUser = {
-                            ...user,
-                            chat: conversation.sid
-                          }
-
-                          dispatch(actionsProfile.updateUserInMyContacts(updatedUser, 'mutuals'))
-                          dispatch(actions.setChats(updatedChats))
-
-                          // TODO: Убрать дублирование
-                          conversation.on('messageAdded', (m: Message) => {
-                            if (m.author === profile.uid) {
-                              dispatch(actions.updateMessage(m, conversation.sid))
-                            } else {
-                              const { profile } = getState().profile
-
-                              if (profile) {
-                                const user = profile.mutuals[m.author]
-                                dispatch(actionsNotifications.addReceivedChatMsg(user, m))
-                                dispatch(actions.addMessage(m, conversation.sid))
-                              }
-                            }
-                          })
-                        })
-                        .catch((err) => {
-                          console.log(err)
-                          dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-                        })
-                    }
-                  }
-                }
-              })
-            })
-            .catch((err) => {
-              console.log(err)
-              dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-            })
-        }
+        console.log('conversationJoined', conversation)
       })
 
       client.on('conversationLeft', (thisConversation) => {
@@ -158,31 +104,22 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       })
 
       if (subscribedConversations?.items.length) {
+        console.log('subscribedConversations', subscribedConversations)
         const chatsWithConversation: ChatType = {}
 
         subscribedConversations.items.forEach((item) => {
-          chatsWithConversation[item.sid] = {
-            ...chats[item.sid],
-            conversation: item
+          if (chats[item.sid]) {
+            chatsWithConversation[item.sid] = {
+              ...chats[item.sid],
+              conversation: item
+            }
           }
         })
 
         dispatch(actions.setChats(chatsWithConversation))
 
         Object.values(chatsWithConversation).forEach((chat) => {
-          chat.conversation?.on('messageAdded', (m: Message) => {
-            if (m.author === profile.uid) {
-              dispatch(actions.updateMessage(m, chat.chat))
-            } else {
-              const { profile } = getState().profile
-
-              if (profile) {
-                const user = profile.mutuals[m.author]
-                dispatch(actionsNotifications.addReceivedChatMsg(user, m))
-                dispatch(actions.addMessage(m, chat.chat))
-              }
-            }
-          })
+          if (chat.conversation) dispatch(listenMessages(chat.conversation, chat.chat))
         })
 
         const getAllMessages = () =>
@@ -208,6 +145,29 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       }
     }
   }
+}
+
+export const listenMessages = (
+  conversation: Conversation.Conversation,
+  chat: string
+): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
+
+  if (!profile) return
+
+  conversation.on('messageAdded', (m: Message) => {
+    if (m.author === profile.uid) {
+      dispatch(actions.updateMessage(m, chat))
+    } else {
+      const { profile } = getState().profile
+
+      if (profile) {
+        const user = profile.mutuals[m.author]
+        dispatch(actionsNotifications.addReceivedChatMsg(user, m))
+        dispatch(actions.addMessage(m, chat))
+      }
+    }
+  })
 }
 
 export const sendMessage = (message: string, chat: string): ThunkType => async (dispatch, getState) => {

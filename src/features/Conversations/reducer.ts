@@ -20,6 +20,21 @@ export const ConversationsReducer = (state = initialState, action: ActionTypes):
         ...state,
         chats: action.chats
       }
+    case 'CONVERSATIONS__ADD_CHAT':
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          [action.payload.chat]: {
+            chat: action.payload.chat,
+            name: action.payload.name,
+            photoUrl: action.payload.photoUrl,
+            messages: [],
+            missedMessages: 0,
+            conversation: action.payload.conversation
+          }
+        }
+      }
     case 'CONVERSATIONS__SET_OPENED_CHAT':
       return {
         ...state,

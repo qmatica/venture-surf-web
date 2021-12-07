@@ -59,22 +59,11 @@ export const Messages = () => {
                     {message.aggregatedDeliveryReceipt ? <ReadMessageIcon /> : <NotReadMessageIcon />}
                   </div>
                   )}
-                  <span>
-                    <ContextMenuTrigger id="contextMenuMessage" holdToDisplay={0}>
-                      <div>
-                        <ArrowBottomIcon />
-                      </div>
-                    </ContextMenuTrigger>
-                  </span>
                 </div>
               </div>
             )
           })}
         </div>
-        <ContextMenu id="contextMenuMessage" className={styles.contextMenuMessage}>
-          <div className={styles.item}>Edit</div>
-          <div className={styles.item}>Delete</div>
-        </ContextMenu>
       </div>
       <InputField scrollToBottom={scrollToBottom} />
     </div>

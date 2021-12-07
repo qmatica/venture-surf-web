@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
-import { actions as actionsConversations } from 'features/Conversations/actions'
+import { actions as actionsConversations, listenMessages } from 'features/Conversations/actions'
 import {
   actions as actionsNotifications
 } from 'features/Notifications/actions'
@@ -29,7 +29,7 @@ import {
   SlotsType
 } from './types'
 import { ChatType } from '../Conversations/types'
-import { compareContacts, compareSlots, getTokenFcm } from './utils'
+import { compareCountContacts, compareNowSlot, getTokenFcm } from './utils'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
@@ -52,8 +52,13 @@ export const actions = {
   ),
   updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
+  ),
+  addChatInMutual: (uid: string, chat: string) => (
+    { type: 'PROFILE__ADD_CHAT_IN_MUTUAL', payload: { uid, chat } } as const
   )
 }
+
+let activeActions: string[] = []
 
 export const init = (): ThunkType => async (dispatch, getState) => {
   let deviceId = localStorage.getItem('deviceId')
@@ -236,22 +241,69 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
       const contactsList = ['mutuals', 'likes', 'liked'] as const
 
       contactsList.forEach((contacts) => {
-        const result = compareContacts(profile[contacts], newProfile[contacts])
+        const result = compareCountContacts(profile[contacts], newProfile[contacts])
         if (result) {
           if (!profile.isActiveFcm) {
             dispatch(showNotification(result, contacts))
           }
-          dispatch(actions[result.action](result.contact, contacts))
+          const { action, contact } = result
+          dispatch(actions[action](contact, contacts))
         }
       })
 
-      const result = compareSlots(profile.slots, newProfile.slots)
+      dispatch(compareChats(profile.mutuals, newProfile.mutuals))
+
+      const result = compareNowSlot(profile.slots, newProfile.slots)
       if (result) {
         // @ts-ignore
         dispatch(showNotification(result))
       }
     }
   })
+}
+
+const compareChats = (prevMutuals: UsersType, nextMutuals: UsersType): ThunkType => async (dispatch, getState) => {
+  let user = null as UserType | null
+
+  Object.keys(nextMutuals).some((key) => {
+    if (!prevMutuals[key].chat && nextMutuals[key].chat) {
+      user = {
+        ...nextMutuals[key],
+        uid: key
+      }
+      return true
+    }
+    return false
+  })
+
+  if (!user || !user.chat) return
+
+  if (activeActions.includes(`${user.uid}-chat`)) {
+    activeActions = activeActions.filter((uid) => uid !== `${user?.uid}-chat`)
+    return
+  }
+
+  dispatch(actions.addChatInMutual(user.uid, user.chat))
+
+  const { client } = getState().conversations
+
+  const userName = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+
+  if (client) {
+    client.getConversationBySid(user.chat)
+      .then(async (conv) => {
+        const messages = await conv.getMessages()
+
+        if (user && user.chat) {
+          dispatch(actionsConversations.addChat(user.chat, userName, user.photoURL, conv, messages.items))
+        }
+
+        dispatch(listenMessages(conv, conv.sid))
+      })
+      .catch((err) => {
+        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+      })
+  }
 }
 
 export const showNotification =
@@ -656,6 +708,8 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
     } else {
       const { client, chats } = getState().conversations
 
+      activeActions.push(`${uid}-chat`)
+
       const createdChat: { chat_sid: string, status: string } = await usersAPI
         .createChat(uid)
         .catch((err) => {
@@ -663,36 +717,42 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
           dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
         })
 
+      dispatch(actions.addChatInMutual(uid, createdChat.chat_sid))
+
       const conversation = await client?.getConversationBySid(createdChat.chat_sid)
 
-      const {
-        name, displayName, first_name, last_name, photoURL
-      } = users[uid]
+      if (conversation) {
+        const {
+          name, displayName, first_name, last_name, photoURL
+        } = users[uid]
 
-      const updatedChats: ChatType = {
-        ...chats,
-        [createdChat.chat_sid]: {
-          chat: createdChat.chat_sid,
-          name: name || displayName || `${first_name} ${last_name}`,
-          photoUrl: photoURL,
-          messages: [],
-          missedMessages: 0,
-          conversation
+        const updatedChats: ChatType = {
+          ...chats,
+          [createdChat.chat_sid]: {
+            chat: createdChat.chat_sid,
+            name: name || displayName || `${first_name} ${last_name}`,
+            photoUrl: photoURL,
+            messages: [],
+            missedMessages: 0,
+            conversation
+          }
         }
+
+        dispatch(actionsConversations.setChats(updatedChats))
+
+        const updatedUser = {
+          ...users[uid],
+          chat: createdChat.chat_sid
+        }
+
+        dispatch(listenMessages(conversation, conversation.sid))
+
+        dispatch(actions.updateUserInMyContacts(updatedUser, contacts))
+
+        dispatch(actionsConversations.setOpenedChat(createdChat.chat_sid))
+
+        redirect()
       }
-
-      dispatch(actionsConversations.setChats(updatedChats))
-
-      const updatedUser = {
-        ...users[uid],
-        chat: createdChat.chat_sid
-      }
-
-      dispatch(actions.updateUserInMyContacts(updatedUser, contacts))
-
-      dispatch(actionsConversations.setOpenedChat(createdChat.chat_sid))
-
-      redirect()
     }
   }
 

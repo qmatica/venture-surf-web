@@ -3,7 +3,7 @@ import { isSupported, getToken, getMessaging } from 'firebase/messaging'
 import { firebaseApp } from 'store/store'
 import { SlotsType } from './types'
 
-export const compareContacts = (prevContacts: UsersType, nextContacts: UsersType) => {
+export const compareCountContacts = (prevContacts: UsersType, nextContacts: UsersType) => {
   let contact = null
 
   Object.keys(nextContacts).some((key) => {
@@ -38,7 +38,7 @@ const prepareContact = (contact: UserType, key: string) => ({
   uid: key
 })
 
-export const compareSlots = (prevSlots: SlotsType, nextSlots: SlotsType) => {
+export const compareNowSlot = (prevSlots: SlotsType, nextSlots: SlotsType) => {
   if (nextSlots.now && nextSlots.now.status === 'proposed') {
     const { uid } = nextSlots.now
     if (nextSlots.now.twilio) {

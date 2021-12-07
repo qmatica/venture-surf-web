@@ -78,6 +78,23 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         }
       }
     }
+    case 'PROFILE__ADD_CHAT_IN_MUTUAL': {
+      if (!state.profile) return state
+
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          mutuals: {
+            ...state.profile.mutuals,
+            [action.payload.uid]: {
+              ...state.profile.mutuals[action.payload.uid],
+              chat: action.payload.chat
+            }
+          }
+        }
+      }
+    }
     case 'PROFILE__SET_IS_ACTIVE_FCM':
       return {
         ...state,
