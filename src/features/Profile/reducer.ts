@@ -102,32 +102,32 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
       }
     case 'PROFILE__UPDATE_MY_SLOTS': {
       if (!state.profile) return state
-      let newSlots = { ...state.profile?.slots }
+      let updatedSlots = { ...state.profile?.slots }
 
       if (action.payload.action === 'add') {
-        if (newSlots) {
+        if (updatedSlots) {
           if (typeof action.payload.slot !== 'string') {
-            newSlots = {
-              ...newSlots,
+            updatedSlots = {
+              ...updatedSlots,
               ...action.payload.slot
             }
             return {
               ...state,
               profile: {
                 ...state.profile,
-                slots: newSlots
+                slots: updatedSlots
               }
             }
           }
         }
       }
       if (typeof action.payload.slot === 'string') {
-        delete newSlots[action.payload.slot]
+        delete updatedSlots[action.payload.slot]
         return {
           ...state,
           profile: {
             ...state.profile,
-            slots: newSlots
+            slots: updatedSlots
           }
         }
       }

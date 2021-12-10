@@ -27,7 +27,10 @@ export const Notifications = () => {
   } = useSelector((state: RootState) => state.notifications)
 
   useEffect(() => {
-    if (incomingCall) playIncomingCall()
+    if (incomingCall) {
+      console.log('incomingCall')
+      playIncomingCall()
+    }
   }, [incomingCall])
 
   const removeErrorMsg = () => dispatch(actions.removeErrorMsg())
