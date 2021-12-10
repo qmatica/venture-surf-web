@@ -136,28 +136,28 @@ export const Notifications = () => {
             </div>
           ))}
           <ScheduledMeetMsgs msgs={scheduledMeetMsgs} />
-
-          {incomingCall && (
-          <div className={styles.incomingCallContainer}>
-            <div className={styles.photoContainer}>
-              <UserPhotoIcon />
-            </div>
-            <div className={styles.displayName}>{incomingCall.notification.body}</div>
-            <div className={styles.event}>Incoming call...</div>
-            <div className={styles.buttonsContainer}>
-              <div className={styles.button} onClick={onDeclineCall}>
-                <img src={phoneEnd} alt="Throw off" />
-              </div>
-              {/*<div className={styles.button}>*/}
-              {/*  <img src={phoneStart} alt="Reply without video" />*/}
-              {/*</div>*/}
-              <div className={styles.button} onClick={replyWithVideo}>
-                <img src={videoStart} alt="Reply with video" />
-              </div>
-            </div>
-          </div>
-          )}
         </div>
+      )}
+
+      {incomingCall && (
+      <div className={styles.incomingCallContainer}>
+        <div className={styles.photoContainer}>
+          <UserPhotoIcon />
+        </div>
+        <div className={styles.displayName}>{incomingCall.notification.body}</div>
+        <div className={styles.event}>Incoming call...</div>
+        <div className={styles.buttonsContainer}>
+          <div className={styles.button} onClick={onDeclineCall}>
+            <img src={phoneEnd} alt="Throw off" />
+          </div>
+          {/*<div className={styles.button}>*/}
+          {/*  <img src={phoneStart} alt="Reply without video" />*/}
+          {/*</div>*/}
+          <div className={styles.button} onClick={replyWithVideo}>
+            <img src={videoStart} alt="Reply with video" />
+          </div>
+        </div>
+      </div>
       )}
     </>
   )

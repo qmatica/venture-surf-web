@@ -64,6 +64,7 @@ export const Actions: FC<IActions> = ({ user }) => {
         className={styles.buttonCall}
         onClick={onCall}
         icon="phone"
+        disabled={user.settings?.disable_instant_calls}
       />
       <Button
         title="Open chat"

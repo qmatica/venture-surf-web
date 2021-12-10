@@ -29,6 +29,12 @@ export type UserType = {
     clickedAction?: string
     slots: any
     fullLoaded?: boolean
+    settings: {
+        disable_instant_calls: boolean
+        allow_founder_updates: boolean
+        allow_zoom_calls: boolean
+        allow_new_matches: boolean
+    }
 }
 
 export type RecommendedUserType = {
