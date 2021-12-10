@@ -30,6 +30,7 @@ import {
 } from './types'
 import { ChatType } from '../Conversations/types'
 import { compareCountContacts, compareNowSlot, getTokenFcm } from './utils'
+import { addToClipboardPublicLinkProfile } from '../../common/actions'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
@@ -762,34 +763,17 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
 export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
 
-  if (profile) {
-    const { uid } = profile
+  if (!profile) return
 
-    if (uid) {
-      dispatch(actions.toggleLoader('shareMyProfile'))
+  const { uid } = profile
 
-      const { token } = await usersAPI.createPublicToken(uid).catch((err) => {
-        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-      })
-      if (token) {
-        const baseURL = window.location.origin
-        const publicLinkProfile = `${baseURL}/profile/${profile.uid}?publicToken=${token}`
+  if (uid) {
+    dispatch(actions.toggleLoader('shareMyProfile'))
 
-        navigator.clipboard.writeText(publicLinkProfile).then(() => {
-          console.log('Public link profile copied: ', publicLinkProfile)
-
-          dispatch(actionsNotifications.addAnyMsg({
-            msg: 'Public link for my profile copied!',
-            uid: uuidv4()
-          }))
-
-          dispatch(actions.toggleLoader('shareMyProfile'))
-        }).catch((err) => {
-          dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-          dispatch(actions.toggleLoader('shareMyProfile'))
-        })
-      }
-    }
+    dispatch(addToClipboardPublicLinkProfile(
+      uid,
+      () => dispatch(actions.toggleLoader('shareMyProfile'))
+    ))
   }
 }
 

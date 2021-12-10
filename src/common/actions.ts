@@ -5,7 +5,9 @@ import { init as initSurf } from 'features/Surf/actions'
 import { init as initConversations } from 'features/Conversations/actions'
 import { init as initAdmin } from 'features/Admin/actions'
 import { actions as contactsActions } from 'features/Contacts/actions'
-import { lokalizeAPI } from 'api'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
+import { lokalizeAPI, usersAPI } from 'api'
+import { v4 as uuidv4 } from 'uuid'
 import { ThunkType } from './types'
 import { checkRequestPublicProfile } from './utils'
 
@@ -35,5 +37,62 @@ export const init = (history: History): ThunkType => async (dispatch, getState, 
     } else {
       dispatch(authActions.setAuth(false))
     }
+  })
+}
+
+export const addToClipboardPublicLinkProfile = (
+  uid: string,
+  togglePreloader: () => void
+): ThunkType => async (dispatch) => {
+  const createPublicLink = (uid: string, token: string) => {
+    const baseURL = window.location.origin
+    return `${baseURL}/profile/${uid}?publicToken=${token}`
+  }
+
+  // @ts-ignore
+  // eslint-disable-next-line no-undef
+  const isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === '[object SafariRemoteNotification]' }(!window.safari || (typeof safari !== 'undefined' && safari.pushNotification)))
+
+  if (isSafari) {
+    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    const clipboardItem = new ClipboardItem({
+      'text/plain': usersAPI.createPublicToken(uid).then(({ token }) => {
+        const publicLinkProfile = createPublicLink(uid, token)
+
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve) => {
+          if (clipboardItem) {
+            resolve(new Blob([publicLinkProfile]))
+            dispatch(actionsNotifications.addAnyMsg({
+              msg: 'Public link for profile copied!',
+              uid: uuidv4()
+            }))
+            togglePreloader()
+          }
+        })
+      }).catch((err) => {
+        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+        togglePreloader()
+      })
+    })
+    // @ts-ignore
+    navigator.clipboard.write([clipboardItem])
+    return
+  }
+
+  usersAPI.createPublicToken(uid).then(({ token }) => {
+    const publicLinkProfile = createPublicLink(uid, token)
+
+    navigator.clipboard.writeText(publicLinkProfile).then(() => {
+      dispatch(actionsNotifications.addAnyMsg({
+        msg: 'Public link for profile copied!',
+        uid: uuidv4()
+      }))
+      togglePreloader()
+    })
+  }).catch((err) => {
+    dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+    togglePreloader()
   })
 }

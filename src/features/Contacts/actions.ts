@@ -4,7 +4,7 @@ import { actions as surfActions } from 'features/Surf/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { usersAPI } from 'api'
 import { apiCodes } from 'common/types'
-import { v4 as uuidv4 } from 'uuid'
+import { addToClipboardPublicLinkProfile } from 'common/actions'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -98,41 +98,22 @@ export const shareLinkProfile = (uid: string): ThunkType => async (dispatch, get
   const contacts = 'mutuals'
   const { profile } = getState().profile
 
-  if (profile) {
-    const updatedUser = {
-      ...profile[contacts][uid],
-      loading: ['shareLinkProfile']
-    }
+  if (!profile) return
 
-    dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
-
-    const { token } = await usersAPI.createPublicToken(uid).catch((err) => {
-      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-    })
-    if (token) {
-      const baseURL = window.location.origin
-      const publicLinkProfile = `${baseURL}/profile/${uid}?publicToken=${token}`
-
-      navigator.clipboard.writeText(publicLinkProfile).then(() => {
-        console.log('Public link profile copied: ', publicLinkProfile)
-
-        dispatch(actionsNotifications.addAnyMsg({
-          msg: 'Public link for profile copied!',
-          uid: uuidv4()
-        }))
-
-        const updatedUser = {
-          ...profile[contacts][uid],
-          loading: []
-        }
-
-        dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
-      }).catch((err) => {
-        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-        dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
-      })
-    }
+  const updatedUser = {
+    ...profile[contacts][uid],
+    loading: ['shareLinkProfile']
   }
+
+  dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
+
+  dispatch(addToClipboardPublicLinkProfile(
+    uid,
+    () => dispatch(profileActions.updateUserInMyContacts({
+      ...profile[contacts][uid],
+      loading: []
+    }, contacts))
+  ))
 }
 
 export const getPublicProfile = (uid: string, token: string): ThunkType => async (dispatch, getState) => {
