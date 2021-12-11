@@ -32,6 +32,7 @@ export type ProfileType = {
     slots: SlotsType
     likes: UsersType
     mutuals: UsersType
+    about?: string
     verified: {
         linkedIn: string
     }

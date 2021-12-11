@@ -29,13 +29,12 @@ export const Info: FC<IInfo> = ({ profile, isEdit }) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.infoContainer}>
-        <div className={styles.title}>About me</div>
-        <div className={styles.content}>
-          Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non
-          numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
+      {profile.about && (
+        <div className={styles.infoContainer}>
+          <div className={styles.title}>About me</div>
+          <div className={styles.content}>{profile.about}</div>
         </div>
-      </div>
+      )}
       <Tags
         title={titleStages}
         tags={profile[profile.activeRole]?.stages}
