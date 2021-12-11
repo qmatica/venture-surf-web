@@ -267,7 +267,7 @@ const compareChats = (prevMutuals: UsersType, nextMutuals: UsersType): ThunkType
   let user = null as UserType | null
 
   Object.keys(nextMutuals).some((key) => {
-    if (!prevMutuals[key].chat && nextMutuals[key].chat) {
+    if (!prevMutuals[key]?.chat && nextMutuals[key].chat) {
       user = {
         ...nextMutuals[key],
         uid: key
