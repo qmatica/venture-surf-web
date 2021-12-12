@@ -62,7 +62,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
   dispatch(actions.setRecommendedUsers(Object.values(formattedRecommendedUsers)))
 
-  const users: UserType[] = response[1].matches
+  const users: UserType[] = response[1].matches.filter((user: UserType) => !formattedRecommendedUsers[user.uid])
 
   dispatch(actions.setUsers(users))
 }

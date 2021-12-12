@@ -16,21 +16,24 @@
   .recommendedUsersContainer
     display: flex
     position: relative
-    .photoContainer
-      width: 70px
-      height: 70px
-      border-radius: 100%
-      overflow: hidden
-      display: flex
-      flex-shrink: 0
-      justify-content: center
-      align-items: center
-      margin-left: -40px
-      cursor: pointer
-      border: 3px solid #FFF
-      &:hover
-        z-index: 50
+    a
+      .photoContainer
+        width: 70px
+        height: 70px
+        border-radius: 100%
+        overflow: hidden
+        display: flex
+        flex-shrink: 0
+        justify-content: center
+        align-items: center
+        margin-left: -30px
+        cursor: pointer
+        border: 1px solid #D7DFED
+        background: #D7DFED
+        &:hover
+          z-index: 50
+        img
+          width: 100%
       &:first-child
-        margin-left: 0
-      img
-        width: 100%
+        .photoContainer
+          margin-left: 0
