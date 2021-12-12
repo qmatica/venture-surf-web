@@ -33,6 +33,7 @@
         display: flex
         align-items: center
         justify-content: center
+        flex-shrink: 0
         .photo
           width: 39px
           height: 39px
@@ -45,6 +46,10 @@
           height: 39px
           border-radius: 100%
           background: #ececec
+          overflow: hidden
+          display: flex
+          align-items: center
+          justify-content: center
       .bodyContainer
         width: 180px
         display: flex
@@ -68,7 +73,9 @@
         justify-content: center
         flex-grow: 1
         border-bottom: 1px solid #D7DFED
-        align-items: center
+        align-items: flex-end
+        padding-right: 10px
+        width: 100px
         .date
           font-size: 11px
           color: #030D21

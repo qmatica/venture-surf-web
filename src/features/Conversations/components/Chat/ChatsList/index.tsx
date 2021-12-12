@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import styles from './styles.module.sass'
 import { actions } from '../../../actions'
 import { getChats, getOpenedChat } from '../../../selectors'
+import { UserIcon } from '../../../../../common/icons'
 
 export const ChatsList = () => {
   const dispatch = useDispatch()
@@ -22,6 +23,17 @@ export const ChatsList = () => {
 
           const lastMessage = messages?.length ? messages[messages.length - 1] : null
 
+          const dateLastMessage = lastMessage
+            ? moment(lastMessage.dateUpdated).calendar(null, {
+              lastDay: '[Yesterday]',
+              sameDay: 'HH:mm',
+              nextDay: '[Tomorrow]',
+              lastWeek: '[last] dddd',
+              nextWeek: 'dddd',
+              sameElse: 'L'
+            })
+            : null
+
           return (
             <div
               className={`${styles.dialogItem} ${activeClassName}`}
@@ -31,16 +43,16 @@ export const ChatsList = () => {
               <div className={styles.imgContainer}>
                 {photoUrl
                   ? <img className={styles.photo} src={photoUrl} alt={name} />
-                  : <div className={styles.noPhoto} />}
+                  : <div className={styles.noPhoto}><UserIcon /></div>}
               </div>
               <div className={styles.bodyContainer}>
                 <div className={styles.name}>{name}</div>
                 {lastMessage && <div className={styles.lastMessage}>{lastMessage.body}</div>}
               </div>
               <div className={styles.notificationsContainer}>
-                {lastMessage && (
+                {dateLastMessage && (
                   <div className={styles.date}>
-                    {moment(lastMessage.dateUpdated).format('HH:mm')}
+                    {dateLastMessage}
                   </div>
                 )}
                 {missedMessages > 0 && (
