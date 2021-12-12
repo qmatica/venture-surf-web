@@ -1,4 +1,5 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { ProfileType } from 'features/Profile/types'
 import { profileInteractionUsers } from 'features/Profile/constants'
 import { UserIcon } from 'common/icons'
@@ -18,11 +19,6 @@ export const Info: FC<IInfo> = ({ profile, isEdit }) => {
   const updateProfile = useCallback((field: string) => (value: any) => {
     dispatch(updateMyProfile({ [field]: value }))
   }, [profile])
-
-  const profileInteraction = {
-    title: profileInteractionUsers.title[profile.activeRole],
-    value: profile[profileInteractionUsers.content[profile.activeRole]]
-  }
 
   const titleStages = profile.activeRole === 'founder' ? 'My startup space is' : 'My investors industries'
   const titleIndustries = profile.activeRole === 'founder' ? 'My startup is' : 'My investments stages'
@@ -52,23 +48,53 @@ export const Info: FC<IInfo> = ({ profile, isEdit }) => {
         tags={profile.tags}
         onSave={isEdit ? updateProfile('tags') : undefined}
       />
-      {profileInteraction.value && (
-      <div className={styles.infoContainer}>
-        <div className={styles.title}>
-          {profileInteraction.title}
-        </div>
-        <div className={styles.content}>
-          {Object.entries(profileInteraction.value)
-            .map(([name, value]) => (
-              <div className={styles.userContainer} key={name}>
-                <div className={styles.photoContainer}><UserIcon /></div>
-                <div className={styles.displayName}>{name}</div>
+      <Interaction profile={profile} />
+    </div>
+  )
+}
+
+interface IInteraction {
+  profile: ProfileType
+}
+
+const Interaction: FC<IInteraction> = ({ profile }) => {
+  const profileInteraction = useMemo(() => ({
+    title: profileInteractionUsers.title[profile.activeRole],
+    value: profile[profileInteractionUsers.content[profile.activeRole]]
+  }), [profile[profileInteractionUsers.content[profile.activeRole]]])
+
+  if (!profileInteraction.value) return null
+
+  return (
+    <div className={styles.infoContainer}>
+      <div className={styles.title}>
+        {profileInteraction.title}
+      </div>
+      <div className={styles.content}>
+        {Object.entries(profileInteraction.value)
+          .map(([uid, value]) => {
+            const user = profile.mutuals[uid]
+
+            if (!user) return null
+
+            const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+            const photoUrl = user.photoURL
+
+            return (
+              <div className={styles.userContainer} key={uid}>
+                <Link to={`/profile/${uid}`}>
+                  <div className={styles.photoContainer}>
+                    {photoUrl ? <img src={photoUrl} alt={name} /> : <UserIcon />}
+                  </div>
+                </Link>
+                <Link to={`/profile/${uid}`}>
+                  <div className={styles.displayName}>{name}</div>
+                </Link>
                 <div className={styles.status}>{value.status}</div>
               </div>
-            ))}
-        </div>
+            )
+          })}
       </div>
-      )}
     </div>
   )
 }
