@@ -13,7 +13,7 @@
         "destination": "/index.html"
       },
       {
-        "source": "/links/share/**",
+        "source": "/profile/**",
         "dynamicLinks": true
       }
     ]
