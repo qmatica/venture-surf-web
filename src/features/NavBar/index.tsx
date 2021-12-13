@@ -4,10 +4,13 @@ import {
   CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon, AuthIcon, Unlock
 } from 'common/icons'
 import { useSelector } from 'react-redux'
-import styles from './styles.module.sass'
-import { getAuth, getMyUid } from '../Auth/selectors'
+import { getAuth } from 'features/Auth/selectors'
+import { getIsAdminMode } from 'features/Admin/selectors'
+import { RootState } from 'common/types'
+import { ProfileType } from 'features/Profile/types'
+import { CounterNotifications } from 'common/components/CounterNotifications'
 import { PageType } from './types'
-import { getIsAdminMode } from '../Admin/selectors'
+import styles from './styles.module.sass'
 
 const pages = [
   {
@@ -55,7 +58,7 @@ const pagesAdmin = [
 
 export const NavBar = () => {
   const auth = useSelector(getAuth)
-  const myUid = useSelector(getMyUid)
+  const { profile } = useSelector((state: RootState) => state.profile) as { profile: ProfileType }
   const isAdminMode = useSelector(getIsAdminMode)
   const [currentPages, setCurrentPages] = useState<PageType[]>([])
 
@@ -87,9 +90,14 @@ export const NavBar = () => {
     <div className={styles.container}>
       {currentPages.map(({ url, title, icon }) => {
         let formattedUrl = url
+        let countNotifications
 
         if (title === 'Profile') {
-          formattedUrl = `${url}/${myUid}`
+          formattedUrl = `${url}/${profile.uid}`
+        }
+
+        if (title === 'Contacts') {
+          countNotifications = Object.keys(profile.liked)?.length
         }
 
         return (
@@ -100,6 +108,7 @@ export const NavBar = () => {
             activeClassName={title === 'Admin' ? styles.activeLinkAdmin : styles.activeLink}
           >
             {icon}
+            <CounterNotifications count={countNotifications} />
           </NavLink>
         )
       })}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { ProfileType } from 'features/Profile/types'
 import { Tabs } from 'common/components/Tabs'
 import { FilterIcon } from 'common/icons'
 import { RootState } from 'common/types'
@@ -19,6 +20,7 @@ export const Contacts = () => {
   const dispatch = useDispatch()
 
   const { search } = useSelector((state: RootState) => state.contacts)
+  const { profile } = useSelector((state: RootState) => state.profile)
 
   const [tab, setTab] = useState(tabs[0])
 
@@ -45,7 +47,7 @@ export const Contacts = () => {
           <FilterIcon />
         </div>
       </div>
-      <Tabs tabs={tabs} onChange={setTab} activeTab={tab} />
+      <Tabs tabs={tabs} onChange={setTab} activeTab={tab} profile={profile as ProfileType} />
       <tab.Component />
     </div>
   )
