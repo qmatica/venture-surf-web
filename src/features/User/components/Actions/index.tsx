@@ -10,15 +10,18 @@ import moment from 'moment'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
+import { Recommend } from '../../../Recommend'
 
 interface IActions {
     user: UserType
+    userName: string
 }
 
-export const Actions: FC<IActions> = ({ user }) => {
+export const Actions: FC<IActions> = ({ user, userName }) => {
   const dispatch = useDispatch()
   const history = useHistory()
   const [isOpenModalArrangeAMeeting, setIsOpenModalArrangeAMeeting] = useState(false)
+  const [isOpenModalRecommend, setIsOpenModalRecommend] = useState(false)
 
   const slots = useMemo(() => {
     const formattedSlots: FormattedSlotsType = []
@@ -52,9 +55,11 @@ export const Actions: FC<IActions> = ({ user }) => {
     dispatch(shareLinkProfile(user.uid))
   }
 
-  const toggleIsOpenModalArrangeAMeeting = () => setIsOpenModalArrangeAMeeting(!isOpenModalArrangeAMeeting)
+  const toggleModalArrangeAMeeting = () => setIsOpenModalArrangeAMeeting(!isOpenModalArrangeAMeeting)
 
-  const onRecommended = () => {}
+  const toggleModalRecommend = () => setIsOpenModalRecommend(!isOpenModalRecommend)
+
+  const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
   return (
     <div className={styles.container}>
@@ -75,7 +80,7 @@ export const Actions: FC<IActions> = ({ user }) => {
       <Button
         title="Arrange a meeting"
         isLoading={false}
-        onClick={toggleIsOpenModalArrangeAMeeting}
+        onClick={toggleModalArrangeAMeeting}
         icon="calendar"
       />
       <Button
@@ -86,16 +91,24 @@ export const Actions: FC<IActions> = ({ user }) => {
       <Button
         title="Recommended"
         isLoading={false}
-        onClick={onRecommended}
+        onClick={toggleModalRecommend}
         icon="people"
       />
       <Modal
         title="Arrange a meeting"
         isOpen={isOpenModalArrangeAMeeting}
-        onClose={toggleIsOpenModalArrangeAMeeting}
+        onClose={toggleModalArrangeAMeeting}
         width={935}
       >
         <Calendar otherSlots={slots} uid={user.uid} />
+      </Modal>
+      <Modal
+        title={`Recommend ${userName} to:`}
+        isOpen={isOpenModalRecommend}
+        onClose={toggleModalRecommend}
+        width={400}
+      >
+        <Recommend uid={user.uid} onClose={toggleModalRecommend} />
       </Modal>
     </div>
   )

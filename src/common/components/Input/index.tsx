@@ -6,13 +6,21 @@ interface IInput {
   placeholder?: string
   title?: string
   initialValue?: string
+  onChange?: (text: string) => void
+  value?: string
 }
 
 export const Input: FC<IInput> = ({
-  name, placeholder, title, initialValue = ''
+  name, placeholder, title, initialValue = '', onChange, value
 }) => {
-  const [value, setValue] = useState(initialValue)
-  const onChange = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => setValue(value)
+  const [text, setText] = useState(initialValue)
+  const onChangeText = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+    if (onChange) {
+      onChange(value)
+      return
+    }
+    setText(value)
+  }
   return (
     <div className={styles.container}>
       {title && <div className={styles.title}>{title}</div>}
@@ -20,8 +28,8 @@ export const Input: FC<IInput> = ({
         name={name}
         className={styles.input}
         type="text"
-        value={value}
-        onChange={onChange}
+        value={value || text}
+        onChange={onChangeText}
         placeholder={placeholder}
       />
     </div>

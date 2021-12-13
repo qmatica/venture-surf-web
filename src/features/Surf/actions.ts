@@ -32,7 +32,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
   if (!response) return
 
-  const recommendedUsers: UserType[] = response[0].recommendations
+  const recommendedUsers: UserType[] = response[0].recommendations ? Object.values(response[0].recommendations) : []
 
   const formattedRecommendedUsers = recommendedUsers.reduce((prevUsers, nextUser) => {
     if (nextUser.recommended_by) {

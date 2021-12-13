@@ -61,7 +61,7 @@ export const User: FC<IUser> = memo(({
         typeUser={typeUser}
         isRecommended={isRecommended}
       />
-      {viewActions && <Actions user={user} />}
+      {viewActions && <Actions user={user} userName={name} />}
       {viewVideos && <Videos videos={user.content?.videos} userId={user.uid} userName={name} />}
     </div>
   )

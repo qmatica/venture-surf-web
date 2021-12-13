@@ -5,6 +5,7 @@ import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { addToClipboardPublicLinkProfile } from 'common/actions'
+import { v4 as uuidv4 } from 'uuid'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -135,4 +136,36 @@ export const getPublicProfile = (uid: string, token: string): ThunkType => async
       dispatch(actions.setIsLoadingOtherProfile(false))
     }
   }
+}
+
+export const recommendUser = (
+  uid: string,
+  users: string[],
+  message: string,
+  onFinish: () => void
+): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile as { profile: ProfileType }
+  const result = await usersAPI.recommend(uid, users, message).catch((err) => {
+    if (err.error) {
+      dispatch(actionsNotifications.addAnyMsg({ msg: err.error, uid: uuidv4() }))
+    }
+  })
+
+  if (result) {
+    dispatch(actionsNotifications.addAnyMsg({ msg: 'User recommend my mutuals', uid: uuidv4() }))
+    if (result.not_sent) {
+      Object.entries(result.not_sent).forEach(([u, msg]) => {
+        const user = profile.mutuals[u]
+        const recommendUser = profile.mutuals[uid]
+        const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+        const nameRecommendUser = recommendUser.name || recommendUser.displayName || `${recommendUser.first_name} ${recommendUser.last_name}`
+        dispatch(actionsNotifications.addAnyMsg({
+          msg: `${nameRecommendUser} - ${msg} at ${name}`,
+          uid: uuidv4()
+        }))
+      })
+    }
+    console.log('recommendUser', result)
+  }
+  onFinish()
 }

@@ -104,7 +104,10 @@ export const usersAPI = {
     return instance.get(`/api/videos/${uid}/${videoId}`).then((res) => res.data)
   },
   getRecommended() {
-    return instance.get('/api/recommend/me').then((res) => res.data)
+    return instance.get('/api/intro').then((res) => res.data)
+  },
+  recommend(uid: string, users: string[], message: string) {
+    return instance.put(`/api/intro/${uid}`, { users, message }).then((res) => res.data)
   },
   callNow(uid: string, device_id: string) {
     return instance.put(`api/call/${uid}/invite`, { variants: ['now'], device_id }).then((res) => res.data)
