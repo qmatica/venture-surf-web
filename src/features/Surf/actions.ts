@@ -32,33 +32,32 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
   if (!response) return
 
-  const recommendedUsers: UserType[] = response[0].recommendations ? Object.values(response[0].recommendations) : []
+  const recommendedUsers: { [key: string]: UserType[] } = response[0]
+  const formattedRecommendedUsers: { [key: string]: UserType } = {}
 
-  const formattedRecommendedUsers = recommendedUsers.reduce((prevUsers, nextUser) => {
-    if (nextUser.recommended_by) {
-      const { recommended_message } = nextUser
+  Object.keys(recommendedUsers).forEach((uid) => {
+    recommendedUsers[uid].forEach((user) => {
+      if (user.recommended_by) {
+        const { message } = user
 
-      const recommendedByList = !prevUsers[nextUser.uid]
-        ? [{ ...nextUser.recommended_by, recommended_message }]
-        : [...prevUsers[nextUser.uid].recommendedByList, { ...nextUser.recommended_by, recommended_message }]
+        const recommendedByList = !formattedRecommendedUsers[user.uid]
+          ? [{ ...user.recommended_by, message }]
+          : [...formattedRecommendedUsers[user.uid].recommendedByList, { ...user.recommended_by, message }]
 
-      let newUser = {
-        ...nextUser,
-        recommendedByList
+        let newUser = {
+          ...user,
+          recommendedByList
+        }
+
+        newUser = deleteFieldsOfObject(
+          newUser,
+          ['message', 'recommended_by', 'reason', 'recommended_at']
+        )
+
+        formattedRecommendedUsers[user.uid] = newUser
       }
-
-      newUser = deleteFieldsOfObject(
-        newUser,
-        ['recommended_message', 'recommended_by', 'reason', 'recommended_at']
-      )
-
-      return {
-        ...prevUsers,
-        [nextUser.uid]: newUser
-      }
-    }
-    return prevUsers
-  }, {} as { [key: string]: UserType })
+    })
+  })
 
   dispatch(actions.setRecommendedUsers(Object.values(formattedRecommendedUsers)))
 

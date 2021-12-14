@@ -21,7 +21,7 @@ export const Recommendations: FC<IRecommendations> = ({ user }) => {
           <Link to={`profile/${u.uid}`} key={`${user.uid}-${u.uid}`}>
             <div
               className={styles.photoContainer}
-              data-tip={u.recommended_message}
+              data-tip={u.message}
               data-place="bottom"
               data-effect="solid"
             >

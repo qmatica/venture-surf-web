@@ -6,8 +6,8 @@ import { Checkbox } from '@material-ui/core'
 import { UserIcon } from 'common/icons'
 import { Button } from 'common/components/Button'
 import { recommendUser } from 'features/Contacts/actions'
+import { Input } from 'common/components/Input'
 import styles from './styles.module.sass'
-import { Input } from '../../common/components/Input'
 
 interface IRecommend {
   uid: string

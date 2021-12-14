@@ -21,7 +21,7 @@ export type UserType = {
     activeRole: 'investor' | 'founder'
     recommended_by?: RecommendedUserType
     recommended_at?: Date
-    recommended_message?: string
+    message?: string
     reason?: string
     recommendedByList: RecommendedUserType[]
     chat?: string
@@ -47,7 +47,7 @@ export type RecommendedUserType = {
     ],
     dt: Date,
     displayName: string
-    recommended_message?: string
+    message?: string
 }
 
 export type Job = {
