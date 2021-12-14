@@ -45,13 +45,15 @@ export const Deck: FC<IDeck> = ({ profile, isEdit }) => {
             </div>
           </div>
         ))}
-        {isEmpty && (
+        {isEmpty && isEdit && (
           <div className={styles.emptyTitle}>Add first document</div>
         )}
       </div>
-      <div className={styles.buttonsContainer} style={style}>
-        <Button title="Add deck" icon="plus" />
-      </div>
+      {isEdit && (
+        <div className={styles.buttonsContainer} style={style}>
+          <Button title="Add deck" icon="plus" />
+        </div>
+      )}
     </div>
   )
 }

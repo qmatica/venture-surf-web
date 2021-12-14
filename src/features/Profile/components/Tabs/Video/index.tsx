@@ -88,6 +88,7 @@ export const Video: FC<IVideo> = ({ profile, isEdit }) => {
               video={video}
               activeVideoInPlayer={currentVideo}
               onSetCurrentVideo={setCurrentVideo}
+              isEdit={isEdit}
             />
           ))}
           {videos.map((video) => (
@@ -96,6 +97,7 @@ export const Video: FC<IVideo> = ({ profile, isEdit }) => {
               video={video}
               activeVideoInPlayer={currentVideo}
               onSetCurrentVideo={setCurrentVideo}
+              isEdit={isEdit}
             />
           ))}
         </div>

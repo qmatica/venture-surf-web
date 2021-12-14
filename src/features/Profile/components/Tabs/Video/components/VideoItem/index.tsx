@@ -11,12 +11,14 @@ interface IVideoItem {
     video: FormattedVideoType
     activeVideoInPlayer: FormattedVideoType | null
     onSetCurrentVideo: (video: FormattedVideoType) => void
+    isEdit: boolean
 }
 
 export const VideoItem: FC<IVideoItem> = ({
   video,
   activeVideoInPlayer,
-  onSetCurrentVideo
+  onSetCurrentVideo,
+  isEdit
 }) => {
   const dispatch = useDispatch()
   const [isOpenModal, setIsOpenModal] = useState(false)
@@ -57,7 +59,7 @@ export const VideoItem: FC<IVideoItem> = ({
           <div className={styles.title}>{video.title}</div>
         </div>
         <div className={styles.actionContainer}>
-          {video.assetID && (
+          {video.assetID && isEdit && (
             <div className={styles.editButton} onClick={toggleModal}>
               <Edit2Icon />
             </div>
