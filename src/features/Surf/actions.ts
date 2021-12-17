@@ -3,7 +3,9 @@ import { apiCodes } from 'common/types'
 import { UserType } from 'features/User/types'
 import { actions as profileActions } from 'features/Profile/actions'
 import { actions as notificationsActions } from 'features/Notifications/actions'
+import { v4 as uuidv4 } from 'uuid'
 import { deleteFieldsOfObject } from 'common/utils'
+import { ProfileType } from 'features/Profile/types'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -107,5 +109,23 @@ export const like = (
         dispatch(profileActions[profileAction](updatedUsers[updatedUserIndex], 'likes'))
       }
     }
+  }
+}
+
+export const acceptInvest = (uid: string): ThunkType => async (dispatch) => {
+  const result = await usersAPI.addInvest(uid).catch((err) => {
+    dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
+  })
+  if (result) {
+    dispatch(profileActions.acceptInvest(uid))
+  }
+}
+
+export const deleteInvest = (uid: string): ThunkType => async (dispatch) => {
+  const result = await usersAPI.deleteInvest(uid).catch((err) => {
+    dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
+  })
+  if (result) {
+    dispatch(profileActions.deleteInvest(uid))
   }
 }

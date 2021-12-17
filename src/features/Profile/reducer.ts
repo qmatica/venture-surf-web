@@ -133,6 +133,42 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
       }
       return state
     }
+    case 'PROFILE__ACCEPT_INVEST': {
+      const { profile } = state
+
+      if (!profile) return state
+
+      const { investments } = profile
+      const updatedInvestments = {
+        ...investments,
+        [action.uid]: {
+          status: 'accepted'
+        }
+      }
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          investments: updatedInvestments
+        }
+      }
+    }
+    case 'PROFILE__DELETE_INVEST': {
+      const { profile } = state
+
+      if (!profile) return state
+
+      const investments = { ...profile.investments }
+      delete investments[action.uid]
+
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          investments
+        }
+      }
+    }
     default: return state
   }
 }

@@ -56,7 +56,9 @@ export const actions = {
   ),
   addChatInMutual: (uid: string, chat: string) => (
     { type: 'PROFILE__ADD_CHAT_IN_MUTUAL', payload: { uid, chat } } as const
-  )
+  ),
+  acceptInvest: (uid: string) => ({ type: 'PROFILE__ACCEPT_INVEST', uid } as const),
+  deleteInvest: (uid: string) => ({ type: 'PROFILE__DELETE_INVEST', uid } as const)
 }
 
 let activeActions: string[] = []
