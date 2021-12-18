@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { User } from 'features/User'
 import { getProfile } from 'features/Profile/selectors'
 import { ProfileType } from 'features/Profile/types'
-import { UserIcon } from 'common/icons'
+import { UserPhotoIcon } from 'common/icons'
 import { Button } from 'common/components/Button'
 import { getRequestedInvestments, getSurfRecommendedUsers, getSurfUsers } from './selectors'
 import styles from './styles.module.sass'
@@ -26,11 +26,11 @@ export const Surf = () => {
     })
   }
 
-  const onAcceptInvest = (uid: string) => {
+  const onAcceptInvestor = (uid: string) => {
     toggleLoader(`onAcceptInvest-${uid}`)
     dispatch(acceptInvest(uid))
   }
-  const onDeleteInvest = (uid: string) => {
+  const onDeleteInvestor = (uid: string) => {
     toggleLoader(`onDeleteInvest-${uid}`)
     dispatch(deleteInvest(uid))
   }
@@ -46,28 +46,29 @@ export const Surf = () => {
 
             const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
             const { photoURL } = user
+            const list = `${profile.activeRole === 'founder' ? 'investments' : 'investors'} list`
 
             return (
               <div className={styles.invContainer}>
                 <div className={styles.userContainer}>
                   <div className={styles.photoContainer}>
-                    {photoURL ? <img src={photoURL} alt={name} /> : <UserIcon />}
+                    {photoURL ? <img src={photoURL} alt={name} /> : <UserPhotoIcon />}
                   </div>
                   <div className={styles.textContainer}>
                     <div className={styles.name}>{name}</div>
-                    <div className={styles.about}>added you to investments list</div>
+                    <div className={styles.about}>added you to {list}</div>
                   </div>
                 </div>
                 <div className={styles.buttonsContainer}>
                   <Button
                     isLoading={loaders.includes(`onAcceptInvest-${inv.uid}`)}
                     title="Accept"
-                    onClick={() => onAcceptInvest(inv.uid)}
+                    onClick={() => onAcceptInvestor(inv.uid)}
                   />
                   <Button
                     isLoading={loaders.includes(`onDeleteInvest-${inv.uid}`)}
                     title="Decline"
-                    onClick={() => onDeleteInvest(inv.uid)}
+                    onClick={() => onDeleteInvestor(inv.uid)}
                   />
                 </div>
               </div>

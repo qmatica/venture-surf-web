@@ -1,4 +1,5 @@
 import { ActionTypes, ProfileType } from './types'
+import { profileInteractionUsers } from './constants'
 
 const initialState = {
   profile: null as ProfileType | null,
@@ -138,9 +139,9 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
 
       if (!profile) return state
 
-      const { investments } = profile
-      const updatedInvestments = {
-        ...investments,
+      const list = profileInteractionUsers.content[profile.activeRole]
+      const updatedInvestList = {
+        ...profile[list],
         [action.uid]: {
           status: 'accepted'
         }
@@ -149,7 +150,7 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         ...state,
         profile: {
           ...profile,
-          investments: updatedInvestments
+          [list]: updatedInvestList
         }
       }
     }
@@ -158,14 +159,16 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
 
       if (!profile) return state
 
-      const investments = { ...profile.investments }
-      delete investments[action.uid]
+      const list = profileInteractionUsers.content[profile.activeRole]
+
+      const updatedInvestList = { ...profile[list] }
+      delete updatedInvestList[action.uid]
 
       return {
         ...state,
         profile: {
           ...profile,
-          investments
+          [list]: updatedInvestList
         }
       }
     }
