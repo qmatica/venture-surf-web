@@ -1,17 +1,17 @@
 import { onBackgroundMessage, getMessaging, isSupported } from 'firebase/messaging/sw'
 import { initializeApp, FirebaseOptions } from 'firebase/app'
 
-export const proj = process.env.REACT_APP_FIREBASE_PROJECT
+const proj = 'venturesurfdev'
 
-export const config = {
-  apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
+const config = {
+  apiKey: 'AIzaSyDZFzSz1QJ_ZsJ_6Ntc615pp-Ik1pe0wP8',
   authDomain: `${proj}.firebaseapp.com`,
   databaseURL: `https://${proj}.firebaseio.com`,
   projectId: proj,
   storageBucket: `${proj}.appspot.com`,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_APP_ID?.split(':')[1]
+  appId: '1:1045764480750:web:2c8345a129babc71325dff',
+  measurementId: 'G-P5PGTWBBFJ',
+  messagingSenderId: '1045764480750'
 }
 
 // eslint-disable-next-line no-undef
