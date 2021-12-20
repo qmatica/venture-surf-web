@@ -66,7 +66,7 @@
     "start": "react-scripts start",
     "start:qa": "env-cmd -f .env.qa react-scripts start",
     "build": "esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6 && react-scripts build",
-    "build:dev": "react-scripts build && esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6",
+    "build:dev": "esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6 && react-scripts build",
     "build:qa": "env-cmd -f .env.qa esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6 && react-scripts build",
     "build:prod": "env-cmd -f .env.production esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6 && react-scripts build",
     "test": "react-scripts test",
