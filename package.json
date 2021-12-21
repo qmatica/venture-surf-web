@@ -58,17 +58,17 @@
     "@types/uuid": "^8.3.1",
     "env-cmd": "^10.1.0",
     "esbuild": "^0.13.12",
+    "esbuild-envfile-plugin": "^1.0.2",
     "esbuild-plugin-babel": "^0.2.3",
     "eslint-config-airbnb": "^18.2.1",
     "node-sass": "^5.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
-    "start:qa": "env-cmd -f .env.qa react-scripts start",
     "build": "esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6 && react-scripts build",
-    "build:dev": "esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6 && react-scripts build",
-    "build:qa": "env-cmd -f .env.qa esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6 && react-scripts build",
-    "build:prod": "env-cmd -f .env.production esbuild sw.ts --outdir=public --bundle --sourcemap --minify --format=esm --legal-comments=external --target=es6 && react-scripts build",
+    "build:dev": "node esbuild.config.mjs && react-scripts build",
+    "build:qa": "node esbuild.config.mjs && react-scripts build",
+    "build:prod": "node esbuild.config.mjs && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
