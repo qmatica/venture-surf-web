@@ -1,4 +1,4 @@
-name: Firebase CI dev
+name: Firebase CI qa
 on:
   push:
     branches: [ qa ]
