@@ -2,6 +2,7 @@ import React, { FC, ReactNode } from 'react'
 import { Redirect } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Header } from 'features/Header'
+import { LeftNavbar } from 'features/LeftNavbar'
 import { Preloader } from 'common/components/Preloader'
 import { VideoChat } from 'features/VideoChat'
 import { getAppInitialized, getIsFullScreen } from 'common/selectors'
@@ -33,9 +34,12 @@ export const Layout: FC<ILayout> = ({ children }) => {
   return (
     <div className={styles.wrapper}>
       <Header />
-      <div className={styles.wrapper} style={{ padding: '0 20px', marginBottom: '30px' }}>
-        <div className={styles.container} style={style}>
-          {children}
+      <div className={styles.contentWrapper}>
+        <LeftNavbar />
+        <div className={styles.mainContent}>
+          <div className={styles.container} style={style}>
+            {children}
+          </div>
         </div>
       </div>
       <VideoChat />
