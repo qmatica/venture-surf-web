@@ -21,20 +21,20 @@ jobs:
     - name: Create env file
       run: |
         touch .env
-        echo REACT_APP_FIREBASE_PROJECT=${{ secrets.REACT_APP_FIREBASE_PROJECT }} >> .env
-        echo REACT_APP_FIREBASE_APIKEY=${{ secrets.REACT_APP_FIREBASE_APIKEY }} >> .env
-        echo REACT_APP_FIREBASE_APP_ID=${{ secrets.REACT_APP_FIREBASE_APP_ID }} >> .env
-        echo REACT_APP_FIREBASE_MEASUREMENT_ID=${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }} >> .env
+        echo REACT_APP_FIREBASE_PROJECT=${{ secrets.REACT_APP_FIREBASE_PROJECT__QA }} >> .env
+        echo REACT_APP_FIREBASE_APIKEY=${{ secrets.REACT_APP_FIREBASE_APIKEY__QA }} >> .env
+        echo REACT_APP_FIREBASE_APP_ID=${{ secrets.REACT_APP_FIREBASE_APP_ID__QA }} >> .env
+        echo REACT_APP_FIREBASE_MEASUREMENT_ID=${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID__QA }} >> .env
         cat .env
     - name: yarn install and build
       run: |
         yarn install
         yarn build:qa
       env:
-        REACT_APP_FIREBASE_PROJECT: ${{ secrets.REACT_APP_FIREBASE_PROJECT }}
-        REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY }}
-        REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
-        REACT_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }}
+        REACT_APP_FIREBASE_PROJECT: ${{ secrets.REACT_APP_FIREBASE_PROJECT__QA }}
+        REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY__QA }}
+        REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID__QA }}
+        REACT_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID__QA }}
     - name: Archive Build
       uses: actions/upload-artifact@v2
       with:
@@ -55,6 +55,6 @@ jobs:
       - name: Depoy to Firebase
         uses: w9jds/firebase-action@master
         with:
-          args: deploy --only hosting --project venturesurfdev
+          args: deploy --only hosting --project ventureswipe
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
