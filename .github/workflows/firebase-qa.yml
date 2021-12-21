@@ -55,6 +55,6 @@ jobs:
       - name: Depoy to Firebase
         uses: w9jds/firebase-action@master
         with:
-          args: deploy --only hosting --project ventureswipe
+          args: deploy --only hosting --project ventureswipe-project
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
