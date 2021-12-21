@@ -141,7 +141,8 @@ const listenSchedulesMeetings = (): ThunkType => async (dispatch, getState) => {
 
         Object.entries(slots).forEach(([date, value]) => {
           if (
-            value.status === 'scheduled'
+            date !== 'now'
+            && value.status === 'scheduled'
             && moment().format('DD-MM-YYYY') === moment(date).format('DD-MM-YYYY')
             && moment(date).isAfter(moment())
           ) {
@@ -256,7 +257,13 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
 
       dispatch(compareChats(profile.mutuals, newProfile.mutuals))
 
-      const result = compareNowSlot(profile.slots, newProfile.slots)
+      const result = compareNowSlot(
+        profile.slots,
+        newProfile.slots,
+        (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => {
+          dispatch(actions.updateMySlots(action, slot))
+        }
+      )
       if (result) {
         // @ts-ignore
         dispatch(showNotification(result))
@@ -609,6 +616,8 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
   const { profile } = getState().profile
 
   if (profile) {
+    dispatch(actionsVideoChat.setViewEndCallAll(true))
+
     const contacts = 'mutuals'
 
     dispatch(togglePreloader(contacts, uid, 'callNow'))
@@ -632,11 +641,13 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
 export const declineCall = (uid: string): ThunkType => async (dispatch, getState) => {
   const { room } = getState().videoChat
 
+  dispatch(actions.updateMySlots('del', 'now'))
+
   const status = await usersAPI.callDecline(uid)
 
   if (status === apiCodes.success) {
     room?.disconnect()
-    dispatch(actionsVideoChat.setRoom(null, null))
+    dispatch(actionsVideoChat.reset())
   }
 }
 
