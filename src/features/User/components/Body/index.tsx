@@ -113,7 +113,7 @@ export const Body: FC<IBody> = ({
       )
     }
 
-    if (!activeRole) return null
+    if (!activeRole || !job || !job[activeRole]) return null
 
     const emptyJob = job && activeRole && Object.values(job[activeRole]).every((value) => value === '')
 

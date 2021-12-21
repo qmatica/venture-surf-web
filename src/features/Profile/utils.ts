@@ -39,7 +39,7 @@ const prepareContact = (contact: UserType, key: string) => ({
 })
 
 export const compareNowSlot = (prevSlots: SlotsType, nextSlots: SlotsType) => {
-  if (nextSlots.now && nextSlots.now.status === 'proposed') {
+  if (nextSlots?.now && nextSlots.now.status === 'proposed') {
     const { uid } = nextSlots.now
     if (nextSlots.now.twilio) {
       const { room, token, made } = nextSlots.now.twilio
@@ -50,7 +50,7 @@ export const compareNowSlot = (prevSlots: SlotsType, nextSlots: SlotsType) => {
     }
   }
 
-  if (nextSlots.now && nextSlots.now.status === 'free') {
+  if (nextSlots?.now && nextSlots.now.status === 'free') {
     return 'declinedCall'
   }
 

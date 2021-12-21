@@ -1,0 +1,60 @@
+name: Firebase CI dev
+on:
+  push:
+    branches: [ qa ]
+  pull_request:
+    branches: [ qa ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Create env file
+      run: |
+        touch .env
+        echo REACT_APP_FIREBASE_PROJECT=${{ secrets.REACT_APP_FIREBASE_PROJECT }} >> .env
+        echo REACT_APP_FIREBASE_APIKEY=${{ secrets.REACT_APP_FIREBASE_APIKEY }} >> .env
+        echo REACT_APP_FIREBASE_APP_ID=${{ secrets.REACT_APP_FIREBASE_APP_ID }} >> .env
+        echo REACT_APP_FIREBASE_MEASUREMENT_ID=${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }} >> .env
+        cat .env
+    - name: yarn install and build
+      run: |
+        yarn install
+        yarn build:qa
+      env:
+        REACT_APP_FIREBASE_PROJECT: ${{ secrets.REACT_APP_FIREBASE_PROJECT }}
+        REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY }}
+        REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
+        REACT_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }}
+    - name: Archive Build
+      uses: actions/upload-artifact@v2
+      with:
+        name: build
+        path: build
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Build
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: build
+      - name: Depoy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting --project venturesurfdev
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
