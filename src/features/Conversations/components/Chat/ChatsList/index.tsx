@@ -1,6 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import { useDispatch, useSelector } from 'react-redux'
+import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 import { actions } from '../../../actions'
 import { getChats, getOpenedChat } from '../../../selectors'
@@ -17,7 +18,7 @@ export const ChatsList = () => {
       <div className={styles.headerContainer} />
       <div className={styles.listContainer}>
         {Object.values(chats).map(({
-          name, photoUrl, messages, missedMessages, chat
+          name, photoUrl, photoBase64, messages, missedMessages, chat
         }) => {
           const activeClassName = chat === openedChat ? styles.activeDialog : ''
 
@@ -41,8 +42,8 @@ export const ChatsList = () => {
               key={chat}
             >
               <div className={styles.imgContainer}>
-                {photoUrl
-                  ? <img className={styles.photo} src={photoUrl} alt={name} />
+                {photoUrl || photoBase64
+                  ? <img className={styles.photo} src={getImageSrcFromBase64(photoBase64, photoUrl)} alt={name} />
                   : <div className={styles.noPhoto}><UserIcon /></div>}
               </div>
               <div className={styles.bodyContainer}>

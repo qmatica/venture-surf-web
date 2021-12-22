@@ -4,6 +4,7 @@ import React, {
 import { UserPhotoIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { getFirebase } from 'react-redux-firebase'
+import { getImageSrcFromBase64 } from 'common/utils'
 import { AuthUserType } from 'common/types'
 import { ProfileType } from '../../types'
 import { profileAPI } from '../../../../api'
@@ -18,7 +19,7 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
   const inputFile = useRef<HTMLInputElement | null>(null)
 
   const onToggleEdit = () => {
-    if (!profile.photoURL) {
+    if (!profile.photoURL && !profile.photoBase64) {
       inputFile.current?.click()
       return
     }
@@ -62,8 +63,8 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
   return (
     <>
       <div className={styles.photoContainer} onClick={onToggleEdit}>
-        {profile.photoURL
-          ? <img src={profile.photoURL} alt={`${profile.first_name} ${profile.last_name}`} />
+        {profile.photoURL || profile.photoBase64
+          ? <img src={getImageSrcFromBase64(profile.photoBase64, profile.photoURL)} alt={`${profile.first_name} ${profile.last_name}`} />
           : <UserPhotoIcon />}
       </div>
       <input

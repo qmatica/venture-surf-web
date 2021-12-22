@@ -6,6 +6,7 @@ import { CloseIcon, UserPhotoIcon } from 'common/icons'
 import phoneEnd from 'common/images/phoneEnd.png'
 import phoneStart from 'common/images/phoneStart.png'
 import videoStart from 'common/images/videoStart.png'
+import { getImageSrcFromBase64 } from 'common/utils'
 // @ts-ignore
 import incomingCallAudio from 'common/audio/incomingCall.mp3'
 import { connect, ConnectOptions } from 'twilio-video'
@@ -99,7 +100,9 @@ export const Notifications = () => {
               <div className={styles.msg} key={`notificationsMsgs-${msg.sid}`}>
                 <div onClick={() => viewMessage(user.chat, msg.sid)}>
                   <div className={styles.photoContainer}>
-                    {user.photoURL ? <img src={user.photoURL} alt={userName} /> : <UserPhotoIcon />}
+                    {user.photoURL || user.photoBase64
+                      ? <img src={getImageSrcFromBase64(user.photoBase64, user.photoURL)} alt={userName} />
+                      : <UserPhotoIcon />}
                   </div>
                   <div className={styles.contentContainer}>
                     <div className={styles.displayName}>{userName}</div>
@@ -117,7 +120,9 @@ export const Notifications = () => {
               <div className={styles.msg} key={`notificationsContacts-${uidMsg}`}>
                 <div>
                   <div className={styles.photoContainer}>
-                    {user.photoURL ? <img src={user.photoURL} alt={userName} /> : <UserPhotoIcon />}
+                    {user.photoURL || user.photoBase64
+                      ? <img src={getImageSrcFromBase64(user.photoBase64, user.photoURL)} alt={userName} />
+                      : <UserPhotoIcon />}
                   </div>
                   <div className={styles.contentContainer}>
                     <div className={styles.displayName}>{userName}</div>

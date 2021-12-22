@@ -5,6 +5,7 @@ import { getProfile } from 'features/Profile/selectors'
 import { ProfileType } from 'features/Profile/types'
 import { UserPhotoIcon } from 'common/icons'
 import { Button } from 'common/components/Button'
+import { getImageSrcFromBase64 } from 'common/utils'
 import { getRequestedInvestments, getSurfRecommendedUsers, getSurfUsers } from './selectors'
 import styles from './styles.module.sass'
 import { acceptInvest, deleteInvest } from './actions'
@@ -45,14 +46,17 @@ export const Surf = () => {
             if (!user) return null
 
             const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-            const { photoURL } = user
+            // TODO: Remove photoURL usage, when photoBase64 comes from backend side.
+            const { photoURL, photoBase64 } = user
             const list = `${profile.activeRole === 'founder' ? 'investments' : 'investors'} list`
 
             return (
               <div className={styles.invContainer}>
                 <div className={styles.userContainer}>
                   <div className={styles.photoContainer}>
-                    {photoURL ? <img src={photoURL} alt={name} /> : <UserPhotoIcon />}
+                    {photoURL || photoBase64
+                      ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={name} />
+                      : <UserPhotoIcon />}
                   </div>
                   <div className={styles.textContainer}>
                     <div className={styles.name}>{name}</div>
