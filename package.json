@@ -62,7 +62,7 @@
     "esbuild-plugin-babel": "^0.2.3",
     "eslint-config-airbnb": "^18.2.1",
     "node-sass": "^5.0.0",
-    "pre-commit": "^1.2.2"
+    "pre-commit": "1.2.2"
   },
   "scripts": {
     "start": "react-scripts start",
