@@ -3,13 +3,14 @@ import { Modal } from 'features/Modal'
 import React, { createRef, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
+import { actions as profileActions, declineCall } from 'features/Profile/actions'
 import { Button } from 'common/components/Button'
-// import { declineCall } from 'features/Profile/actions'
 import { Participant } from './components/Participant'
+import { actions } from './actions'
 import styles from './styles.module.sass'
 
 export const VideoChat = () => {
-  const { room } = useSelector((state: RootState) => state.videoChat)
+  const { room, remoteUserUid, viewEndCallAll } = useSelector((state: RootState) => state.videoChat)
   const dispatch = useDispatch()
   const videoContainerRef = createRef<HTMLDivElement>()
 
@@ -23,7 +24,9 @@ export const VideoChat = () => {
     room?.disconnect()
   }
 
-  // const endCall = () => dispatch(declineCall())
+  // const endCallAll = () => {
+  //   if (remoteUserUid) dispatch(declineCall(remoteUserUid))
+  // }
 
   const participantConnected = (participant: ParticipantType) => {
     if (!heightContainer) {
@@ -70,6 +73,14 @@ export const VideoChat = () => {
     }
   }, [participants])
 
+  useEffect(() => {
+    if (!isOpenModal) {
+      dispatch(actions.reset())
+      dispatch(profileActions.updateMySlots('del', 'now'))
+      setParticipants([])
+    }
+  }, [isOpenModal])
+
   const remoteParticipants = participants.map((participant) => (
     <Participant key={participant.sid} participant={participant} />
   ))
@@ -91,7 +102,9 @@ export const VideoChat = () => {
           style={styleLocalParticipant}
         />
         {remoteParticipants}
-        {/*<Button title="End call" className={styles.button} onClick={endCall} />*/}
+        {/*{viewEndCallAll && (*/}
+        {/*  <Button title="End call for all" className={styles.button} onClick={endCallAll} />*/}
+        {/*)}*/}
       </div>
     </Modal>
   )

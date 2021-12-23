@@ -18,10 +18,18 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Create env file
+      run: |
+        touch .env
+        echo REACT_APP_FIREBASE_PROJECT=${{ secrets.REACT_APP_FIREBASE_PROJECT }} >> .env
+        echo REACT_APP_FIREBASE_APIKEY=${{ secrets.REACT_APP_FIREBASE_APIKEY }} >> .env
+        echo REACT_APP_FIREBASE_APP_ID=${{ secrets.REACT_APP_FIREBASE_APP_ID }} >> .env
+        echo REACT_APP_FIREBASE_MEASUREMENT_ID=${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }} >> .env
+        cat .env
     - name: yarn install and build
       run: |
         yarn install
-        yarn build
+        yarn build:dev
       env:
         REACT_APP_FIREBASE_PROJECT: ${{ secrets.REACT_APP_FIREBASE_PROJECT }}
         REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY }}
