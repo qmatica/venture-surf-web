@@ -24,6 +24,7 @@ export type ProfileType = {
     phoneNumber: string
     zoomID: string
     photoURL: string
+    photoBase64: string
     activeRole: 'founder' | 'investor'
     tags: string[]
     liked: UsersType

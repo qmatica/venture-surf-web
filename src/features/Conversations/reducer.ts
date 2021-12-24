@@ -29,6 +29,7 @@ export const ConversationsReducer = (state = initialState, action: ActionTypes):
             chat: action.payload.chat,
             name: action.payload.name,
             photoUrl: action.payload.photoUrl,
+            photoBase64: action.payload.photoBase64,
             messages: [],
             missedMessages: 0,
             conversation: action.payload.conversation
