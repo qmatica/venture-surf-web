@@ -38,19 +38,29 @@ const prepareContact = (contact: UserType, key: string) => ({
   uid: key
 })
 
-export const compareNowSlot = (prevSlots: SlotsType, nextSlots: SlotsType) => {
+export const compareNowSlot = (
+  prevSlots: SlotsType,
+  nextSlots: SlotsType,
+  updateSlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => void
+) => {
+  if (prevSlots?.now !== nextSlots?.now) {
+    updateSlots('add', { now: nextSlots.now })
+  }
   if (nextSlots?.now && nextSlots.now.status === 'proposed') {
-    const { uid } = nextSlots.now
-    if (nextSlots.now.twilio) {
-      const { room, token, made } = nextSlots.now.twilio
+    if (prevSlots?.now?.uid !== nextSlots?.now.uid) {
+      const { uid } = nextSlots.now
+      if (nextSlots.now.twilio) {
+        const { room, token, made } = nextSlots.now.twilio
 
-      return {
-        made, room, token, uid
+        return {
+          made, room, token, uid
+        }
       }
     }
   }
 
   if (nextSlots?.now && nextSlots.now.status === 'free') {
+    updateSlots('del', 'now')
     return 'declinedCall'
   }
 
