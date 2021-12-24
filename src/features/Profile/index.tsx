@@ -8,8 +8,8 @@ import { Tabs } from 'common/components/Tabs'
 import { match } from 'react-router-dom'
 import { Preloader } from 'common/components/Preloader'
 import { Deck } from './components/Tabs/Deck'
-import { Info } from './components/Tabs/Info'
-import { Video } from './components/Tabs/Video'
+import { About } from './components/Tabs/About'
+import { Videos } from './components/Tabs/Videos'
 import { Job } from './components/Job'
 import { SwitchRoles } from './components/SwitchRoles'
 import { Avatar } from './components/Avatar'
@@ -23,8 +23,8 @@ interface IProfile {
 }
 
 const tabs = [
-  { title: 'Info', Component: Info },
-  { title: 'Video', Component: Video },
+  { title: 'About', Component: About },
+  { title: 'Videos', Component: Videos },
   { title: 'Deck', Component: Deck }
 ]
 

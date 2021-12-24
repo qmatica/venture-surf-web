@@ -10,12 +10,12 @@ import { industries, stages } from 'common/constants'
 import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 
-interface IInfo {
+interface IAbout {
     profile: ProfileType
     isEdit: boolean
 }
 
-export const Info: FC<IInfo> = ({ profile, isEdit }) => {
+export const About: FC<IAbout> = ({ profile, isEdit }) => {
   const dispatch = useDispatch()
   const updateProfile = useCallback((field: string) => (value: any) => {
     dispatch(updateMyProfile({ [field]: value }))
@@ -27,7 +27,7 @@ export const Info: FC<IInfo> = ({ profile, isEdit }) => {
   return (
     <div className={styles.container}>
       {profile.about && (
-        <div className={styles.infoContainer}>
+        <div className={styles.aboutContainer}>
           <div className={styles.title}>About me</div>
           <div className={styles.content}>{profile.about}</div>
         </div>
@@ -67,7 +67,7 @@ const Interaction: FC<IInteraction> = ({ profile }) => {
   if (!profileInteraction.value) return null
 
   return (
-    <div className={styles.infoContainer}>
+    <div className={styles.aboutContainer}>
       <div className={styles.title}>
         {profileInteraction.title}
       </div>
