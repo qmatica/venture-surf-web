@@ -34,12 +34,9 @@ export const Layout: FC<ILayout> = ({ children }) => {
   return (
     <div className={styles.wrapper}>
       <Header />
-      <div className={styles.contentWrapper}>
-        <LeftNavbar />
-        <div className={styles.mainContent}>
-          <div className={styles.container} style={style}>
-            {children}
-          </div>
+      <div className={styles.wrapper} style={{ padding: '0 20px', marginBottom: '30px' }}>
+        <div className={styles.container} style={style}>
+          {children}
         </div>
       </div>
       <VideoChat />
