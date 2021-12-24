@@ -66,7 +66,10 @@ export const Profile: FC<IProfile> = ({ match }) => {
   const job = {
     company: profile[profile.activeRole]?.job?.company,
     title: profile[profile.activeRole]?.job?.title,
-    headline: profile[profile.activeRole]?.job?.headline
+    headline: profile[profile.activeRole]?.job?.headline,
+    email: profile[profile.activeRole]?.job?.email,
+    web: profile[profile.activeRole]?.job?.web,
+    logoCompany: profile[profile.activeRole]?.job?.logoCompany
   }
 
   const name = profile.displayName || `${profile.first_name} ${profile.last_name}`
@@ -80,14 +83,20 @@ export const Profile: FC<IProfile> = ({ match }) => {
     <div className={styles.wrapper}>
       <div className={styles.headerContainer}>
         <div className={styles.aboutProfileContainer}>
-          <Avatar profile={profile} />
-          <div className={styles.infoContainer}>
-            <div className={styles.displayName}>{name}</div>
-            <Job job={job} isEdit={!otherProfile} />
+          <div>
+            <Avatar profile={profile} />
+            <div className={styles.infoContainer}>
+              <div className={styles.displayName}>{name}</div>
+              <div className={styles.titleAndCompanyJob}>
+                {job.title} {job.company && `at ${job.company}`}
+              </div>
+              <div className={styles.email}>{job.email}</div>
+            </div>
           </div>
+          <Job job={job} isEdit={!otherProfile} />
         </div>
-        <SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isEdit={!otherProfile} />
-        <ShareLinkProfile isEdit={!otherProfile} />
+        {/*<SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isEdit={!otherProfile} />*/}
+        {/*<ShareLinkProfile isEdit={!otherProfile} />*/}
       </div>
       <Tabs tabs={tabs} activeTab={tab} onChange={setTab} />
       <div>

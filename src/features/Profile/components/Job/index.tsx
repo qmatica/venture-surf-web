@@ -45,32 +45,31 @@ export const Job = ({ job, isEdit }: { job: JobType, isEdit: boolean }) => {
       ) : (
         <>
           <div className={styles.fields}>
-            {job.company && <div className={styles.company}>{job.company}</div>}
-            {job.title && <div className={styles.title}>{job.title}</div>}
+            {job.logoCompany && (
+              <div className={styles.logoCompanyCompany}>
+                <img src={job.logoCompany} alt="logo company" />
+              </div>
+            )}
             {job.headline && <div className={styles.headline}>{job.headline}</div>}
+            {job.web && <a href={job.web}>Visit Website</a>}
           </div>
-          {isEdit && (
-            <div className={styles.edit} onClick={toggleModal}>
-              <Button title="Edit" icon="edit" />
-            </div>
-          )}
         </>
       )}
-      <Modal title={titleModal} onClose={toggleModal} isOpen={isOpenModal}>
-        <form onSubmit={save}>
-          <div className={styles.formJobContainer}>
-            <div className={styles.inputs}>
-              <Input name="company" placeholder="Type company" title="Company" initialValue={job.company} />
-              <Input name="title" placeholder="Type title" title="Title" initialValue={job.title} />
-              <Input name="headline" placeholder="Type headline" title="Headline" initialValue={job.headline} />
-            </div>
-            <div className={styles.buttons}>
-              <Button title="Save" type="submit" isLoading={isLoading} />
-              <Button title="Close" onClick={toggleModal} />
-            </div>
-          </div>
-        </form>
-      </Modal>
+      {/*<Modal title={titleModal} onClose={toggleModal} isOpen={isOpenModal}>*/}
+      {/*  <form onSubmit={save}>*/}
+      {/*    <div className={styles.formJobContainer}>*/}
+      {/*      <div className={styles.inputs}>*/}
+      {/*        <Input name="company" placeholder="Type company" title="Company" initialValue={job.company} />*/}
+      {/*        <Input name="title" placeholder="Type title" title="Title" initialValue={job.title} />*/}
+      {/*        <Input name="headline" placeholder="Type headline" title="Headline" initialValue={job.headline} />*/}
+      {/*      </div>*/}
+      {/*      <div className={styles.buttons}>*/}
+      {/*        <Button title="Save" type="submit" isLoading={isLoading} />*/}
+      {/*        <Button title="Close" onClick={toggleModal} />*/}
+      {/*      </div>*/}
+      {/*    </div>*/}
+      {/*  </form>*/}
+      {/*</Modal>*/}
     </div>
   )
 }

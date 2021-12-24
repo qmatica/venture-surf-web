@@ -87,8 +87,9 @@ export type JobType = {
     company?: string
     title?: string
     headline?: string
-    web?: string,
+    web?: string
     email?: string
+    logoCompany?: string
 }
 
 export type SlotsType = {
