@@ -261,8 +261,8 @@ export const MailIconMin = () => (
 )
 
 export const ArrowBottomIcon = () => (
-  <svg width="13" height="8" viewBox="0 0 13 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1 1L6.5 6L12 1" stroke="#A7A7A7" strokeWidth="2" />
+  <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fillRule="evenodd" clipRule="evenodd" d="M0.349684 0.266402C0.105607 0.510479 0.105607 0.906208 0.349684 1.15029L5.55802 6.35862C5.8021 6.6027 6.19782 6.6027 6.4419 6.35862L11.6502 1.15029C11.8943 0.906208 11.8943 0.510479 11.6502 0.266402C11.4062 0.0223241 11.0104 0.0223241 10.7664 0.266402L5.99996 5.03279L1.23357 0.266402C0.98949 0.0223241 0.593762 0.0223241 0.349684 0.266402Z" fill="#1557FF" />
   </svg>
 )
 

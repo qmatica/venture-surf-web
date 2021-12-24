@@ -86,6 +86,12 @@ export const Profile: FC<IProfile> = ({ match }) => {
           <div>
             <Avatar profile={profile} />
             <div className={styles.infoContainer}>
+              <SwitchRoles
+                activeRole={profile.activeRole}
+                createdRoles={createdRoles}
+                isEdit={!otherProfile}
+                roles={profile.roles}
+              />
               <div className={styles.displayName}>{name}</div>
               <div className={styles.titleAndCompanyJob}>
                 {job.title} {job.company && `at ${job.company}`}
