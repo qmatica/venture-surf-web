@@ -1,4 +1,5 @@
 import React, { FC, useRef, useState } from 'react'
+import cn from 'classnames'
 import { ArrowBottomIcon, PreloaderIcon } from 'common/icons'
 import { useOutside } from 'common/hooks'
 import styles from './styles.module.sass'
@@ -29,7 +30,7 @@ export const Dropdown: FC<IDropdown> = ({
   return (
     <div className={styles.dropdownWrapper} ref={DropdownRef}>
       <div
-        className={`${styles.dropdownSelectedItem} ${isMenuOpen && styles.dropdownExpanded}`}
+        className={cn(styles.dropdownSelectedItem, isMenuOpen && styles.dropdownExpanded)}
         onClick={() => !disabled && setIsMenuOpen(!isMenuOpen)}
       >
         {isLoading
@@ -40,6 +41,7 @@ export const Dropdown: FC<IDropdown> = ({
         <div className={styles.dropdownMenu}>
           {options?.filter((option) => option !== selectedOption).map((option) => (
             <div
+              key={option}
               className={styles.dropdownMenuItem}
               onClick={(e) => {
                 onClick(e)

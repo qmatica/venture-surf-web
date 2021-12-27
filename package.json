@@ -74,7 +74,7 @@
     "eject": "react-scripts eject",
     "lint": "npx eslint './**/*.ts*'  -c ./.eslintrc.js",
     "lint:fix": "npx eslint './**/*.ts*' -c ./.eslintrc.js  --fix",
-    "lint:diff": "eslint $(git diff --name-only HEAD '*.ts' '*.tsx' | xargs) -c ./.eslintrc.js"
+    "lint:diff": "eslint $(git diff --name-only HEAD '*.ts' '*.tsx' | xargs) --no-error-on-unmatched-pattern -c ./.eslintrc.js"
   },
   "eslintConfig": {
     "extends": [

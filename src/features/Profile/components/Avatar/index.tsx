@@ -1,12 +1,16 @@
 import React, {
   ChangeEvent, FC, useRef, useState
 } from 'react'
+import { useDispatch } from 'react-redux'
 import { UserPhotoIcon, PreloaderIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { getFirebase } from 'react-redux-firebase'
 import { getImageSrcFromBase64 } from 'common/utils'
 import { AuthUserType } from 'common/types'
 import { Button } from 'common/components/Button'
+import {
+  actions as actionsNotifications
+} from 'features/Notifications/actions'
 import { ProfileType } from '../../types'
 import { profileAPI } from '../../../../api'
 import styles from './styles.module.sass'
@@ -16,6 +20,7 @@ interface IAvatar {
 }
 
 export const Avatar: FC<IAvatar> = ({ profile }) => {
+  const dispatch = useDispatch()
   const [isEdit, setIsEdit] = useState(false)
   const [photoUrl, setPhotoUrl] = useState(profile?.photoURL)
   const [isLoading, setIsLoading] = useState(false)
@@ -43,9 +48,14 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
     }
     const file = e.target.files[0]
     setIsLoading(true)
-    const res = await profileAPI.updateProfilePhoto(file)
-    setPhotoUrl(res.photoURL)
-    setIsLoading(false)
+    try {
+      const res = await profileAPI.updateProfilePhoto(file)
+      setPhotoUrl(res.photoURL)
+    } catch (err) {
+      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

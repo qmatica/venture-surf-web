@@ -49,6 +49,7 @@ export const DropDownButton: FC<IDropDownButton> = ({ icon, list, isActive }) =>
             if (el.url) {
               return (
                 <NavLink
+                  key={el.url}
                   to={el.url}
                   title="Profile"
                   activeClassName={styles.active}
@@ -61,7 +62,7 @@ export const DropDownButton: FC<IDropDownButton> = ({ icon, list, isActive }) =>
               )
             }
             return (
-              <div onClick={el.onClick}>
+              <div onClick={el.onClick} key={el.url}>
                 <div className={styles.icon}>
                   {el.isLoading ? <PreloaderIcon stroke="#ccd5e4" /> : el.icon}
                 </div>
