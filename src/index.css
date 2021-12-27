@@ -22,3 +22,13 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'Roboto Medium';
+  src: url('./common/fonts/Roboto/Roboto-Medium.eot');
+  src: url('./common/fonts/Roboto/Roboto-Medium.eot?#iefix') format('embedded-opentype'),
+  url('./common/fonts/Roboto/Roboto-Medium.woff') format('woff'),
+  url('./common/fonts/Roboto/Roboto-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

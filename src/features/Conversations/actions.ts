@@ -17,13 +17,14 @@ export const actions = {
     chat: string,
     name: string,
     photoUrl: string,
+    photoBase64: string,
     conversation: Conversation.Conversation,
     messages: (Message | MessageType)[]
   ) => (
     {
       type: 'CONVERSATIONS__ADD_CHAT',
       payload: {
-        chat, name, photoUrl, conversation, messages
+        chat, name, photoUrl, photoBase64, conversation, messages
       }
     } as const
   ),
@@ -52,13 +53,14 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       const chats: ChatType = {}
 
       Object.values(profile.mutuals).forEach(({
-        chat, name, displayName, first_name, last_name, photoURL
+        chat, name, displayName, first_name, last_name, photoURL, photoBase64
       }) => {
         if (chat) {
           chats[chat] = {
             chat,
             name: name || displayName || `${first_name} ${last_name}`,
             photoUrl: photoURL,
+            photoBase64,
             messages: [],
             missedMessages: 0
           }

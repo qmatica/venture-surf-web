@@ -6,14 +6,15 @@ import { UserPhotoIcon } from 'common/icons'
 import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { determineJobWithoutActiveRole } from 'common/typeGuards'
+import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
 
 interface IBody {
-    user: UserType
-    rightSide?: React.ReactElement
-    typeUser: 'mutuals' | 'received' | 'sent' | 'surf'
-    isRecommended: boolean
+  user: UserType
+  rightSide?: React.ReactElement
+  typeUser: 'mutuals' | 'received' | 'sent' | 'surf'
+  isRecommended: boolean
 }
 
 export const Body: FC<IBody> = ({
@@ -27,7 +28,7 @@ export const Body: FC<IBody> = ({
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
   const {
-    uid, photoURL, job, loading, clickedAction, activeRole
+    uid, photoURL, photoBase64, job, loading, clickedAction, activeRole
   } = user
 
   const getButtons = () => {
@@ -135,7 +136,9 @@ export const Body: FC<IBody> = ({
     <div className={styles.container}>
       <Link to={`/profile/${user.uid}`}>
         <div className={styles.imgContainer}>
-          {photoURL ? <img src={photoURL} alt="" /> : <UserPhotoIcon />}
+          {photoURL || photoBase64
+            ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt="" />
+            : <UserPhotoIcon />}
         </div>
       </Link>
       <div className={styles.infoContainer}>

@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import ReactTooltip from 'react-tooltip'
 import { Redirect } from 'react-router-dom'
+import { getImageSrcFromBase64 } from 'common/utils'
 import { Accordion } from './components/Accordion'
 import styles from './styles.module.sass'
 
@@ -47,8 +48,8 @@ export const Admin = () => {
         accessor: 'photoURL',
         Cell: ({ row }: any) => (
           <div className={styles.photoContainer}>
-            {row.values.photoURL
-              ? <img src={row.values.photoURL} alt={row.values.uid} />
+            {row.values.photoURL || row.values.photoBase64
+              ? <img src={getImageSrcFromBase64(row.values.photoBase64, row.values.photoURL)} alt={row.values.uid} />
               : <UserIcon />}
           </div>
         )
@@ -106,6 +107,7 @@ export const Admin = () => {
           <div className={styles.contactsContainer}>
             {row.values.mutuals && Object.entries(row.values.mutuals).map(([key, value]: any) => (
               <div
+                key={key}
                 className={styles.contact}
                 onClick={() => copyInBuffer('uid', key)}
                 data-tip="copy uid"
@@ -113,7 +115,9 @@ export const Admin = () => {
                 data-effect="solid"
               >
                 <div className={styles.minPhotoContainer}>
-                  {value.photoURL ? <img src={value.photoURL} alt={key} /> : <UserIcon />}
+                  {value.photoURL || value.photoBase64
+                    ? <img src={getImageSrcFromBase64(value.photoBase64, value.photoURL)} alt={key} />
+                    : <UserIcon />}
                 </div>
                 <div>{value.displayName}</div>
               </div>
@@ -129,6 +133,7 @@ export const Admin = () => {
           <div className={styles.contactsContainer}>
             {row.values.likes && Object.entries(row.values.likes).map(([key, value]: any) => (
               <div
+                key={key}
                 className={styles.contact}
                 onClick={() => copyInBuffer('uid', key)}
                 data-tip="copy uid"
@@ -136,7 +141,9 @@ export const Admin = () => {
                 data-effect="solid"
               >
                 <div className={styles.minPhotoContainer}>
-                  {value.photoURL ? <img src={value.photoURL} alt={key} /> : <UserIcon />}
+                  {value.photoURL || value.photoBase64
+                    ? <img src={getImageSrcFromBase64(value.photoBase64, value.photoURL)} alt={key} />
+                    : <UserIcon />}
                 </div>
                 <div>{value.displayName}</div>
               </div>
@@ -152,6 +159,7 @@ export const Admin = () => {
           <div className={styles.contactsContainer}>
             {row.values.liked && Object.entries(row.values.liked).map(([key, value]: any) => (
               <div
+                key={key}
                 className={styles.contact}
                 onClick={() => copyInBuffer('uid', key)}
                 data-tip="copy uid"
@@ -159,7 +167,9 @@ export const Admin = () => {
                 data-effect="solid"
               >
                 <div className={styles.minPhotoContainer}>
-                  {value.photoURL ? <img src={value.photoURL} alt={key} /> : <UserIcon />}
+                  {value.photoURL || value.photoBase64
+                    ? <img src={getImageSrcFromBase64(value.photoBase64, value.photoURL)} alt={key} />
+                    : <UserIcon />}
                 </div>
                 <div>{value.displayName}</div>
               </div>
@@ -190,7 +200,7 @@ export const Admin = () => {
         Cell: ({ row }: any) => (
           <div className={styles.interactionsContainer}>
             {row.values.investors && Object.entries(row.values.investors).map(([key, value]: any) => (
-              <div className={styles.interactionContainer}>
+              <div key={key} className={styles.interactionContainer}>
                 <div>{key}</div>
                 <div className={styles.status}>{value.status}</div>
               </div>
@@ -205,7 +215,7 @@ export const Admin = () => {
         Cell: ({ row }: any) => (
           <div className={styles.interactionsContainer}>
             {row.values.investments && Object.entries(row.values.investments).map(([key, value]: any) => (
-              <div className={styles.interactionContainer}>
+              <div key={key} className={styles.interactionContainer}>
                 <div>{key}</div>
                 <div className={styles.status}>{value.status}</div>
               </div>
@@ -220,7 +230,7 @@ export const Admin = () => {
         Cell: ({ row }: any) => (
           <div className={styles.slotsContainer}>
             {row.values.slots && Object.entries(row.values.slots).map(([key, value]: any) => (
-              <div className={styles.slotContainer}>
+              <div key={key} className={styles.slotContainer}>
                 <div>{key}</div>
                 <div className={styles.status}>{value.status}</div>
               </div>
@@ -293,6 +303,7 @@ export const Admin = () => {
           <div className={styles.devicesContainer}>
             {row.values.devices && Object.entries(row.values.devices).map(([key, value]: any) => (
               <Accordion
+                key={key}
                 title={value.os}
                 values={[
                   {
@@ -377,9 +388,9 @@ export const Admin = () => {
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>
+                <th {...column.getHeaderProps()} key={column.id}>
                   {column.render('Header')}
                 </th>
               ))}
@@ -391,10 +402,10 @@ export const Admin = () => {
             const className = row.original.props?.withError ? styles.errorRow : styles.default
             prepareRow(row)
             return (
-              <tr className={className} {...row.getRowProps()}>
+              <tr className={className} {...row.getRowProps()} key={row.id}>
                 {row.cells.map((cell) =>
                   (
-                    <td {...cell.getCellProps()}>
+                    <td {...cell.getCellProps()} key={cell.value}>
                       {cell.render('Cell')}
                     </td>
                   ))}

@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from 'react'
 import { Button } from 'common/components/Button'
+import { Dropdown } from 'common/components/Dropdown'
 import { Modal } from 'features/Modal'
 import { Input } from 'common/components/Input'
 import { industries as dictionaryIndustries, stages as dictionaryStages } from 'common/constants'
@@ -15,9 +16,12 @@ interface ISwitchRoles {
     investor: boolean
   }
   isEdit: boolean
+  roles: string[]
 }
 
-export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles, isEdit }) => {
+export const SwitchRoles: FC<ISwitchRoles> = ({
+  activeRole, createdRoles, isEdit, roles
+}) => {
   const dispatch = useDispatch()
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [step, setStep] = useState(1)
@@ -81,21 +85,12 @@ export const SwitchRoles: FC<ISwitchRoles> = ({ activeRole, createdRoles, isEdit
   return (
     <>
       <div className={styles.container}>
-        {createdRoles.founder ? (
-          <Button
-            title="Founder"
-            className={activeRole !== 'founder' ? styles.default : styles.active}
-            onClick={() => switchCurrentRole('founder')}
-            isLoading={isLoadingSwitchRole === 'founder'}
-            disabled={!!isLoadingSwitchRole || !isEdit}
-          />
-        ) : isEdit && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
-        {createdRoles.investor ? (
-          <Button
-            title="Investor"
-            className={activeRole !== 'investor' ? styles.default : styles.active}
+        {createdRoles.founder || createdRoles.investor ? (
+          <Dropdown
+            title={activeRole}
             onClick={() => switchCurrentRole('investor')}
-            isLoading={isLoadingSwitchRole === 'investor'}
+            isLoading={['investor', 'founder'].includes(isLoadingSwitchRole as string)}
+            options={isEdit ? roles : []}
             disabled={!!isLoadingSwitchRole || !isEdit}
           />
         ) : isEdit && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}

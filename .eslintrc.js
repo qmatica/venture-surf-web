@@ -55,7 +55,8 @@ module.exports = {
     'react/no-array-index-key': 'off',
     'react/button-has-type': 'off',
     'implicit-arrow-linebreak': 'off',
-    'operator-linebreak': 'off'
+    'operator-linebreak': 'off',
+    'react/jsx-key': 'error'
   },
   overrides: [
     {

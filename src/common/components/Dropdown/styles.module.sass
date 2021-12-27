@@ -1,0 +1,42 @@
+@mixin commonFontStyles
+  font-family: "Roboto", sans-serif
+  font-size: 16px
+  line-height: 20px
+  color: #1557FF
+
+.dropdownSelectedItem
+  @include commonFontStyles
+  display: inline-flex
+  grid-gap: 14px
+  align-items: center
+  height: 40px
+  border: 0
+  border-radius: 16px
+  cursor: pointer
+  transition: 0.2s
+  background: #E2EAFF
+  padding: 10px 16px
+  text-transform: capitalize
+.dropdownWrapper
+  position: relative
+.dropdownMenu
+  position: absolute
+  background: #FFFFFF
+  width: 100%
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.17)
+  border-radius: 0 0 16px 16px
+  overflow: hidden
+.dropdownMenuItem
+  @include commonFontStyles
+  padding: 10px
+  text-transform: capitalize
+  text-align: center
+  cursor: pointer
+  transition: 0.1s
+  &:hover
+    background: #f4f7fa
+.dropdownExpanded
+  border-radius: 16px 16px 0 0
+  > svg
+    transform: rotate(-90deg)
+    transition: 0.2s

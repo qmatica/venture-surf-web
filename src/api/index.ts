@@ -54,16 +54,15 @@ export const profileAPI = {
     return instance.post('/api/video/delete', { title }).then((res) => res.status)
   },
   updateProfilePhoto(file: File) {
-    const data = new FormData()
-    data.append('fileName', file)
+    const body = new FormData()
+    body.append('fileName', file)
 
-    return instance.post('/api/user/photo', null, {
+    return instance.post('/api/user/photo', body, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Accept: 'application/json',
         type: 'formData'
-      },
-      body: data
+      }
     } as any).then((res) => res.data)
   },
   uploadDoc(title: string, file: File) {

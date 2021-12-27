@@ -69,3 +69,6 @@ export const setCharAt = (str: string, index: number, chr: string) => {
   if (index > str.length - 1) return str
   return str.substring(0, index) + chr + str.substring(index + chr.length)
 }
+
+export const getImageSrcFromBase64 = (base64: string, photoUrl: string) =>
+  (base64 ? `data:image/*;base64,${base64}` : photoUrl)

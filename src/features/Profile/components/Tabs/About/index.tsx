@@ -7,14 +7,15 @@ import { Tags } from 'common/components/Tags'
 import { useDispatch } from 'react-redux'
 import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
+import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 
-interface IInfo {
+interface IAbout {
     profile: ProfileType
     isEdit: boolean
 }
 
-export const Info: FC<IInfo> = ({ profile, isEdit }) => {
+export const About: FC<IAbout> = ({ profile, isEdit }) => {
   const dispatch = useDispatch()
   const updateProfile = useCallback((field: string) => (value: any) => {
     dispatch(updateMyProfile({ [field]: value }))
@@ -26,7 +27,7 @@ export const Info: FC<IInfo> = ({ profile, isEdit }) => {
   return (
     <div className={styles.container}>
       {profile.about && (
-        <div className={styles.infoContainer}>
+        <div className={styles.aboutContainer}>
           <div className={styles.title}>About me</div>
           <div className={styles.content}>{profile.about}</div>
         </div>
@@ -66,7 +67,7 @@ const Interaction: FC<IInteraction> = ({ profile }) => {
   if (!profileInteraction.value) return null
 
   return (
-    <div className={styles.infoContainer}>
+    <div className={styles.aboutContainer}>
       <div className={styles.title}>
         {profileInteraction.title}
       </div>
@@ -78,13 +79,15 @@ const Interaction: FC<IInteraction> = ({ profile }) => {
             if (!user) return null
 
             const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-            const photoUrl = user.photoURL
+            const { photoURL, photoBase64 } = user
 
             return (
               <div className={styles.userContainer} key={uid}>
                 <Link to={`/profile/${uid}`}>
                   <div className={styles.photoContainer}>
-                    {photoUrl ? <img src={photoUrl} alt={name} /> : <UserIcon />}
+                    {photoURL || photoBase64
+                      ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={name} />
+                      : <UserIcon />}
                   </div>
                 </Link>
                 <Link to={`/profile/${uid}`}>

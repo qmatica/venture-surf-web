@@ -15,6 +15,7 @@ export type ChatType = {
     chat: string
     name: string
     photoUrl: string
+    photoBase64: string
     messages: (Message | MessageType)[]
     missedMessages: number
     conversation?: Conversation.Conversation

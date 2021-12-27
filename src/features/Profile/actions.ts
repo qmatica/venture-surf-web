@@ -305,7 +305,14 @@ const compareChats = (prevMutuals: UsersType, nextMutuals: UsersType): ThunkType
         const messages = await conv.getMessages()
 
         if (user && user.chat) {
-          dispatch(actionsConversations.addChat(user.chat, userName, user.photoURL, conv, messages.items))
+          dispatch(actionsConversations.addChat(
+            user.chat,
+            userName,
+            user.photoURL,
+            user.photoBase64,
+            conv,
+            messages.items
+          ))
         }
 
         dispatch(listenMessages(conv, conv.sid))
@@ -385,7 +392,10 @@ export const showNotification =
       }
     }
 
-export const updateMyProfile = (value: { [key: string]: any }): ThunkType => async (dispatch, getState) => {
+export const updateMyProfile = (
+  value: { [key: string]: any },
+  onFinish?: () => void
+): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
   if (profile) {
     let status
@@ -416,6 +426,8 @@ export const updateMyProfile = (value: { [key: string]: any }): ThunkType => asy
 
       dispatch(actions.setMyProfile(updatedProfile))
     }
+
+    if (onFinish) onFinish()
   }
 }
 
@@ -737,7 +749,7 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
 
       if (conversation) {
         const {
-          name, displayName, first_name, last_name, photoURL
+          name, displayName, first_name, last_name, photoURL, photoBase64
         } = users[uid]
 
         const updatedChats: ChatType = {
@@ -746,6 +758,7 @@ export const openChat = (uid: string, redirect: () => void): ThunkType => async 
             chat: createdChat.chat_sid,
             name: name || displayName || `${first_name} ${last_name}`,
             photoUrl: photoURL,
+            photoBase64,
             messages: [],
             missedMessages: 0,
             conversation

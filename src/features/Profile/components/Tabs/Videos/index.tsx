@@ -4,11 +4,11 @@ import React, {
 import ReactHlsPlayer from 'react-hls-player'
 import { useDispatch } from 'react-redux'
 import { ProfileType } from 'features/Profile/types'
-import { VideoItem } from 'features/Profile/components/Tabs/Video/components/VideoItem'
-import { AddVideo } from 'features/Profile/components/Tabs/Video/components/AddVideo'
+import { VideoItem } from 'features/Profile/components/Tabs/Videos/components/VideoItem'
+import { AddVideo } from 'features/Profile/components/Tabs/Videos/components/AddVideo'
 import styles from './styles.module.sass'
 
-interface IVideo {
+interface IVideos {
   profile: ProfileType
   isEdit: boolean
 }
@@ -22,7 +22,7 @@ export type FormattedVideoType = {
   created_at: number
 }
 
-export const Video: FC<IVideo> = ({ profile, isEdit }) => {
+export const Videos: FC<IVideos> = ({ profile, isEdit }) => {
   const dispatch = useDispatch()
   const playerRef = createRef<HTMLVideoElement>()
   const [currentVideo, setCurrentVideo] = useState<FormattedVideoType | null>(null)

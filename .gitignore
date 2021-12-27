@@ -29,5 +29,4 @@ yarn-error.log*
 /.firebase
 
 yarn.lock
-.env
 .env.qa

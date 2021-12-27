@@ -24,6 +24,7 @@ export type ProfileType = {
     phoneNumber: string
     zoomID: string
     photoURL: string
+    photoBase64: string
     activeRole: 'founder' | 'investor'
     tags: string[]
     liked: UsersType
@@ -33,6 +34,7 @@ export type ProfileType = {
     likes: UsersType
     mutuals: UsersType
     about?: string
+    roles: string[]
     verified: {
         linkedIn: string
     }
@@ -86,8 +88,9 @@ export type JobType = {
     company?: string
     title?: string
     headline?: string
-    web?: string,
+    web?: string
     email?: string
+    logoCompany?: string
 }
 
 export type SlotsType = {

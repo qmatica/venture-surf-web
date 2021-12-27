@@ -7,6 +7,7 @@ import { UserIcon } from 'common/icons'
 import { Button } from 'common/components/Button'
 import { recommendUser } from 'features/Contacts/actions'
 import { Input } from 'common/components/Input'
+import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 
 interface IRecommend {
@@ -58,18 +59,20 @@ export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
       </div>
       {users.map((u) => {
         const {
-          photoURL, displayName, first_name, last_name
+          photoURL, photoBase64, displayName, first_name, last_name, uid
         } = profile.mutuals[u]
 
         const userName = displayName || `${first_name} ${last_name}`
 
         return (
-          <div className={styles.userContainer} onClick={() => updateSelectedUsers(u)}>
+          <div key={uid} className={styles.userContainer} onClick={() => updateSelectedUsers(u)}>
             <div className={styles.checkboxContainer}>
               <Checkbox checked={selectedUsers.includes(u)} />
             </div>
-            <div className={`${styles.photoContainer} ${!photoURL && styles.noPhoto}`}>
-              {photoURL ? <img src={photoURL} alt={userName} /> : <UserIcon />}
+            <div className={`${styles.photoContainer} ${!photoURL && !photoBase64 && styles.noPhoto}`}>
+              {photoURL || photoBase64
+                ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={userName} />
+                : <UserIcon />}
             </div>
             <div className={styles.userName}>{userName}</div>
           </div>

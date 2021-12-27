@@ -1,10 +1,16 @@
 import React, {
   ChangeEvent, FC, useRef, useState
 } from 'react'
-import { UserPhotoIcon } from 'common/icons'
+import { useDispatch } from 'react-redux'
+import { UserPhotoIcon, PreloaderIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { getFirebase } from 'react-redux-firebase'
+import { getImageSrcFromBase64 } from 'common/utils'
 import { AuthUserType } from 'common/types'
+import { Button } from 'common/components/Button'
+import {
+  actions as actionsNotifications
+} from 'features/Notifications/actions'
 import { ProfileType } from '../../types'
 import { profileAPI } from '../../../../api'
 import styles from './styles.module.sass'
@@ -14,15 +20,24 @@ interface IAvatar {
 }
 
 export const Avatar: FC<IAvatar> = ({ profile }) => {
+  const dispatch = useDispatch()
   const [isEdit, setIsEdit] = useState(false)
+  const [photoUrl, setPhotoUrl] = useState(profile?.photoURL)
+  const [isLoading, setIsLoading] = useState(false)
   const inputFile = useRef<HTMLInputElement | null>(null)
+  const isAuthenticated = !!getFirebase().auth().currentUser?.toJSON()
+
+  const openEditModal = () => setIsEdit(true)
+  const closeEditModal = () => setIsEdit(false)
 
   const onToggleEdit = () => {
-    if (!profile.photoURL) {
-      inputFile.current?.click()
-      return
+    if (isAuthenticated) {
+      if (!profile.photoURL && !profile.photoBase64) {
+        inputFile.current?.click()
+        return
+      }
+      openEditModal()
     }
-    setIsEdit(!isEdit)
   }
 
   const onChangeFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -32,39 +47,24 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
       throw new Error('Error finding e.target.files')
     }
     const file = e.target.files[0]
-
-    // TODO: Неработает загрузка фото (возможно из-за настроек на бэкенде)
-    // const res = await profileAPI.updateProfilePhoto(file)
-    // console.log(res)
-
-    const data = new FormData()
-    data.append('fileName', file)
-
-    const authUser = getFirebase().auth().currentUser?.toJSON() as AuthUserType | undefined
-    if (!authUser) return
-
-    fetch('https://us-central1-venturesurfdev.cloudfunctions.net/api/user/photo', {
-      mode: 'no-cors',
-      method: 'POST',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        Authorization: `Bearer ${authUser.stsTokenManager.accessToken}`,
-        'Content-Type': 'multipart/form-data',
-        Accept: 'application/json',
-        type: 'formData'
-      },
-      body: data
-    }).then((res: any) => {
-      console.log(res.data)
-    })
+    setIsLoading(true)
+    try {
+      const res = await profileAPI.updateProfilePhoto(file)
+      setPhotoUrl(res.photoURL)
+    } catch (err) {
+      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <>
       <div className={styles.photoContainer} onClick={onToggleEdit}>
-        {profile.photoURL
-          ? <img src={profile.photoURL} alt={`${profile.first_name} ${profile.last_name}`} />
-          : <UserPhotoIcon />}
+        {(isLoading && <PreloaderIcon />) ||
+          (photoUrl || profile.photoBase64
+            ? <img src={getImageSrcFromBase64(profile.photoBase64, photoUrl)} alt={`${profile.first_name} ${profile.last_name}`} />
+            : <UserPhotoIcon />)}
       </div>
       <input
         type="file"
@@ -75,10 +75,22 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
         accept="image/*"
       />
       {isEdit && (
-        <Modal onClose={onToggleEdit} isOpen={isEdit} title="Edit photo profile" width="auto">
-          <>
-            <div>Load photo</div>
-          </>
+        <Modal onClose={closeEditModal} isOpen={isEdit} title="Edit photo profile" width="auto">
+          <div className={styles.modalContainer}>
+            <Button
+              title="Load photo"
+              onClick={() => {
+                inputFile.current?.click()
+                closeEditModal()
+              }}
+              className={styles.button}
+            />
+            {/* TODO: API for removing the profile photo is not ready */}
+            <Button
+              title="Remove photo"
+              className={styles.button}
+            />
+          </div>
         </Modal>
       )}
     </>

@@ -12,13 +12,31 @@
     flex-shrink: 0
     gap: 55px
     align-items: center
+    justify-content: space-between
+    width: 100%
+    > div:first-child
+      display: flex
     .infoContainer
       display: flex
       flex-direction: column
-      gap: 13px
+      margin-left: 54px
+      justify-content: center
+      > div
+        &:first-child
+          margin-bottom: 10px
       .displayName
         font-size: 25px
         color: #030D21
+      .titleAndCompanyJob
+        margin-top: 10px
+        font-size: 17px
+        color: #030D21
+        font-family: Roboto Medium, Roboto, sans-serif
+      .email
+        margin-top: 10px
+        font-size: 17px
+        color: #8B98B0
+        font-family: Roboto Medium, Roboto, sans-serif
       .companyJob
         font-size: 17px
         color: #8B98B0

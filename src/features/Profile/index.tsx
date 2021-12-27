@@ -8,12 +8,11 @@ import { Tabs } from 'common/components/Tabs'
 import { match } from 'react-router-dom'
 import { Preloader } from 'common/components/Preloader'
 import { Deck } from './components/Tabs/Deck'
-import { Info } from './components/Tabs/Info'
-import { Video } from './components/Tabs/Video'
+import { About } from './components/Tabs/About'
+import { Videos } from './components/Tabs/Videos'
 import { Job } from './components/Job'
 import { SwitchRoles } from './components/SwitchRoles'
 import { Avatar } from './components/Avatar'
-import { ShareLinkProfile } from './components/ShareLinkProfile'
 import styles from './styles.module.sass'
 
 interface Identifiable { uid: string }
@@ -23,8 +22,8 @@ interface IProfile {
 }
 
 const tabs = [
-  { title: 'Info', Component: Info },
-  { title: 'Video', Component: Video },
+  { title: 'About', Component: About },
+  { title: 'Videos', Component: Videos },
   { title: 'Deck', Component: Deck }
 ]
 
@@ -66,7 +65,10 @@ export const Profile: FC<IProfile> = ({ match }) => {
   const job = {
     company: profile[profile.activeRole]?.job?.company,
     title: profile[profile.activeRole]?.job?.title,
-    headline: profile[profile.activeRole]?.job?.headline
+    headline: profile[profile.activeRole]?.job?.headline,
+    email: profile[profile.activeRole]?.job?.email,
+    web: profile[profile.activeRole]?.job?.web,
+    logoCompany: profile[profile.activeRole]?.job?.logoCompany
   }
 
   const name = profile.displayName || `${profile.first_name} ${profile.last_name}`
@@ -80,14 +82,27 @@ export const Profile: FC<IProfile> = ({ match }) => {
     <div className={styles.wrapper}>
       <div className={styles.headerContainer}>
         <div className={styles.aboutProfileContainer}>
-          <Avatar profile={profile} />
-          <div className={styles.infoContainer}>
-            <div className={styles.displayName}>{name}</div>
-            <Job job={job} isEdit={!otherProfile} />
+          <div>
+            <Avatar profile={profile} />
+            <div className={styles.infoContainer}>
+              <SwitchRoles
+                activeRole={profile.activeRole}
+                createdRoles={createdRoles}
+                isEdit={!otherProfile}
+                roles={profile.roles}
+              />
+              <div className={styles.displayName}>{name}</div>
+              {(job.title || job.company) && (
+                <div className={styles.titleAndCompanyJob}>
+                  {job.title} {(job.title && job.company) ? `at ${job.company}` : job.company}
+                </div>
+              )}
+              {job.email && <div className={styles.email}>{job.email}</div>}
+            </div>
           </div>
+          <Job job={job} isEdit={!otherProfile} />
         </div>
-        <SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isEdit={!otherProfile} />
-        <ShareLinkProfile isEdit={!otherProfile} />
+        {/*<SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isEdit={!otherProfile} />*/}
       </div>
       <Tabs tabs={tabs} activeTab={tab} onChange={setTab} />
       <div>

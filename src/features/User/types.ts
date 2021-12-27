@@ -9,6 +9,7 @@ export type UserType = {
     last_name: string
     uid: string
     photoURL: string
+    photoBase64: string
     stages?: number[]
     industries?: string[]
     tags?: string[]
@@ -41,6 +42,7 @@ export type RecommendedUserType = {
     uid: string,
     job: {},
     photoURL: string,
+    photoBase64: string
     roles: [
         'investor',
         'founder'

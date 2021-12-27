@@ -10,6 +10,7 @@ import { getMySlots } from 'features/Profile/selectors'
 import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
 import { UserIcon } from 'common/icons'
+import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 import { FormattedSlotsType } from './types'
 
@@ -97,9 +98,12 @@ const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
                 data-place="bottom"
                 data-effect="solid"
               >
-                {companion.photoURL
-                  ? <img src={companion.photoURL} alt={companion.displayName} />
-                  : <UserIcon />}
+                {companion.photoURL || companion.photoBase64 ? (
+                  <img
+                    src={getImageSrcFromBase64(companion.photoBase64, companion.photoURL)}
+                    alt={companion.displayName}
+                  />
+                ) : <UserIcon />}
               </div>
             )}
             {hours}:{minutes}

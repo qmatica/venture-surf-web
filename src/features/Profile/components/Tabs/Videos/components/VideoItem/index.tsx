@@ -1,9 +1,9 @@
 import React, { FC, useState } from 'react'
 import { Edit2Icon, TimeIcon } from 'common/icons'
-import { FormattedVideoType } from 'features/Profile/components/Tabs/Video'
+import { FormattedVideoType } from 'features/Profile/components/Tabs/Videos'
 import { Modal } from 'features/Modal'
 import { useDispatch } from 'react-redux'
-import { IFormElement, EditVideo } from 'features/Profile/components/Tabs/Video/components/EditVideo'
+import { IFormElement, EditVideo } from 'features/Profile/components/Tabs/Videos/components/EditVideo'
 import { deleteVideo, renameVideo } from 'features/Profile/actions'
 import styles from './styles.module.sass'
 
