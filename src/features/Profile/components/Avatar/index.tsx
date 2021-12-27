@@ -1,7 +1,7 @@
 import React, {
   ChangeEvent, FC, useRef, useState
 } from 'react'
-import { UserPhotoIcon } from 'common/icons'
+import { UserPhotoIcon, PreloaderIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { getFirebase } from 'react-redux-firebase'
 import { getImageSrcFromBase64 } from 'common/utils'
@@ -16,6 +16,8 @@ interface IAvatar {
 
 export const Avatar: FC<IAvatar> = ({ profile }) => {
   const [isEdit, setIsEdit] = useState(false)
+  const [photoUrl, setPhotoUrl] = useState(profile?.photoURL)
+  const [isLoading, setIsLoading] = useState(false)
   const inputFile = useRef<HTMLInputElement | null>(null)
 
   const onToggleEdit = () => {
@@ -33,39 +35,19 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
       throw new Error('Error finding e.target.files')
     }
     const file = e.target.files[0]
-
-    // TODO: Неработает загрузка фото (возможно из-за настроек на бэкенде)
-    // const res = await profileAPI.updateProfilePhoto(file)
-    // console.log(res)
-
-    const data = new FormData()
-    data.append('fileName', file)
-
-    const authUser = getFirebase().auth().currentUser?.toJSON() as AuthUserType | undefined
-    if (!authUser) return
-
-    fetch('https://us-central1-venturesurfdev.cloudfunctions.net/api/user/photo', {
-      mode: 'no-cors',
-      method: 'POST',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        Authorization: `Bearer ${authUser.stsTokenManager.accessToken}`,
-        'Content-Type': 'multipart/form-data',
-        Accept: 'application/json',
-        type: 'formData'
-      },
-      body: data
-    }).then((res: any) => {
-      console.log(res.data)
-    })
+    setIsLoading(true)
+    const res = await profileAPI.updateProfilePhoto(file)
+    setPhotoUrl(res.photoURL)
+    setIsLoading(false)
   }
 
   return (
     <>
       <div className={styles.photoContainer} onClick={onToggleEdit}>
-        {profile.photoURL || profile.photoBase64
-          ? <img src={getImageSrcFromBase64(profile.photoBase64, profile.photoURL)} alt={`${profile.first_name} ${profile.last_name}`} />
-          : <UserPhotoIcon />}
+        {(isLoading && <PreloaderIcon />) ||
+        (photoUrl || profile.photoBase64
+          ? <img src={getImageSrcFromBase64(profile.photoBase64, photoUrl)} alt={`${profile.first_name} ${profile.last_name}`} />
+          : <UserPhotoIcon />)}
       </div>
       <input
         type="file"
@@ -78,7 +60,14 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
       {isEdit && (
         <Modal onClose={onToggleEdit} isOpen={isEdit} title="Edit photo profile" width="auto">
           <>
-            <div>Load photo</div>
+            <div
+              onClick={() => {
+                inputFile.current?.click()
+                onToggleEdit()
+              }}
+              style={{ cursor: 'pointer' }}
+            >Load photo
+            </div>
           </>
         </Modal>
       )}

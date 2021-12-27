@@ -29,7 +29,7 @@ export const Dropdown: FC<IDropdown> = ({
   return (
     <div className={styles.dropdownWrapper} ref={DropdownRef}>
       <div
-        className={`${styles.dropdownSelectedItem} ${isMenuOpen && styles.withoutBottomBorder}`}
+        className={`${styles.dropdownSelectedItem} ${isMenuOpen && styles.dropdownExpanded}`}
         onClick={() => !disabled && setIsMenuOpen(!isMenuOpen)}
       >
         {isLoading

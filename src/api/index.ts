@@ -57,13 +57,12 @@ export const profileAPI = {
     const data = new FormData()
     data.append('fileName', file)
 
-    return instance.post('/api/user/photo', null, {
+    return instance.post('/api/user/photo', data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Accept: 'application/json',
         type: 'formData'
-      },
-      body: data
+      }
     } as any).then((res) => res.data)
   },
   uploadDoc(title: string, file: File) {
