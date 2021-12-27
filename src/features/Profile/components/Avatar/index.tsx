@@ -20,13 +20,19 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
   const [photoUrl, setPhotoUrl] = useState(profile?.photoURL)
   const [isLoading, setIsLoading] = useState(false)
   const inputFile = useRef<HTMLInputElement | null>(null)
+  const isAuthenticated = !!getFirebase().auth().currentUser?.toJSON()
+
+  const openEditModal = () => setIsEdit(true)
+  const closeEditModal = () => setIsEdit(false)
 
   const onToggleEdit = () => {
-    if (!profile.photoURL && !profile.photoBase64) {
-      inputFile.current?.click()
-      return
+    if (isAuthenticated) {
+      if (!profile.photoURL && !profile.photoBase64) {
+        inputFile.current?.click()
+        return
+      }
+      openEditModal()
     }
-    setIsEdit(!isEdit)
   }
 
   const onChangeFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -46,9 +52,9 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
     <>
       <div className={styles.photoContainer} onClick={onToggleEdit}>
         {(isLoading && <PreloaderIcon />) ||
-        (photoUrl || profile.photoBase64
-          ? <img src={getImageSrcFromBase64(profile.photoBase64, photoUrl)} alt={`${profile.first_name} ${profile.last_name}`} />
-          : <UserPhotoIcon />)}
+          (photoUrl || profile.photoBase64
+            ? <img src={getImageSrcFromBase64(profile.photoBase64, photoUrl)} alt={`${profile.first_name} ${profile.last_name}`} />
+            : <UserPhotoIcon />)}
       </div>
       <input
         type="file"
@@ -59,16 +65,17 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
         accept="image/*"
       />
       {isEdit && (
-        <Modal onClose={onToggleEdit} isOpen={isEdit} title="Edit photo profile" width="auto">
+        <Modal onClose={closeEditModal} isOpen={isEdit} title="Edit photo profile" width="auto">
           <div className={styles.modalContainer}>
             <Button
               title="Load photo"
               onClick={() => {
                 inputFile.current?.click()
-                onToggleEdit()
+                closeEditModal()
               }}
               className={styles.button}
             />
+            {/* TODO: API for removing the profile photo is not ready */}
             <Button
               title="Remove photo"
               className={styles.button}
