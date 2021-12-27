@@ -1,0 +1,73 @@
+.container
+  position: relative
+  user-select: none
+  .dropDownContainer
+    position: absolute
+    top: 100%
+    background: #FFFFFF
+    border: 1px solid #D7DFED
+    z-index: 50
+    right: 0
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1)
+    font-family: Roboto, sans-serif
+    font-size: 16px
+    border-radius: 0 0 10px 10px
+    color: #030D21
+    > a
+      height: 48px
+      padding: 0 40px 0 5px
+      cursor: pointer
+      transition: 0.1s
+      display: flex
+      align-items: center
+      color: #030D21
+      &.active
+        background: #f4f7fa
+        svg
+          &:last-child
+            path
+              fill: #2676fc !important
+      &:hover
+        background: #f0f3f6
+      .icon
+        width: 60px
+        display: flex
+        justify-content: center
+    > div
+      height: 48px
+      padding: 0 40px 0 5px
+      cursor: pointer
+      transition: 0.1s
+      display: flex
+      align-items: center
+      &:last-child
+        border-radius: 0 0 10px 10px
+      &:hover
+        background: #f0f3f6
+      .icon
+        width: 60px
+        display: flex
+        justify-content: center
+  .button
+    display: flex
+    align-items: center
+    width: 70px
+    cursor: pointer
+    justify-content: center
+    transition: 0.1s
+    height: 100%
+    &:hover
+      background: #f4f7fa
+    &.openDropDownList
+      background: #f4f7fa
+    &.active
+      > svg
+        &:first-child
+          path
+            fill: #2676fc !important
+    svg
+      &:last-child
+        margin-left: 3px
+        margin-top: 2px
+        path
+          stroke: #ccd5e4 !important

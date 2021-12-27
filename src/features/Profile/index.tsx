@@ -13,7 +13,6 @@ import { Videos } from './components/Tabs/Videos'
 import { Job } from './components/Job'
 import { SwitchRoles } from './components/SwitchRoles'
 import { Avatar } from './components/Avatar'
-import { ShareLinkProfile } from './components/ShareLinkProfile'
 import styles from './styles.module.sass'
 
 interface Identifiable { uid: string }
@@ -87,16 +86,17 @@ export const Profile: FC<IProfile> = ({ match }) => {
             <Avatar profile={profile} />
             <div className={styles.infoContainer}>
               <div className={styles.displayName}>{name}</div>
-              <div className={styles.titleAndCompanyJob}>
-                {job.title} {job.company && `at ${job.company}`}
-              </div>
-              <div className={styles.email}>{job.email}</div>
+              {(job.title || job.company) && (
+                <div className={styles.titleAndCompanyJob}>
+                  {job.title} {(job.title && job.company) ? `at ${job.company}` : job.company}
+                </div>
+              )}
+              {job.email && <div className={styles.email}>{job.email}</div>}
             </div>
           </div>
           <Job job={job} isEdit={!otherProfile} />
         </div>
         {/*<SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isEdit={!otherProfile} />*/}
-        {/*<ShareLinkProfile isEdit={!otherProfile} />*/}
       </div>
       <Tabs tabs={tabs} activeTab={tab} onChange={setTab} />
       <div>

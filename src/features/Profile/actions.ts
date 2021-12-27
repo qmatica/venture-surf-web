@@ -392,7 +392,10 @@ export const showNotification =
       }
     }
 
-export const updateMyProfile = (value: { [key: string]: any }): ThunkType => async (dispatch, getState) => {
+export const updateMyProfile = (
+  value: { [key: string]: any },
+  onFinish?: () => void
+): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
   if (profile) {
     let status
@@ -423,6 +426,8 @@ export const updateMyProfile = (value: { [key: string]: any }): ThunkType => asy
 
       dispatch(actions.setMyProfile(updatedProfile))
     }
+
+    if (onFinish) onFinish()
   }
 }
 

@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
-  CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon, AuthIcon, Unlock
+  CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon, AuthIcon, Unlock, ShareIcon, PencilIcon, SettingsIcon
 } from 'common/icons'
-import { useSelector } from 'react-redux'
-import { getAuth } from 'features/Auth/selectors'
+import { useDispatch, useSelector } from 'react-redux'
+import { getAuth, getMyUid } from 'features/Auth/selectors'
 import { getIsAdminMode } from 'features/Admin/selectors'
-import { RootState } from 'common/types'
-import { ProfileType } from 'features/Profile/types'
 import { CounterNotifications } from 'common/components/CounterNotifications'
+import { EditJob } from 'features/Profile/components/Job'
 import { PageType } from './types'
+import { DropDownButton } from './components/DropDownButton'
+import { getLiked, getLoadersProfile } from '../Profile/selectors'
+import { shareLinkMyProfile } from '../Profile/actions'
 import styles from './styles.module.sass'
 
 const pages = [
@@ -57,17 +59,24 @@ const pagesAdmin = [
 ]
 
 export const NavBar = () => {
+  const location = useLocation()
+  const dispatch = useDispatch()
+
   const auth = useSelector(getAuth)
-  const { profile } = useSelector((state: RootState) => state.profile) as { profile: ProfileType }
+  const myUid = useSelector(getMyUid)
+  const liked = useSelector(getLiked)
   const isAdminMode = useSelector(getIsAdminMode)
-  const [currentPages, setCurrentPages] = useState<PageType[]>([])
+  const loaders = useSelector(getLoadersProfile)
+
+  const [currentPages, setCurrentPages] = useState<PageType[]>(pages)
+  const [isEdit, setIsEdit] = useState(false)
+
+  const toggleEdit = () => setIsEdit(!isEdit)
 
   useEffect(() => {
-    let viewPages = [...pages]
     if (isAdminMode) {
-      viewPages = [...pagesAdmin, ...viewPages]
+      setCurrentPages((prevPages) => ([...pagesAdmin, ...prevPages]))
     }
-    setCurrentPages(viewPages)
   }, [isAdminMode])
 
   if (!auth) {
@@ -89,29 +98,54 @@ export const NavBar = () => {
   return (
     <div className={styles.container}>
       {currentPages.map(({ url, title, icon }) => {
-        let formattedUrl = url
         let countNotifications
 
         if (title === 'Profile') {
-          formattedUrl = `${url}/${profile.uid}`
+          const myProfileUrl = `${url}/${myUid}`
+          const dropDownList = [
+            {
+              title: 'Profile',
+              url: myProfileUrl,
+              icon: <UserCircleIcon size={26} />
+            },
+            {
+              title: 'Share',
+              onClick: () => dispatch(shareLinkMyProfile()),
+              icon: <ShareIcon />,
+              isLoading: loaders.includes('shareMyProfile')
+            },
+            {
+              title: 'Edit',
+              onClick: toggleEdit,
+              icon: <PencilIcon />
+            },
+            {
+              title: 'Settings',
+              onClick: () => console.log('settings'),
+              icon: <SettingsIcon />
+            }
+          ]
+
+          return <DropDownButton icon={icon} list={dropDownList} isActive={location.pathname === myProfileUrl} />
         }
 
         if (title === 'Contacts') {
-          countNotifications = Object.keys(profile.liked)?.length
+          countNotifications = liked && Object.keys(liked)?.length
         }
 
         return (
           <NavLink
             key={title}
-            to={formattedUrl}
+            to={url}
             title={title}
             activeClassName={title === 'Admin' ? styles.activeLinkAdmin : styles.activeLink}
           >
             {icon}
-            <CounterNotifications count={countNotifications} />
+            <CounterNotifications count={countNotifications} left={-25} />
           </NavLink>
         )
       })}
+      <EditJob isOpen={isEdit} onClose={toggleEdit} />
     </div>
   )
 }

@@ -11,7 +11,35 @@ const getLoadersProfileSelector = (state: RootState) => state.profile.loaders
 
 const getSlotsMyProfileSelector = (state: RootState) => state.profile.profile?.slots
 
+const getLikedSelector = (state: RootState) => state.profile.profile?.liked
+
+const getJobProfileSelector = (state: RootState) => {
+  const { profile } = state.profile
+
+  if (profile) {
+    const { activeRole } = profile
+    const { job } = profile[activeRole]
+
+    if (job) {
+      return {
+        company: job.company,
+        title: job.title,
+        headline: job.headline,
+        email: job.email,
+        web: job.web,
+        logoCompany: job.logoCompany
+      }
+    }
+  }
+
+  return null
+}
+
 export const getMyProfile = createSelector(getMyProfileSelector, (profile) => profile)
+
+export const getLiked = createSelector(getLikedSelector, (liked) => liked)
+
+export const getJob = createSelector(getJobProfileSelector, (job) => job)
 
 export const getLoadersProfile = createSelector(getLoadersProfileSelector, (loaders) => loaders)
 
