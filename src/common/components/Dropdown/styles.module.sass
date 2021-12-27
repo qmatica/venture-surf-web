@@ -10,7 +10,6 @@
   grid-gap: 14px
   align-items: center
   height: 40px
-  grid-gap: 14px
   border: 0
   border-radius: 16px
   cursor: pointer
@@ -23,14 +22,18 @@
 .dropdownMenu
   position: absolute
   background: #FFFFFF
-  width: 100%;
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.17)
-  border-radius: 0px 0px 16px 16px
+  width: 100%
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.17)
+  border-radius: 0 0 16px 16px
+  overflow: hidden
 .dropdownMenuItem
   @include commonFontStyles
   padding: 10px
   text-transform: capitalize
   text-align: center
   cursor: pointer
+  transition: 0.1s
+  &:hover
+    background: #f4f7fa
 .withoutBottomBorder
   border-radius: 16px 16px 0 0
