@@ -34,6 +34,7 @@ export type ProfileType = {
     likes: UsersType
     mutuals: UsersType
     about?: string
+    roles: string[]
     verified: {
         linkedIn: string
     }
