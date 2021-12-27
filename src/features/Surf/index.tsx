@@ -51,7 +51,7 @@ export const Surf = () => {
             const list = `${profile.activeRole === 'founder' ? 'investments' : 'investors'} list`
 
             return (
-              <div className={styles.invContainer}>
+              <div className={styles.invContainer} key={inv.uid}>
                 <div className={styles.userContainer}>
                   <div className={styles.photoContainer}>
                     {photoURL || photoBase64

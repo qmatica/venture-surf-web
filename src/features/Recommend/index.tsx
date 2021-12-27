@@ -59,13 +59,13 @@ export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
       </div>
       {users.map((u) => {
         const {
-          photoURL, photoBase64, displayName, first_name, last_name
+          photoURL, photoBase64, displayName, first_name, last_name, uid
         } = profile.mutuals[u]
 
         const userName = displayName || `${first_name} ${last_name}`
 
         return (
-          <div className={styles.userContainer} onClick={() => updateSelectedUsers(u)}>
+          <div key={uid} className={styles.userContainer} onClick={() => updateSelectedUsers(u)}>
             <div className={styles.checkboxContainer}>
               <Checkbox checked={selectedUsers.includes(u)} />
             </div>
