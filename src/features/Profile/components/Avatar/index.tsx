@@ -6,6 +6,7 @@ import { Modal } from 'features/Modal'
 import { getFirebase } from 'react-redux-firebase'
 import { getImageSrcFromBase64 } from 'common/utils'
 import { AuthUserType } from 'common/types'
+import { Button } from 'common/components/Button'
 import { ProfileType } from '../../types'
 import { profileAPI } from '../../../../api'
 import styles from './styles.module.sass'
@@ -59,16 +60,20 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
       />
       {isEdit && (
         <Modal onClose={onToggleEdit} isOpen={isEdit} title="Edit photo profile" width="auto">
-          <>
-            <div
+          <div className={styles.modalContainer}>
+            <Button
+              title="Load photo"
               onClick={() => {
                 inputFile.current?.click()
                 onToggleEdit()
               }}
-              style={{ cursor: 'pointer' }}
-            >Load photo
-            </div>
-          </>
+              className={styles.button}
+            />
+            <Button
+              title="Remove photo"
+              className={styles.button}
+            />
+          </div>
         </Modal>
       )}
     </>
