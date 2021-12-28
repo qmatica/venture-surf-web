@@ -12,6 +12,8 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
   switch (action.type) {
     case 'PROFILE__SET_MY_PROFILE':
       return { ...state, profile: action.profile }
+    case 'PROFILE__SET_MY_PROFILE_PHOTO':
+      return { ...state, profile: { ...state.profile, photoURL: action.photoURL } as ProfileType }
     case 'PROFILE__SET_PROGRESS_FILE':
       return { ...state, progressLoadingFile: action.progressLoadingFile }
     case 'PROFILE__TOGGLE_LOADER': {

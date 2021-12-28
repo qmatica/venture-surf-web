@@ -34,6 +34,7 @@ import { addToClipboardPublicLinkProfile } from '../../common/actions'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
+  setMyProfilePhoto: (photoURL: string) => ({ type: 'PROFILE__SET_MY_PROFILE_PHOTO', photoURL } as const),
   updateMyContacts: (updatedUsers: any) => ({ type: 'PROFILE__UPDATE_MY_CONTACTS', updatedUsers } as const),
   addUserInMyContacts: (user: UserType, contacts: 'mutuals' | 'likes' | 'liked') => (
     { type: 'PROFILE__ADD_USER_IN_MY_CONTACTS', payload: { user, contacts } } as const

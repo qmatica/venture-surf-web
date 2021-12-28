@@ -83,7 +83,7 @@ export const Profile: FC<IProfile> = ({ match }) => {
       <div className={styles.headerContainer}>
         <div className={styles.aboutProfileContainer}>
           <div>
-            <Avatar profile={profile} />
+            <Avatar profile={profile} myUid={myUid} />
             <div className={styles.infoContainer}>
               <SwitchRoles
                 activeRole={profile.activeRole}
