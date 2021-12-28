@@ -4,6 +4,7 @@ import { ProfileType } from 'features/Profile/types'
 import { Tabs } from 'common/components/Tabs'
 import { FilterIcon } from 'common/icons'
 import { RootState } from 'common/types'
+import { CounterNotifications } from 'common/components/CounterNotifications'
 import { Mutuals } from './components/Mutuals'
 import { Received } from './components/Received'
 import { Sent } from './components/Sent'
@@ -47,7 +48,13 @@ export const Contacts = () => {
           <FilterIcon />
         </div>
       </div>
-      <Tabs tabs={tabs} onChange={setTab} activeTab={tab} profile={profile as ProfileType} />
+      <Tabs
+        tabs={tabs}
+        onChange={setTab}
+        activeTab={tab}
+        profile={profile as ProfileType}
+        badgeComponent={CounterNotifications}
+      />
       <tab.Component />
     </div>
   )

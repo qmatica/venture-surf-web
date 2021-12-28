@@ -7,6 +7,7 @@ import { getIsLoadingOtherProfile, getParamsPublicProfile, getOtherProfile } fro
 import { Tabs } from 'common/components/Tabs'
 import { match } from 'react-router-dom'
 import { Preloader } from 'common/components/Preloader'
+import { CountBadge } from 'features/Profile/components/CountBadge'
 import { Deck } from './components/Tabs/Deck'
 import { About } from './components/Tabs/About'
 import { Videos } from './components/Tabs/Videos'
@@ -23,8 +24,8 @@ interface IProfile {
 
 const tabs = [
   { title: 'About', Component: About },
-  { title: 'Videos', Component: Videos },
-  { title: 'Deck', Component: Deck }
+  { title: 'Videos', value: 'videos', Component: Videos },
+  { title: 'Deck', value: 'docs', Component: Deck }
 ]
 
 export const Profile: FC<IProfile> = ({ match }) => {
@@ -104,7 +105,7 @@ export const Profile: FC<IProfile> = ({ match }) => {
         </div>
         {/*<SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isEdit={!otherProfile} />*/}
       </div>
-      <Tabs tabs={tabs} activeTab={tab} onChange={setTab} />
+      <Tabs tabs={tabs} activeTab={tab} onChange={setTab} badgeComponent={CountBadge} profile={profile} />
       <div>
         <tab.Component profile={profile} isEdit={!otherProfile} />
       </div>

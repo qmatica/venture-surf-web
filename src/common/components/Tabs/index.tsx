@@ -1,22 +1,22 @@
 import React, { FC } from 'react'
 import { ProfileType } from 'features/Profile/types'
-import { CounterNotifications } from 'common/components/CounterNotifications'
 import styles from './styles.module.sass'
 
-export type TabType = { title: string, Component: React.FunctionComponent<any> }
+export type TabType = { title: string, Component: FC<any>, value?: string }
 
 interface ITabs {
-    tabs: TabType[]
-    onChange: ({ title, Component }: TabType) => void
-    activeTab: TabType
-    profile?: ProfileType
+  tabs: TabType[]
+  onChange: ({ title, Component }: TabType) => void
+  activeTab: TabType
+  profile?: ProfileType
+  badgeComponent: FC<any>
 }
 
 export const Tabs: FC<ITabs> = ({
-  tabs, onChange, activeTab, profile
+  tabs, onChange, activeTab, profile, badgeComponent: BadgeComponent
 }) => (
   <div className={styles.tabsContainer}>
-    {tabs.map(({ title, Component }) => {
+    {tabs.map(({ title, value, Component }) => {
       let countContacts
       if (profile && title === 'Received') {
         countContacts = Object.keys(profile.liked)?.length
@@ -30,7 +30,7 @@ export const Tabs: FC<ITabs> = ({
           <div>
             {title}
           </div>
-          <CounterNotifications count={countContacts} left={5} />
+          <BadgeComponent count={countContacts} left={5} profile={profile} value={value} />
         </div>
       )
     })}
