@@ -450,8 +450,11 @@ export const uploadVideo = (
 
   setIsLoadingButton(null)
 
-  upload.on('error', (err) => {
-    console.error('💥 🙀', err.detail)
+  upload.on('error', async (err) => {
+    console.log('💥 🙀', err.detail)
+    await profileAPI.deleteVideo(title)
+    setIsOpenModal(false)
+    dispatch(actionsNotifications.addErrorMsg('Failed to upload the video'))
   })
 
   upload.on('progress', (progress) => {

@@ -3,15 +3,16 @@ import { useDropzone } from 'react-dropzone'
 import styles from './styles.module.sass'
 
 interface IDropZone {
-    setSelectedVideo: (selectedVideo: File) => void
-    progressLoadingFile: number | null
+  setSelectedVideo: (selectedVideo: File) => void
+  progressLoadingFile: number | null
+  accept: string | string[];
 }
 
-export const DropZone: FC<IDropZone> = ({ setSelectedVideo, progressLoadingFile }) => {
+export const DropZone: FC<IDropZone> = ({ setSelectedVideo, progressLoadingFile, accept }) => {
   const onDrop = useCallback((acceptedFiles) => {
     setSelectedVideo(acceptedFiles[0])
   }, [])
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept })
 
   return (
     <div
