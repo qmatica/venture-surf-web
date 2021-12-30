@@ -457,6 +457,11 @@ export const uploadVideo = (
     dispatch(actionsNotifications.addErrorMsg('Failed to upload the video'))
   })
 
+  upload.on('offline', () => {
+    dispatch(actionsNotifications.addAnyMsg({ msg: 'You are now offline. Your video will be uploaded once you come online', uid: uuidv4() }))
+    setIsOpenModal(false)
+  })
+
   upload.on('progress', (progress) => {
     const { progressLoadingFile } = getState().profile
     const progressDetail = progressLoadingFile === 100 ? null : progress.detail
