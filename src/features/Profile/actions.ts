@@ -34,7 +34,7 @@ import { addToClipboardPublicLinkProfile } from '../../common/actions'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
-  setMyProfilePhoto: (photoURL: string) => ({ type: 'PROFILE__SET_MY_PROFILE_PHOTO', photoURL } as const),
+  updateMyProfilePhoto: (photoURL: string) => ({ type: 'PROFILE__UPDATE_MY_PROFILE_PHOTO', photoURL } as const),
   updateMyContacts: (updatedUsers: any) => ({ type: 'PROFILE__UPDATE_MY_CONTACTS', updatedUsers } as const),
   addUserInMyContacts: (user: UserType, contacts: 'mutuals' | 'likes' | 'liked') => (
     { type: 'PROFILE__ADD_USER_IN_MY_CONTACTS', payload: { user, contacts } } as const
@@ -855,4 +855,34 @@ export const connectToCall = (date: string, uid: string): ThunkType => async (di
       }))
     }
   }
+}
+
+export const uploadDoc = (
+  title: string,
+  file: File,
+  onFinish: () => void
+): ThunkType => (dispatch, getState) => {
+  const { profile: { profile } } = getState()
+  profileAPI
+    .uploadDoc(title, file)
+    .then(({ docUrl }) => {
+      if (profile) {
+        const { docs } = profile[profile.activeRole]
+        const order = docs._order_
+        const updatedProfile = {
+          ...profile,
+          [profile.activeRole]: {
+            ...profile[profile.activeRole],
+            docs: {
+              ...docs,
+              [file.name]: docUrl,
+              _order_: docs[file.name] ? order : [...order, file.name]
+            }
+          }
+        }
+        dispatch(actions.setMyProfile(updatedProfile))
+      }
+    })
+    .catch(() => dispatch(actionsNotifications.addErrorMsg("We are sorry we couldn't upload your file. Please make sure it is not corrupted.")))
+    .finally(onFinish)
 }

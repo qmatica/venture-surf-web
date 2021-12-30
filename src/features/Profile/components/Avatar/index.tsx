@@ -52,7 +52,7 @@ export const Avatar: FC<IAvatar> = ({ profile, myUid }) => {
     setIsLoading(true)
     try {
       const response = await profileAPI.updateProfilePhoto(file)
-      dispatch(actionsProfile.setMyProfilePhoto(response.photoURL))
+      dispatch(actionsProfile.updateMyProfilePhoto(response.photoURL))
     } catch (err) {
       dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
     } finally {
