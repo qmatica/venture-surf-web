@@ -51,7 +51,7 @@ export const AddVideo: FC = () => {
               onSetSelectedVideo={setSelectedVideo}
             />
           ) : (
-            <DropZone setSelectedVideo={setSelectedVideo} progressLoadingFile={progressLoadingFile} />
+            <DropZone setSelectedVideo={setSelectedVideo} progressLoadingFile={progressLoadingFile} accept="video/*" />
           )}
         </>
       </Modal>
