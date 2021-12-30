@@ -2,30 +2,32 @@ import React, {
   ChangeEvent, FC, useRef, useState
 } from 'react'
 import { useDispatch } from 'react-redux'
+import cn from 'classnames'
 import { UserPhotoIcon, PreloaderIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
-import { getFirebase } from 'react-redux-firebase'
 import { getImageSrcFromBase64 } from 'common/utils'
-import { AuthUserType } from 'common/types'
 import { Button } from 'common/components/Button'
 import {
   actions as actionsNotifications
 } from 'features/Notifications/actions'
+import {
+  actions as actionsProfile
+} from 'features/Profile/actions'
+import { profileAPI } from 'api'
 import { ProfileType } from '../../types'
-import { profileAPI } from '../../../../api'
 import styles from './styles.module.sass'
 
 interface IAvatar {
   profile: ProfileType
+  myUid: string
 }
 
-export const Avatar: FC<IAvatar> = ({ profile }) => {
+export const Avatar: FC<IAvatar> = ({ profile, myUid }) => {
   const dispatch = useDispatch()
   const [isEdit, setIsEdit] = useState(false)
-  const [photoUrl, setPhotoUrl] = useState(profile?.photoURL)
   const [isLoading, setIsLoading] = useState(false)
   const inputFile = useRef<HTMLInputElement | null>(null)
-  const isAuthenticated = !!getFirebase().auth().currentUser?.toJSON()
+  const isAuthenticated = myUid === profile.uid
 
   const openEditModal = () => setIsEdit(true)
   const closeEditModal = () => setIsEdit(false)
@@ -49,8 +51,8 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
     const file = e.target.files[0]
     setIsLoading(true)
     try {
-      const res = await profileAPI.updateProfilePhoto(file)
-      setPhotoUrl(res.photoURL)
+      const response = await profileAPI.updateProfilePhoto(file)
+      dispatch(actionsProfile.updateMyProfilePhoto(response.photoURL))
     } catch (err) {
       dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
     } finally {
@@ -60,10 +62,16 @@ export const Avatar: FC<IAvatar> = ({ profile }) => {
 
   return (
     <>
-      <div className={styles.photoContainer} onClick={onToggleEdit}>
+      <div
+        className={cn(
+          styles.photoContainer,
+          !isAuthenticated && styles.photoContainerDisabled
+        )}
+        onClick={onToggleEdit}
+      >
         {(isLoading && <PreloaderIcon />) ||
-          (photoUrl || profile.photoBase64
-            ? <img src={getImageSrcFromBase64(profile.photoBase64, photoUrl)} alt={`${profile.first_name} ${profile.last_name}`} />
+          (profile.photoURL || profile.photoBase64
+            ? <img src={getImageSrcFromBase64(profile.photoBase64, profile.photoURL)} alt={`${profile.first_name} ${profile.last_name}`} />
             : <UserPhotoIcon />)}
       </div>
       <input

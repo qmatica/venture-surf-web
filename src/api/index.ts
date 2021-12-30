@@ -66,11 +66,13 @@ export const profileAPI = {
     } as any).then((res) => res.data)
   },
   uploadDoc(title: string, file: File) {
-    return instance.post(`/api/doc?title=${title}`, { file }, {
+    const body = new FormData()
+    body.append('file', file)
+    return instance.post(`/api/doc?title=${title}`, body, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
-    }).then((res) => res.status)
+    }).then((res) => ({ status: res.status, docUrl: res.data.url }))
   },
   getChatToken() {
     return instance.get('/api/chat/token').then((res) => res.data)

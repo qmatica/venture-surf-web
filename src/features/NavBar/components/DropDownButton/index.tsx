@@ -53,6 +53,7 @@ export const DropDownButton: FC<IDropDownButton> = ({ icon, list, isActive }) =>
                   to={el.url}
                   title="Profile"
                   activeClassName={styles.active}
+                  onClick={closeDropDownList}
                 >
                   <div className={styles.icon}>
                     {el.icon}
@@ -62,7 +63,13 @@ export const DropDownButton: FC<IDropDownButton> = ({ icon, list, isActive }) =>
               )
             }
             return (
-              <div onClick={el.onClick} key={el.url}>
+              <div
+                onClick={() => {
+                  if (el.onClick) el.onClick()
+                  closeDropDownList()
+                }}
+                key={el.url}
+              >
                 <div className={styles.icon}>
                   {el.isLoading ? <PreloaderIcon stroke="#ccd5e4" /> : el.icon}
                 </div>

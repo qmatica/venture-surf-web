@@ -11,7 +11,7 @@ interface IDropdown {
   title: string
   className?: string
   disabled?: boolean
-  options?: string[]
+  options: string[]
 }
 
 export const Dropdown: FC<IDropdown> = ({
@@ -19,25 +19,30 @@ export const Dropdown: FC<IDropdown> = ({
   isLoading = false,
   title,
   options,
-  disabled
+  disabled = false
 }) => {
   const DropdownRef = useRef(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [selectedOption, setSelectedOption] = useState(title)
+  const isDropdownDisabled = disabled || options.length < 2
 
   useOutside(DropdownRef, () => setIsMenuOpen(false))
 
   return (
     <div className={styles.dropdownWrapper} ref={DropdownRef}>
       <div
-        className={cn(styles.dropdownSelectedItem, isMenuOpen && styles.dropdownExpanded)}
-        onClick={() => !disabled && setIsMenuOpen(!isMenuOpen)}
+        className={cn(
+          styles.dropdownSelectedItem,
+          isMenuOpen && styles.dropdownExpanded,
+          isDropdownDisabled && styles.dropdownDisabled
+        )}
+        onClick={() => !isDropdownDisabled && setIsMenuOpen(!isMenuOpen)}
       >
         {isLoading
           ? <PreloaderIcon stroke="#96baf6" />
-          : <>{selectedOption} {!!options?.length && <ArrowBottomIcon />}</>}
+          : <>{selectedOption} {options.length > 1 && <ArrowBottomIcon />}</>}
       </div>
-      {isMenuOpen && !!options?.length && (
+      {isMenuOpen && (
         <div className={styles.dropdownMenu}>
           {options?.filter((option) => option !== selectedOption).map((option) => (
             <div

@@ -1,9 +1,11 @@
-import React, { FC } from 'react'
-import {
-  DownloadIcon, Edit2Icon, EyeIcon
-} from 'common/icons'
+import React, { FC, useState } from 'react'
+import { DownloadIcon, Edit2Icon, EyeIcon } from 'common/icons'
+import cn from 'classnames'
+import { useDispatch } from 'react-redux'
 import { ProfileType } from 'features/Profile/types'
 import { Button } from 'common/components/Button'
+import { uploadDoc } from 'features/Profile/actions'
+import { FileInput } from 'common/components/FileInput'
 import styles from './styles.module.sass'
 
 interface IDeck {
@@ -12,6 +14,8 @@ interface IDeck {
 }
 
 export const Deck: FC<IDeck> = ({ profile, isEdit }) => {
+  const dispatch = useDispatch()
+  const [isLoading, setIsLoading] = useState(false)
   const { docs } = profile[profile.activeRole]
   const sortedDocs = docs._order_.map((key) => ({
     title: key,
@@ -21,6 +25,11 @@ export const Deck: FC<IDeck> = ({ profile, isEdit }) => {
   const isEmpty = sortedDocs.length === 0
 
   const style = isEmpty ? { alignItems: 'center' } : {}
+
+  const onFileChange = (file: File) => {
+    setIsLoading(true)
+    dispatch(uploadDoc(file.name, file, () => setIsLoading(false)))
+  }
 
   return (
     <div className={styles.container}>
@@ -50,9 +59,22 @@ export const Deck: FC<IDeck> = ({ profile, isEdit }) => {
         )}
       </div>
       {isEdit && (
-        <div className={styles.buttonsContainer} style={style}>
-          <Button title="Add deck" icon="plus" />
-        </div>
+        <FileInput
+          buttonComponent={({ onClick }) => (
+            <div className={styles.buttonsContainer} style={style}>
+              <Button
+                isLoading={isLoading}
+                title="Add deck"
+                icon="plus"
+                onClick={onClick}
+                className={cn(isLoading && styles.disabledButton)}
+              />
+            </div>
+          )}
+          onChangeFile={onFileChange}
+          accept="application/pdf"
+          isDisabled={isLoading}
+        />
       )}
     </div>
   )
