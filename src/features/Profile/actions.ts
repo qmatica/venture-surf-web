@@ -450,8 +450,16 @@ export const uploadVideo = (
 
   setIsLoadingButton(null)
 
-  upload.on('error', (err) => {
-    console.error('💥 🙀', err.detail)
+  upload.on('error', async (err) => {
+    console.log('💥 🙀', err.detail)
+    await profileAPI.deleteVideo(title)
+    setIsOpenModal(false)
+    dispatch(actionsNotifications.addErrorMsg('Failed to upload the video'))
+  })
+
+  upload.on('offline', () => {
+    dispatch(actionsNotifications.addAnyMsg({ msg: 'You are now offline. Your video will be uploaded once you come online', uid: uuidv4() }))
+    setIsOpenModal(false)
   })
 
   upload.on('progress', (progress) => {
