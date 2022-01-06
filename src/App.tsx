@@ -25,6 +25,7 @@ export const App: FC = () => {
   return (
     <>
       <Switch>
+        <Route path="/test" render={() => <div>Speed test</div>} />
         <Route path="/auth" component={Auth} />
         <Route path="/*">
           <Layout>
