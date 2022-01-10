@@ -5,7 +5,7 @@ import { Modal } from 'features/Modal'
 import { uploadVideo } from 'features/Profile/actions'
 import { DropZone } from 'features/Profile/components/Tabs/Videos/components/AddVideo/DropZone'
 import { RootState } from 'common/types'
-import { EditVideo, IFormElement } from 'features/Profile/components/Tabs/Videos/components/EditVideo'
+import { EditFile, IFormElement } from 'features/Profile/components/Tabs/EditFile'
 import styles from './styles.module.sass'
 
 export const AddVideo: FC = () => {
@@ -31,7 +31,7 @@ export const AddVideo: FC = () => {
     e.preventDefault()
     if (selectedVideo) {
       setIsLoadingButton('onSaveButton')
-      dispatch(uploadVideo(selectedVideo, e.currentTarget.elements.videoName.value, setIsOpenModal, setIsLoadingButton))
+      dispatch(uploadVideo(selectedVideo, e.currentTarget.elements.fileName.value, setIsOpenModal, setIsLoadingButton))
       setSelectedVideo(null)
     }
   }
@@ -45,10 +45,11 @@ export const AddVideo: FC = () => {
       <Modal title={getTitleModal()} isOpen={isOpenModal} onClose={toggleModal}>
         <>
           {selectedVideo ? (
-            <EditVideo
-              onSaveVideo={onUpload}
+            <EditFile
+              onSaveFile={onUpload}
               isLoadingButton={isLoadingButton}
-              onSetSelectedVideo={setSelectedVideo}
+              onSetSelectedFile={setSelectedVideo}
+              fileType="video"
             />
           ) : (
             <DropZone setSelectedVideo={setSelectedVideo} progressLoadingFile={progressLoadingFile} accept="video/*" />

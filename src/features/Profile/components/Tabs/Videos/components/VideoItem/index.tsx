@@ -3,7 +3,7 @@ import { Edit2Icon, TimeIcon } from 'common/icons'
 import { FormattedVideoType } from 'features/Profile/components/Tabs/Videos'
 import { Modal } from 'features/Modal'
 import { useDispatch } from 'react-redux'
-import { IFormElement, EditVideo } from 'features/Profile/components/Tabs/Videos/components/EditVideo'
+import { IFormElement, EditFile } from 'features/Profile/components/Tabs/EditFile'
 import { deleteVideo, renameVideo } from 'features/Profile/actions'
 import styles from './styles.module.sass'
 
@@ -32,7 +32,7 @@ export const VideoItem: FC<IVideoItem> = ({
     dispatch(renameVideo(
       video.assetID,
       video.title,
-      e.currentTarget.elements.videoName.value,
+      e.currentTarget.elements.fileName.value,
       setIsOpenModal,
       setIsLoadingButton
     ))
@@ -72,12 +72,13 @@ export const VideoItem: FC<IVideoItem> = ({
         onClose={toggleModal}
       >
         <>
-          <EditVideo
-            titleVideo={video.title}
-            imageVideo={video.img}
+          <EditFile
+            titleFile={video.title}
+            imageFile={video.img}
             isLoadingButton={isLoadingButton}
-            onSaveVideo={onRenameVideo}
-            onDeleteVideo={onDeleteVideo}
+            onSaveFile={onRenameVideo}
+            onDeleteFile={onDeleteVideo}
+            fileType="video"
           />
         </>
       </Modal>
