@@ -648,7 +648,10 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
     })
 
     if (response) {
-      const room = await connect(response.token, { room: response.room } as ConnectOptions).catch((err) => {
+      const room = await connect(response.token, {
+        room: response.room,
+        dominantSpeaker: true
+      } as ConnectOptions).catch((err) => {
         dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
       })
 

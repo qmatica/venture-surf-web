@@ -4,20 +4,20 @@ import React, { createRef, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import { actions as profileActions, declineCall } from 'features/Profile/actions'
-import { Button } from 'common/components/Button'
 import { Participant } from './components/Participant'
 import { actions } from './actions'
 import styles from './styles.module.sass'
+import { NavBar } from './components/NavBar'
 
 export const VideoChat = () => {
   const { room, remoteUserUid, viewEndCallAll } = useSelector((state: RootState) => state.videoChat)
+
   const dispatch = useDispatch()
   const videoContainerRef = createRef<HTMLDivElement>()
 
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [participants, setParticipants] = useState<ParticipantType[]>([])
-  const [styleLocalParticipant, setStyleLocalParticipant] = useState<{[key: string]: any} | undefined>()
-  const [heightContainer, setHeightContainer] = useState<number | undefined>()
+  const [dominantSpeakerParticipant, setDominantSpeakerParticipant] = useState<ParticipantType | null>(null)
 
   const toggleModal = () => {
     setIsOpenModal(!isOpenModal)
@@ -29,22 +29,17 @@ export const VideoChat = () => {
   // }
 
   const participantConnected = (participant: ParticipantType) => {
-    if (!heightContainer) {
-      setHeightContainer(videoContainerRef.current?.offsetHeight)
-    }
-    if (!styleLocalParticipant) {
-      setStyleLocalParticipant({
-        width: '218px',
-        position: 'absolute',
-        top: 0,
-        left: 0
-      })
-    }
+    setDominantSpeakerParticipant(participant)
     setParticipants((prevParticipants) => [...prevParticipants, participant])
   }
 
   const participantDisconnected = (participant: ParticipantType) => {
     setParticipants((prevParticipants) => prevParticipants.filter((p) => p !== participant))
+  }
+
+  const dominantSpeakerChanged = (participant: ParticipantType) => {
+    console.log('dominantSpeakerChanged', participant)
+    setDominantSpeakerParticipant(participant)
   }
 
   useEffect(() => {
@@ -55,23 +50,20 @@ export const VideoChat = () => {
     }
 
     if (room) {
+      dominantSpeakerChanged(room.localParticipant)
       room.on('participantConnected', participantConnected)
       room.on('participantDisconnected', participantDisconnected)
+      room.on('dominantSpeakerChanged', dominantSpeakerChanged)
       room.participants.forEach(participantConnected)
     }
     return () => {
       if (room) {
         room.off('participantConnected', participantConnected)
         room.off('participantDisconnected', participantDisconnected)
+        room.off('dominantSpeakerChanged', dominantSpeakerChanged)
       }
     }
   }, [room])
-
-  useEffect(() => {
-    if (participants.length === 0 && styleLocalParticipant) {
-      setStyleLocalParticipant(undefined)
-    }
-  }, [participants])
 
   useEffect(() => {
     if (!isOpenModal) {
@@ -81,30 +73,32 @@ export const VideoChat = () => {
     }
   }, [isOpenModal])
 
-  const remoteParticipants = participants.map((participant) => (
+  if (!room) return null
+
+  const allParticipants = [room.localParticipant, ...participants].map((participant) => (
     <Participant key={participant.sid} participant={participant} />
   ))
 
-  if (!room) return null
-
   return (
-    <Modal title="Video chat" isOpen={isOpenModal} onClose={toggleModal} width={735}>
+    <Modal
+      title="Video conversation"
+      isOpen={isOpenModal}
+      onClose={toggleModal}
+      width="calc(100vw - 100px)"
+    >
       <div
         className={styles.container}
         ref={videoContainerRef}
-        style={{
-          minHeight: heightContainer || 'auto'
-        }}
       >
-        <Participant
-          key={room.localParticipant.sid}
-          participant={room.localParticipant}
-          style={styleLocalParticipant}
-        />
-        {remoteParticipants}
-        {/*{viewEndCallAll && (*/}
-        {/*  <Button title="End call for all" className={styles.button} onClick={endCallAll} />*/}
-        {/*)}*/}
+        <div className={styles.participantsContainer}>
+          {allParticipants}
+        </div>
+        <div className={styles.dominantParticipantContainer}>
+          {dominantSpeakerParticipant && (
+          <Participant key={dominantSpeakerParticipant.sid} participant={dominantSpeakerParticipant} />
+          )}
+        </div>
+        <NavBar localParticipant={room.localParticipant} onLeave={toggleModal} />
       </div>
     </Modal>
   )

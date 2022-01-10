@@ -1,8 +1,10 @@
 .container
   position: relative
   border-radius: 10px
-  background: rgba(106, 106, 106, 0.7)
+  background: #838383
   transition: 0.3s
+  min-height: calc(100vh - 200px)
+  overflow: auto
   .button
     position: absolute
     right: 20px
@@ -12,3 +14,28 @@
     &:hover
       border-color: #d7d7d7
       color: #d7d7d7
+  .participantsContainer
+    display: flex
+    justify-content: center
+    padding: 9px 0
+    > div
+      height: 100px
+      margin-right: 15px
+      border-radius: 10px
+      overflow: hidden
+      background: #C4C4C4
+      transition: 0.3s
+      transform: translate3d(0, 0, 0)
+      &:last-child
+        margin-right: 0
+      > video
+        transform: scale(1.05)
+  .dominantParticipantContainer
+    display: flex
+    justify-content: center
+    height: calc(100vh - 260px)
+    > div
+      height: inherit
+      overflow: hidden
+      border-radius: 10px 10px 0 0
+      transition: 0.2s

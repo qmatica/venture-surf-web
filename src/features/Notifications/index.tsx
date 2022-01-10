@@ -38,7 +38,10 @@ export const Notifications = () => {
 
   const replyWithVideo = () => {
     if (incomingCall) {
-      connect(incomingCall.data.token, { room: incomingCall.data.room } as ConnectOptions)
+      connect(incomingCall.data.token, {
+        room: incomingCall.data.room,
+        dominantSpeaker: true
+      } as ConnectOptions)
         .then((room) => {
           dispatch(actionsVideoChat.setRoom(room, 'fixedThis'))
           dispatch(actions.removeIncomingCall())

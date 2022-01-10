@@ -1,0 +1,123 @@
+.navBarContainer
+  height: 63px
+  width: 100%
+  background: rgba(78, 78, 78, 0.68)
+  border-radius: 10px
+  position: absolute
+  bottom: 0
+  display: flex
+  align-items: center
+  justify-content: space-between
+  font-family: "Roboto", sans-serif
+  > div
+    display: flex
+    > div
+      margin-left: 20px
+    &:last-child
+      > button, > div
+        margin-left: 0
+        margin-right: 20px
+.addMembersContainer
+  position: relative
+  display: flex
+  justify-content: center
+  .listContainer
+    width: 350px
+    position: absolute
+    bottom: calc(100% + 25px)
+    background: #EDEDED
+    border-radius: 10px
+    padding: 20px 16px
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1)
+    display: flex
+    flex-direction: column
+    .empty
+      text-align: center
+      color: #646464
+    .listWrapper
+      max-height: 350px
+      overflow: auto
+      .item
+        display: flex
+        align-items: center
+        justify-content: space-between
+        padding: 12px 0
+        border-bottom: 1px solid #E4E4E4
+        &:last-child
+          border-bottom: none
+        > div
+          display: flex
+          align-items: center
+          .userPhotoContainer
+            width: 46px
+            height: 46px
+            border-radius: 7px
+            overflow: hidden
+            display: flex
+            justify-content: center
+            align-items: center
+            background: #c1c1c1
+            > img
+              width: 100%
+            > svg
+              transform: scale(0.6)
+        .name
+          color: #030D21
+          font-size: 17px
+          margin-left: 15px
+    &::before
+      content: ''
+      position: absolute
+      bottom: -20px
+      left: calc(50% - 10px)
+      border: 10px solid transparent
+      border-top: 10px solid #ededed
+    .inputContainer
+      margin-bottom: 18px
+      width: 100%
+      > input
+        width: 100%
+        padding-left: 15px
+        height: 36px
+        border-radius: 7px
+        border: 1px solid #C8C8C8
+        transition: 0.2s
+        color: #030D21
+        font-size: 16px
+        &::placeholder
+          color: #ADADAD
+        &:focus
+          border: 1px solid #9d9d9d
+          outline: none
+.buttonMultimediaContainer
+  display: flex
+  flex-direction: column
+  cursor: pointer
+  justify-content: center
+  align-items: center
+  min-width: 65px
+  .title
+    color: #D6D6D6
+    margin-top: 5px
+    font-size: 16px
+.leave
+  font-size: 16px
+  border-color: #da3129
+  color: #FFF
+  background: #da3129
+  font-family: "Roboto Medium", "Roboto", sans-serif
+  &:hover
+    border-color: #e53229
+    background: #e53229
+.addMembers
+  font-size: 16px
+  border-color: #6E92BD
+  color: #FFF
+  background: #6E92BD
+  font-family: "Roboto Medium", "Roboto", sans-serif
+  &:hover
+    border-color: #6497d4
+    background: #6497d4
+  &.active
+    border-color: #6497d4
+    background: #6497d4
