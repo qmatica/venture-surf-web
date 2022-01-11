@@ -5,13 +5,14 @@ import { getMyProfile } from 'features/Profile/selectors'
 import styles from './styles.module.sass'
 
 interface IEditFile {
-  titleFile?: string
-  imageFile?: string
-  fileType: string
-  isLoadingButton?: 'onSaveButton' | 'onDeleteButton' | null
-  onSaveFile: (e: React.FormEvent<IFormElement>) => void
+  fileName?: string
+  previewUrl?: string
+  fileType: 'videos' | 'docs'
+  loadingButton?: 'onSaveButton' | 'onDeleteButton' | null
+  onSaveFile: (e: React.FormEvent<IFormElement>, title: string) => void
   onSetSelectedFile?: (value: File | null) => void
   onDeleteFile?: () => void
+  icon?: React.ComponentType
 }
 
 interface IFormElements extends HTMLFormControlsCollection {
@@ -23,33 +24,24 @@ export interface IFormElement extends HTMLFormElement {
 }
 
 export const EditFile: FC<IEditFile> = ({
-  titleFile,
-  imageFile,
-  isLoadingButton,
+  fileName,
+  previewUrl,
+  loadingButton,
   onSaveFile,
   onSetSelectedFile,
   onDeleteFile,
-  fileType
+  fileType,
+  icon: Icon
 }) => {
   const profile = useSelector(getMyProfile)
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState(fileName || '')
   const [isErrorNameExist, setIsErrorNameExist] = useState(false)
 
-  useEffect(() => {
-    if (titleFile) setTitle(titleFile)
-  }, [])
-
-  const isEdit = titleFile
+  const isEdit = fileName
 
   const handleChangeTitle = (title: string) => {
     if (profile) {
-      const existingTitle: any[] = []
-      if (fileType === 'video') {
-        existingTitle.push(...profile[profile.activeRole].videos._order_)
-      }
-      if (fileType === 'doc') {
-        existingTitle.push(...profile[profile.activeRole].docs._order_)
-      }
+      const existingTitle = profile[profile.activeRole][fileType]._order_
       if (existingTitle.includes(title)) {
         setIsErrorNameExist(true)
       }
@@ -66,17 +58,17 @@ export const EditFile: FC<IEditFile> = ({
   }
 
   const getTitleOnSaveButton = () => {
-    if (isLoadingButton === 'onSaveButton') return <PreloaderIcon />
+    if (loadingButton === 'onSaveButton') return <PreloaderIcon />
     if (isEdit) return 'Update'
     return 'Upload'
   }
 
   return (
     <div className={styles.container}>
-      <form onSubmit={onSaveFile}>
+      <form onSubmit={(e: React.FormEvent<IFormElement>) => onSaveFile(e, title)}>
         <div className={styles.setTitleFileContainer}>
           <div className={styles.previewImage}>
-            {imageFile ? <img src={imageFile} alt={imageFile} /> : <VideoIcon />} {/* TODO: Add PDF icon */}
+            {previewUrl ? <img src={previewUrl} alt={previewUrl} /> : Icon && <Icon />}
           </div>
           <div className={styles.inputContainer}>
             <input
@@ -102,7 +94,7 @@ export const EditFile: FC<IEditFile> = ({
           <button
             className={`${styles.button} ${styles.submit}`}
             type="submit"
-            disabled={title === titleFile || isErrorNameExist || !title.length}
+            disabled={title === fileName || isErrorNameExist || !title.length}
           >
             {getTitleOnSaveButton()}
           </button>
@@ -112,7 +104,7 @@ export const EditFile: FC<IEditFile> = ({
             className={`${styles.button} ${styles.delete}`}
             onClick={onDeleteFile}
           >
-            {isLoadingButton === 'onDeleteButton' ? <PreloaderIcon /> : 'Delete'}
+            {loadingButton === 'onDeleteButton' ? <PreloaderIcon /> : 'Delete'}
           </button>
           )}
         </div>

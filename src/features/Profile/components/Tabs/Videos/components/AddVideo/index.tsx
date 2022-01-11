@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react'
-import { PlusIcon } from 'common/icons'
+import { PlusIcon, VideoIcon } from 'common/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { Modal } from 'features/Modal'
 import { uploadVideo } from 'features/Profile/actions'
@@ -13,7 +13,7 @@ export const AddVideo: FC = () => {
   const { progressLoadingFile } = useSelector((state: RootState) => state.profile)
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null)
   const [isOpenModal, setIsOpenModal] = useState(false)
-  const [isLoadingButton, setIsLoadingButton] = useState<'onSaveButton' | null>(null)
+  const [loadingButton, setLoadingButton] = useState<'onSaveButton' | null>(null)
 
   const toggleModal = () => setIsOpenModal(!isOpenModal)
 
@@ -27,11 +27,11 @@ export const AddVideo: FC = () => {
     return 'Add video'
   }
 
-  const onUpload = (e: React.FormEvent<IFormElement>) => {
+  const onUpload = (e: React.FormEvent<IFormElement>, title: string) => {
     e.preventDefault()
     if (selectedVideo) {
-      setIsLoadingButton('onSaveButton')
-      dispatch(uploadVideo(selectedVideo, e.currentTarget.elements.fileName.value, setIsOpenModal, setIsLoadingButton))
+      setLoadingButton('onSaveButton')
+      dispatch(uploadVideo(selectedVideo, title, setIsOpenModal, setLoadingButton))
       setSelectedVideo(null)
     }
   }
@@ -47,9 +47,10 @@ export const AddVideo: FC = () => {
           {selectedVideo ? (
             <EditFile
               onSaveFile={onUpload}
-              isLoadingButton={isLoadingButton}
+              loadingButton={loadingButton}
               onSetSelectedFile={setSelectedVideo}
-              fileType="video"
+              fileType="videos"
+              icon={VideoIcon}
             />
           ) : (
             <DropZone setSelectedVideo={setSelectedVideo} progressLoadingFile={progressLoadingFile} accept="video/*" />

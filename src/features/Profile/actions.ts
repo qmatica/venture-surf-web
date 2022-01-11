@@ -898,7 +898,7 @@ export const uploadDoc = (
 export const deleteDoc = (
   title: string,
   setIsOpenModal: (isOpen: boolean) => void,
-  setIsLoadingButton: (isLoadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
+  setLoadingButton: (loadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
 ): ThunkType => async (dispatch, getState) => {
   const status = await profileAPI.deleteDoc(title)
 
@@ -906,11 +906,6 @@ export const deleteDoc = (
     const { profile } = getState().profile
 
     if (profile) {
-      const updatedDocsOrder = [...profile[profile.activeRole].docs._order_]
-      const updatedDocsOrderIndex = updatedDocsOrder.findIndex((docTitle) => docTitle === title)
-
-      updatedDocsOrder.splice(updatedDocsOrderIndex, 1)
-
       const updatedProfile = {
         ...profile,
         [profile.activeRole]: {
@@ -927,7 +922,7 @@ export const deleteDoc = (
       dispatch(actions.setMyProfile(updatedProfile))
     }
   }
-  setIsLoadingButton(null)
+  setLoadingButton(null)
   setIsOpenModal(false)
 }
 
@@ -935,7 +930,7 @@ export const renameDoc = (
   title: string,
   newTitle: string,
   setIsOpenModal: (isOpen: boolean) => void,
-  setIsLoadingButton: (isLoadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
+  setLoadingButton: (loadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
 ): ThunkType => async (dispatch, getState) => {
   const status = await profileAPI.renameDoc(title, newTitle)
 
@@ -964,6 +959,6 @@ export const renameDoc = (
       dispatch(actions.setMyProfile(updatedProfile))
     }
   }
-  setIsLoadingButton(null)
+  setLoadingButton(null)
   setIsOpenModal(false)
 }

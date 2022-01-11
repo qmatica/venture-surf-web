@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react'
-import { Edit2Icon, TimeIcon } from 'common/icons'
+import { Edit2Icon, TimeIcon, VideoIcon } from 'common/icons'
 import { FormattedVideoType } from 'features/Profile/components/Tabs/Videos'
 import { Modal } from 'features/Modal'
 import { useDispatch } from 'react-redux'
@@ -22,25 +22,25 @@ export const VideoItem: FC<IVideoItem> = ({
 }) => {
   const dispatch = useDispatch()
   const [isOpenModal, setIsOpenModal] = useState(false)
-  const [isLoadingButton, setIsLoadingButton] = useState<'onSaveButton' | 'onDeleteButton' | null>(null)
+  const [loadingButton, setLoadingButton] = useState<'onSaveButton' | 'onDeleteButton' | null>(null)
 
   const toggleModal = () => setIsOpenModal(!isOpenModal)
 
-  const onRenameVideo = (e: React.FormEvent<IFormElement>) => {
+  const onRenameVideo = (e: React.FormEvent<IFormElement>, title: string) => {
     e.preventDefault()
-    setIsLoadingButton('onSaveButton')
+    setLoadingButton('onSaveButton')
     dispatch(renameVideo(
       video.assetID,
       video.title,
-      e.currentTarget.elements.fileName.value,
+      title,
       setIsOpenModal,
-      setIsLoadingButton
+      setLoadingButton
     ))
   }
 
   const onDeleteVideo = () => {
-    setIsLoadingButton('onDeleteButton')
-    dispatch(deleteVideo(video.title, setIsOpenModal, setIsLoadingButton))
+    setLoadingButton('onDeleteButton')
+    dispatch(deleteVideo(video.title, setIsOpenModal, setLoadingButton))
   }
 
   const onSelectVideo = () => onSetCurrentVideo(video)
@@ -73,12 +73,13 @@ export const VideoItem: FC<IVideoItem> = ({
       >
         <>
           <EditFile
-            titleFile={video.title}
-            imageFile={video.img}
-            isLoadingButton={isLoadingButton}
+            fileName={video.title}
+            previewUrl={video.img}
+            loadingButton={loadingButton}
             onSaveFile={onRenameVideo}
             onDeleteFile={onDeleteVideo}
-            fileType="video"
+            fileType="videos"
+            icon={VideoIcon}
           />
         </>
       </Modal>
