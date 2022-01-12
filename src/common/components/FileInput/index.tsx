@@ -18,7 +18,7 @@ export const FileInput: FC<IFileInput> = ({
   const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation()
     e.preventDefault()
-    if (e.target.files) onChangeFile(e.target.files[0])
+    if (e.target.files?.length) onChangeFile(e.target.files[0])
   }
 
   return (
