@@ -1,9 +1,9 @@
 import React, { FC, useState } from 'react'
-import { Edit2Icon, TimeIcon } from 'common/icons'
+import { Edit2Icon, TimeIcon, VideoIcon } from 'common/icons'
 import { FormattedVideoType } from 'features/Profile/components/Tabs/Videos'
 import { Modal } from 'features/Modal'
 import { useDispatch } from 'react-redux'
-import { IFormElement, EditVideo } from 'features/Profile/components/Tabs/Videos/components/EditVideo'
+import { IFormElement, EditFile } from 'features/Profile/components/Tabs/EditFile'
 import { deleteVideo, renameVideo } from 'features/Profile/actions'
 import styles from './styles.module.sass'
 
@@ -22,25 +22,25 @@ export const VideoItem: FC<IVideoItem> = ({
 }) => {
   const dispatch = useDispatch()
   const [isOpenModal, setIsOpenModal] = useState(false)
-  const [isLoadingButton, setIsLoadingButton] = useState<'onSaveButton' | 'onDeleteButton' | null>(null)
+  const [loadingButton, setLoadingButton] = useState<'onSaveButton' | 'onDeleteButton' | null>(null)
 
   const toggleModal = () => setIsOpenModal(!isOpenModal)
 
-  const onRenameVideo = (e: React.FormEvent<IFormElement>) => {
+  const onRenameVideo = (e: React.FormEvent<IFormElement>, title: string) => {
     e.preventDefault()
-    setIsLoadingButton('onSaveButton')
+    setLoadingButton('onSaveButton')
     dispatch(renameVideo(
       video.assetID,
       video.title,
-      e.currentTarget.elements.videoName.value,
+      title,
       setIsOpenModal,
-      setIsLoadingButton
+      setLoadingButton
     ))
   }
 
   const onDeleteVideo = () => {
-    setIsLoadingButton('onDeleteButton')
-    dispatch(deleteVideo(video.title, setIsOpenModal, setIsLoadingButton))
+    setLoadingButton('onDeleteButton')
+    dispatch(deleteVideo(video.title, setIsOpenModal, setLoadingButton))
   }
 
   const onSelectVideo = () => onSetCurrentVideo(video)
@@ -72,12 +72,14 @@ export const VideoItem: FC<IVideoItem> = ({
         onClose={toggleModal}
       >
         <>
-          <EditVideo
-            titleVideo={video.title}
-            imageVideo={video.img}
-            isLoadingButton={isLoadingButton}
-            onSaveVideo={onRenameVideo}
-            onDeleteVideo={onDeleteVideo}
+          <EditFile
+            fileName={video.title}
+            previewUrl={video.img}
+            loadingButton={loadingButton}
+            onSaveFile={onRenameVideo}
+            onDeleteFile={onDeleteVideo}
+            fileType="videos"
+            icon={VideoIcon}
           />
         </>
       </Modal>

@@ -74,6 +74,14 @@ export const profileAPI = {
       }
     }).then((res) => ({ status: res.status, docUrl: res.data.url }))
   },
+  renameDoc(title: string, updatedTitle: string) {
+    return instance.patch('/api/doc', { title, new_title: updatedTitle }, {
+    }).then((res) => res.status)
+  },
+  deleteDoc(title: string) {
+    return instance.post('/api/doc/delete', { title }, {
+    }).then((res) => res.status)
+  },
   getChatToken() {
     return instance.get('/api/chat/token').then((res) => res.data)
   },

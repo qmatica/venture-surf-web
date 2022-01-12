@@ -897,3 +897,71 @@ export const uploadDoc = (
     .catch(() => dispatch(actionsNotifications.addErrorMsg("We are sorry we couldn't upload your file. Please make sure it is not corrupted.")))
     .finally(onFinish)
 }
+
+export const deleteDoc = (
+  title: string,
+  setIsOpenModal: (isOpen: boolean) => void,
+  setLoadingButton: (loadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
+): ThunkType => async (dispatch, getState) => {
+  const status = await profileAPI.deleteDoc(title)
+
+  if (status === apiCodes.success) {
+    const { profile } = getState().profile
+
+    if (profile) {
+      const updatedProfile = {
+        ...profile,
+        [profile.activeRole]: {
+          ...profile[profile.activeRole],
+          docs: {
+            ...profile[profile.activeRole].docs,
+            _order_: profile[profile.activeRole].docs._order_.filter((doc) => doc !== title)
+          }
+        }
+      }
+
+      delete updatedProfile[updatedProfile.activeRole].docs[title]
+
+      dispatch(actions.setMyProfile(updatedProfile))
+    }
+  }
+  setLoadingButton(null)
+  setIsOpenModal(false)
+}
+
+export const renameDoc = (
+  title: string,
+  newTitle: string,
+  setIsOpenModal: (isOpen: boolean) => void,
+  setLoadingButton: (loadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
+): ThunkType => async (dispatch, getState) => {
+  const status = await profileAPI.renameDoc(title, newTitle)
+
+  if (status === apiCodes.success) {
+    const { profile } = getState().profile
+
+    if (profile) {
+      const updatedDocsOrder = [...profile[profile.activeRole].docs._order_]
+      const updatedDocsOrderIndex = profile[profile.activeRole].docs._order_.findIndex((doc) => doc === title)
+      updatedDocsOrder[updatedDocsOrderIndex] = newTitle
+
+      const updatedProfile = {
+        ...profile,
+        [profile.activeRole]: {
+          ...profile[profile.activeRole],
+          docs: {
+            ...profile[profile.activeRole].docs,
+            _order_: updatedDocsOrder,
+            [newTitle]: profile[profile.activeRole].docs[title]
+          }
+        }
+      }
+
+      delete updatedProfile[updatedProfile.activeRole].docs[title]
+
+      dispatch(actions.setMyProfile(updatedProfile))
+    }
+  }
+  setLoadingButton(null)
+  setIsOpenModal(false)
+}

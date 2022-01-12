@@ -4,80 +4,80 @@ import { useSelector } from 'react-redux'
 import { getMyProfile } from 'features/Profile/selectors'
 import styles from './styles.module.sass'
 
-interface IEditVideo {
-  titleVideo?: string
-  imageVideo?: string
-  isLoadingButton?: 'onSaveButton' | 'onDeleteButton' | null
-  onSaveVideo: (e: React.FormEvent<IFormElement>) => void
-  onSetSelectedVideo?: (value: File | null) => void
-  onDeleteVideo?: () => void
+interface IEditFile {
+  fileName?: string
+  previewUrl?: string
+  fileType: 'videos' | 'docs'
+  loadingButton?: 'onSaveButton' | 'onDeleteButton' | null
+  onSaveFile: (e: React.FormEvent<IFormElement>, title: string) => void
+  onSetSelectedFile?: (value: File | null) => void
+  onDeleteFile?: () => void
+  icon?: React.ComponentType
 }
 
 interface IFormElements extends HTMLFormControlsCollection {
-  videoName: HTMLInputElement
+  fileName: HTMLInputElement
 }
 
 export interface IFormElement extends HTMLFormElement {
   readonly elements: IFormElements
 }
 
-export const EditVideo: FC<IEditVideo> = ({
-  titleVideo,
-  imageVideo,
-  isLoadingButton,
-  onSaveVideo,
-  onSetSelectedVideo,
-  onDeleteVideo
+export const EditFile: FC<IEditFile> = ({
+  fileName,
+  previewUrl,
+  loadingButton,
+  onSaveFile,
+  onSetSelectedFile,
+  onDeleteFile,
+  fileType,
+  icon: Icon
 }) => {
   const profile = useSelector(getMyProfile)
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState(fileName || '')
   const [isErrorNameExist, setIsErrorNameExist] = useState(false)
 
-  useEffect(() => {
-    if (titleVideo) setTitle(titleVideo)
-  }, [])
-
-  const isEdit = titleVideo
+  const isEdit = fileName
 
   const handleChangeTitle = (title: string) => {
     if (profile) {
-      const existingTitleVideos = profile[profile.activeRole].videos._order_
-      if (existingTitleVideos.includes(title)) {
+      const existingTitle = profile[profile.activeRole][fileType]._order_
+      if (existingTitle.includes(title)) {
         setIsErrorNameExist(true)
       }
-      if (isErrorNameExist && !existingTitleVideos.includes(title)) {
+      if (isErrorNameExist && !existingTitle.includes(title)) {
         setIsErrorNameExist(false)
       }
       setTitle(title)
     }
   }
 
-  const clearAddedVideo = () => {
-    if (onSetSelectedVideo) onSetSelectedVideo(null)
+  const clearAddedFile = () => {
+    if (onSetSelectedFile) onSetSelectedFile(null)
     setIsErrorNameExist(false)
   }
 
   const getTitleOnSaveButton = () => {
-    if (isLoadingButton === 'onSaveButton') return <PreloaderIcon />
+    if (loadingButton === 'onSaveButton') return <PreloaderIcon />
     if (isEdit) return 'Update'
     return 'Upload'
   }
 
   return (
     <div className={styles.container}>
-      <form onSubmit={onSaveVideo}>
-        <div className={styles.setTitleVideoContainer}>
-          <div className={styles.videoImage}>
-            {imageVideo ? <img src={imageVideo} alt={titleVideo} /> : <VideoIcon />}
+      <form onSubmit={(e: React.FormEvent<IFormElement>) => onSaveFile(e, title)}>
+        <div className={styles.setTitleFileContainer}>
+          <div className={styles.previewImage}>
+            {previewUrl ? <img src={previewUrl} alt={previewUrl} /> : Icon && <Icon />}
           </div>
           <div className={styles.inputContainer}>
             <input
-              name="videoName"
+              name="fileName"
               className={styles.input}
               type="text"
               value={title}
               onChange={({ target: { value } }) => handleChangeTitle(value)}
-              placeholder="Type name video"
+              placeholder="Type file name"
               style={{
                 borderColor: isErrorNameExist ? '#db4947' : '#D7DFED'
               }}
@@ -85,7 +85,7 @@ export const EditVideo: FC<IEditVideo> = ({
             {isErrorNameExist && <div className={styles.isErrorNameExist}>Such name exists</div>}
           </div>
           {!isEdit && (
-            <div className={styles.clearSelectedVideoButton} onClick={clearAddedVideo}>
+            <div className={styles.clearSelectedFileButton} onClick={clearAddedFile}>
               <TrashCanIcon />
             </div>
           )}
@@ -94,17 +94,17 @@ export const EditVideo: FC<IEditVideo> = ({
           <button
             className={`${styles.button} ${styles.submit}`}
             type="submit"
-            disabled={title === titleVideo || isErrorNameExist || !title.length}
+            disabled={title === fileName || isErrorNameExist || !title.length}
           >
             {getTitleOnSaveButton()}
           </button>
-          {onDeleteVideo && (
+          {onDeleteFile && (
           <button
             type="button"
             className={`${styles.button} ${styles.delete}`}
-            onClick={onDeleteVideo}
+            onClick={onDeleteFile}
           >
-            {isLoadingButton === 'onDeleteButton' ? <PreloaderIcon /> : 'Delete'}
+            {loadingButton === 'onDeleteButton' ? <PreloaderIcon /> : 'Delete'}
           </button>
           )}
         </div>
