@@ -76,8 +76,7 @@ export const getImageSrcFromBase64 = (base64: string, photoUrl: string) =>
 export async function downloadFile(fileUrl: string, title: string) {
   // TODO: Fetch gets CORS error. Need to configure from BE
   const response = await fetch(fileUrl, {
-    method: 'GET',
-    headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' }
+    method: 'GET'
   })
   if (!response.ok) {
     throw response
