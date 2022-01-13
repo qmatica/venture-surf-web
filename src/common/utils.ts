@@ -72,3 +72,23 @@ export const setCharAt = (str: string, index: number, chr: string) => {
 
 export const getImageSrcFromBase64 = (base64: string, photoUrl: string) =>
   (base64 ? `data:image/*;base64,${base64}` : photoUrl)
+
+export async function downloadFile(fileUrl: string, title: string) {
+  // TODO: Fetch gets CORS error. Need to configure from BE
+  const response = await fetch(fileUrl, {
+    method: 'GET',
+    headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' }
+  })
+  if (!response.ok) {
+    throw response
+  }
+  const data = await response.blob()
+
+  const url = window.URL.createObjectURL(new Blob([data], { type: data.type }))
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', title)
+  document.body.appendChild(link)
+  link.click()
+  link.parentNode?.removeChild(link)
+}
