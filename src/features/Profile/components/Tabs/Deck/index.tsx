@@ -6,6 +6,7 @@ import { ProfileType } from 'features/Profile/types'
 import { Button } from 'common/components/Button'
 import { uploadDoc, deleteDoc, renameDoc } from 'features/Profile/actions'
 import { FileInput } from 'common/components/FileInput'
+import { downloadFile } from 'common/utils'
 import { Modal } from 'features/Modal'
 import { IFormElement, EditFile } from 'features/Profile/components/Tabs/EditFile'
 import styles from './styles.module.sass'
@@ -63,19 +64,30 @@ export const Deck: FC<IDeck> = ({ profile, isEdit }) => {
         {sortedDocs.map(({ title, url }) => (
           <div key={title} className={styles.wrapper}>
             <div className={styles.doc}>
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                <div className={styles.info}>
-                  <div className={styles.img} />
-                  <div>
-                    <div className={styles.title}>{title}</div>
-                    <div className={styles.format}>PDF</div>
-                  </div>
+
+              <div className={styles.info}>
+                <div className={styles.img} />
+                <div>
+                  <div className={styles.title}>{title}</div>
+                  <div className={styles.format}>PDF</div>
                 </div>
-              </a>
+              </div>
+
               <div className={styles.actions}>
-                <div><EyeIcon /></div>
-                <div className={styles.download}><DownloadIcon /></div>
-                {isEdit && <div onClick={() => { toggleModal(); setTitle(title) }}><Edit2Icon /></div>}
+                <div>
+                  <a href={url} target="_blank" rel="noopener noreferrer">
+                    <EyeIcon />
+                  </a>
+                </div>
+                <div onClick={() => downloadFile(url, title)} className={styles.download}><DownloadIcon /></div>
+                {isEdit && (
+                <div onClick={() => {
+                  toggleModal()
+                  setTitle(title)
+                }}
+                ><Edit2Icon />
+                </div>
+                )}
               </div>
             </div>
           </div>
