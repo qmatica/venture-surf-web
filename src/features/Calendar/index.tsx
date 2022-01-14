@@ -9,7 +9,7 @@ import { connectToCall, updateTimeSlots } from 'features/Profile/actions'
 import { getMySlots } from 'features/Profile/selectors'
 import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
-import { UserIcon } from 'common/icons'
+import { UserIcon, LoadingSkeleton } from 'common/icons'
 import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 import { FormattedSlotsType } from './types'
@@ -33,6 +33,7 @@ const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
 
   const mySlots = useSelector(getMySlots)
   const mutuals = useSelector(getMutuals)
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
   let hours: string | number | undefined = startDate?.getHours()
   hours = (`0${hours}`).slice(-2)
@@ -67,6 +68,8 @@ const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
 
         const companion = mutuals?.find((mutual) => mutual.uid === myScheduledSlot?.uid)
 
+        if (!companion?.photoURL && !companion?.photoBase64 && !isImageLoaded) setIsImageLoaded(true)
+
         const classNameMyOpenedSlot =
           !otherSlots && mySlots.find((slot) => slot.status === 'free' && moment(slot.date).isSame(dateSlot))
             ? styles.myOpenedSlot
@@ -98,10 +101,13 @@ const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
                 data-place="bottom"
                 data-effect="solid"
               >
+                {!isImageLoaded && <div><LoadingSkeleton /></div>}
                 {companion.photoURL || companion.photoBase64 ? (
                   <img
                     src={getImageSrcFromBase64(companion.photoBase64, companion.photoURL)}
                     alt={companion.displayName}
+                    className={isImageLoaded ? styles.visible : styles.hidden}
+                    onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
                   />
                 ) : <UserIcon />}
               </div>

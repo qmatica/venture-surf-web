@@ -1,8 +1,8 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { like } from 'features/Surf/actions'
 import { accept, withdrawLike } from 'features/Contacts/actions'
 import { Button } from 'common/components/Button'
-import { UserPhotoIcon } from 'common/icons'
+import { UserPhotoIcon, LoadingSkeleton } from 'common/icons'
 import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { determineJobWithoutActiveRole } from 'common/typeGuards'
@@ -30,6 +30,8 @@ export const Body: FC<IBody> = ({
   const {
     uid, photoURL, photoBase64, job, loading, clickedAction, activeRole
   } = user
+
+  const [isImageLoaded, setIsImageLoaded] = useState(!photoURL)
 
   const getButtons = () => {
     switch (typeUser) {
@@ -136,8 +138,16 @@ export const Body: FC<IBody> = ({
     <div className={styles.container}>
       <Link to={`/profile/${user.uid}`}>
         <div className={styles.imgContainer}>
+          {!isImageLoaded && <div><LoadingSkeleton /></div>}
           {photoURL || photoBase64
-            ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt="" />
+            ? (
+              <img
+                className={isImageLoaded ? styles.visible : styles.hidden}
+                src={getImageSrcFromBase64(photoBase64, photoURL)}
+                alt=""
+                onLoad={() => setIsImageLoaded(true)}
+              />
+            )
             : <UserPhotoIcon />}
         </div>
       </Link>

@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux'
 import { ProfileType } from 'features/Profile/types'
 import { Button } from 'common/components/Button'
 import { uploadDoc, deleteDoc, renameDoc } from 'features/Profile/actions'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { FileInput } from 'common/components/FileInput'
 import { downloadFile } from 'common/utils'
 import { Modal } from 'features/Modal'
@@ -79,7 +80,13 @@ export const Deck: FC<IDeck> = ({ profile, isEdit }) => {
                     <EyeIcon />
                   </a>
                 </div>
-                <div onClick={() => downloadFile(url, title)} className={styles.download}><DownloadIcon /></div>
+                <div
+                  onClick={() =>
+                    downloadFile(url, title)
+                      .catch(() => dispatch(actionsNotifications.addErrorMsg('Failed to download')))}
+                  className={styles.download}
+                ><DownloadIcon />
+                </div>
                 {isEdit && (
                 <div onClick={() => {
                   toggleModal()

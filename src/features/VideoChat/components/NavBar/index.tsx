@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 import { getMutuals } from 'features/Contacts/selectors'
 import { getImageSrcFromBase64 } from 'common/utils'
 import {
-  MicIcon, MicOffIcon, UserPhotoIcon, VideoIcon2, VideoOffIcon2
+  MicIcon, MicOffIcon, UserPhotoIcon, VideoIcon2, VideoOffIcon2, LoadingSkeleton
 } from 'common/icons'
 import cn from 'classnames'
 import styles from './styles.module.sass'
@@ -77,20 +77,29 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
 const ListMembers = ({ isActive = false }) => {
   const mutuals = useSelector(getMutuals)
   const [search, setSearch] = useState('')
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
   if (!isActive) return null
 
   const list = mutuals?.map((user) => {
     const name = user.displayName || `${user.first_name} ${user.last_name}`
-
+    if (!user.photoURL && !user.photoBase64 && !isImageLoaded) setIsImageLoaded(true)
     if (!name.toLocaleLowerCase().includes(search.toLocaleLowerCase())) return null
 
     return (
       <div className={styles.item} key={user.uid}>
         <div>
           <div className={styles.userPhotoContainer}>
+            {!isImageLoaded && <div><LoadingSkeleton /></div>}
             {user.photoURL || user.photoBase64
-              ? <img src={getImageSrcFromBase64(user.photoBase64, user.photoURL)} alt={name} />
+              ? (
+                <img
+                  src={getImageSrcFromBase64(user.photoBase64, user.photoURL)}
+                  alt={name}
+                  className={isImageLoaded ? styles.visible : styles.hidden}
+                  onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
+                />
+              )
               : <UserPhotoIcon />}
           </div>
           <div className={styles.name}>{name}</div>

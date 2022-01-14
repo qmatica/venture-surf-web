@@ -1,8 +1,10 @@
-import React, { FC, useCallback, useMemo } from 'react'
+import React, {
+  FC, useCallback, useMemo, useState
+} from 'react'
 import { Link } from 'react-router-dom'
 import { ProfileType } from 'features/Profile/types'
 import { profileInteractionUsers } from 'features/Profile/constants'
-import { UserIcon } from 'common/icons'
+import { UserIcon, LoadingSkeleton } from 'common/icons'
 import { Tags } from 'common/components/Tags'
 import { useDispatch } from 'react-redux'
 import { updateMyProfile } from 'features/Profile/actions'
@@ -64,6 +66,8 @@ const Interaction: FC<IInteraction> = ({ profile }) => {
     value: profile[profileInteractionUsers.content[profile.activeRole]]
   }), [profile[profileInteractionUsers.content[profile.activeRole]]])
 
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
+
   if (!profileInteraction.value) return null
 
   return (
@@ -80,13 +84,21 @@ const Interaction: FC<IInteraction> = ({ profile }) => {
 
             const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
             const { photoURL, photoBase64 } = user
-
+            if (!photoURL && !photoBase64 && !isImageLoaded) setIsImageLoaded(true)
             return (
               <div className={styles.userContainer} key={uid}>
                 <Link to={`/profile/${uid}`}>
                   <div className={styles.photoContainer}>
+                    {!isImageLoaded && <div><LoadingSkeleton /></div>}
                     {photoURL || photoBase64
-                      ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={name} />
+                      ? (
+                        <img
+                          src={getImageSrcFromBase64(photoBase64, photoURL)}
+                          alt={name}
+                          className={isImageLoaded ? styles.visible : styles.hidden}
+                          onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
+                        />
+                      )
                       : <UserIcon />}
                   </div>
                 </Link>
