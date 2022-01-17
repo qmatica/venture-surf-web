@@ -4,7 +4,8 @@ import { ActionTypes } from './types'
 const initialState = {
   room: null as Room | null,
   remoteUserUid: null as string | null,
-  viewEndCallAll: false
+  viewEndCallAll: false,
+  isOwnerCall: false
 }
 
 export const VideoChatReducer = (state = initialState, action: ActionTypes): typeof initialState => {
@@ -20,6 +21,12 @@ export const VideoChatReducer = (state = initialState, action: ActionTypes): typ
       return {
         ...state,
         viewEndCallAll: action.viewEndCallAll
+      }
+    }
+    case 'VIDEO_CHAT__SET_IS_OWNER_CALL': {
+      return {
+        ...state,
+        isOwnerCall: true
       }
     }
     case 'VIDEO_CHAT__RESET':

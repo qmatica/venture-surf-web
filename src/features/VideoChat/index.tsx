@@ -95,7 +95,7 @@ export const VideoChat = () => {
         </div>
         <div className={styles.dominantParticipantContainer}>
           {dominantSpeakerParticipant && (
-          <Participant key={dominantSpeakerParticipant.sid} participant={dominantSpeakerParticipant} />
+            <Participant key={dominantSpeakerParticipant.sid} participant={dominantSpeakerParticipant} />
           )}
         </div>
         <NavBar localParticipant={room.localParticipant} onLeave={toggleModal} />

@@ -119,7 +119,10 @@ export const usersAPI = {
     return instance.put(`/api/intro/${uid}`, { users, message }).then((res) => res.data)
   },
   callNow(uid: string, device_id: string) {
-    return instance.put(`api/call/${uid}/invite`, { variants: ['now'], device_id }).then((res) => res.data)
+    return instance.put(`api/call/${uid}/now`, { variants: ['now'], device_id }).then((res) => res.data)
+  },
+  inviteInVideoRoom(uid: string, device_id: string, startTime: string) {
+    return instance.put(`api/call/${uid}/${startTime}/group_now`, { device_id }).then((res) => res.data)
   },
   callDecline(uid: string) {
     return instance.post(`/api/call/${uid}/all/decline`).then((res) => res.status)

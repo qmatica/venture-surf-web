@@ -64,7 +64,7 @@ const Interaction: FC<IInteraction> = ({ profile }) => {
     value: profile[profileInteractionUsers.content[profile.activeRole]]
   }), [profile[profileInteractionUsers.content[profile.activeRole]]])
 
-  if (!profileInteraction.value) return null
+  if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) return null
 
   return (
     <div className={styles.aboutContainer}>

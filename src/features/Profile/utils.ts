@@ -41,12 +41,22 @@ const prepareContact = (contact: UserType, key: string) => ({
 export const compareNowSlot = (
   prevSlots: SlotsType,
   nextSlots: SlotsType,
+  isOwnerCall: boolean,
   updateSlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => void
 ) => {
+  console.log('nextSlots', nextSlots)
   if (prevSlots?.now !== nextSlots?.now) {
     updateSlots('add', { now: nextSlots.now })
   }
-  if (nextSlots?.now && nextSlots.now.status === 'proposed') {
+
+  if (nextSlots?.now && nextSlots.now.status === 'free') {
+    updateSlots('del', 'now')
+    return 'declinedCall'
+  }
+
+  if (isOwnerCall) return null
+
+  if (nextSlots?.now) {
     if (prevSlots?.now?.uid !== nextSlots?.now.uid) {
       const { uid } = nextSlots.now
       if (nextSlots.now.twilio) {
@@ -57,11 +67,6 @@ export const compareNowSlot = (
         }
       }
     }
-  }
-
-  if (nextSlots?.now && nextSlots.now.status === 'free') {
-    updateSlots('del', 'now')
-    return 'declinedCall'
   }
 
   return null
