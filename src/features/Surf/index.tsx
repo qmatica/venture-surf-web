@@ -4,8 +4,8 @@ import { User } from 'features/User'
 import { getProfile } from 'features/Profile/selectors'
 import { ProfileType } from 'features/Profile/types'
 import { UserPhotoIcon } from 'common/icons'
+import { Image } from 'common/components/Image'
 import { Button } from 'common/components/Button'
-import { getImageSrcFromBase64 } from 'common/utils'
 import { getRequestedInvestments, getSurfRecommendedUsers, getSurfUsers } from './selectors'
 import styles from './styles.module.sass'
 import { acceptInvest, deleteInvest } from './actions'
@@ -54,9 +54,12 @@ export const Surf = () => {
               <div className={styles.invContainer} key={inv.uid}>
                 <div className={styles.userContainer}>
                   <div className={styles.photoContainer}>
-                    {photoURL || photoBase64
-                      ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={name} />
-                      : <UserPhotoIcon />}
+                    <Image
+                      photoURL={photoURL}
+                      photoBase64={photoBase64}
+                      alt={name}
+                      userIcon={UserPhotoIcon}
+                    />
                   </div>
                   <div className={styles.textContainer}>
                     <div className={styles.name}>{name}</div>

@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import { ProfileType } from 'features/Profile/types'
 import { profileInteractionUsers } from 'features/Profile/constants'
 import { UserIcon } from 'common/icons'
+import { Image } from 'common/components/Image'
 import { Tags } from 'common/components/Tags'
 import { useDispatch } from 'react-redux'
 import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
-import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 
 interface IAbout {
@@ -80,14 +80,16 @@ const Interaction: FC<IInteraction> = ({ profile }) => {
 
             const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
             const { photoURL, photoBase64 } = user
-
             return (
               <div className={styles.userContainer} key={uid}>
                 <Link to={`/profile/${uid}`}>
                   <div className={styles.photoContainer}>
-                    {photoURL || photoBase64
-                      ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={name} />
-                      : <UserIcon />}
+                    <Image
+                      photoURL={photoURL}
+                      photoBase64={photoBase64}
+                      alt={name}
+                      userIcon={UserIcon}
+                    />
                   </div>
                 </Link>
                 <Link to={`/profile/${uid}`}>

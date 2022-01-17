@@ -1,11 +1,11 @@
 import React from 'react'
 import moment from 'moment'
 import { useDispatch, useSelector } from 'react-redux'
-import { getImageSrcFromBase64 } from 'common/utils'
+import { Image } from 'common/components/Image'
+import { UserIcon } from 'common/icons'
+import { getChats, getOpenedChat } from 'features/Conversations/selectors'
+import { actions } from 'features/Conversations/actions'
 import styles from './styles.module.sass'
-import { actions } from '../../../actions'
-import { getChats, getOpenedChat } from '../../../selectors'
-import { UserIcon } from '../../../../../common/icons'
 
 export const ChatsList = () => {
   const dispatch = useDispatch()
@@ -42,9 +42,14 @@ export const ChatsList = () => {
               key={chat}
             >
               <div className={styles.imgContainer}>
-                {photoUrl || photoBase64
-                  ? <img className={styles.photo} src={getImageSrcFromBase64(photoBase64, photoUrl)} alt={name} />
-                  : <div className={styles.noPhoto}><UserIcon /></div>}
+                <div className={styles.imgWrapper}>
+                  <Image
+                    photoURL={photoUrl}
+                    photoBase64={photoBase64}
+                    alt={name}
+                    userIcon={UserIcon}
+                  />
+                </div>
               </div>
               <div className={styles.bodyContainer}>
                 <div className={styles.name}>{name}</div>
