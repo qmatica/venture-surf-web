@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { User } from 'features/User'
 import { getProfile } from 'features/Profile/selectors'
 import { ProfileType } from 'features/Profile/types'
-import { UserPhotoIcon, LoadingSkeleton } from 'common/icons'
+import { UserPhotoIcon } from 'common/icons'
+import { Image } from 'common/components/Image'
 import { Button } from 'common/components/Button'
-import { getImageSrcFromBase64 } from 'common/utils'
 import { getRequestedInvestments, getSurfRecommendedUsers, getSurfUsers } from './selectors'
 import styles from './styles.module.sass'
 import { acceptInvest, deleteInvest } from './actions'
@@ -13,7 +13,6 @@ import { acceptInvest, deleteInvest } from './actions'
 export const Surf = () => {
   const dispatch = useDispatch()
   const [loaders, setLoaders] = useState<string[]>([])
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
   const profile = useSelector(getProfile) as ProfileType
   const recommendedUsers = useSelector(getSurfRecommendedUsers)
   const users = useSelector(getSurfUsers)
@@ -49,24 +48,18 @@ export const Surf = () => {
             const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
             // TODO: Remove photoURL usage, when photoBase64 comes from backend side.
             const { photoURL, photoBase64 } = user
-            if (!photoURL && !photoBase64 && !isImageLoaded) setIsImageLoaded(true)
             const list = `${profile.activeRole === 'founder' ? 'investments' : 'investors'} list`
 
             return (
               <div className={styles.invContainer} key={inv.uid}>
                 <div className={styles.userContainer}>
                   <div className={styles.photoContainer}>
-                    {!isImageLoaded && <div><LoadingSkeleton /></div>}
-                    {photoURL || photoBase64
-                      ? (
-                        <img
-                          src={getImageSrcFromBase64(photoBase64, photoURL)}
-                          alt={name}
-                          className={isImageLoaded ? styles.visible : styles.hidden}
-                          onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                        />
-                      )
-                      : <UserPhotoIcon />}
+                    <Image
+                      photoURL={photoURL}
+                      photoBase64={photoBase64}
+                      alt={name}
+                      userIcon={UserPhotoIcon}
+                    />
                   </div>
                   <div className={styles.textContainer}>
                     <div className={styles.name}>{name}</div>

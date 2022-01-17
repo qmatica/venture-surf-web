@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import { ProfileType } from 'features/Profile/types'
 import { Checkbox } from '@material-ui/core'
-import { UserIcon, LoadingSkeleton } from 'common/icons'
+import { UserIcon } from 'common/icons'
+import { Image } from 'common/components/Image'
 import { Button } from 'common/components/Button'
 import { recommendUser } from 'features/Contacts/actions'
 import { Input } from 'common/components/Input'
-import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 
 interface IRecommend {
@@ -24,7 +24,6 @@ export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>(users)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
   const updateSelectedUsers = (uid: string) => {
     if (selectedUsers.includes(uid)) {
@@ -62,7 +61,6 @@ export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
         const {
           photoURL, photoBase64, displayName, first_name, last_name, uid
         } = profile.mutuals[u]
-        if (!photoURL && !photoBase64 && !isImageLoaded) setIsImageLoaded(true)
 
         const userName = displayName || `${first_name} ${last_name}`
 
@@ -72,17 +70,12 @@ export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
               <Checkbox checked={selectedUsers.includes(u)} />
             </div>
             <div className={`${styles.photoContainer} ${!photoURL && !photoBase64 && styles.noPhoto}`}>
-              {!isImageLoaded && <div><LoadingSkeleton /></div>}
-              {photoURL || photoBase64
-                ? (
-                  <img
-                    src={getImageSrcFromBase64(photoBase64, photoURL)}
-                    alt={userName}
-                    className={isImageLoaded ? styles.visible : styles.hidden}
-                    onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                  />
-                )
-                : <UserIcon />}
+              <Image
+                photoURL={photoURL}
+                photoBase64={photoBase64}
+                alt={userName}
+                userIcon={UserIcon}
+              />
             </div>
             <div className={styles.userName}>{userName}</div>
           </div>

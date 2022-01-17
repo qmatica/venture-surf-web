@@ -3,9 +3,9 @@ import React, {
 } from 'react'
 import { useDispatch } from 'react-redux'
 import cn from 'classnames'
-import { UserPhotoIcon, PreloaderIcon, LoadingSkeleton } from 'common/icons'
+import { UserPhotoIcon, PreloaderIcon } from 'common/icons'
+import { Image } from 'common/components/Image'
 import { Modal } from 'features/Modal'
-import { getImageSrcFromBase64 } from 'common/utils'
 import { Button } from 'common/components/Button'
 import {
   actions as actionsNotifications
@@ -26,7 +26,6 @@ export const Avatar: FC<IAvatar> = ({ profile, myUid }) => {
   const dispatch = useDispatch()
   const [isEdit, setIsEdit] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [isImageLoaded, setIsImageLoaded] = useState(!profile.photoURL)
   const inputFile = useRef<HTMLInputElement | null>(null)
   const isAuthenticated = myUid === profile.uid
 
@@ -70,18 +69,15 @@ export const Avatar: FC<IAvatar> = ({ profile, myUid }) => {
         )}
         onClick={onToggleEdit}
       >
-        {!isImageLoaded && <div><LoadingSkeleton /></div>}
         {(isLoading && <PreloaderIcon />) ||
-          (profile.photoURL || profile.photoBase64
-            ? (
-              <img
-                src={getImageSrcFromBase64(profile.photoBase64, profile.photoURL)}
-                alt={`${profile.first_name} ${profile.last_name}`}
-                className={isImageLoaded ? styles.visible : styles.hidden}
-                onLoad={() => setIsImageLoaded(true)}
-              />
-            )
-            : <UserPhotoIcon />)}
+          (
+          <Image
+            photoURL={profile.photoURL}
+            photoBase64={profile.photoBase64}
+            alt={`${profile.first_name} ${profile.last_name}`}
+            userIcon={UserPhotoIcon}
+          />
+          )}
       </div>
       <input
         type="file"

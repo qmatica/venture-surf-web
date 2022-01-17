@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import { useTable } from 'react-table'
 import { actions as actionsApp } from 'common/actions'
-import { UserIcon, LoadingSkeleton } from 'common/icons'
+import { UserIcon } from 'common/icons'
 import { Preloader } from 'common/components/Preloader'
 import { v4 as uuidv4 } from 'uuid'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import ReactTooltip from 'react-tooltip'
 import { Redirect } from 'react-router-dom'
-import { getImageSrcFromBase64 } from 'common/utils'
+import { Image } from 'common/components/Image'
 import { Accordion } from './components/Accordion'
 import styles from './styles.module.sass'
 
@@ -18,7 +18,6 @@ export const Admin = () => {
   const isAdminMode = useSelector((state: RootState) => state.admin.isAdminMode)
   const users = useSelector((state: RootState) => state.admin.users)
   const isLoading = useSelector((state: RootState) => state.admin.isLoading)
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
   useEffect(() => {
     dispatch(actionsApp.setIsFullScreen(true))
@@ -47,24 +46,16 @@ export const Admin = () => {
       {
         Header: 'photoURL',
         accessor: 'photoURL',
-        Cell: ({ row }: any) => {
-          if (!row.values.photoURL && !row.values.photoBase64 && !isImageLoaded) setIsImageLoaded(true)
-          return (
-            <div className={styles.photoContainer}>
-              {!isImageLoaded && <div><LoadingSkeleton /></div>}
-              {row.values.photoURL || row.values.photoBase64
-                ? (
-                  <img
-                    src={getImageSrcFromBase64(row.values.photoBase64, row.values.photoURL)}
-                    alt={row.values.uid}
-                    className={isImageLoaded ? styles.visible : styles.hidden}
-                    onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                  />
-                )
-                : <UserIcon />}
-            </div>
-          )
-        }
+        Cell: ({ row }: any) => (
+          <div className={styles.photoContainer}>
+            <Image
+              photoURL={row.values.photoURL}
+              photoBase64={row.values.photoBase64}
+              alt={row.values.uid}
+              userIcon={UserIcon}
+            />
+          </div>
+        )
       },
       {
         Header: 'uid',
@@ -117,34 +108,26 @@ export const Admin = () => {
         accessor: 'props.mutuals',
         Cell: ({ row }: any) => (
           <div className={styles.contactsContainer}>
-            {row.values.mutuals && Object.entries(row.values.mutuals).map(([key, value]: any) => {
-              if (!value.photoURL && !value.photoBase64 && !isImageLoaded) setIsImageLoaded(true)
-              return (
-                <div
-                  key={key}
-                  className={styles.contact}
-                  onClick={() => copyInBuffer('uid', key)}
-                  data-tip="copy uid"
-                  data-place="bottom"
-                  data-effect="solid"
-                >
-                  <div className={styles.minPhotoContainer}>
-                    {!isImageLoaded && <div><LoadingSkeleton /></div>}
-                    {value.photoURL || value.photoBase64
-                      ? (
-                        <img
-                          src={getImageSrcFromBase64(value.photoBase64, value.photoURL)}
-                          alt={key}
-                          className={isImageLoaded ? styles.visible : styles.hidden}
-                          onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                        />
-                      )
-                      : <UserIcon />}
-                  </div>
-                  <div>{value.displayName}</div>
+            {row.values.mutuals && Object.entries(row.values.mutuals).map(([key, value]: any) => (
+              <div
+                key={key}
+                className={styles.contact}
+                onClick={() => copyInBuffer('uid', key)}
+                data-tip="copy uid"
+                data-place="bottom"
+                data-effect="solid"
+              >
+                <div className={styles.minPhotoContainer}>
+                  <Image
+                    photoURL={value.photoURL}
+                    photoBase64={value.photoBase64}
+                    alt={key}
+                    userIcon={UserIcon}
+                  />
                 </div>
-              )
-            })}
+                <div>{value.displayName}</div>
+              </div>
+            ))}
           </div>
         )
       },
@@ -154,34 +137,26 @@ export const Admin = () => {
         accessor: 'props.likes',
         Cell: ({ row }: any) => (
           <div className={styles.contactsContainer}>
-            {row.values.likes && Object.entries(row.values.likes).map(([key, value]: any) => {
-              if (!value.photoURL && !value.photoBase64 && !isImageLoaded) setIsImageLoaded(true)
-              return (
-                <div
-                  key={key}
-                  className={styles.contact}
-                  onClick={() => copyInBuffer('uid', key)}
-                  data-tip="copy uid"
-                  data-place="bottom"
-                  data-effect="solid"
-                >
-                  <div className={styles.minPhotoContainer}>
-                    {!isImageLoaded && <div><LoadingSkeleton /></div>}
-                    {value.photoURL || value.photoBase64
-                      ? (
-                        <img
-                          src={getImageSrcFromBase64(value.photoBase64, value.photoURL)}
-                          alt={key}
-                          className={isImageLoaded ? styles.visible : styles.hidden}
-                          onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                        />
-                      )
-                      : <UserIcon />}
-                  </div>
-                  <div>{value.displayName}</div>
+            {row.values.likes && Object.entries(row.values.likes).map(([key, value]: any) => (
+              <div
+                key={key}
+                className={styles.contact}
+                onClick={() => copyInBuffer('uid', key)}
+                data-tip="copy uid"
+                data-place="bottom"
+                data-effect="solid"
+              >
+                <div className={styles.minPhotoContainer}>
+                  <Image
+                    photoURL={value.photoURL}
+                    photoBase64={value.photoBase64}
+                    alt={key}
+                    userIcon={UserIcon}
+                  />
                 </div>
-              )
-            })}
+                <div>{value.displayName}</div>
+              </div>
+            ))}
           </div>
         )
       },
@@ -191,34 +166,26 @@ export const Admin = () => {
         accessor: 'props.liked',
         Cell: ({ row }: any) => (
           <div className={styles.contactsContainer}>
-            {row.values.liked && Object.entries(row.values.liked).map(([key, value]: any) => {
-              if (!value.photoURL && !value.photoBase64 && !isImageLoaded) setIsImageLoaded(true)
-              return (
-                <div
-                  key={key}
-                  className={styles.contact}
-                  onClick={() => copyInBuffer('uid', key)}
-                  data-tip="copy uid"
-                  data-place="bottom"
-                  data-effect="solid"
-                >
-                  <div className={styles.minPhotoContainer}>
-                    {!isImageLoaded && <div><LoadingSkeleton /></div>}
-                    {value.photoURL || value.photoBase64
-                      ? (
-                        <img
-                          src={getImageSrcFromBase64(value.photoBase64, value.photoURL)}
-                          alt={key}
-                          className={isImageLoaded ? styles.visible : styles.hidden}
-                          onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                        />
-                      )
-                      : <UserIcon />}
-                  </div>
-                  <div>{value.displayName}</div>
+            {row.values.liked && Object.entries(row.values.liked).map(([key, value]: any) => (
+              <div
+                key={key}
+                className={styles.contact}
+                onClick={() => copyInBuffer('uid', key)}
+                data-tip="copy uid"
+                data-place="bottom"
+                data-effect="solid"
+              >
+                <div className={styles.minPhotoContainer}>
+                  <Image
+                    photoURL={value.photoURL}
+                    photoBase64={value.photoBase64}
+                    alt={key}
+                    userIcon={UserIcon}
+                  />
                 </div>
-              )
-            })}
+                <div>{value.displayName}</div>
+              </div>
+            ))}
           </div>
         )
       },

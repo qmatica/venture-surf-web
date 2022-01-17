@@ -362,5 +362,3 @@ export const VideoIcon2 = () => (
     </g>
   </svg>
 )
-
-export const LoadingSkeleton = () => (<div className={styles.skeleton} />)

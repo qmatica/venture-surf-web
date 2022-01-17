@@ -1,18 +1,17 @@
-import React, { useState } from 'react'
+import React from 'react'
 import moment from 'moment'
 import { useDispatch, useSelector } from 'react-redux'
-import { getImageSrcFromBase64 } from 'common/utils'
+import { Image } from 'common/components/Image'
+import { UserIcon } from 'common/icons'
+import { getChats, getOpenedChat } from 'features/Conversations/selectors'
+import { actions } from 'features/Conversations/actions'
 import styles from './styles.module.sass'
-import { actions } from '../../../actions'
-import { getChats, getOpenedChat } from '../../../selectors'
-import { UserIcon, LoadingSkeleton } from '../../../../../common/icons'
 
 export const ChatsList = () => {
   const dispatch = useDispatch()
 
   const chats = useSelector(getChats)
   const openedChat = useSelector(getOpenedChat)
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
   return (
     <div className={styles.container}>
@@ -21,7 +20,6 @@ export const ChatsList = () => {
         {Object.values(chats).map(({
           name, photoUrl, photoBase64, messages, missedMessages, chat
         }) => {
-          if (!photoUrl && !photoBase64 && !isImageLoaded) setIsImageLoaded(true)
           const activeClassName = chat === openedChat ? styles.activeDialog : ''
 
           const lastMessage = messages?.length ? messages[messages.length - 1] : null
@@ -44,17 +42,12 @@ export const ChatsList = () => {
               key={chat}
             >
               <div className={styles.imgContainer}>
-                {!isImageLoaded && <div><LoadingSkeleton /></div>}
-                {photoUrl || photoBase64
-                  ? (
-                    <img
-                      className={`${styles.photo} ${isImageLoaded ? styles.visible : styles.hidden}`}
-                      src={getImageSrcFromBase64(photoBase64, photoUrl)}
-                      alt={name}
-                      onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                    />
-                  )
-                  : <div className={styles.noPhoto}><UserIcon /></div>}
+                <Image
+                  photoURL={photoUrl}
+                  photoBase64={photoBase64}
+                  alt={name}
+                  userIcon={UserIcon}
+                />
               </div>
               <div className={styles.bodyContainer}>
                 <div className={styles.name}>{name}</div>

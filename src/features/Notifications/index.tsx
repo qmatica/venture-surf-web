@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import useSound from 'use-sound'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
-import { CloseIcon, UserPhotoIcon, LoadingSkeleton } from 'common/icons'
+import { CloseIcon, UserPhotoIcon } from 'common/icons'
 import phoneEnd from 'common/images/phoneEnd.png'
 import phoneStart from 'common/images/phoneStart.png'
 import videoStart from 'common/images/videoStart.png'
-import { getImageSrcFromBase64 } from 'common/utils'
+import { Image } from 'common/components/Image'
 // @ts-ignore
 import incomingCallAudio from 'common/audio/incomingCall.mp3'
 import { connect, ConnectOptions } from 'twilio-video'
@@ -22,7 +22,6 @@ export const Notifications = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const [playIncomingCall, { stop }] = useSound(incomingCallAudio)
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
   const {
     anyMsgs, errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall, scheduledMeetMsgs
@@ -99,23 +98,17 @@ export const Notifications = () => {
         <div className={styles.rightSideMsgsContainer}>
           {receivedChatMsgs.map(({ user, msg }) => {
             const userName = user.displayName || `${user.first_name} ${user.last_name}`
-            if (!user.photoURL && !user.photoBase64 && !isImageLoaded) setIsImageLoaded(true)
 
             return (
               <div className={styles.msg} key={`notificationsMsgs-${msg.sid}`}>
                 <div onClick={() => viewMessage(user.chat, msg.sid)}>
-                  {!isImageLoaded && <div><LoadingSkeleton /></div>}
                   <div className={styles.photoContainer}>
-                    {user.photoURL || user.photoBase64
-                      ? (
-                        <img
-                          src={getImageSrcFromBase64(user.photoBase64, user.photoURL)}
-                          alt={userName}
-                          className={isImageLoaded ? styles.visible : styles.hidden}
-                          onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                        />
-                      )
-                      : <UserPhotoIcon />}
+                    <Image
+                      photoURL={user.photoURL}
+                      photoBase64={user.photoBase64}
+                      alt={userName}
+                      userIcon={UserPhotoIcon}
+                    />
                   </div>
                   <div className={styles.contentContainer}>
                     <div className={styles.displayName}>{userName}</div>
@@ -128,23 +121,17 @@ export const Notifications = () => {
           })}
           {contactsEventsMsgs.map(({ user, msg, uidMsg }) => {
             const userName = user.displayName || `${user.first_name} ${user.last_name}`
-            if (!user.photoURL && !user.photoBase64 && !isImageLoaded) setIsImageLoaded(true)
 
             return (
               <div className={styles.msg} key={`notificationsContacts-${uidMsg}`}>
                 <div>
                   <div className={styles.photoContainer}>
-                    {!isImageLoaded && <div><LoadingSkeleton /></div>}
-                    {user.photoURL || user.photoBase64
-                      ? (
-                        <img
-                          src={getImageSrcFromBase64(user.photoBase64, user.photoURL)}
-                          alt={userName}
-                          className={isImageLoaded ? styles.visible : styles.hidden}
-                          onLoad={() => !isImageLoaded && setIsImageLoaded(true)}
-                        />
-                      )
-                      : <UserPhotoIcon />}
+                    <Image
+                      photoURL={user.photoURL}
+                      photoBase64={user.photoBase64}
+                      alt={userName}
+                      userIcon={UserPhotoIcon}
+                    />
                   </div>
                   <div className={styles.contentContainer}>
                     <div className={styles.displayName}>{userName}</div>
