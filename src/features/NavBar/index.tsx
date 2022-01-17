@@ -126,7 +126,14 @@ export const NavBar = () => {
             }
           ]
 
-          return <DropDownButton icon={icon} list={dropDownList} isActive={location.pathname === myProfileUrl} />
+          return (
+            <DropDownButton
+              key={url}
+              icon={icon}
+              list={dropDownList}
+              isActive={location.pathname === myProfileUrl}
+            />
+          )
         }
 
         if (title === 'Contacts') {

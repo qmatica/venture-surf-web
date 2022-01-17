@@ -11,40 +11,42 @@ export const actions = {
 
 export const init = (): ThunkType => async (dispatch, getState) => {
   dispatch(actions.setIsLoading(true))
-  const result = await adminAPI.getAllUsers()
+  adminAPI.getAllUsers().then((result) => {
+    if (result) {
+      dispatch(actions.setIsAdminMode(true))
+      const { users } = result
 
-  if (result) {
-    dispatch(actions.setIsAdminMode(true))
-    const { users } = result
+      executeAllPromises(users.map((user: any) => usersAPI.getUser(user.uid))).then((items) => {
+        const errors = items.errors.map((err) => err.error.replace('Profile for user ', '').replace(' not found!', ''))
+        const { results } = items
 
-    executeAllPromises(users.map((user: any) => usersAPI.getUser(user.uid))).then((items) => {
-      const errors = items.errors.map((err) => err.error.replace('Profile for user ', '').replace(' not found!', ''))
-      const { results } = items
+        console.log(`— ${items.results.length} Promises were successful: `, results)
+        console.log(`— ${items.errors.length} Promises failed: `, errors)
 
-      console.log(`— ${items.results.length} Promises were successful: `, results)
-      console.log(`— ${items.errors.length} Promises failed: `, errors)
-
-      const mergedUsers = users.map((user: any) => {
-        const foundedUser = results.find(({ uid }) => uid === user.uid)
-        if (foundedUser) {
-          return {
-            ...user,
-            props: foundedUser
+        const mergedUsers = users.map((user: any) => {
+          const foundedUser = results.find(({ uid }) => uid === user.uid)
+          if (foundedUser) {
+            return {
+              ...user,
+              props: foundedUser
+            }
           }
-        }
-        if (errors.includes(user.uid)) {
-          return {
-            ...user,
-            props: { withError: true }
+          if (errors.includes(user.uid)) {
+            return {
+              ...user,
+              props: { withError: true }
+            }
           }
-        }
-        return user
+          return user
+        })
+
+        dispatch(actions.setUsers(mergedUsers))
+        dispatch(actions.setIsLoading(false))
       })
-
-      dispatch(actions.setUsers(mergedUsers))
-      dispatch(actions.setIsLoading(false))
-    })
-  }
+    }
+  }).catch(() => {
+    dispatch(actions.setIsLoading(false))
+  })
 }
 
 export const deleteUser = (uid: string):ThunkType => async (dispatch, getState) => {

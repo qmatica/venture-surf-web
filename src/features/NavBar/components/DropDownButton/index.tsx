@@ -66,7 +66,7 @@ export const DropDownButton: FC<IDropDownButton> = ({ icon, list, isActive }) =>
               <div
                 onClick={() => {
                   if (el.onClick) el.onClick()
-                  closeDropDownList()
+                  if (el.title !== 'Share') closeDropDownList()
                 }}
                 key={el.url}
               >

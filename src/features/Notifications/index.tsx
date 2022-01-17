@@ -47,6 +47,7 @@ export const Notifications = () => {
           dispatch(actions.removeIncomingCall())
           stop()
         }).catch((err) => {
+          console.log(err)
           dispatch(actions.addErrorMsg(JSON.stringify(err)))
         })
     }

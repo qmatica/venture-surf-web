@@ -8,6 +8,8 @@ import {
   MicIcon, MicOffIcon, UserPhotoIcon, VideoIcon2, VideoOffIcon2
 } from 'common/icons'
 import cn from 'classnames'
+import moment from 'moment'
+import { usersAPI } from 'api'
 import styles from './styles.module.sass'
 
 interface INavbar {
@@ -80,6 +82,14 @@ const ListMembers = ({ isActive = false }) => {
 
   if (!isActive) return null
 
+  const invite = async (uid: string) => {
+    const deviceId = localStorage.getItem('deviceId') as string
+
+    const response = await usersAPI.inviteInVideoRoom(uid, deviceId, 'now')
+
+    console.log(response)
+  }
+
   const list = mutuals?.map((user) => {
     const name = user.displayName || `${user.first_name} ${user.last_name}`
 
@@ -95,7 +105,7 @@ const ListMembers = ({ isActive = false }) => {
           </div>
           <div className={styles.name}>{name}</div>
         </div>
-        <Button title="Invite" />
+        <Button title="Invite" onClick={() => invite(user.uid)} />
       </div>
     )
   })

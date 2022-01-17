@@ -227,9 +227,7 @@ const getFullProfiles = (
 
 const checkIncomingCall = (payload: IncomingCallType | any): ThunkType => async (dispatch, getState) => {
   if (payload?.notification?.title === 'Incoming call from') {
-    if (payload.data.slots.includes('now')) {
-      dispatch(actionsNotifications.addIncomingCall(payload))
-    }
+    dispatch(actionsNotifications.addIncomingCall(payload))
   }
 }
 
@@ -238,6 +236,7 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
 
   getFirebase().firestore().doc(`profiles/${auth.uid}`).onSnapshot(async (doc) => {
     const { profile } = getState().profile
+    const { isOwnerCall } = getState().videoChat
     const newProfile = doc.data() as ProfileType
 
     console.log('My profile updated: ', newProfile)
@@ -261,6 +260,7 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
       const result = compareNowSlot(
         profile.slots,
         newProfile.slots,
+        isOwnerCall,
         (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => {
           dispatch(actions.updateMySlots(action, slot))
         }
@@ -638,6 +638,7 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
 
   if (profile) {
     dispatch(actionsVideoChat.setViewEndCallAll(true))
+    dispatch(actionsVideoChat.setIsOwnerCall())
 
     const contacts = 'mutuals'
 
