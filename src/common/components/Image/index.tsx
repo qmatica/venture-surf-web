@@ -3,10 +3,10 @@ import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 
 interface IImage {
-    photoURL: string
-    photoBase64: string
-    alt?: string
-    userIcon: React.ComponentType<{ fill?: string }>
+  photoURL: string
+  photoBase64: string
+  alt?: string
+  userIcon: React.ComponentType<{ fill?: string }>
 }
 
 export const Image: FC<IImage> = ({
