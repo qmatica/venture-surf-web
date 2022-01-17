@@ -42,12 +42,14 @@ export const ChatsList = () => {
               key={chat}
             >
               <div className={styles.imgContainer}>
-                <Image
-                  photoURL={photoUrl}
-                  photoBase64={photoBase64}
-                  alt={name}
-                  userIcon={UserIcon}
-                />
+                <div className={styles.imgWrapper}>
+                  <Image
+                    photoURL={photoUrl}
+                    photoBase64={photoBase64}
+                    alt={name}
+                    userIcon={UserIcon}
+                  />
+                </div>
               </div>
               <div className={styles.bodyContainer}>
                 <div className={styles.name}>{name}</div>
