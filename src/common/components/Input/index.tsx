@@ -11,6 +11,7 @@ interface IInput {
   onBlur?: ChangeHandler
   value?: string
   errorMsg?: string
+  autoComplete?: 'on' | 'off'
 }
 
 export const Input: FC<IInput> = forwardRef(({
@@ -21,7 +22,8 @@ export const Input: FC<IInput> = forwardRef(({
   onChange,
   onBlur,
   value,
-  errorMsg
+  errorMsg,
+  autoComplete = 'off'
 }, ref) => (
   <div className={styles.container}>
     {title && <div className={styles.title}>{title}</div>}
@@ -35,6 +37,7 @@ export const Input: FC<IInput> = forwardRef(({
       onChange={onChange}
       onBlur={onBlur}
       placeholder={placeholder}
+      autoComplete={autoComplete}
     />
     <p>{errorMsg}</p>
   </div>
