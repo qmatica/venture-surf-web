@@ -5,9 +5,9 @@ import { ProfileType } from 'features/Profile/types'
 import { Checkbox } from '@material-ui/core'
 import { UserIcon } from 'common/icons'
 import { Button } from 'common/components/Button'
+import { Image } from 'common/components/Image'
 import { recommendUser } from 'features/Contacts/actions'
 import { Input } from 'common/components/Input'
-import { getImageSrcFromBase64 } from 'common/utils'
 import { FieldValues, useForm } from 'react-hook-form'
 import styles from './styles.module.sass'
 
@@ -80,9 +80,12 @@ export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
                 <Checkbox checked={selectedUsers.includes(u)} />
               </div>
               <div className={`${styles.photoContainer} ${!photoURL && !photoBase64 && styles.noPhoto}`}>
-                {photoURL || photoBase64
-                  ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={userName} />
-                  : <UserIcon />}
+                <Image
+                  photoURL={photoURL}
+                  photoBase64={photoBase64}
+                  alt={userName}
+                  userIcon={UserIcon}
+                />
               </div>
               <div className={styles.userName}>{userName}</div>
             </div>
