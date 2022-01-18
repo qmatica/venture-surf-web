@@ -229,6 +229,13 @@ const checkIncomingCall = (payload: IncomingCallType | any): ThunkType => async 
   if (payload?.notification?.title === 'Incoming call from') {
     dispatch(actionsNotifications.addIncomingCall(payload))
   }
+  if (payload?.data.start_time === 'now') {
+    const data = {
+      data: { ...JSON.parse(payload.data.twilio), uid: payload.data.uid },
+      notification: { body: payload.data.name, title: 'Incoming call from' }
+    }
+    dispatch(actionsNotifications.addIncomingCall(data))
+  }
 }
 
 const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFirebase) => {
