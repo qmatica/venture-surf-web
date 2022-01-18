@@ -61,7 +61,7 @@ export const InputField: FC<IInputField> = ({ scrollToBottom }) => {
           <input
             {...register('message', {
               required: true,
-              maxLength: 4,
+              maxLength: 700,
               onBlur: () => {
                 if (errors.message?.type === 'required') clearErrors()
               },
