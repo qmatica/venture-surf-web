@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import { ProfileType } from 'features/Profile/types'
@@ -8,6 +8,7 @@ import { Button } from 'common/components/Button'
 import { recommendUser } from 'features/Contacts/actions'
 import { Input } from 'common/components/Input'
 import { getImageSrcFromBase64 } from 'common/utils'
+import { FieldValues, useForm } from 'react-hook-form'
 import styles from './styles.module.sass'
 
 interface IRecommend {
@@ -17,13 +18,15 @@ interface IRecommend {
 
 export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
   const dispatch = useDispatch()
+  const {
+    register, handleSubmit, formState: { errors }
+  } = useForm()
   const { profile } = useSelector((state: RootState) => state.profile) as { profile: ProfileType }
 
   const users = Object.keys(profile.mutuals).filter((u) => u !== uid)
 
   const [selectedUsers, setSelectedUsers] = useState<string[]>(users)
   const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState('')
 
   const updateSelectedUsers = (uid: string) => {
     if (selectedUsers.includes(uid)) {
@@ -33,12 +36,12 @@ export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
     setSelectedUsers([...selectedUsers, uid])
   }
 
-  const onRecommend = () => {
+  const onSubmit = (values: FieldValues) => {
     setIsLoading(true)
     dispatch(recommendUser(
       uid,
       selectedUsers,
-      message,
+      values.recommend || '',
       () => {
         onClose()
         setIsLoading(false)
@@ -54,33 +57,41 @@ export const Recommend: FC<IRecommend> = ({ uid, onClose }) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.inputContainer}>
-        <Input name="Recommend" placeholder="Type your recommend message" value={message} onChange={setMessage} />
-      </div>
-      {users.map((u) => {
-        const {
-          photoURL, photoBase64, displayName, first_name, last_name, uid
-        } = profile.mutuals[u]
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className={styles.inputContainer}>
+          <Input
+            {...register('recommend', {
+              maxLength: 70
+            })}
+            placeholder="Type your recommend message"
+            errorMsg={errors.recommend && 'Max length 70 chars'}
+          />
+        </div>
+        {users.map((u) => {
+          const {
+            photoURL, photoBase64, displayName, first_name, last_name, uid
+          } = profile.mutuals[u]
 
-        const userName = displayName || `${first_name} ${last_name}`
+          const userName = displayName || `${first_name} ${last_name}`
 
-        return (
-          <div key={uid} className={styles.userContainer} onClick={() => updateSelectedUsers(u)}>
-            <div className={styles.checkboxContainer}>
-              <Checkbox checked={selectedUsers.includes(u)} />
+          return (
+            <div key={uid} className={styles.userContainer} onClick={() => updateSelectedUsers(u)}>
+              <div className={styles.checkboxContainer}>
+                <Checkbox checked={selectedUsers.includes(u)} />
+              </div>
+              <div className={`${styles.photoContainer} ${!photoURL && !photoBase64 && styles.noPhoto}`}>
+                {photoURL || photoBase64
+                  ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={userName} />
+                  : <UserIcon />}
+              </div>
+              <div className={styles.userName}>{userName}</div>
             </div>
-            <div className={`${styles.photoContainer} ${!photoURL && !photoBase64 && styles.noPhoto}`}>
-              {photoURL || photoBase64
-                ? <img src={getImageSrcFromBase64(photoBase64, photoURL)} alt={userName} />
-                : <UserIcon />}
-            </div>
-            <div className={styles.userName}>{userName}</div>
-          </div>
-        )
-      })}
-      <div>
-        <Button title="Send recommendation" onClick={onRecommend} icon="people" isLoading={isLoading} disabled={isLoading} />
-      </div>
+          )
+        })}
+        <div>
+          <Button title="Send recommendation" type="submit" icon="people" isLoading={isLoading} disabled={isLoading} />
+        </div>
+      </form>
     </div>
   )
 }

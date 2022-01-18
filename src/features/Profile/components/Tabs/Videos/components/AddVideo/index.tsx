@@ -5,7 +5,8 @@ import { Modal } from 'features/Modal'
 import { uploadVideo } from 'features/Profile/actions'
 import { DropZone } from 'features/Profile/components/Tabs/Videos/components/AddVideo/DropZone'
 import { RootState } from 'common/types'
-import { EditFile, IFormElement } from 'features/Profile/components/Tabs/EditFile'
+import { FieldValues } from 'react-hook-form'
+import { EditFile } from 'features/Profile/components/Tabs/EditFile'
 import styles from './styles.module.sass'
 
 export const AddVideo: FC = () => {
@@ -27,11 +28,10 @@ export const AddVideo: FC = () => {
     return 'Add video'
   }
 
-  const onUpload = (e: React.FormEvent<IFormElement>, title: string) => {
-    e.preventDefault()
+  const onUpload = (values: FieldValues) => {
     if (selectedVideo) {
       setLoadingButton('onSaveButton')
-      dispatch(uploadVideo(selectedVideo, title, setIsOpenModal, setLoadingButton))
+      dispatch(uploadVideo(selectedVideo, values.fileName, setIsOpenModal, setLoadingButton))
       setSelectedVideo(null)
     }
   }
