@@ -49,7 +49,7 @@ export const InputField: FC<IInputField> = ({ scrollToBottom }) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <ReactTooltip
           type="info"
-          disable={!errors.message && errors.message?.type !== 'maxLength'}
+          disable={!errors.message || errors.message?.type !== 'maxLength'}
         />
         <div
           ref={textInputContainerRef}
@@ -61,7 +61,7 @@ export const InputField: FC<IInputField> = ({ scrollToBottom }) => {
           <input
             {...register('message', {
               required: true,
-              maxLength: 700,
+              maxLength: 4,
               onBlur: () => {
                 if (errors.message?.type === 'required') clearErrors()
               },
