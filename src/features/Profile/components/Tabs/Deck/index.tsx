@@ -9,7 +9,8 @@ import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { FileInput } from 'common/components/FileInput'
 import { downloadFile } from 'common/utils'
 import { Modal } from 'features/Modal'
-import { IFormElement, EditFile } from 'features/Profile/components/Tabs/EditFile'
+import { EditFile } from 'features/Profile/components/Tabs/EditFile'
+import { FieldValues } from 'react-hook-form'
 import styles from './styles.module.sass'
 
 interface IDeck {
@@ -46,13 +47,12 @@ export const Deck: FC<IDeck> = ({ profile, isEdit }) => {
     }
   }
 
-  const onRenameDoc = (e: React.FormEvent<IFormElement>, newTitle: string) => {
-    e.preventDefault()
+  const onRenameDoc = (values: FieldValues) => {
     if (title) {
       setLoadingButton('onSaveButton')
       dispatch(renameDoc(
         title,
-        newTitle,
+        values.fileName,
         setIsOpenModal,
         setLoadingButton
       ))

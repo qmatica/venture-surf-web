@@ -1,7 +1,9 @@
 import React, { FC, useEffect, useState } from 'react'
-import { PreloaderIcon, TrashCanIcon, VideoIcon } from 'common/icons'
+import { PreloaderIcon, TrashCanIcon } from 'common/icons'
 import { useSelector } from 'react-redux'
 import { getMyProfile } from 'features/Profile/selectors'
+import { FieldValues, useForm } from 'react-hook-form'
+import cn from 'classnames'
 import styles from './styles.module.sass'
 
 interface IEditFile {
@@ -9,7 +11,7 @@ interface IEditFile {
   previewUrl?: string
   fileType: 'videos' | 'docs'
   loadingButton?: 'onSaveButton' | 'onDeleteButton' | null
-  onSaveFile: (e: React.FormEvent<IFormElement>, title: string) => void
+  onSaveFile: (values: FieldValues) => void
   onSetSelectedFile?: (value: File | null) => void
   onDeleteFile?: () => void
   icon?: React.ComponentType
@@ -33,13 +35,22 @@ export const EditFile: FC<IEditFile> = ({
   fileType,
   icon: Icon
 }) => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    clearErrors
+  } = useForm()
   const profile = useSelector(getMyProfile)
-  const [title, setTitle] = useState(fileName || '')
+  const [blockOnSaveButton, setBlockOnSaveButton] = useState(true)
   const [isErrorNameExist, setIsErrorNameExist] = useState(false)
 
   const isEdit = fileName
 
   const handleChangeTitle = (title: string) => {
+    if (blockOnSaveButton) setBlockOnSaveButton(false)
+    if (!title.length) setBlockOnSaveButton(true)
     if (profile) {
       const existingTitle = profile[profile.activeRole][fileType]._order_
       if (existingTitle.includes(title)) {
@@ -48,7 +59,7 @@ export const EditFile: FC<IEditFile> = ({
       if (isErrorNameExist && !existingTitle.includes(title)) {
         setIsErrorNameExist(false)
       }
-      setTitle(title)
+      setValue('fileName', title)
     }
   }
 
@@ -65,24 +76,35 @@ export const EditFile: FC<IEditFile> = ({
 
   return (
     <div className={styles.container}>
-      <form onSubmit={(e: React.FormEvent<IFormElement>) => onSaveFile(e, title)}>
+      <form onSubmit={handleSubmit(onSaveFile)}>
         <div className={styles.setTitleFileContainer}>
           <div className={styles.previewImage}>
             {previewUrl ? <img src={previewUrl} alt={previewUrl} /> : Icon && <Icon />}
           </div>
           <div className={styles.inputContainer}>
             <input
-              name="fileName"
-              className={styles.input}
+              {...register('fileName', {
+                required: true,
+                maxLength: 30,
+                onBlur: () => {
+                  if (errors.fileName?.type === 'required') clearErrors()
+                },
+                onChange: (e) => {
+                  handleChangeTitle(e.target.value)
+                }
+              })}
+              className={cn(styles.input, errors.fileName && styles.errorInput)}
               type="text"
-              value={title}
-              onChange={({ target: { value } }) => handleChangeTitle(value)}
+              defaultValue={fileName}
               placeholder="Type file name"
               style={{
                 borderColor: isErrorNameExist ? '#db4947' : '#D7DFED'
               }}
             />
             {isErrorNameExist && <div className={styles.isErrorNameExist}>Such name exists</div>}
+            {errors.fileName?.type === 'maxLength' && (
+              <div className={styles.isErrorNameExist}>Max length 30 chars</div>
+            )}
           </div>
           {!isEdit && (
             <div className={styles.clearSelectedFileButton} onClick={clearAddedFile}>
@@ -94,7 +116,7 @@ export const EditFile: FC<IEditFile> = ({
           <button
             className={`${styles.button} ${styles.submit}`}
             type="submit"
-            disabled={title === fileName || isErrorNameExist || !title.length}
+            disabled={blockOnSaveButton || errors.fileName || isErrorNameExist}
           >
             {getTitleOnSaveButton()}
           </button>
