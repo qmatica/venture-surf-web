@@ -6,6 +6,7 @@ import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { RootState } from 'common/types'
 import { Redirect } from 'react-router-dom'
+import { getMyProfile } from 'features/Profile/selectors'
 import styles from './styles.module.sass'
 import { actions, confirmCode, signInWithPhoneNumber } from '../../actions'
 
@@ -22,6 +23,7 @@ export const SignIn = () => {
   const {
     auth, confirmation, isLoading, isFailedConfirmationCode
   } = useSelector((state: RootState) => state.auth)
+  const profile = useSelector(getMyProfile)
 
   const [phoneNumber, setPhoneNumber] = useState('')
   const [confirmationCode, setConfirmationCode] = useState<string>('')
@@ -42,7 +44,10 @@ export const SignIn = () => {
     dispatch(signInWithPhoneNumber(`+${phoneNumber}`, window.recaptchaVerifier))
   }
 
-  if (auth) return <Redirect to="/surf" />
+  if (auth) {
+    if (!profile) return <Redirect to="/signup" />
+    return <Redirect to="/surf" />
+  }
 
   return (
     <div>

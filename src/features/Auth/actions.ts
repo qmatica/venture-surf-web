@@ -1,5 +1,6 @@
 import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
 import { init as initProfile } from 'features/Profile/actions'
+import firebase from 'firebase/compat'
 import { init as initSurf } from '../Surf/actions'
 import { ThunkType } from './types'
 
@@ -53,4 +54,18 @@ export const confirmCode = (code: string): ThunkType => async (dispatch, getStat
       dispatch(actions.setIsFailedConfirmationCode(true))
       dispatch(actions.setIsLoading(false))
     })
+}
+
+export const signUpWithLinkedin = () => {
+  window.open('https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={862iqtc4nxrbtq}&redirect_uri=http://localhost:3000/surf&scope=r_liteprofile')
+  // const provider = new firebase.auth.OAuthProvider('linkedin.com')
+  // provider.addScope('r_liteprofile')
+  // firebase.auth().signInWithPopup(provider).then((result) => {
+  //   console.log(result)
+
+  //   // const token = result?.credential?.accessToken
+
+  //   const { user } = result
+  // })
+  //   .catch((error) => console.log(error))
 }

@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getFirebase } from 'react-redux-firebase'
 import { AuthUserType, StatisticVideoType } from 'common/types'
 import { proj } from 'config/firebase'
-import { DeviceType } from 'features/Profile/types'
+import { DeviceType, ProfileType } from 'features/Profile/types'
 import { timeSlotsType } from '../features/Calendar/types'
 
 const headers = {
@@ -37,6 +37,9 @@ export const profileAPI = {
   },
   afterLogin(device: DeviceType) {
     return instance.post('api/afterLogin', { device }).then((res) => res.data)
+  },
+  afterSignup(profile: ProfileType) {
+    return instance.post('api/afterSignup', profile).then((res) => res.data)
   },
   updateMyProfile(value: { [key: string]: any }) {
     return instance.post('api/user', value).then((res) => res.status)
