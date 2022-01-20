@@ -1,6 +1,7 @@
 import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
 import { init as initProfile } from 'features/Profile/actions'
 import firebase from 'firebase/compat'
+import { profileAPI } from 'api'
 import { init as initSurf } from '../Surf/actions'
 import { ThunkType } from './types'
 
@@ -56,16 +57,11 @@ export const confirmCode = (code: string): ThunkType => async (dispatch, getStat
     })
 }
 
-export const signUpWithLinkedin = () => {
-  window.open('https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={862iqtc4nxrbtq}&redirect_uri=http://localhost:3000/surf&scope=r_liteprofile')
-  // const provider = new firebase.auth.OAuthProvider('linkedin.com')
-  // provider.addScope('r_liteprofile')
-  // firebase.auth().signInWithPopup(provider).then((result) => {
-  //   console.log(result)
+export const getOnboardingProfile = (token: string): ThunkType => async (dispatch, getState) => {
+  const profileData = localStorage.getItem('onboardingProfile')
+  const response = await profileAPI.getMyProfileFromLinkedin(token)
 
-  //   // const token = result?.credential?.accessToken
-
-  //   const { user } = result
-  // })
-  //   .catch((error) => console.log(error))
+  if (profileData && response) {
+    console.log(JSON.parse(profileData))
+  }
 }

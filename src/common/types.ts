@@ -90,3 +90,7 @@ export type StatisticVideoType = {
     percent: number
     action: string
 }
+
+export type selectedStagesType = {
+    [key: string]: any[]
+}

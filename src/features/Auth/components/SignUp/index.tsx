@@ -30,9 +30,16 @@ export const SignUp = () => {
           />
         )
       case 2:
-        return <IndustriesStep nextStep={nextStep} prevStep={prevStep} />
+        return (
+          <IndustriesStep
+            nextStep={nextStep}
+            prevStep={prevStep}
+            setOnboardingProfile={setOnboardingProfile}
+            onboardingProfile={onboardingProfile}
+          />
+        )
       case 3:
-        return <LinkedInStep prevStep={prevStep} />
+        return <LinkedInStep prevStep={prevStep} onboardingProfile={onboardingProfile} />
       default:
         return null
     }

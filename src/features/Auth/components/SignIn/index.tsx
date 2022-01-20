@@ -45,7 +45,7 @@ export const SignIn = () => {
   }
 
   if (auth) {
-    if (!profile) return <Redirect to="/signup" />
+    if (!profile) return <Redirect to="/sign_up" />
     return <Redirect to="/surf" />
   }
 

@@ -90,6 +90,13 @@ export const profileAPI = {
   },
   updateMyTimeSlots(timeSlots: timeSlotsType) {
     return instance.post('api/call', timeSlots).then((res) => res.data)
+  },
+  getMyProfileFromLinkedin(token: string) {
+    const linkedinInstance = axios.create({
+      baseURL: 'https://api.linkedin.com',
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    linkedinInstance.get('v2/me').then((res) => res.data)
   }
 }
 
