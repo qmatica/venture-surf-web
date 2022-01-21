@@ -90,13 +90,6 @@ export const profileAPI = {
   },
   updateMyTimeSlots(timeSlots: timeSlotsType) {
     return instance.post('api/call', timeSlots).then((res) => res.data)
-  },
-  getMyProfileFromLinkedin(token: string) {
-    const linkedinInstance = axios.create({
-      baseURL: 'https://api.linkedin.com',
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    linkedinInstance.get('v2/me').then((res) => res.data)
   }
 }
 
@@ -187,5 +180,29 @@ export const lokalizeAPI = {
       headers
     })
     return lokaliseInstance.get('branches').then((res) => res.data)
+  }
+}
+
+const linkedInInstance = axios.create({
+  baseURL: 'https://api.linkedin.com'
+})
+
+export const linkedInAPI = {
+  getMyProfileFromLinkedIn(access_token: string) {
+    return linkedInInstance.get('v2/me', {
+      headers: { Authorization: `Bearer ${access_token}` }
+    }).then((res) => res.data)
+  },
+  createAccessToken(code: string) {
+    const headers = {
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: process.env.REACT_APP_REDIRECT_URI,
+      client_id: process.env.REACT_APP_CLIENT_ID,
+      client_secret: process.env.REACT_APP_CLIENT_SECRET
+    }
+    return linkedInInstance.post('v2/accessToken', {}, {
+      headers
+    }).then((res) => res.data)
   }
 }

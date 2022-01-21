@@ -1,7 +1,11 @@
 import React, { FC, useState } from 'react'
-import { OnboardingUserType } from 'features/Profile/types'
-import { stages } from 'common/constants'
+import { OnboardingUserType, RoleType } from 'features/Profile/types'
+import {
+  stages, ROLES_STEPS, SELECTED_ROLES
+} from 'common/constants'
 import { selectedStagesType } from 'common/types'
+import cn from 'classnames'
+import { ArrowBottomIcon } from 'common/icons'
 import styles from './styles.module.sass'
 
 interface IRoleStep {
@@ -19,12 +23,15 @@ export const RoleStep: FC<IRoleStep> = ({
   setOnboardingProfile,
   onboardingProfile
 }) => {
-  const [selectedStages, setSelectedStages] = useState<selectedStagesType>({
+  const initialSelectedRoles = {
     investor: new Array(Object.keys(stages.investor).length).fill(false),
     founder: new Array(Object.keys(stages.founder).length).fill(false)
-  })
+  }
+  const [selectedStages, setSelectedStages] = useState<selectedStagesType>(initialSelectedRoles)
 
-  const handleRoleSelect = (role: 'investor' | 'founder') => {
+  const [isAnySelected, setIsAnySelected] = useState(false)
+
+  const handleRoleSelect = (role: RoleType) => {
     setOnboardingProfile({ roles: [role] } as OnboardingUserType)
     setSelectedRole(role)
   }
@@ -34,7 +41,9 @@ export const RoleStep: FC<IRoleStep> = ({
       const updatedStages = selectedStages[selectedRole].map((item, index) =>
         (index === position ? !item : item))
 
-      setSelectedStages({ [selectedRole]: updatedStages })
+      const updatedRole = { [selectedRole]: updatedStages }
+      setSelectedStages(updatedRole)
+      setIsAnySelected(updatedRole[selectedRole].some((item) => item))
     }
   }
 
@@ -55,30 +64,50 @@ export const RoleStep: FC<IRoleStep> = ({
     <>
       {selectedRole ? (
         <div>
-          <button onClick={() => setSelectedRole(null)}>Prev</button>
-          <div>
-            {selectedRole === 'investor'
-              ? 'How big is your start-up?'
-              : 'What stages are you'}
+          <div
+            className={styles.backIcon}
+            onClick={() => {
+              setSelectedRole(null)
+              setSelectedStages(initialSelectedRoles)
+            }}
+          ><ArrowBottomIcon />
+          </div>
+          <div className={styles.title}>
+            {SELECTED_ROLES[selectedRole]}
           </div>
           {Object.entries(stages[selectedRole]).map(([key, value], index) => (
             <div
-              className={selectedStages[selectedRole][index] && styles.selected}
+              className={cn(
+                styles.container,
+                selectedStages[selectedRole][index] && styles.selected
+              )}
               key={key}
               onClick={() => handleOnSelect(index)}
             >
               {value}
             </div>
           ))}
-          <button onClick={handleNexStep}>Next</button>
+          <button
+            className={cn(
+              styles.button,
+              isAnySelected ? styles.show : styles.hidden
+            )}
+            onClick={handleNexStep}
+          >Next
+          </button>
         </div>
       ) : (
         <div>
-          <div>Choose you role</div>
-          <div onClick={() => handleRoleSelect('investor')}>
-            I am an Investor
-          </div>
-          <div onClick={() => handleRoleSelect('founder')}>I am a founder</div>
+          <div className={styles.title}>Choose you role</div>
+          {ROLES_STEPS.map((item) => (
+            <div
+              key={item.role}
+              className={styles.container}
+              onClick={() => handleRoleSelect(item.role as RoleType)}
+            >
+              {item.text}
+            </div>
+          ))}
         </div>
       )}
     </>

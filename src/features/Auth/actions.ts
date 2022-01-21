@@ -1,7 +1,7 @@
 import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
-import { init as initProfile } from 'features/Profile/actions'
-import firebase from 'firebase/compat'
-import { profileAPI } from 'api'
+import { init as initProfile, actions as profileActions } from 'features/Profile/actions'
+import { profileAPI, linkedInAPI } from 'api'
+import { getTokenFcm } from 'features/Profile/utils'
 import { init as initSurf } from '../Surf/actions'
 import { ThunkType } from './types'
 
@@ -57,11 +57,30 @@ export const confirmCode = (code: string): ThunkType => async (dispatch, getStat
     })
 }
 
-export const getOnboardingProfile = (token: string): ThunkType => async (dispatch, getState) => {
+export const getOnboardingProfile = (code: string): ThunkType => async (dispatch) => {
   const profileData = localStorage.getItem('onboardingProfile')
-  const response = await profileAPI.getMyProfileFromLinkedin(token)
+  const access_token = await linkedInAPI.createAccessToken(code)
+  const response = await linkedInAPI.getMyProfileFromLinkedIn(access_token)
 
   if (profileData && response) {
-    console.log(JSON.parse(profileData))
+    localStorage.removeItem('onboardingProfile')
+    const deviceId = localStorage.getItem('deviceId')
+    const fcm_token = await getTokenFcm()
+
+    const device = {
+      id: deviceId,
+      os: window.navigator.appVersion,
+      fcm_token,
+      voip_token: '12428345723486-34639456-4563-4956',
+      bundle: 'opentek.us.VentureSwipe'
+    }
+
+    const updatedProfile = {
+      ...JSON.parse(profileData),
+      ...response,
+      device
+    }
+    const registeredProfile = await profileAPI.afterSignup(updatedProfile)
+    dispatch(profileActions.setMyProfile(registeredProfile))
   }
 }

@@ -11,8 +11,8 @@ export const LinkedInCallback = () => {
 
   useEffect(() => {
     const url = window.location
-    const token = new URLSearchParams(url.search).get('access_token')
-    if (token) dispatch(getOnboardingProfile(token))
+    const code = new URLSearchParams(url.search).get('code')
+    if (code) dispatch(getOnboardingProfile(code))
   }, [])
 
   // if (profile) return <Redirect to="/surf" />

@@ -1,5 +1,8 @@
 import React, { FC } from 'react'
 import { OnboardingUserType } from 'features/Profile/types'
+import { linkedInAuthUrl } from 'common/constants'
+import { ArrowBottomIcon } from 'common/icons'
+import styles from './styles.module.sass'
 
 interface ILinkedInStep {
   prevStep: () => void
@@ -12,13 +15,15 @@ export const LinkedInStep: FC<ILinkedInStep> = ({
 }) => {
   const handleSignUp = () => {
     localStorage.setItem('onboardingProfile', JSON.stringify(onboardingProfile))
-    window.open(`https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&scope=r_liteprofile&state=123456&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}`, '_self')
+    window.open(linkedInAuthUrl, '_self')
   }
   return (
     <div>
-      <button onClick={prevStep}>prev</button>
-      <div>Get verified by LinkedIn and autofill your profile</div>
-      <button onClick={handleSignUp}>LinkedIn</button>
+      <div className={styles.backIcon} onClick={prevStep}><ArrowBottomIcon /></div>
+      <>
+        <div className={styles.title}>Get verified by LinkedIn and autofill your profile</div>
+        <button className={styles.button} onClick={handleSignUp}>Sign in with LinkedIn</button>
+      </>
     </div>
   )
 }

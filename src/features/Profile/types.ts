@@ -197,3 +197,5 @@ export type OnboardingUserType = {
     device: DeviceType
     linkedIn_ID: string
   }
+
+export type RoleType = 'investor' | 'founder'
