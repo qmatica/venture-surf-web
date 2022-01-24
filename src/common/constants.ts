@@ -16,3 +16,10 @@ export const stages: stagesType = {
 }
 
 export const industries = ['Bio / Healthcare', 'Consumer', 'Enterprise', 'Technology']
+
+export const VOIP_TOKEN = '12428345723486-34639456-4563-4956'
+export const BUNDLE = 'opentek.us.VentureSwipe'
+
+export const CLIENT_ID = '862iqtc4nxrbtq'
+export const CLIENT_SECRET = '4XeDtFnJQ3e0PCDo'
+export const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI

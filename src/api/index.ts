@@ -2,7 +2,8 @@ import axios from 'axios'
 import { getFirebase } from 'react-redux-firebase'
 import { AuthUserType, StatisticVideoType } from 'common/types'
 import { proj } from 'config/firebase'
-import { DeviceType } from 'features/Profile/types'
+import { DeviceType, ProfileType } from 'features/Profile/types'
+import { CLIENT_ID, CLIENT_SECRET, REDIRECT_URI } from 'common/constants'
 import { timeSlotsType } from '../features/Calendar/types'
 
 const headers = {
@@ -37,6 +38,9 @@ export const profileAPI = {
   },
   afterLogin(device: DeviceType) {
     return instance.post('api/afterLogin', { device }).then((res) => res.data)
+  },
+  afterSignup(profile: ProfileType) {
+    return instance.post('api/afterSignup', profile).then((res) => res.data)
   },
   updateMyProfile(value: { [key: string]: any }) {
     return instance.post('api/user', value).then((res) => res.status)
@@ -177,5 +181,34 @@ export const lokalizeAPI = {
       headers
     })
     return lokaliseInstance.get('branches').then((res) => res.data)
+  }
+}
+
+export const linkedInAPI = {
+  getMyProfileFromLinkedIn(access_token: string) {
+    const linkedInInstance = axios.create({
+      baseURL: 'https://api.linkedin.com'
+    })
+    return linkedInInstance.get('v2/me', {
+      headers: { Authorization: `Bearer ${access_token}` }
+    }).then((res) => res.data)
+  },
+  createAccessToken(code: string) {
+    const linkedInInstance = axios.create({
+      baseURL: 'https://www.linkedin.com/oauth'
+    })
+    const body = new URLSearchParams()
+    body.append('grant_type', 'authorization_code')
+    body.append('code', code)
+    body.append('redirect_uri', REDIRECT_URI as string)
+    body.append('client_id', CLIENT_ID)
+    body.append('client_secret', CLIENT_SECRET)
+
+    return linkedInInstance.post('v2/accessToken',
+      body, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }).then((res) => res.data.access_token)
   }
 }

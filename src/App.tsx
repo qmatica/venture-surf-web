@@ -4,6 +4,8 @@ import {
 } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { Auth } from 'features/Auth'
+import { SignUp } from 'features/Auth/components/SignUp'
+import { LinkedInCallback } from 'features/Auth/components/OnboardingSteps/LinkedInCallback'
 import { Profile } from 'features/Profile'
 import { init } from 'common/actions'
 import { Layout } from 'features/Layout'
@@ -26,6 +28,8 @@ export const App: FC = () => {
     <>
       <Switch>
         <Route path="/auth" component={Auth} />
+        <Route path="/sign_up" component={SignUp} />
+        <Route path="/linkedin_callback" component={LinkedInCallback} />
         <Route path="/*">
           <Layout>
             <Route path="/" exact render={() => <Redirect to="/surf" />} />
