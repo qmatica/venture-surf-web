@@ -5,6 +5,7 @@ import { getMyProfile } from 'features/Profile/selectors'
 import { getAuth } from 'features/Auth/selectors'
 import { OnboardingUserType } from 'features/Profile/types'
 import { ONBOARDING_STEPS } from 'common/constants'
+import { ArrowBottomIcon } from 'common/icons'
 import { LinkedInStep } from '../OnboardingSteps/LinkedInStep'
 import { RoleStep } from '../OnboardingSteps/RoleStep'
 import { IndustriesStep } from '../OnboardingSteps/IndustriesStep'
@@ -13,16 +14,19 @@ import styles from './styles.module.sass'
 export const SignUp = () => {
   const profile = useSelector(getMyProfile)
   const auth = useSelector(getAuth)
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(0)
   const nextStep = () => setCurrentStep(currentStep + 1)
   const prevStep = () => setCurrentStep(currentStep - 1)
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingUserType>()
   const [selectedRole, setSelectedRole] = useState<string | null>(null)
-  const { ROLE, INDUSTRIES, LINKEDIN } = ONBOARDING_STEPS
+  const {
+    ROLE, START_UP, INDUSTRIES, LINKEDIN
+  } = ONBOARDING_STEPS
 
   const onboardingSteps = () => {
     switch (currentStep) {
       case ROLE:
+      case START_UP:
         return (
           <RoleStep
             nextStep={nextStep}
@@ -52,5 +56,10 @@ export const SignUp = () => {
 
   if (!auth) return <Redirect to="/auth" />
 
-  return <div className={styles.wrapper}>{onboardingSteps()}</div>
+  return (
+    <div className={styles.wrapper}>
+      {currentStep > 0 && <div className={styles.backIcon} onClick={prevStep}><ArrowBottomIcon /></div>}
+      {onboardingSteps()}
+    </div>
+  )
 }

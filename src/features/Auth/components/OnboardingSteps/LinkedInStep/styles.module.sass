@@ -1,7 +1,9 @@
 .button
-  display: flex
-  flex-direction: column
-  align-items: center
+  display: grid;
+  grid-auto-flow: column;
+  grid-gap: 12px;
+  align-items: center;
+  justify-content: center;
   padding: 16px 20px
   width: 315px
   height: 52px
@@ -9,12 +11,15 @@
   border-radius: 8px
   border: none
   color: #FFFFFF
+  font-size: 16px;
 .title
   display: flex
   justify-content: center
   width: 315px
   padding: 30px
   text-align: center
-.backIcon
-  transform: rotate(90deg)
-  width: fit-content
+  line-height: 24px;
+.icon
+  display: flex
+  svg
+    flex: 1

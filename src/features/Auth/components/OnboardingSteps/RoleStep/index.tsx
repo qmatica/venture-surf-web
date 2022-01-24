@@ -34,6 +34,7 @@ export const RoleStep: FC<IRoleStep> = ({
   const handleRoleSelect = (role: RoleType) => {
     setOnboardingProfile({ roles: [role] } as OnboardingUserType)
     setSelectedRole(role)
+    nextStep()
   }
 
   const handleOnSelect = (position: number) => {
@@ -64,14 +65,6 @@ export const RoleStep: FC<IRoleStep> = ({
     <>
       {selectedRole ? (
         <div>
-          <div
-            className={styles.backIcon}
-            onClick={() => {
-              setSelectedRole(null)
-              setSelectedStages(initialSelectedRoles)
-            }}
-          ><ArrowBottomIcon />
-          </div>
           <div className={styles.title}>
             {SELECTED_ROLES[selectedRole]}
           </div>

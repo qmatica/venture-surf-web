@@ -39,7 +39,6 @@ export const IndustriesStep: FC<IIndustriesStep> = ({
 
   return (
     <div>
-      <div className={styles.backIcon} onClick={prevStep}><ArrowBottomIcon /></div>
       <div className={styles.title}>Specify you niche</div>
       {industries.map((industry, index) => (
         <div

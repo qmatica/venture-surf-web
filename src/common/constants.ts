@@ -21,7 +21,8 @@ export const linkedInAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?
 export const accessTokenUrl = 'https://www.linkedin.com/uas/oauth2/accessToken'
 
 export const ONBOARDING_STEPS = {
-  ROLE: 1,
+  ROLE: 0,
+  START_UP: 1,
   INDUSTRIES: 2,
   LINKEDIN: 3
 }
