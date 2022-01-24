@@ -3,6 +3,7 @@ import { getFirebase } from 'react-redux-firebase'
 import { AuthUserType, StatisticVideoType } from 'common/types'
 import { proj } from 'config/firebase'
 import { DeviceType, ProfileType } from 'features/Profile/types'
+import { CLIENT_ID, CLIENT_SECRET, REDIRECT_URI } from 'common/constants'
 import { timeSlotsType } from '../features/Calendar/types'
 
 const headers = {
@@ -199,9 +200,9 @@ export const linkedInAPI = {
     const body = new URLSearchParams()
     body.append('grant_type', 'authorization_code')
     body.append('code', code)
-    body.append('redirect_uri', process.env.REACT_APP_REDIRECT_URI as string)
-    body.append('client_id', process.env.REACT_APP_CLIENT_ID as string)
-    body.append('client_secret', process.env.REACT_APP_CLIENT_SECRET as string)
+    body.append('redirect_uri', REDIRECT_URI as string)
+    body.append('client_id', CLIENT_ID)
+    body.append('client_secret', CLIENT_SECRET)
 
     return linkedInInstance.post('v2/accessToken',
       body, {

@@ -1,9 +1,8 @@
 import React, { FC, useState } from 'react'
 import { OnboardingUserType, RoleType } from 'features/Profile/types'
-import {
-  stages, ROLES_STEPS, SELECTED_ROLES
-} from 'common/constants'
-import { selectedStagesType } from 'common/types'
+import { stages } from 'common/constants'
+import { ROLES_STEPS, SELECTED_ROLES } from 'features/Auth/constants'
+import { selectedStagesType } from 'features/Auth/types'
 import cn from 'classnames'
 import { ArrowBottomIcon } from 'common/icons'
 import styles from './styles.module.sass'

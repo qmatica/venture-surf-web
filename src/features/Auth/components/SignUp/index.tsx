@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import { getMyProfile } from 'features/Profile/selectors'
 import { getAuth } from 'features/Auth/selectors'
 import { OnboardingUserType } from 'features/Profile/types'
-import { ONBOARDING_STEPS } from 'common/constants'
 import { ArrowBottomIcon } from 'common/icons'
+import { ONBOARDING_STEPS } from 'features/Auth/constants'
 import { LinkedInStep } from '../OnboardingSteps/LinkedInStep'
 import { RoleStep } from '../OnboardingSteps/RoleStep'
 import { IndustriesStep } from '../OnboardingSteps/IndustriesStep'
@@ -23,7 +23,7 @@ export const SignUp = () => {
     ROLE, START_UP, INDUSTRIES, LINKEDIN
   } = ONBOARDING_STEPS
 
-  const onboardingSteps = () => {
+  const onboardingSteps = useMemo(() => {
     switch (currentStep) {
       case ROLE:
       case START_UP:
@@ -40,17 +40,16 @@ export const SignUp = () => {
         return (
           <IndustriesStep
             nextStep={nextStep}
-            prevStep={prevStep}
             setOnboardingProfile={setOnboardingProfile}
             onboardingProfile={onboardingProfile}
           />
         )
       case LINKEDIN:
-        return <LinkedInStep prevStep={prevStep} onboardingProfile={onboardingProfile} />
+        return <LinkedInStep onboardingProfile={onboardingProfile} />
       default:
         return null
     }
-  }
+  }, [currentStep, onboardingProfile, selectedRole])
 
   if (profile) return <Redirect to="/surf" />
 
@@ -59,7 +58,7 @@ export const SignUp = () => {
   return (
     <div className={styles.wrapper}>
       {currentStep > 0 && <div className={styles.backIcon} onClick={prevStep}><ArrowBottomIcon /></div>}
-      {onboardingSteps()}
+      {onboardingSteps}
     </div>
   )
 }

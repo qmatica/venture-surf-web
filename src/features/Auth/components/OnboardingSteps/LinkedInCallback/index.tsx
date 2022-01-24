@@ -10,8 +10,7 @@ export const LinkedInCallback = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const url = window.location
-    const code = new URLSearchParams(url.search).get('code')
+    const code = new URLSearchParams(window.location.search).get('code')
     if (code) dispatch(getOnboardingProfile(code))
   }, [])
 

@@ -2,6 +2,7 @@ import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
 import { init as initProfile, actions as profileActions } from 'features/Profile/actions'
 import { profileAPI, linkedInAPI } from 'api'
 import { getTokenFcm } from 'features/Profile/utils'
+import { VOIP_TOKEN, BUNDLE } from 'common/constants'
 import { init as initSurf } from '../Surf/actions'
 import { ThunkType } from './types'
 
@@ -65,14 +66,14 @@ export const getOnboardingProfile = (code: string): ThunkType => async (dispatch
   if (profileData && response) {
     localStorage.removeItem('onboardingProfile')
     const deviceId = localStorage.getItem('deviceId')
-    const fcm_token = await getTokenFcm()
+    const fcmToken = await getTokenFcm()
     if (deviceId) {
       const device = {
         id: deviceId,
         os: window.navigator.appVersion,
-        fcm_token,
-        voip_token: '12428345723486-34639456-4563-4956',
-        bundle: 'opentek.us.VentureSwipe'
+        fcm_token: fcmToken,
+        voip_token: VOIP_TOKEN,
+        bundle: BUNDLE
       }
 
       const updatedProfile = {

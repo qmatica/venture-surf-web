@@ -2,18 +2,16 @@ import React, { FC, useState } from 'react'
 import { industries } from 'common/constants'
 import { OnboardingUserType } from 'features/Profile/types'
 import cn from 'classnames'
-import { ArrowBottomIcon } from 'common/icons'
 import styles from './styles.module.sass'
 
 interface IIndustriesStep {
-    nextStep: () => void
-    prevStep: () => void
-    setOnboardingProfile: ({ industries }: OnboardingUserType) => void
-    onboardingProfile?: OnboardingUserType
-  }
+  nextStep: () => void
+  setOnboardingProfile: ({ industries }: OnboardingUserType) => void
+  onboardingProfile?: OnboardingUserType
+}
 
 export const IndustriesStep: FC<IIndustriesStep> = ({
-  nextStep, prevStep, setOnboardingProfile, onboardingProfile
+  nextStep, setOnboardingProfile, onboardingProfile
 }) => {
   const [selectedIndustry, setSelectedIndustry] = useState<boolean[]>(new Array(industries.length).fill(false))
   const [isAnySelected, setIsAnySelected] = useState(false)
