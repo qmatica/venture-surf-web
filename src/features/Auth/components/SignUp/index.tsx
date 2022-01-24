@@ -48,9 +48,9 @@ export const SignUp = () => {
     }
   }
 
-  // if (profile) return <Redirect to="/surf" />
+  if (profile) return <Redirect to="/surf" />
 
-  // if (!auth) return <Redirect to="/auth" />
+  if (!auth) return <Redirect to="/auth" />
 
   return <div className={styles.wrapper}>{onboardingSteps()}</div>
 }

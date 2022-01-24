@@ -17,7 +17,7 @@ export const stages: stagesType = {
 
 export const industries = ['Bio / Healthcare', 'Consumer', 'Enterprise', 'Technology']
 
-export const linkedInAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&scope=r_liteprofile&state=123456&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}`
+export const linkedInAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&scope=r_liteprofile&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}`
 export const accessTokenUrl = 'https://www.linkedin.com/uas/oauth2/accessToken'
 
 export const ONBOARDING_STEPS = {

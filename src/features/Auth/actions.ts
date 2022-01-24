@@ -66,21 +66,27 @@ export const getOnboardingProfile = (code: string): ThunkType => async (dispatch
     localStorage.removeItem('onboardingProfile')
     const deviceId = localStorage.getItem('deviceId')
     const fcm_token = await getTokenFcm()
+    if (deviceId) {
+      const device = {
+        id: deviceId,
+        os: window.navigator.appVersion,
+        fcm_token,
+        voip_token: '12428345723486-34639456-4563-4956',
+        bundle: 'opentek.us.VentureSwipe'
+      }
 
-    const device = {
-      id: deviceId,
-      os: window.navigator.appVersion,
-      fcm_token,
-      voip_token: '12428345723486-34639456-4563-4956',
-      bundle: 'opentek.us.VentureSwipe'
-    }
+      const updatedProfile = {
+        ...JSON.parse(profileData),
+        displayName: `${response.localizedFirstName} ${response.localizedLastName}`,
+        first_name: response.localizedFirstName,
+        last_name: response.localizedLastName,
+        linkedIn_ID: response.id,
+        device
+      }
 
-    const updatedProfile = {
-      ...JSON.parse(profileData),
-      ...response,
-      device
+      await profileAPI.afterSignup(updatedProfile)
+      const registeredProfile = await profileAPI.afterLogin(device)
+      dispatch(profileActions.setMyProfile(registeredProfile))
     }
-    const registeredProfile = await profileAPI.afterSignup(updatedProfile)
-    dispatch(profileActions.setMyProfile(registeredProfile))
   }
 }

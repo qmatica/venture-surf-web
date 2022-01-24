@@ -15,6 +15,6 @@ export const LinkedInCallback = () => {
     if (code) dispatch(getOnboardingProfile(code))
   }, [])
 
-  // if (profile) return <Redirect to="/surf" />
+  if (profile) return <Redirect to="/surf" />
   return <Preloader />
 }

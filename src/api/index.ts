@@ -183,26 +183,31 @@ export const lokalizeAPI = {
   }
 }
 
-const linkedInInstance = axios.create({
-  baseURL: 'https://api.linkedin.com'
-})
-
 export const linkedInAPI = {
   getMyProfileFromLinkedIn(access_token: string) {
+    const linkedInInstance = axios.create({
+      baseURL: 'https://api.linkedin.com'
+    })
     return linkedInInstance.get('v2/me', {
       headers: { Authorization: `Bearer ${access_token}` }
     }).then((res) => res.data)
   },
   createAccessToken(code: string) {
-    const headers = {
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: process.env.REACT_APP_REDIRECT_URI,
-      client_id: process.env.REACT_APP_CLIENT_ID,
-      client_secret: process.env.REACT_APP_CLIENT_SECRET
-    }
-    return linkedInInstance.post('v2/accessToken', {}, {
-      headers
-    }).then((res) => res.data)
+    const linkedInInstance = axios.create({
+      baseURL: 'https://www.linkedin.com/oauth'
+    })
+    const body = new URLSearchParams()
+    body.append('grant_type', 'authorization_code')
+    body.append('code', code)
+    body.append('redirect_uri', process.env.REACT_APP_REDIRECT_URI as string)
+    body.append('client_id', process.env.REACT_APP_CLIENT_ID as string)
+    body.append('client_secret', process.env.REACT_APP_CLIENT_SECRET as string)
+
+    return linkedInInstance.post('v2/accessToken',
+      body, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }).then((res) => res.data.access_token)
   }
 }
