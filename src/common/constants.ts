@@ -1,3 +1,18 @@
+import React from 'react'
+import {
+  FirstCheckIcon,
+  AngelRoundsIcon,
+  SeedRoundsIcon,
+  SeriesAPlusIcon,
+  BioIcon,
+  ConsumerIcon,
+  EnterpriseIcon,
+  TechnologyIcon,
+  PreFoundingIcon,
+  AngelBackedIcon,
+  VentureBackedIcon,
+  PostSeriesAIcon
+} from 'common/icons'
 import { stagesType } from './types'
 
 export const stages: stagesType = {
@@ -13,6 +28,21 @@ export const stages: stagesType = {
     3: 'Venture-backed',
     4: 'Post Series A'
   }
+}
+
+export const mapStagesWithIcons: { [key: string]: React.FC<{stroke?: string}> } = {
+  'First check': FirstCheckIcon,
+  'Angel rounds': AngelRoundsIcon,
+  'Seed rounds': SeedRoundsIcon,
+  'Series A+': SeriesAPlusIcon,
+  'Pre-funding': PreFoundingIcon,
+  'Angel-backed': AngelBackedIcon,
+  'Venture-backed': VentureBackedIcon,
+  'Post Series A': PostSeriesAIcon,
+  'Bio / Healthcare': BioIcon,
+  Consumer: ConsumerIcon,
+  Enterprise: EnterpriseIcon,
+  Technology: TechnologyIcon
 }
 
 export const industries = ['Bio / Healthcare', 'Consumer', 'Enterprise', 'Technology']

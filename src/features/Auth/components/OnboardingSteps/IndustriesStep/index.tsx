@@ -1,7 +1,8 @@
 import React, { FC, useState } from 'react'
-import { industries } from 'common/constants'
-import { OnboardingUserType } from 'features/Profile/types'
 import cn from 'classnames'
+import { OnboardingUserType } from 'features/Profile/types'
+import { industries, mapStagesWithIcons } from 'common/constants'
+import commonStyles from 'features/Auth/components/OnboardingSteps/styles.module.sass'
 import styles from './styles.module.sass'
 
 interface IIndustriesStep {
@@ -38,17 +39,28 @@ export const IndustriesStep: FC<IIndustriesStep> = ({
   return (
     <div>
       <div className={styles.title}>Specify you niche</div>
-      {industries.map((industry, index) => (
-        <div
-          key={industry}
-          onClick={() => handleOnSelect(index)}
-          className={cn(
-            styles.container,
-            selectedIndustry[index] && styles.selected
-          )}
-        >{industry}
-        </div>
-      ))}
+      {industries.map((industry, index) => {
+        const isSelected = selectedIndustry[index]
+        return (
+          <div
+            key={industry}
+            onClick={() => handleOnSelect(index)}
+            className={cn(
+              styles.container,
+              selectedIndustry[index] && styles.selected
+            )}
+          >
+            <div className={cn(
+              commonStyles.iconBackground,
+              isSelected && commonStyles.iconBackgroundSelected
+            )}
+            >
+              {mapStagesWithIcons[industry](isSelected ? { stroke: '#FFFFFF' } : {})}
+            </div>
+            {industry}
+          </div>
+        )
+      })}
       <button
         className={cn(
           styles.button,

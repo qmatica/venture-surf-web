@@ -1,10 +1,10 @@
 import React, { FC, useState } from 'react'
+import cn from 'classnames'
 import { OnboardingUserType, RoleType } from 'features/Profile/types'
-import { stages } from 'common/constants'
+import { stages, mapStagesWithIcons } from 'common/constants'
 import { ROLES_STEPS, SELECTED_ROLES } from 'features/Auth/constants'
 import { selectedStagesType } from 'features/Auth/types'
-import cn from 'classnames'
-import { ArrowBottomIcon } from 'common/icons'
+import commonStyles from 'features/Auth/components/OnboardingSteps/styles.module.sass'
 import styles from './styles.module.sass'
 
 interface IRoleStep {
@@ -67,18 +67,28 @@ export const RoleStep: FC<IRoleStep> = ({
           <div className={styles.title}>
             {SELECTED_ROLES[selectedRole]}
           </div>
-          {Object.entries(stages[selectedRole]).map(([key, value], index) => (
-            <div
-              className={cn(
-                styles.container,
-                selectedStages[selectedRole][index] && styles.selected
-              )}
-              key={key}
-              onClick={() => handleOnSelect(index)}
-            >
-              {value}
-            </div>
-          ))}
+          {Object.entries(stages[selectedRole]).map(([key, value], index) => {
+            const isSelected = selectedStages[selectedRole][index]
+            return (
+              <div
+                className={cn(
+                  styles.container,
+                  isSelected && styles.selected
+                )}
+                key={key}
+                onClick={() => handleOnSelect(index)}
+              >
+                <div className={cn(
+                  commonStyles.iconBackground,
+                  isSelected && commonStyles.iconBackgroundSelected
+                )}
+                >
+                  {mapStagesWithIcons[value](isSelected && { stroke: '#FFFFFF' })}
+                </div>
+                {value}
+              </div>
+            )
+          })}
           <button
             className={cn(
               styles.button,
