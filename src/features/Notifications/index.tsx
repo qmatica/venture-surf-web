@@ -38,8 +38,9 @@ export const Notifications = () => {
 
   const replyWithVideo = () => {
     if (incomingCall) {
-      connect(incomingCall.data.token, {
-        room: incomingCall.data.room,
+      // TODO: Отправить на бэк accept call with deviceId для получения push при входе нового участника
+      connect(incomingCall.token, {
+        room: incomingCall.room,
         dominantSpeaker: true
       } as ConnectOptions)
         .then((room) => {
@@ -57,7 +58,7 @@ export const Notifications = () => {
     if (incomingCall) {
       stop()
       dispatch(actions.removeIncomingCall())
-      dispatch(declineCall(incomingCall.data.uid))
+      dispatch(declineCall(incomingCall.uid))
     }
   }
 
@@ -160,9 +161,9 @@ export const Notifications = () => {
       {incomingCall && (
       <div className={styles.incomingCallContainer}>
         <div className={styles.photoContainer}>
-          <UserPhotoIcon />
+          <Image photoURL={incomingCall.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
         </div>
-        <div className={styles.displayName}>{incomingCall.notification.body}</div>
+        <div className={styles.displayName}>{incomingCall.name}</div>
         <div className={styles.event}>Incoming call...</div>
         <div className={styles.buttonsContainer}>
           <div className={styles.button} onClick={onDeclineCall}>
