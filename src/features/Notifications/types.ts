@@ -8,15 +8,9 @@ export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsConve
 export type ThunkType = ThunkAction<Promise<void | boolean>, AppStateType, typeof getFirebase, ActionTypes>
 
 export type IncomingCallType = {
-    data: {
-        made: Date | { seconds: number, nanoseconds: number }
-        room: string
-        slots: string
-        token: string
-        uid: string
-    }
-    notification: {
-        body: string
-        title: string
-    }
+    uid: string
+    name: string
+    photoURL: string
+    room: string
+    token: string
 }

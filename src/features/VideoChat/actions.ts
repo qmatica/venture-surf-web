@@ -1,4 +1,6 @@
 import { Room } from 'twilio-video'
+import { usersAPI } from 'api'
+import { ThunkType } from './types'
 
 export const actions = {
   setRoom: (room: Room | null, remoteUserUid: string | null) => (
