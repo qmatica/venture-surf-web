@@ -21,6 +21,7 @@ import { executeAllPromises } from 'common/utils'
 import moment from 'moment'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import { getFirestore } from 'redux-firestore'
+import { VOIP_TOKEN, BUNDLE } from 'common/constants'
 import { addToClipboardPublicLinkProfile } from 'common/actions'
 import {
   JobType,
@@ -86,8 +87,8 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     id: deviceId,
     os: window.navigator.appVersion,
     fcm_token,
-    voip_token: '12428345723486-34639456-4563-4956',
-    bundle: 'opentek.us.VentureSwipe'
+    voip_token: VOIP_TOKEN,
+    bundle: BUNDLE
   }
 
   const profile = await profileAPI.afterLogin(device)
