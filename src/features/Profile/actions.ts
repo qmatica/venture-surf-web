@@ -1,4 +1,7 @@
 import { connect, ConnectOptions } from 'twilio-video'
+import {
+  collection, doc, getDoc, getDocs, query, where, onSnapshot
+} from 'firebase/firestore'
 import { v4 as uuidv4 } from 'uuid'
 import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
@@ -17,7 +20,8 @@ import { determineNotificationContactsOrCall } from 'common/typeGuards'
 import { executeAllPromises } from 'common/utils'
 import moment from 'moment'
 import { FormattedSlotsType } from 'features/Calendar/types'
-import { VOIP_TOKEN, BUNDLE } from 'common/constants'
+import { getFirestore } from 'redux-firestore'
+import { addToClipboardPublicLinkProfile } from 'common/actions'
 import {
   JobType,
   ResponseCallNowType,
@@ -31,7 +35,6 @@ import {
 } from './types'
 import { ChatType } from '../Conversations/types'
 import { compareCountContacts, compareNowSlot, getTokenFcm } from './utils'
-import { addToClipboardPublicLinkProfile } from '../../common/actions'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
@@ -65,7 +68,7 @@ export const actions = {
 
 let activeActions: string[] = []
 
-export const init = (): ThunkType => async (dispatch, getState) => {
+export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
   let deviceId = localStorage.getItem('deviceId')
 
   if (!deviceId) {
@@ -83,8 +86,8 @@ export const init = (): ThunkType => async (dispatch, getState) => {
     id: deviceId,
     os: window.navigator.appVersion,
     fcm_token,
-    voip_token: VOIP_TOKEN,
-    bundle: BUNDLE
+    voip_token: '12428345723486-34639456-4563-4956',
+    bundle: 'opentek.us.VentureSwipe'
   }
 
   const profile = await profileAPI.afterLogin(device)
@@ -116,17 +119,85 @@ export const init = (): ThunkType => async (dispatch, getState) => {
 
   dispatch(getFullProfiles(contactsList.mutuals, 'mutuals'))
 
-  if (fcm_token) {
-    const messaging = getMessaging(firebaseApp)
-
-    onMessage(messaging, (payload) => {
-      console.log('Message received. ', payload)
-      dispatch(checkIncomingCall(payload))
-    })
-  }
+  // if (fcm_token) {
+  //   const messaging = getMessaging(firebaseApp)
+  //
+  //   onMessage(messaging, (payload) => {
+  //     console.log('Message received. ', payload)
+  //     dispatch(checkIncomingCall(payload))
+  //   })
+  // }
 
   dispatch(listenSchedulesMeetings())
   dispatch(listenUpdateMyProfile())
+
+  const q = query(collection(getFirebase().firestore(), `profiles/${uid}/notifications`))
+
+  const querySnapshot = await getDocs(q)
+
+  const notificationsHistory = {} as any
+
+  querySnapshot.forEach((doc) => {
+    console.log('notifications', doc.id, ' => ', doc.data())
+    notificationsHistory[doc.id] = doc.data()
+  })
+
+  onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added') {
+        console.log('New: doc', change.doc.data())
+        if (!notificationsHistory[change.doc.id]) {
+          console.log('Unregistered doc!', change.doc.data())
+          notificationsHistory[change.doc.id] = change.doc.data()
+
+          // Входящий звонок
+          if (notificationsHistory[change.doc.id].type === 'call_instant') {
+            const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
+
+            const user = profile.mutuals[contact]
+
+            const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+            const { photoURL } = user
+
+            const payload = {
+              uid: contact,
+              name,
+              photoURL,
+              room,
+              token
+            }
+
+            dispatch(actionsNotifications.addIncomingCall(payload))
+          }
+
+          if (notificationsHistory[change.doc.id].type === 'call_instant_group') {
+            const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
+
+            const user = profile.mutuals[contact]
+
+            const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+            const { photoURL } = user
+
+            const payload = {
+              uid: contact,
+              name,
+              photoURL,
+              room,
+              token
+            }
+
+            dispatch(actionsNotifications.addIncomingCall(payload))
+          }
+        }
+      }
+      if (change.type === 'modified') {
+        console.log('Modified doc: ', change.doc.data())
+      }
+      if (change.type === 'removed') {
+        console.log('Removed doc: ', change.doc.data())
+      }
+    })
+  })
 }
 
 const listenSchedulesMeetings = (): ThunkType => async (dispatch, getState) => {
@@ -226,25 +297,25 @@ const getFullProfiles = (
   })
 }
 
-const checkIncomingCall = (payload: IncomingCallType | any): ThunkType => async (dispatch, getState) => {
-  if (payload?.notification?.title === 'Incoming call from') {
-    dispatch(actionsNotifications.addIncomingCall(payload))
-  }
-  if (payload?.data.start_time === 'now') {
-    const data = {
-      data: { ...JSON.parse(payload.data.twilio), uid: payload.data.uid },
-      notification: { body: payload.data.name, title: 'Incoming call from' }
-    }
-    dispatch(actionsNotifications.addIncomingCall(data))
-  }
-}
+// const checkIncomingCall = (payload: IncomingCallType | any): ThunkType => async (dispatch, getState) => {
+//   if (payload?.notification?.title === 'Incoming call from') {
+//     dispatch(actionsNotifications.addIncomingCall(payload))
+//   }
+//   if (payload?.data.start_time === 'now') {
+//     const data = {
+//       data: { ...JSON.parse(payload.data.twilio), uid: payload.data.uid },
+//       notification: { body: payload.data.name, title: 'Incoming call from' }
+//     }
+//     dispatch(actionsNotifications.addIncomingCall(data))
+//   }
+// }
 
 const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFirebase) => {
   const { auth } = getState().firebase
 
   getFirebase().firestore().doc(`profiles/${auth.uid}`).onSnapshot(async (doc) => {
     const { profile } = getState().profile
-    const { isOwnerCall } = getState().videoChat
+    // const { isOwnerCall } = getState().videoChat
     const newProfile = doc.data() as ProfileType
 
     console.log('My profile updated: ', newProfile)
@@ -265,18 +336,18 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
 
       dispatch(compareChats(profile.mutuals, newProfile.mutuals))
 
-      const result = compareNowSlot(
-        profile.slots,
-        newProfile.slots,
-        isOwnerCall,
-        (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => {
-          dispatch(actions.updateMySlots(action, slot))
-        }
-      )
-      if (result) {
-        // @ts-ignore
-        dispatch(showNotification(result))
-      }
+      // const result = compareNowSlot(
+      //   profile.slots,
+      //   newProfile.slots,
+      //   isOwnerCall,
+      //   (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => {
+      //     dispatch(actions.updateMySlots(action, slot))
+      //   }
+      // )
+      // if (result) {
+      //   // @ts-ignore
+      //   dispatch(showNotification(result))
+      // }
     }
   })
 }
@@ -347,30 +418,30 @@ export const showNotification =
           return
         }
         if (determineNotificationContactsOrCall(result)) {
-          const {
-            room, made, token, uid
-          } = result
-
-          const {
-            displayName, first_name, last_name, name
-          } = profile.mutuals[uid]
-
-          const userName = name || displayName || `${first_name} ${last_name}`
-
-          const payload = {
-            data: {
-              made,
-              room,
-              slots: 'now',
-              token,
-              uid
-            },
-            notification: {
-              body: userName,
-              title: ''
-            }
-          }
-          dispatch(actionsNotifications.addIncomingCall(payload))
+          // const {
+          //   room, made, token, uid
+          // } = result
+          //
+          // const {
+          //   displayName, first_name, last_name, name
+          // } = profile.mutuals[uid]
+          //
+          // const userName = name || displayName || `${first_name} ${last_name}`
+          //
+          // const payload = {
+          //   data: {
+          //     made,
+          //     room,
+          //     slots: 'now',
+          //     token,
+          //     uid
+          //   },
+          //   notification: {
+          //     body: userName,
+          //     title: ''
+          //   }
+          // }
+          // dispatch(actionsNotifications.addIncomingCall(payload))
           return
         }
 
