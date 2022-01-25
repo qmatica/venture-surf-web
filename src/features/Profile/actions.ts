@@ -66,67 +66,71 @@ export const actions = {
 let activeActions: string[] = []
 
 export const init = (): ThunkType => async (dispatch, getState) => {
-  let deviceId = localStorage.getItem('deviceId')
+  try {
+    let deviceId = localStorage.getItem('deviceId')
 
-  if (!deviceId) {
-    deviceId = uuidv4()
-    localStorage.setItem('deviceId', deviceId)
-  }
+    if (!deviceId) {
+      deviceId = uuidv4()
+      localStorage.setItem('deviceId', deviceId)
+    }
 
-  const fcm_token = await getTokenFcm()
+    const fcm_token = await getTokenFcm()
 
-  if (fcm_token) {
-    dispatch(actions.setIsActiveFcm(true))
-  }
+    if (fcm_token) {
+      dispatch(actions.setIsActiveFcm(true))
+    }
 
-  const device = {
-    id: deviceId,
-    os: window.navigator.appVersion,
-    fcm_token,
-    voip_token: VOIP_TOKEN,
-    bundle: BUNDLE
-  }
+    const device = {
+      id: deviceId,
+      os: window.navigator.appVersion,
+      fcm_token,
+      voip_token: VOIP_TOKEN,
+      bundle: BUNDLE
+    }
 
-  const profile = await profileAPI.afterLogin(device)
+    const profile = await profileAPI.afterLogin(device)
 
-  const { auth: { uid } } = getState().firebase
+    const { auth: { uid } } = getState().firebase
 
-  const contactsList: any = {
-    mutuals: {},
-    likes: {},
-    liked: {}
-  }
+    const contactsList: any = {
+      mutuals: {},
+      likes: {},
+      liked: {}
+    }
 
-  Object.keys(contactsList).forEach((contacts) => {
-    Object.keys(profile[contacts]).forEach((key) => {
-      contactsList[contacts][key] = {
-        ...profile[contacts][key],
-        uid: key
-      }
+    Object.keys(contactsList).forEach((contacts) => {
+      Object.keys(profile[contacts]).forEach((key) => {
+        contactsList[contacts][key] = {
+          ...profile[contacts][key],
+          uid: key
+        }
+      })
     })
-  })
 
-  const updatedProfile = {
-    ...profile,
-    ...contactsList,
-    uid,
-    currentDeviceId: deviceId
+    const updatedProfile = {
+      ...profile,
+      ...contactsList,
+      uid,
+      currentDeviceId: deviceId
+    }
+    dispatch(actions.setMyProfile(updatedProfile))
+
+    dispatch(getFullProfiles(contactsList.mutuals, 'mutuals'))
+
+    if (fcm_token) {
+      const messaging = getMessaging(firebaseApp)
+
+      onMessage(messaging, (payload) => {
+        console.log('Message received. ', payload)
+        dispatch(checkIncomingCall(payload))
+      })
+    }
+
+    dispatch(listenSchedulesMeetings())
+    dispatch(listenUpdateMyProfile())
+  } catch (error) {
+    console.log(error)
   }
-  dispatch(actions.setMyProfile(updatedProfile))
-
-  dispatch(getFullProfiles(contactsList.mutuals, 'mutuals'))
-
-  if (fcm_token) {
-    const messaging = getMessaging(firebaseApp)
-
-    onMessage(messaging, (payload) => {
-      console.log('Message received. ', payload)
-      dispatch(checkIncomingCall(payload))
-    })
-  }
-
-  dispatch(listenSchedulesMeetings())
-  dispatch(listenUpdateMyProfile())
 }
 
 const listenSchedulesMeetings = (): ThunkType => async (dispatch, getState) => {

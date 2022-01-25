@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useState, useEffect } from 'react'
 import cn from 'classnames'
 import { OnboardingUserType, RoleType } from 'features/Profile/types'
 import { stages, mapStagesWithIcons } from 'common/constants'
@@ -30,6 +30,10 @@ export const RoleStep: FC<IRoleStep> = ({
 
   const [isAnySelected, setIsAnySelected] = useState(false)
 
+  useEffect(() => {
+    if (!selectedRole) setIsAnySelected(false)
+  }, [selectedRole])
+
   const handleRoleSelect = (role: RoleType) => {
     setOnboardingProfile({ roles: [role] } as OnboardingUserType)
     setSelectedRole(role)
@@ -41,7 +45,7 @@ export const RoleStep: FC<IRoleStep> = ({
       const updatedStages = selectedStages[selectedRole].map((item, index) =>
         (index === position ? !item : item))
 
-      const updatedRole = { [selectedRole]: updatedStages }
+      const updatedRole: selectedStagesType = { ...initialSelectedRoles, [selectedRole]: updatedStages }
       setSelectedStages(updatedRole)
       setIsAnySelected(updatedRole[selectedRole].some((item) => item))
     }

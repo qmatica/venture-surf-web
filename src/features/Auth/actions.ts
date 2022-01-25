@@ -52,7 +52,9 @@ export const confirmCode = (code: string): ThunkType => async (dispatch, getStat
       dispatch(actions.setAuth(true))
     })
     .catch((err) => {
-      console.log('confirmCode failed:', err)
+      if (err.status === 400) {
+        dispatch(actions.setAuth(true))
+      }
       dispatch(actions.setIsFailedConfirmationCode(true))
       dispatch(actions.setIsLoading(false))
     })

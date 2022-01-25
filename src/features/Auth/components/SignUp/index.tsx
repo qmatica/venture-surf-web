@@ -57,7 +57,16 @@ export const SignUp = () => {
 
   return (
     <div className={styles.wrapper}>
-      {currentStep > 0 && <div className={styles.backIcon} onClick={prevStep}><ArrowBottomIcon /></div>}
+      {currentStep > 0 && (
+      <div
+        className={styles.backIcon}
+        onClick={() => {
+          if (currentStep === START_UP) setSelectedRole(null)
+          prevStep()
+        }}
+      ><ArrowBottomIcon />
+      </div>
+      )}
       {onboardingSteps}
     </div>
   )

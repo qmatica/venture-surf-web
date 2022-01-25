@@ -29,8 +29,10 @@ instance.interceptors.request.use(
   }
 )
 
-instance.interceptors.response.use((res) => res, (error) =>
-  Promise.reject(error.response?.data || error.response || error))
+instance.interceptors.response.use((res) => res, (error) => {
+  const objectToReturn = { ...(error.response?.data || error.response || error), status: error.response?.status }
+  return Promise.reject(objectToReturn)
+})
 
 export const profileAPI = {
   getMyProfile() {
