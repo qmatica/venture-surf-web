@@ -2,7 +2,9 @@ import React, { FC, useEffect, useState } from 'react'
 import { Tag } from 'common/components/Tag'
 import { Modal } from 'features/Modal'
 import { ChoiceTags } from 'common/components/ChoiceTags'
-import { Edit2Icon, PreloaderIcon } from 'common/icons'
+import { Edit2Icon } from 'common/icons'
+import { Button } from 'common/components/Button'
+import cn from 'classnames'
 import styles from './styles.module.sass'
 
 interface ITags {
@@ -21,14 +23,17 @@ export const Tags: FC<ITags> = ({
   minSize
 }) => {
   const [isOpenModal, setIsOpenModal] = useState(false)
-  const [updatableTags, setUpdatableTags] = useState<(string | number)[]>([])
+  const [updatableTags, setUpdatableTags] = useState<(string | number)[]>(tags || [])
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    setUpdatableTags(tags || [])
     if (isOpenModal) toggleModal()
     if (isLoading) setIsLoading(false)
   }, [tags])
+
+  useEffect(() => {
+    if (!isOpenModal) setUpdatableTags(tags || [])
+  }, [isOpenModal])
 
   const toggleModal = () => setIsOpenModal(!isOpenModal)
 
@@ -66,10 +71,18 @@ export const Tags: FC<ITags> = ({
         <>
           <ChoiceTags tags={updatableTags} onChange={setUpdatableTags} dictionary={dictionary} />
           <div className={styles.footer}>
-            <div className={`${styles.button} ${styles.save}`} onClick={save}>
-              {isLoading ? <PreloaderIcon stroke="#96baf6" /> : 'Save'}
-            </div>
-            <div className={`${styles.button} ${styles.close}`} onClick={toggleModal}>Close</div>
+            <Button
+              title="Save"
+              isLoading={isLoading}
+              className={cn(styles.button, styles.save)}
+              onClick={save}
+              disabled={tags?.join(',') === updatableTags.join(',')}
+            />
+            <Button
+              title="Close"
+              className={cn(styles.button, styles.close)}
+              onClick={toggleModal}
+            />
           </div>
         </>
       </Modal>

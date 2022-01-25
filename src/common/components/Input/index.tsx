@@ -1,37 +1,44 @@
-import React, { FC, useState } from 'react'
+import React, { FC, forwardRef, LegacyRef } from 'react'
+import { ChangeHandler } from 'react-hook-form/dist/types'
 import styles from './styles.module.sass'
 
 interface IInput {
   name?: string
   placeholder?: string
   title?: string
-  initialValue?: string
-  onChange?: (text: string) => void
+  defaultValue?: string
+  onChange?: ChangeHandler
+  onBlur?: ChangeHandler
   value?: string
+  errorMsg?: string
+  autoComplete?: 'on' | 'off'
 }
 
-export const Input: FC<IInput> = ({
-  name, placeholder, title, initialValue = '', onChange, value
-}) => {
-  const [text, setText] = useState(initialValue)
-  const onChangeText = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      onChange(value)
-      return
-    }
-    setText(value)
-  }
-  return (
-    <div className={styles.container}>
-      {title && <div className={styles.title}>{title}</div>}
-      <input
-        name={name}
-        className={styles.input}
-        type="text"
-        value={value || text}
-        onChange={onChangeText}
-        placeholder={placeholder}
-      />
-    </div>
-  )
-}
+export const Input: FC<IInput> = forwardRef(({
+  name,
+  placeholder,
+  title,
+  defaultValue,
+  onChange,
+  onBlur,
+  value,
+  errorMsg,
+  autoComplete = 'off'
+}, ref) => (
+  <div className={styles.container}>
+    {title && <div className={styles.title}>{title}</div>}
+    <input
+      name={name}
+      ref={ref as LegacyRef<HTMLInputElement> | undefined}
+      className={styles.input}
+      type="text"
+      value={value}
+      defaultValue={defaultValue}
+      onChange={onChange}
+      onBlur={onBlur}
+      placeholder={placeholder}
+      autoComplete={autoComplete}
+    />
+    <p>{errorMsg}</p>
+  </div>
+))

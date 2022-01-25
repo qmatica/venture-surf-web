@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import ReactTooltip from 'react-tooltip'
 import { Redirect } from 'react-router-dom'
-import { getImageSrcFromBase64 } from 'common/utils'
+import { Image } from 'common/components/Image'
 import { Accordion } from './components/Accordion'
 import styles from './styles.module.sass'
 
@@ -48,9 +48,12 @@ export const Admin = () => {
         accessor: 'photoURL',
         Cell: ({ row }: any) => (
           <div className={styles.photoContainer}>
-            {row.values.photoURL || row.values.photoBase64
-              ? <img src={getImageSrcFromBase64(row.values.photoBase64, row.values.photoURL)} alt={row.values.uid} />
-              : <UserIcon />}
+            <Image
+              photoURL={row.values.photoURL}
+              photoBase64={row.values.photoBase64}
+              alt={row.values.uid}
+              userIcon={UserIcon}
+            />
           </div>
         )
       },
@@ -115,9 +118,12 @@ export const Admin = () => {
                 data-effect="solid"
               >
                 <div className={styles.minPhotoContainer}>
-                  {value.photoURL || value.photoBase64
-                    ? <img src={getImageSrcFromBase64(value.photoBase64, value.photoURL)} alt={key} />
-                    : <UserIcon />}
+                  <Image
+                    photoURL={value.photoURL}
+                    photoBase64={value.photoBase64}
+                    alt={key}
+                    userIcon={UserIcon}
+                  />
                 </div>
                 <div>{value.displayName}</div>
               </div>
@@ -141,9 +147,12 @@ export const Admin = () => {
                 data-effect="solid"
               >
                 <div className={styles.minPhotoContainer}>
-                  {value.photoURL || value.photoBase64
-                    ? <img src={getImageSrcFromBase64(value.photoBase64, value.photoURL)} alt={key} />
-                    : <UserIcon />}
+                  <Image
+                    photoURL={value.photoURL}
+                    photoBase64={value.photoBase64}
+                    alt={key}
+                    userIcon={UserIcon}
+                  />
                 </div>
                 <div>{value.displayName}</div>
               </div>
@@ -167,9 +176,12 @@ export const Admin = () => {
                 data-effect="solid"
               >
                 <div className={styles.minPhotoContainer}>
-                  {value.photoURL || value.photoBase64
-                    ? <img src={getImageSrcFromBase64(value.photoBase64, value.photoURL)} alt={key} />
-                    : <UserIcon />}
+                  <Image
+                    photoURL={value.photoURL}
+                    photoBase64={value.photoBase64}
+                    alt={key}
+                    userIcon={UserIcon}
+                  />
                 </div>
                 <div>{value.displayName}</div>
               </div>

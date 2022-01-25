@@ -4,8 +4,8 @@ import React, {
 import { useDispatch } from 'react-redux'
 import cn from 'classnames'
 import { UserPhotoIcon, PreloaderIcon } from 'common/icons'
+import { Image } from 'common/components/Image'
 import { Modal } from 'features/Modal'
-import { getImageSrcFromBase64 } from 'common/utils'
 import { Button } from 'common/components/Button'
 import {
   actions as actionsNotifications
@@ -70,9 +70,14 @@ export const Avatar: FC<IAvatar> = ({ profile, myUid }) => {
         onClick={onToggleEdit}
       >
         {(isLoading && <PreloaderIcon />) ||
-          (profile.photoURL || profile.photoBase64
-            ? <img src={getImageSrcFromBase64(profile.photoBase64, profile.photoURL)} alt={`${profile.first_name} ${profile.last_name}`} />
-            : <UserPhotoIcon />)}
+          (
+          <Image
+            photoURL={profile.photoURL}
+            photoBase64={profile.photoBase64}
+            alt={`${profile.first_name} ${profile.last_name}`}
+            userIcon={UserPhotoIcon}
+          />
+          )}
       </div>
       <input
         type="file"

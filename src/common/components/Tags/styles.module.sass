@@ -41,16 +41,25 @@
     transition: 0.2s
     color: #131313
     margin-right: 15px
+    border: 0
+    &:disabled
+      background: #fafbfd!important
+      cursor: default
+      color: #dcdcdd
+      &:hover
+        background: #fafbfd!important
+        cursor: default
+        color: #dcdcdd
 .save
   background: #F2F5FA!important
   padding: 0
   width: 89px
   &:hover
     background: #e4eeff!important
-.cancel
-  background: #f2f2f2!important
+.close
+  background: #f2f5fa!important
   &:hover
-    background: #eaeaea!important
+    background: #f1f2f4!important
 .minSize
   font-size: 15px
   height: 38px

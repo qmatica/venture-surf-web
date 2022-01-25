@@ -1,8 +1,8 @@
 import React, { FC } from 'react'
 import ReactTooltip from 'react-tooltip'
 import { UserPhotoIcon } from 'common/icons'
+import { Image } from 'common/components/Image'
 import { Link } from 'react-router-dom'
-import { getImageSrcFromBase64 } from 'common/utils'
 import styles from './styles.module.sass'
 import { UserType } from '../../types'
 
@@ -26,9 +26,12 @@ export const Recommendations: FC<IRecommendations> = ({ user }) => {
               data-place="bottom"
               data-effect="solid"
             >
-              {u.photoURL || u.photoBase64
-                ? <img src={getImageSrcFromBase64(u.photoBase64, u.photoURL)} alt={name} />
-                : <UserPhotoIcon />}
+              <Image
+                photoURL={u.photoURL}
+                photoBase64={u.photoBase64}
+                alt={name}
+                userIcon={UserPhotoIcon}
+              />
             </div>
           </Link>
         ))}

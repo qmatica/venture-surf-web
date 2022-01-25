@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Button } from 'common/components/Button'
 import { Modal } from 'features/Modal'
 import { Input } from 'common/components/Input'
+import { FieldValues, useForm } from 'react-hook-form'
 import { updateMyProfile } from '../../actions'
 import { JobType } from '../../types'
 import { getJob } from '../../selectors'
@@ -48,47 +49,80 @@ interface IEditJob {
 
 export const EditJob: FC<IEditJob> = ({ isOpen, onClose }) => {
   const dispatch = useDispatch()
+  const {
+    register, handleSubmit, formState: { errors }, reset
+  } = useForm()
   const job = useSelector(getJob)
   const [isLoading, setIsLoading] = useState(false)
 
   const title = job ? 'Edit Job' : 'Add Job'
 
-  const save = (e: React.SyntheticEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    if (!isOpen) reset()
+  }, [isOpen])
+
+  const save = (values: FieldValues) => {
+    if (!values) return
     setIsLoading(true)
-    const target = e.target as typeof e.target & {
-      company: { value: string }
-      title: { value: string }
-      headline: { value: string }
-      web: { value: string }
-      email: { value: string }
-    }
-    const updatedJob = {
-      company: target.company.value,
-      title: target.title.value,
-      headline: target.headline.value,
-      web: target.web.value,
-      email: target.email.value
-    }
 
     const onFinish = () => {
       onClose()
       setIsLoading(false)
     }
 
-    dispatch(updateMyProfile({ job: updatedJob }, onFinish))
+    dispatch(updateMyProfile({ job: values }, onFinish))
   }
 
   return (
     <Modal title={title} onClose={onClose} isOpen={isOpen}>
-      <form onSubmit={save}>
+      <form onSubmit={handleSubmit(save)}>
         <div className={styles.formJobContainer}>
           <div className={styles.inputs}>
-            <Input name="company" placeholder="Type company" title="Company" initialValue={job?.company} />
-            <Input name="title" placeholder="Type title" title="Title" initialValue={job?.title} />
-            <Input name="headline" placeholder="Type headline" title="Headline" initialValue={job?.headline} />
-            <Input name="web" placeholder="Type website" title="Website" initialValue={job?.web} />
-            <Input name="email" placeholder="Type e-mail" title="E-mail" initialValue={job?.email} />
+            <Input
+              {...register('company', {
+                maxLength: 70
+              })}
+              placeholder="Type company"
+              title="Company"
+              defaultValue={job?.company}
+              errorMsg={errors.company && 'Max length 70 chars'}
+            />
+            <Input
+              {...register('title', {
+                maxLength: 70
+              })}
+              placeholder="Type title"
+              title="Title"
+              defaultValue={job?.title}
+              errorMsg={errors.title && 'Max length 70 chars'}
+            />
+            <Input
+              {...register('headline', {
+                maxLength: 70
+              })}
+              placeholder="Type headline"
+              title="Headline"
+              defaultValue={job?.headline}
+              errorMsg={errors.headline && 'Max length 70 chars'}
+            />
+            <Input
+              {...register('web', {
+                pattern: /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\\.-]+)+[\w\-\\._~:/?#[\]@!\\$&'\\(\\)\\*\\+,;=.]+$/gm
+              })}
+              placeholder="Type website"
+              title="Website"
+              defaultValue={job?.web}
+              errorMsg={errors.web && 'Enter correct website'}
+            />
+            <Input
+              {...register('email', {
+                pattern: /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/
+              })}
+              placeholder="Type e-mail"
+              title="E-mail"
+              defaultValue={job?.email}
+              errorMsg={errors.email && 'Enter correct e-mail'}
+            />
           </div>
           <div className={styles.buttons}>
             <Button title="Save" type="submit" isLoading={isLoading} />

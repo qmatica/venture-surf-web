@@ -1,8 +1,10 @@
 import React, {
-  FC, useEffect, useRef, useState
+  FC, useEffect, useState
 } from 'react'
 import { Tag } from 'common/components/Tag'
 import { PlusIcon } from 'common/icons'
+import { FieldValues, useForm } from 'react-hook-form'
+import cn from 'classnames'
 import styles from './styles.module.sass'
 
 interface ITags {
@@ -12,12 +14,19 @@ interface ITags {
 }
 
 export const ChoiceTags: FC<ITags> = ({ tags, dictionary, onChange }) => {
-  const [newTag, setNewTag] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const {
+    register,
+    handleSubmit,
+    setFocus,
+    setValue,
+    formState: { errors },
+    clearErrors,
+    reset
+  } = useForm()
 
   useEffect(() => {
-    if (!dictionary) inputRef.current?.focus()
+    if (!dictionary) setFocus('tag')
   }, [dictionary])
 
   let filteredAvailableTags: (string | number)[] = []
@@ -31,27 +40,15 @@ export const ChoiceTags: FC<ITags> = ({ tags, dictionary, onChange }) => {
   const addTag = (tag: string | number) => onChange([...tags, tag])
   const removeTag = (tag: string | number) => onChange(tags.filter((tagValue) => tagValue !== tag))
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault()
-    if (tags.includes(newTag.trim())) {
+  const onSubmit = (values: FieldValues) => {
+    const { tag } = values
+    if (tags.includes(tag.trim())) {
       setError('This keyword has already been added')
-      inputRef.current?.focus()
+      setFocus('tag')
       return
     }
-    if (newTag.length === 0) {
-      setError('You cannot add an empty keyword')
-      inputRef.current?.focus()
-      return
-    }
-    addTag(newTag.trim())
-    setNewTag('')
-    inputRef.current?.focus()
-  }
-
-  const onChangeInput = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-    if (error) setError(null)
-    const validatedValue = value.length === 1 ? value.trim() : value
-    setNewTag(validatedValue)
+    addTag(tag.trim())
+    reset()
   }
 
   return (
@@ -81,15 +78,31 @@ export const ChoiceTags: FC<ITags> = ({ tags, dictionary, onChange }) => {
       </div>
       )}
       {!dictionary && (
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className={styles.inputContainer}>
           <input
+            {...register('tag', {
+              required: true,
+              maxLength: 30,
+              onBlur: () => {
+                if (errors.tag?.type === 'required') clearErrors()
+              },
+              onChange: (e) => {
+                const { value } = e.target
+                if (!value) {
+                  setTimeout(() => {
+                    clearErrors()
+                  }, 100)
+                }
+                if (error) setError(null)
+                const validatedValue = value.length === 1 ? value.trim() : value
+                setValue('tag', validatedValue)
+              }
+            })}
             type="text"
-            className={styles.input}
+            className={cn(styles.input, errors.tag && styles.errorInput)}
+            autoComplete="off"
             placeholder="Type keyword"
-            ref={inputRef}
-            value={newTag}
-            onChange={onChangeInput}
           />
           <button
             type="submit"
@@ -99,6 +112,7 @@ export const ChoiceTags: FC<ITags> = ({ tags, dictionary, onChange }) => {
           </button>
         </div>
         {error && <div className={styles.error}>{error}</div>}
+        {errors.tag?.type === 'maxLength' && <div className={styles.error}>Max length 30 chars</div>}
       </form>
       )}
     </div>
