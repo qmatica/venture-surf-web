@@ -11,7 +11,9 @@ import {
   PreFoundingIcon,
   AngelBackedIcon,
   VentureBackedIcon,
-  PostSeriesAIcon
+  PostSeriesAIcon,
+  InvestorIcon,
+  FounderIcon
 } from 'common/icons'
 import { stagesType } from './types'
 
@@ -42,7 +44,9 @@ export const mapStagesWithIcons: { [key: string]: React.FC<{stroke?: string}> } 
   'Bio / Healthcare': BioIcon,
   Consumer: ConsumerIcon,
   Enterprise: EnterpriseIcon,
-  Technology: TechnologyIcon
+  Technology: TechnologyIcon,
+  investor: InvestorIcon,
+  founder: FounderIcon
 }
 
 export const industries = ['Bio / Healthcare', 'Consumer', 'Enterprise', 'Technology']

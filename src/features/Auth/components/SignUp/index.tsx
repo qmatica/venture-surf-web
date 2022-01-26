@@ -4,7 +4,7 @@ import { Redirect } from 'react-router-dom'
 import { getMyProfile } from 'features/Profile/selectors'
 import { getAuth } from 'features/Auth/selectors'
 import { OnboardingUserType } from 'features/Profile/types'
-import { ArrowBottomIcon } from 'common/icons'
+import { ArrowNextIcon } from 'common/icons'
 import { ONBOARDING_STEPS } from 'features/Auth/constants'
 import { LinkedInStep } from '../OnboardingSteps/LinkedInStep'
 import { RoleStep } from '../OnboardingSteps/RoleStep'
@@ -64,7 +64,7 @@ export const SignUp = () => {
           if (currentStep === START_UP) setSelectedRole(null)
           prevStep()
         }}
-      ><ArrowBottomIcon />
+      ><ArrowNextIcon />
       </div>
       )}
       {onboardingSteps}

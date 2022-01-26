@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { User } from 'features/User'
 import { getProfile } from 'features/Profile/selectors'
@@ -6,6 +6,7 @@ import { ProfileType } from 'features/Profile/types'
 import { UserPhotoIcon } from 'common/icons'
 import { Image } from 'common/components/Image'
 import { Button } from 'common/components/Button'
+import { init as initSurf } from 'features/Surf/actions'
 import { getRequestedInvestments, getSurfRecommendedUsers, getSurfUsers } from './selectors'
 import styles from './styles.module.sass'
 import { acceptInvest, deleteInvest } from './actions'
@@ -17,6 +18,10 @@ export const Surf = () => {
   const recommendedUsers = useSelector(getSurfRecommendedUsers)
   const users = useSelector(getSurfUsers)
   const requestedInvestments = useSelector(getRequestedInvestments)
+
+  useEffect(() => {
+    if (!users)dispatch(initSurf())
+  }, [])
 
   const toggleLoader = (name: string) => {
     setLoaders((prevLoaders) => {

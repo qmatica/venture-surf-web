@@ -39,6 +39,9 @@ export const IndustriesStep: FC<IIndustriesStep> = ({
   return (
     <div>
       <div className={styles.title}>Specify you niche</div>
+      <div className={styles.description}>
+        Choose your current state and then you could change it any time in your private settings
+      </div>
       {industries.map((industry, index) => {
         const isSelected = selectedIndustry[index]
         return (
