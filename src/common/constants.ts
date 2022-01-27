@@ -11,7 +11,9 @@ import {
   PreFoundingIcon,
   AngelBackedIcon,
   VentureBackedIcon,
-  PostSeriesAIcon
+  PostSeriesAIcon,
+  InvestorIcon,
+  FounderIcon
 } from 'common/icons'
 import { stagesType } from './types'
 
@@ -42,7 +44,9 @@ export const mapStagesWithIcons: { [key: string]: React.FC<{stroke?: string}> } 
   'Bio / Healthcare': BioIcon,
   Consumer: ConsumerIcon,
   Enterprise: EnterpriseIcon,
-  Technology: TechnologyIcon
+  Technology: TechnologyIcon,
+  investor: InvestorIcon,
+  founder: FounderIcon
 }
 
 export const industries = ['Bio / Healthcare', 'Consumer', 'Enterprise', 'Technology']
@@ -52,4 +56,4 @@ export const BUNDLE = 'opentek.us.VentureSwipe'
 
 export const CLIENT_ID = '862iqtc4nxrbtq'
 export const CLIENT_SECRET = '4XeDtFnJQ3e0PCDo'
-export const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI
+export const REDIRECT_URI = `${window.location.origin}${process.env.REACT_APP_REDIRECT_URI}`

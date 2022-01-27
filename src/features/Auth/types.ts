@@ -8,9 +8,11 @@ export type ActionTypes = InferActionsTypes<typeof actions | typeof profileActio
 export type ThunkType = ThunkAction<Promise<void>, AppStateType, typeof getFirebase, ActionTypes>
 
 export type selectedStagesType = {
-    [key: string]: any[]
+  [key: string]: any[]
 }
 
 export type selectedRoleType = {
+  [key: string]: {
     [key: string]: string
+  }
 }

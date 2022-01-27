@@ -187,15 +187,15 @@ export type ResultCompareInstanceCallType = {
 export type ContactsListType = 'mutuals' | 'likes' | 'liked'
 
 export type OnboardingUserType = {
-    displayName: string
-    last_name: string
-    first_name: string
-    roles: string[]
-    stages: number[]
-    industries: string[]
-    tags: string[]
-    device: DeviceType
-    linkedIn_ID: string
-  }
+  displayName: string
+  last_name: string
+  first_name: string
+  roles: string[]
+  stages: number[]
+  industries: string[]
+  tags: string[]
+  device: DeviceType
+  linkedIn_ID: string
+}
 
 export type RoleType = 'investor' | 'founder'
