@@ -69,7 +69,7 @@ export const RoleStep: FC<IRoleStep> = ({
   return (
     <>
       {selectedRole ? (
-        <div>
+        <>
           <div className={styles.title}>
             {SELECTED_ROLES[selectedRole].title}
           </div>
@@ -106,7 +106,7 @@ export const RoleStep: FC<IRoleStep> = ({
             onClick={handleNexStep}
           >Next
           </button>
-        </div>
+        </>
       ) : (
         <>
           <div className={styles.title}>Choose you role</div>

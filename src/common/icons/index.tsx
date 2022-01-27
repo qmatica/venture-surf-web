@@ -483,17 +483,17 @@ export const PostSeriesAIcon = ({ stroke = '#606E8A' }) => (
 
 export const FounderIcon = () => (
   <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0 26C0 11.6406 11.6406 0 26 0C40.3594 0 52 11.6406 52 26C52 40.3594 40.3594 52 26 52C11.6406 52 0 40.3594 0 26Z" fill="#E6ECF4" />
-    <path d="M20.5 14L15 40" stroke="#606E8A" strokeWidth="2" />
-    <path d="M20.5 15L37 12M17.5 28L32.5 23.5" stroke="#606E8A" strokeWidth="2" />
+    <path d="M0 26C0 11.6406 11.6406 0 26 0C40.3594 0 52 11.6406 52 26C52 40.3594 40.3594 52 26 52C11.6406 52 0 40.3594 0 26Z" fill="#363EFA" />
+    <path d="M20.5 14L15 40" stroke="#FFFFFF" strokeWidth="2" />
+    <path d="M20.5 15L37 12M17.5 28L32.5 23.5" stroke="#FFFFFF" strokeWidth="2" />
   </svg>
 )
 
 export const InvestorIcon = () => (
   <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0 26C0 11.6406 11.6406 0 26 0C40.3594 0 52 11.6406 52 26C52 40.3594 40.3594 52 26 52C11.6406 52 0 40.3594 0 26Z" fill="#E6ECF4" />
-    <path d="M28.5 12.5L23 38.5" stroke="#606E8A" strokeWidth="2" />
-    <path d="M19 14L35.5 11M16 40.5L31 36" stroke="#606E8A" strokeWidth="2" />
+    <path d="M0 26C0 11.6406 11.6406 0 26 0C40.3594 0 52 11.6406 52 26C52 40.3594 40.3594 52 26 52C11.6406 52 0 40.3594 0 26Z" fill="#363EFA" />
+    <path d="M28.5 12.5L23 38.5" stroke="#FFFFFF" strokeWidth="2" />
+    <path d="M19 14L35.5 11M16 40.5L31 36" stroke="#FFFFFF" strokeWidth="2" />
   </svg>
 )
 
