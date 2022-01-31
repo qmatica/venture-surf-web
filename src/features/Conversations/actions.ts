@@ -4,6 +4,7 @@ import { profileAPI } from 'api'
 import { actions as actionsProfile } from 'features/Profile/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import Conversation from '@twilio/conversations/lib/conversation'
+import { v4 as uuidv4 } from 'uuid'
 import { ChatType, MessageType, ThunkType } from './types'
 
 export const actions = {
@@ -188,7 +189,11 @@ export const sendMessage = (message: string, chat: string): ThunkType => async (
 
   dispatch(actions.addMessage(newMessage, chat))
 
-  const res = await chats[chat].conversation?.sendMessage(message)
+  const receivedMessages = chats[chat]?.messages.filter((message) => message.author !== auth.uid)
+  const res = await chats[chat].conversation?.sendMessage(message, {
+    messageId: uuidv4(),
+    repliedMessage: receivedMessages[receivedMessages.length - 1].index
+  })
 
   console.log(res)
 
