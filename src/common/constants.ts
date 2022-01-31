@@ -56,4 +56,5 @@ export const BUNDLE = 'opentek.us.VentureSwipe'
 
 export const CLIENT_ID = '862iqtc4nxrbtq'
 export const CLIENT_SECRET = '4XeDtFnJQ3e0PCDo'
-export const REDIRECT_URI = `${window.location.origin}${process.env.REACT_APP_REDIRECT_URI}`
+export const LINKEDIN_CALLBACK = '/linkedin_callback'
+export const REDIRECT_URI = `${window.location.origin}${LINKEDIN_CALLBACK}`
