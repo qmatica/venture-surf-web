@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
-import { actions as actionsConversations, listenMessages } from 'features/Conversations/actions'
+import { actions as actionsConversations, listenMessages, sendMessage } from 'features/Conversations/actions'
 import {
   actions as actionsNotifications
 } from 'features/Notifications/actions'
@@ -23,6 +23,7 @@ import { FormattedSlotsType } from 'features/Calendar/types'
 import { getFirestore } from 'redux-firestore'
 import { VOIP_TOKEN, BUNDLE } from 'common/constants'
 import { addToClipboardPublicLinkProfile } from 'common/actions'
+
 import {
   JobType,
   ResponseCallNowType,
@@ -943,6 +944,18 @@ export const connectToCall = (date: string, uid: string): ThunkType => async (di
         status: 'scheduled',
         duration: 15,
         uid
+      }
+      const attributes = { ...res?.data, scheduledAt: date }
+      if (companion.chat) {
+        dispatch(sendMessage('Meeting', companion.chat, attributes))
+      } else {
+        const { chat_sid: chatSid }: { chat_sid: string, status: string } = await usersAPI
+          .createChat(uid)
+          .catch((err) => {
+            console.log(err)
+            dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+          })
+        dispatch(sendMessage('Meeting', chatSid, attributes))
       }
       dispatch(actions.updateMySlots('add', { [formattedDate]: newSlot }))
       dispatch(actionsNotifications.addAnyMsg({

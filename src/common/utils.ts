@@ -91,3 +91,9 @@ export async function downloadFile(fileUrl: string, title: string) {
   link.click()
   link.parentNode?.removeChild(link)
 }
+
+export const formatSeconds = (mins: string | number): string => {
+  const minutes = Number(mins)
+  if (Math.floor(minutes / 60)) return `${Math.floor(minutes / 3600)} hours`
+  return `${minutes} minutes`
+}

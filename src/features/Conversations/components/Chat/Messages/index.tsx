@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import moment from 'moment'
 import {
-  ArrowBottomIcon, NotReadMessageIcon, ReadMessageIcon
+  RedStar, NotReadMessageIcon, ReadMessageIcon
 } from 'common/icons'
 import { getMyUid } from 'features/Auth/selectors'
+import { formatSeconds } from 'common/utils'
 import { getChats, getOpenedChat } from '../../../selectors'
 import { InputField } from './InputField'
 import styles from './styles.module.sass'
@@ -62,6 +63,7 @@ export const Messages = () => {
         >
           {chats[openedChat].messages.map((message) => {
             const myMessage = message.author === uid
+            const { duration, scheduledAt } = (message as any).attributes
 
             const className = myMessage ? styles.ownerMessage : styles.otherOwnerMessage
 
@@ -74,17 +76,31 @@ export const Messages = () => {
                     <div className={styles.day}>{dayMessage}</div>
                   </div>
                 )}
-                <div className={`${styles.messageWrapper} ${className}`}>
-                  <div className={styles.messageContainer}>
-                    <div className={styles.body}>{message.body}</div>
-                    <div className={styles.date}>{moment(message.dateUpdated).format('HH:mm')}</div>
-                    {myMessage && (
-                    <div className={styles.readStatus}>
-                      {message.aggregatedDeliveryReceipt ? <ReadMessageIcon /> : <NotReadMessageIcon />}
+                {message.body.toLowerCase() === 'meeting'
+                  ? (
+                    <div className={styles.meetingMessage}>
+                      <div>
+                        <div>Meeting</div>
+                        <div className={styles.durationIndicator}>
+                          {scheduledAt && `${moment(scheduledAt).format('HH:mm')}, ${formatSeconds(duration)}`}
+                        </div>
+                      </div>
+                      <RedStar />
                     </div>
-                    )}
-                  </div>
-                </div>
+                  )
+                  : (
+                    <div className={`${styles.messageWrapper} ${className}`}>
+                      <div className={styles.messageContainer}>
+                        <div className={styles.body}>{message.body}</div>
+                        <div className={styles.date}>{moment(message.dateUpdated).format('HH:mm')}</div>
+                        {myMessage && (
+                        <div className={styles.readStatus}>
+                          {message.aggregatedDeliveryReceipt ? <ReadMessageIcon /> : <NotReadMessageIcon />}
+                        </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
               </React.Fragment>
             )
           })}
