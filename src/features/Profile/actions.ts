@@ -17,7 +17,7 @@ import { getMessaging, onMessage } from 'firebase/messaging'
 import { IncomingCallType } from 'features/Notifications/types'
 import { firebaseApp } from 'store/store'
 import { determineNotificationContactsOrCall } from 'common/typeGuards'
-import { executeAllPromises } from 'common/utils'
+import { executeAllPromises, isNumber } from 'common/utils'
 import moment from 'moment'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import { getFirestore } from 'redux-firestore'
@@ -741,7 +741,10 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
         dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
       })
 
-      if (room) dispatch(actionsVideoChat.setRoom(room, uid))
+      if (room) {
+        dispatch(actionsVideoChat.setRoom(room, uid))
+        dispatch(actionsVideoChat.setCallInitiator(profile.uid as string))
+      }
     }
 
     dispatch(togglePreloader(contacts, uid, 'callNow'))
@@ -962,6 +965,23 @@ export const connectToCall = (date: string, uid: string): ThunkType => async (di
         msg: `You have scheduled a meeting with ${companionName}`,
         uid: uuidv4()
       }))
+    }
+  }
+}
+
+export const sendCallSummary = (uid: string, calledBy: string) : ThunkType => async (dispatch, getState) => {
+  const contacts = 'mutuals'
+  const { profile } = getState().profile
+  const callsHistory = await usersAPI.getCallHistory()
+  const callIndexes = Object.keys(callsHistory).filter((index) => isNumber(index))
+  const lastCallIndex = callIndexes[callIndexes.length - 1]
+  const lastCallDuration = callsHistory[lastCallIndex]?.ParticipantDuration
+  if (profile) {
+    const users = profile[contacts]
+    const { chat } = users[uid]
+    if (chat) {
+      dispatch(actionsConversations.setOpenedChat(chat))
+      dispatch(sendMessage('Call', chat, { duration: lastCallDuration, author: calledBy }))
     }
   }
 }

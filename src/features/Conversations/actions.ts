@@ -179,7 +179,7 @@ export const sendMessage = (message: string, chat: string, attributes?: any): Th
     const { chats } = getState().conversations
 
     const newMessage: Message | MessageType = {
-      author: auth.uid,
+      author: attributes?.author || auth.uid,
       body: message,
       dateCreated: new Date(),
       dateUpdated: new Date(),
@@ -187,7 +187,6 @@ export const sendMessage = (message: string, chat: string, attributes?: any): Th
       sid: (Math.random() + 1).toString(36).substring(7),
       aggregatedDeliveryReceipt: null
     }
-
     dispatch(actions.addMessage(newMessage, chat))
 
     const receivedMessages = chats[chat]?.messages.filter((message) => message.author !== auth.uid)

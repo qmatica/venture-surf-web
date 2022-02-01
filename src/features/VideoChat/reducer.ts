@@ -4,6 +4,7 @@ import { ActionTypes } from './types'
 const initialState = {
   room: null as Room | null,
   remoteUserUid: null as string | null,
+  calledBy: null as string | null,
   viewEndCallAll: false,
   isOwnerCall: false
 }
@@ -15,6 +16,12 @@ export const VideoChatReducer = (state = initialState, action: ActionTypes): typ
         ...state,
         room: action.payload.room,
         remoteUserUid: action.payload.remoteUserUid
+      }
+    }
+    case 'VIDEO_CHAT__SET_INITIATOR': {
+      return {
+        ...state,
+        calledBy: action.payload.uid
       }
     }
     case 'VIDEO_CHAT__SET_VIEW_END_CALL_ALL': {

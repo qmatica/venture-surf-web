@@ -157,6 +157,9 @@ export const usersAPI = {
   },
   deleteInvest(uid: string) {
     return instance.delete(`api/invest/${uid}`).then((res) => res.data)
+  },
+  getCallHistory() {
+    return instance.get('api/call-history').then((res) => res.data)
   }
 }
 

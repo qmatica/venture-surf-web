@@ -6,6 +6,9 @@ export const actions = {
   setRoom: (room: Room | null, remoteUserUid: string | null) => (
     { type: 'VIDEO_CHAT__OPEN', payload: { room, remoteUserUid } } as const
   ),
+  setCallInitiator: (uid: string) => (
+    { type: 'VIDEO_CHAT__SET_INITIATOR', payload: { uid } } as const
+  ),
   setViewEndCallAll: (viewEndCallAll: boolean) => (
     { type: 'VIDEO_CHAT__SET_VIEW_END_CALL_ALL', viewEndCallAll } as const
   ),

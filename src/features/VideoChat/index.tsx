@@ -1,16 +1,18 @@
-import { Participant as ParticipantType } from 'twilio-video'
+import { Participant as ParticipantType, Room } from 'twilio-video'
 import { Modal } from 'features/Modal'
 import React, { createRef, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
-import { actions as profileActions, declineCall } from 'features/Profile/actions'
+import { actions as profileActions, declineCall, sendCallSummary } from 'features/Profile/actions'
 import { Participant } from './components/Participant'
 import { actions } from './actions'
 import styles from './styles.module.sass'
 import { NavBar } from './components/NavBar'
 
 export const VideoChat = () => {
-  const { room, remoteUserUid, viewEndCallAll } = useSelector((state: RootState) => state.videoChat)
+  const {
+    room, remoteUserUid, viewEndCallAll, calledBy
+  } = useSelector((state: RootState) => state.videoChat)
 
   const dispatch = useDispatch()
   const videoContainerRef = createRef<HTMLDivElement>()
@@ -34,6 +36,7 @@ export const VideoChat = () => {
   }
 
   const participantDisconnected = (participant: ParticipantType) => {
+    dispatch(sendCallSummary(remoteUserUid as string, calledBy as string))
     setParticipants((prevParticipants) => prevParticipants.filter((p) => p !== participant))
   }
 

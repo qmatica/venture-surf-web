@@ -97,3 +97,5 @@ export const formatSeconds = (mins: string | number): string => {
   if (Math.floor(minutes / 60)) return `${Math.floor(minutes / 3600)} hours`
   return `${minutes} minutes`
 }
+
+export const isNumber = (n: string) => /^-?[\d.]+(?:e-?\d+)?$/.test(n)
