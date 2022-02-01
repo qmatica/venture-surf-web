@@ -36,7 +36,7 @@ export const VideoChat = () => {
   }
 
   const participantDisconnected = (participant: ParticipantType) => {
-    dispatch(sendCallSummary(remoteUserUid as string, calledBy as string))
+    dispatch(sendCallSummary(room?.sid as string, calledBy as string))
     setParticipants((prevParticipants) => prevParticipants.filter((p) => p !== participant))
   }
 

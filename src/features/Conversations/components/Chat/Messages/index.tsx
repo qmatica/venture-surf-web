@@ -63,7 +63,7 @@ export const Messages = () => {
         >
           {chats[openedChat].messages.map((message) => {
             const myMessage = message.author === uid
-            const { duration, scheduledAt } = (message as any).attributes
+            const { duration, scheduledAt } = (message as any).attributes || {}
 
             const className = myMessage ? styles.ownerMessage : styles.otherOwnerMessage
 
@@ -82,7 +82,7 @@ export const Messages = () => {
                       <div>
                         <div>Meeting</div>
                         <div className={styles.durationIndicator}>
-                          {scheduledAt && `${moment(scheduledAt).format('HH:mm')}, ${formatSeconds(duration)}`}
+                          {scheduledAt && duration && `${moment(scheduledAt).format('HH:mm')}, ${formatSeconds(duration)}`}
                         </div>
                       </div>
                       <RedStar />

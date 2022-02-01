@@ -969,16 +969,18 @@ export const connectToCall = (date: string, uid: string): ThunkType => async (di
   }
 }
 
-export const sendCallSummary = (uid: string, calledBy: string) : ThunkType => async (dispatch, getState) => {
+export const sendCallSummary = (roomId: string, calledBy: string) : ThunkType => async (dispatch, getState) => {
   const contacts = 'mutuals'
   const { profile } = getState().profile
   const callsHistory = await usersAPI.getCallHistory()
-  const callIndexes = Object.keys(callsHistory).filter((index) => isNumber(index))
+  const room = callsHistory.rooms[roomId]
+  const callIndexes = Object.keys(room).filter((index) => isNumber(index))
   const lastCallIndex = callIndexes[callIndexes.length - 1]
-  const lastCallDuration = callsHistory[lastCallIndex]?.ParticipantDuration
+  const lastCallDuration = room[lastCallIndex]?.ParticipantDuration
+  const remoteUserUid = room.users.find((id: string) => id !== profile?.uid)
   if (profile) {
     const users = profile[contacts]
-    const { chat } = users[uid]
+    const { chat } = users[remoteUserUid]
     if (chat) {
       dispatch(actionsConversations.setOpenedChat(chat))
       dispatch(sendMessage('Call', chat, { duration: lastCallDuration, author: calledBy }))

@@ -44,7 +44,7 @@ export const Notifications = () => {
         dominantSpeaker: true
       } as ConnectOptions)
         .then((room) => {
-          dispatch(actionsVideoChat.setRoom(room, incomingCall.uid))
+          dispatch(actionsVideoChat.setRoom(room, 'fixedThis'))
           dispatch(actionsVideoChat.setCallInitiator(incomingCall.uid))
           dispatch(actions.removeIncomingCall())
           stop()
