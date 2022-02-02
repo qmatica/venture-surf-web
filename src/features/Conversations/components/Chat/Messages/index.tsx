@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import moment from 'moment'
 import {
-  RedStar, NotReadMessageIcon, ReadMessageIcon
+  RedStar, NotReadMessageIcon, ReadMessageIcon, BluePhone
 } from 'common/icons'
 import { getMyUid } from 'features/Auth/selectors'
 import { formatSeconds } from 'common/utils'
@@ -69,15 +69,10 @@ export const Messages = () => {
 
             const dayMessage = getDayMessage(message.dateUpdated)
 
-            return (
-              <React.Fragment key={message.sid}>
-                {dayMessage && (
-                  <div className={styles.dayContainer}>
-                    <div className={styles.day}>{dayMessage}</div>
-                  </div>
-                )}
-                {message.body.toLowerCase() === 'meeting'
-                  ? (
+            const renderMessage = () => {
+              switch (message.body.toLowerCase()) {
+                case 'meeting': {
+                  return (
                     <div className={styles.meetingMessage}>
                       <div>
                         <div>Meeting</div>
@@ -88,7 +83,27 @@ export const Messages = () => {
                       <RedStar />
                     </div>
                   )
-                  : (
+                }
+                case 'call': {
+                  return (
+                    <div className={`${styles.messageWrapper} ${className}`}>
+                      <div className={styles.messageContainer}>
+                        <div>
+                          <div>{myMessage ? 'Outgoing call' : 'Incoming call'}</div>
+                          <div className={styles.summaryWrapper}>
+                            <div className={styles.callSummary}>{moment(message.dateUpdated).format('HH:mm')}</div>
+                            {duration && <div className={styles.callSummary}>{formatSeconds(duration)}</div>}
+                          </div>
+                        </div>
+                        <div className={styles.callIcon}>
+                          <BluePhone />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                }
+                default: return (
+                  (
                     <div className={`${styles.messageWrapper} ${className}`}>
                       <div className={styles.messageContainer}>
                         <div className={styles.body}>{message.body}</div>
@@ -100,7 +115,19 @@ export const Messages = () => {
                         )}
                       </div>
                     </div>
-                  )}
+                  )
+                )
+              }
+            }
+
+            return (
+              <React.Fragment key={message.sid}>
+                {dayMessage && (
+                  <div className={styles.dayContainer}>
+                    <div className={styles.day}>{dayMessage}</div>
+                  </div>
+                )}
+                {renderMessage()}
               </React.Fragment>
             )
           })}

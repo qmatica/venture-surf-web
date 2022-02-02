@@ -92,10 +92,11 @@ export async function downloadFile(fileUrl: string, title: string) {
   link.parentNode?.removeChild(link)
 }
 
-export const formatSeconds = (mins: string | number): string => {
-  const minutes = Number(mins)
-  if (Math.floor(minutes / 60)) return `${Math.floor(minutes / 3600)} hours`
-  return `${minutes} minutes`
+export const formatSeconds = (sec: string | number): string => {
+  const seconds = Number(sec)
+  if (Math.floor(seconds / 3600)) return `${Math.floor(seconds / 3600)} hours`
+  if (Math.floor(seconds / 60)) return `${Math.floor(seconds / 60)} minutes`
+  return `${seconds} seconds`
 }
 
-export const isNumber = (n: string) => /^-?[\d.]+(?:e-?\d+)?$/.test(n)
+export const isNumber = (n: string): boolean => !isNaN(Number(n))

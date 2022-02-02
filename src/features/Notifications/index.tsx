@@ -36,7 +36,7 @@ export const Notifications = () => {
 
   const removeErrorMsg = () => dispatch(actions.removeErrorMsg())
 
-  const replyWithVideo = (uid: string) => {
+  const replyWithVideo = () => {
     if (incomingCall) {
       // TODO: Отправить на бэк accept call with deviceId для получения push при входе нового участника
       connect(incomingCall.token, {
@@ -45,7 +45,6 @@ export const Notifications = () => {
       } as ConnectOptions)
         .then((room) => {
           dispatch(actionsVideoChat.setRoom(room, 'fixedThis'))
-          dispatch(actionsVideoChat.setCallInitiator(incomingCall.uid))
           dispatch(actions.removeIncomingCall())
           stop()
         }).catch((err) => {
@@ -173,7 +172,7 @@ export const Notifications = () => {
           {/*<div className={styles.button}>*/}
           {/*  <img src={phoneStart} alt="Reply without video" />*/}
           {/*</div>*/}
-          <div className={styles.button} onClick={() => replyWithVideo(incomingCall.uid)}>
+          <div className={styles.button} onClick={replyWithVideo}>
             <img src={videoStart} alt="Reply with video" />
           </div>
         </div>

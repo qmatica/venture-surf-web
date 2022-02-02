@@ -179,7 +179,7 @@ export const sendMessage = (message: string, chat: string, attributes?: any): Th
     const { chats } = getState().conversations
 
     const newMessage: Message | MessageType = {
-      author: attributes?.author || auth.uid,
+      author: auth.uid,
       body: message,
       dateCreated: new Date(),
       dateUpdated: new Date(),
@@ -192,7 +192,7 @@ export const sendMessage = (message: string, chat: string, attributes?: any): Th
     const receivedMessages = chats[chat]?.messages.filter((message) => message.author !== auth.uid)
     const res = await chats[chat].conversation?.sendMessage(message, {
       messageId: uuidv4(),
-      repliedMessage: receivedMessages[receivedMessages.length - 1].index,
+      repliedMessage: receivedMessages[receivedMessages.length - 1]?.index,
       ...attributes
     })
 

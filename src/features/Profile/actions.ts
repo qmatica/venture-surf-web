@@ -743,7 +743,6 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
 
       if (room) {
         dispatch(actionsVideoChat.setRoom(room, uid))
-        dispatch(actionsVideoChat.setCallInitiator(profile.uid as string))
       }
     }
 
@@ -948,7 +947,7 @@ export const connectToCall = (date: string, uid: string): ThunkType => async (di
         duration: 15,
         uid
       }
-      const attributes = { ...res?.data, scheduledAt: date }
+      const attributes = { ...res.data, scheduledAt: date, duration: res.data.duration * 60 }
       if (companion.chat) {
         dispatch(sendMessage('Meeting', companion.chat, attributes))
       } else {
@@ -969,21 +968,22 @@ export const connectToCall = (date: string, uid: string): ThunkType => async (di
   }
 }
 
-export const sendCallSummary = (roomId: string, calledBy: string) : ThunkType => async (dispatch, getState) => {
+export const sendCallSummary = (roomId: string) : ThunkType => async (dispatch, getState) => {
   const contacts = 'mutuals'
   const { profile } = getState().profile
   const callsHistory = await usersAPI.getCallHistory()
   const room = callsHistory.rooms[roomId]
-  const callIndexes = Object.keys(room).filter((index) => isNumber(index))
-  const lastCallIndex = callIndexes[callIndexes.length - 1]
-  const lastCallDuration = room[lastCallIndex]?.ParticipantDuration
+  const eventIndexes = Object.keys(room).filter((index) => isNumber(index))
+  const callStartTime = room[eventIndexes[0]].Timestamp
+  const callEndTime = room[eventIndexes[eventIndexes.length - 1]].Timestamp
+  const callDuration = moment(callEndTime).diff(callStartTime, 'seconds')
   const remoteUserUid = room.users.find((id: string) => id !== profile?.uid)
   if (profile) {
     const users = profile[contacts]
     const { chat } = users[remoteUserUid]
     if (chat) {
       dispatch(actionsConversations.setOpenedChat(chat))
-      dispatch(sendMessage('Call', chat, { duration: lastCallDuration, author: calledBy }))
+      dispatch(sendMessage('call', chat, { duration: callDuration }))
     }
   }
 }

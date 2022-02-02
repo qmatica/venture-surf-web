@@ -1,6 +1,8 @@
 import { Participant as ParticipantType, Room } from 'twilio-video'
 import { Modal } from 'features/Modal'
-import React, { createRef, useEffect, useState } from 'react'
+import React, {
+  createRef, useEffect, useState, useCallback
+} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import { actions as profileActions, declineCall, sendCallSummary } from 'features/Profile/actions'
@@ -11,7 +13,7 @@ import { NavBar } from './components/NavBar'
 
 export const VideoChat = () => {
   const {
-    room, remoteUserUid, viewEndCallAll, calledBy
+    room, remoteUserUid, viewEndCallAll, isOwnerCall
   } = useSelector((state: RootState) => state.videoChat)
 
   const dispatch = useDispatch()
@@ -36,13 +38,16 @@ export const VideoChat = () => {
   }
 
   const participantDisconnected = (participant: ParticipantType) => {
-    dispatch(sendCallSummary(room?.sid as string, calledBy as string))
     setParticipants((prevParticipants) => prevParticipants.filter((p) => p !== participant))
   }
 
   const dominantSpeakerChanged = (participant: ParticipantType) => {
     console.log('dominantSpeakerChanged', participant)
     setDominantSpeakerParticipant(participant)
+  }
+
+  const roomDisconnected = () => {
+    if (isOwnerCall) dispatch(sendCallSummary(room?.sid as string))
   }
 
   useEffect(() => {
@@ -57,6 +62,7 @@ export const VideoChat = () => {
       room.on('participantConnected', participantConnected)
       room.on('participantDisconnected', participantDisconnected)
       room.on('dominantSpeakerChanged', dominantSpeakerChanged)
+      room.on('disconnected', roomDisconnected)
       room.participants.forEach(participantConnected)
     }
     return () => {
@@ -64,6 +70,7 @@ export const VideoChat = () => {
         room.off('participantConnected', participantConnected)
         room.off('participantDisconnected', participantDisconnected)
         room.off('dominantSpeakerChanged', dominantSpeakerChanged)
+        room.off('disconnected', roomDisconnected)
       }
     }
   }, [room])
