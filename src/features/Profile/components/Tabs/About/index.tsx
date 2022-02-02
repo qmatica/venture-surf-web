@@ -8,6 +8,7 @@ import { Tags } from 'common/components/Tags'
 import { useDispatch } from 'react-redux'
 import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
+import briefcaseIcon from 'common/images/briefcaseIcon.png'
 import styles from './styles.module.sass'
 
 interface IAbout {
@@ -49,22 +50,39 @@ export const About: FC<IAbout> = ({ profile, isEdit }) => {
         tags={profile.tags}
         onSave={isEdit ? updateProfile('tags') : undefined}
       />
-      <Interaction profile={profile} />
+      <Interaction profile={profile} isEdit={isEdit} />
     </div>
   )
 }
 
 interface IInteraction {
   profile: ProfileType
+  isEdit: boolean
 }
 
-const Interaction: FC<IInteraction> = ({ profile }) => {
+const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   const profileInteraction = useMemo(() => ({
     title: profileInteractionUsers.title[profile.activeRole],
     value: profile[profileInteractionUsers.content[profile.activeRole]]
   }), [profile[profileInteractionUsers.content[profile.activeRole]]])
 
-  if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) return null
+  if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) {
+    if (isEdit) {
+      return (
+        <div className={styles.backedBy}>
+          <img src={briefcaseIcon} alt="briefcase" draggable="false" />
+          <div className={styles.backedByTitle}>You are not yet backed by</div>
+          <div className={styles.backedByDescription}>
+            Label your investors. We will send them your request. If they
+            approve, everyone will see who invested in you. This will add you
+            some credits.
+          </div>
+          <div className={styles.addButton}>Add my investors</div>
+        </div>
+      )
+    }
+    return null
+  }
 
   return (
     <div className={styles.aboutContainer}>
@@ -99,6 +117,9 @@ const Interaction: FC<IInteraction> = ({ profile }) => {
               </div>
             )
           })}
+        <div className={styles.labelButton}>
+          Label my investors
+        </div>
       </div>
     </div>
   )
