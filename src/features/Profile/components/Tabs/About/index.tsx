@@ -1,14 +1,12 @@
 import React, { FC, useCallback, useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import { ProfileType } from 'features/Profile/types'
 import { profileInteractionUsers } from 'features/Profile/constants'
-import { UserIcon } from 'common/icons'
-import { Image } from 'common/components/Image'
 import { Tags } from 'common/components/Tags'
 import { useDispatch } from 'react-redux'
 import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
 import briefcaseIcon from 'common/images/briefcaseIcon.png'
+import { UserRow } from './components/UserRow'
 import styles from './styles.module.sass'
 
 interface IAbout {
@@ -63,11 +61,12 @@ interface IInteraction {
 const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   const profileInteraction = useMemo(() => ({
     title: profileInteractionUsers.title[profile.activeRole],
-    value: profile[profileInteractionUsers.content[profile.activeRole]]
+    value: profile[profileInteractionUsers.content[profile.activeRole]],
+    buttonLabel: profileInteractionUsers.buttonLabel[profile.activeRole]
   }), [profile[profileInteractionUsers.content[profile.activeRole]]])
 
   if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) {
-    if (isEdit) {
+    if (isEdit && profile.activeRole === 'founder') {
       return (
         <div className={styles.backedBy}>
           <img src={briefcaseIcon} alt="briefcase" draggable="false" />
@@ -91,34 +90,10 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
       </div>
       <div className={styles.content}>
         {Object.entries(profileInteraction.value)
-          .map(([uid, value]) => {
-            const user = profile.mutuals[uid]
-
-            if (!user) return null
-
-            const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-            const { photoURL, photoBase64 } = user
-            return (
-              <div className={styles.userContainer} key={uid}>
-                <Link to={`/profile/${uid}`}>
-                  <div className={styles.photoContainer}>
-                    <Image
-                      photoURL={photoURL}
-                      photoBase64={photoBase64}
-                      alt={name}
-                      userIcon={UserIcon}
-                    />
-                  </div>
-                </Link>
-                <Link to={`/profile/${uid}`}>
-                  <div className={styles.displayName}>{name}</div>
-                </Link>
-                <div className={styles.status}>{value.status}</div>
-              </div>
-            )
-          })}
+          .map(([uid, value], index) =>
+            <UserRow key={uid} profile={profile} uid={uid} status={value.status} />)}
         <div className={styles.labelButton}>
-          Label my investors
+          {profileInteraction.buttonLabel}
         </div>
       </div>
     </div>
