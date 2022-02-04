@@ -10,12 +10,13 @@ import styles from './styles.module.sass'
 interface IUserRow {
   profile: ProfileType
   uid: string
-  status: string
+  status?: string
   isSelected?: boolean
+  isBacked?: boolean
 }
 
 export const UserRow: FC<IUserRow> = ({
-  profile, uid, status, isSelected
+  profile, uid, status, isSelected, isBacked
 }) => {
   const user = profile.mutuals[uid]
 
@@ -64,15 +65,17 @@ export const UserRow: FC<IUserRow> = ({
         </div>
       </Link>
       <div>
-        <Link to={`/profile/${uid}`}>
-          <div className={styles.displayName}>{name}</div>
-        </Link>
+        {isBacked ? (
+          <Link to={`/profile/${uid}`}>
+            <div className={styles.displayName}>{name}</div>
+          </Link>
+        ) : <div className={styles.displayName}>{name}</div>}
         <div className={styles.job}>
           {getJob()}
         </div>
       </div>
       <div className={styles.status}>{status}</div>
-      <TrashCanIcon />
+      {isBacked && (<div><TrashCanIcon /></div>)}
     </div>
   )
 }
