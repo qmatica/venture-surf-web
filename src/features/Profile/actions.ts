@@ -65,6 +65,7 @@ export const actions = {
     { type: 'PROFILE__ADD_CHAT_IN_MUTUAL', payload: { uid, chat } } as const
   ),
   acceptInvest: (uid: string) => ({ type: 'PROFILE__ACCEPT_INVEST', uid } as const),
+  addInvests: (investorList: string[]) => ({ type: 'PROFILE__ADD_INVEST', investorList } as const),
   deleteInvest: (uid: string) => ({ type: 'PROFILE__DELETE_INVEST', uid } as const)
 }
 

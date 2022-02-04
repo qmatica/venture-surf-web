@@ -1,10 +1,12 @@
 import React, { FC } from 'react'
+import { useDispatch } from 'react-redux'
 import { ProfileType } from 'features/Profile/types'
 import { Link } from 'react-router-dom'
 import { Image } from 'common/components/Image'
 import { UserIcon, TrashCanIcon, CheckmarkIcon } from 'common/icons'
 import cn from 'classnames'
 import { determineJobWithoutActiveRole } from 'common/typeGuards'
+import { deleteInvest } from 'features/Surf/actions'
 import styles from './styles.module.sass'
 
 interface IUserRow {
@@ -18,6 +20,7 @@ interface IUserRow {
 export const UserRow: FC<IUserRow> = ({
   profile, uid, status, isSelected, isBacked
 }) => {
+  const dispatch = useDispatch()
   const user = profile.mutuals[uid]
 
   if (!user) return null
@@ -26,6 +29,10 @@ export const UserRow: FC<IUserRow> = ({
   const {
     photoURL, photoBase64, job, activeRole
   } = user
+
+  const onDelete = (uid: string) => {
+    dispatch(deleteInvest(uid))
+  }
 
   const getJob = () => {
     if (!job) return null
@@ -75,7 +82,7 @@ export const UserRow: FC<IUserRow> = ({
         </div>
       </div>
       <div className={styles.status}>{status}</div>
-      {isBacked && (<div><TrashCanIcon /></div>)}
+      {isBacked && status === 'waiting' && (<div className={styles.trashIcon} onClick={() => onDelete(uid)}><TrashCanIcon /></div>)}
     </div>
   )
 }

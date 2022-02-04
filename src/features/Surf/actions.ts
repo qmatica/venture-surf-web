@@ -113,11 +113,20 @@ export const like = (
 }
 
 export const acceptInvest = (uid: string): ThunkType => async (dispatch) => {
-  const result = await usersAPI.addInvest(uid).catch((err) => {
+  const result = await usersAPI.addInvest(uid, []).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
     dispatch(profileActions.acceptInvest(uid))
+  }
+}
+
+export const addInvest = (uid: string, investorList: string[]): ThunkType => async (dispatch) => {
+  const result = await usersAPI.addInvest(uid, investorList).catch((err) => {
+    dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
+  })
+  if (result) {
+    dispatch(profileActions.addInvests(result.investors))
   }
 }
 

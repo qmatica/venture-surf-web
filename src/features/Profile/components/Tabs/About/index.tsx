@@ -9,6 +9,7 @@ import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
 import { BriefcaseIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
+import { addInvest } from 'features/Surf/actions'
 import { UserRow } from './components/UserRow'
 import styles from './styles.module.sass'
 
@@ -65,17 +66,24 @@ interface IInteraction {
 }
 
 const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
+  const dispatch = useDispatch()
   const [isOpenModal, setIsOpenModal] = useState(false)
   const toggleModal = () => setIsOpenModal(!isOpenModal)
-  const [selectedRows, setSelectedRows] = useState<{[key: string]: any}>({})
+  const [selectedRows, setSelectedRows] = useState<{[key: string]: any}>([])
   const handleSelectRow = (uid: string) => {
     if (selectedRows[uid]) {
       setSelectedRows({ ...selectedRows, [uid]: null })
     } else {
-      setSelectedRows({ ...selectedRows, [uid]: profile.mutuals[uid] })
+      setSelectedRows({ ...selectedRows, [uid]: uid })
     }
   }
   const isSelectedInvestor = Object.values(selectedRows).find((row) => row)
+
+  const onAddInvestor = (selectedRows: {[key: string]: any}) => {
+    const investorList = Object.values(selectedRows).filter((row) => row)
+    dispatch(addInvest(investorList[0], investorList))
+    setIsOpenModal(false)
+  }
 
   const profileInteraction = useMemo(() => ({
     title: profileInteractionUsers.title[profile.activeRole],
@@ -144,7 +152,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
           </div>
           <div className={styles.modalButtonWrapper}>
             {isSelectedInvestor && (
-            <div className={styles.approveButton}>
+            <div className={styles.approveButton} onClick={() => onAddInvestor(selectedRows)}>
               Approve that you invested in me
             </div>
             )}

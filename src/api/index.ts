@@ -152,8 +152,8 @@ export const usersAPI = {
   connectToCall(startTime: string, uid: string) {
     return instance.post(`/api/call/${uid}/${startTime}`).then((res) => res.data)
   },
-  addInvest(uid: string) {
-    return instance.post(`api/invest/${uid}`).then((res) => res.data)
+  addInvest(uid: string, others: string[]) {
+    return instance.post(`api/invest/${uid}`, { others }).then((res) => res.data)
   },
   deleteInvest(uid: string) {
     return instance.delete(`api/invest/${uid}`).then((res) => res.data)
