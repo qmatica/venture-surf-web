@@ -5,7 +5,7 @@ import { Tags } from 'common/components/Tags'
 import { useDispatch } from 'react-redux'
 import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
-import briefcaseIcon from 'common/images/briefcaseIcon.png'
+import { BriefcaseIcon } from 'common/icons'
 import { UserRow } from './components/UserRow'
 import styles from './styles.module.sass'
 
@@ -69,7 +69,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
     if (isEdit && profile.activeRole === 'founder') {
       return (
         <div className={styles.backedBy}>
-          <img src={briefcaseIcon} alt="briefcase" draggable="false" />
+          <BriefcaseIcon />
           <div className={styles.backedByTitle}>You are not yet backed by</div>
           <div className={styles.backedByDescription}>
             Label your investors. We will send them your request. If they

@@ -27,32 +27,26 @@ export const UserRow: FC<IUserRow> = ({
   } = user
 
   const getJob = () => {
-    if (!job || !Object.values(job).length) return null
+    if (!job) return null
 
     if (determineJobWithoutActiveRole(job)) {
       return (
-        <>
-          {job && (
-            <div>
-              {job.company && <div>{job.company}</div>}
-              {job.title && <div>{job.title}</div>}
-            </div>
-          )}
-        </>
+        <div>
+          {job.company && <div>{job.company}</div>}
+          {job.title && <div>{job.title}</div>}
+        </div>
       )
     }
 
-    if (!activeRole || !job || !job[activeRole]) return null
+    if (!activeRole || !job[activeRole]) return null
+
+    const { company, title } = job[activeRole]
 
     return (
-      <>
-        {job && (
-          <div>
-            {job[activeRole].company && <div>{job[activeRole].company}</div>}
-            {job[activeRole].title && <div>{job[activeRole].title}</div>}
-          </div>
-        )}
-      </>
+      <div>
+        {company && <div>{company}</div>}
+        {title && <div>{title}</div>}
+      </div>
     )
   }
 
