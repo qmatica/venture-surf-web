@@ -139,15 +139,17 @@ export const addInvest = (
   setIsOpenModal(false)
 }
 
-export const deleteInvest = (uid: string): ThunkType => async (dispatch) => {
+export const deleteInvest = (uid: string): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
   dispatch(profileActions.toggleLoader(uid))
   const result = await usersAPI.deleteInvest(uid).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
     dispatch(profileActions.deleteInvest(uid))
+    const msg = profile?.activeRole === 'founder' ? 'Investor has been removed from list!' : 'Investment request has been removed from list!'
     dispatch(notificationsActions.addAnyMsg({
-      msg: 'Investor has been removed from list',
+      msg,
       uid: uuidv4()
     }))
   }

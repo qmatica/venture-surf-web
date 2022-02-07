@@ -85,7 +85,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
 
   const onAddInvestor = (selectedRows: {[key: string]: any}) => {
     const investorList = Object.values(selectedRows).filter(Boolean)
-    dispatch(addInvest(investorList[0], investorList, setIsOpenModal))
+    dispatch(addInvest(investorList.shift(), investorList, setIsOpenModal))
   }
 
   const profileInteraction = useMemo(() => ({
