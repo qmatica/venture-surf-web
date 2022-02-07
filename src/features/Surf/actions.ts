@@ -130,6 +130,10 @@ export const addInvest = (
   })
   if (result) {
     dispatch(profileActions.addInvests(result.investors))
+    dispatch(notificationsActions.addAnyMsg({
+      msg: 'Your request has been sent',
+      uid: uuidv4()
+    }))
   }
   dispatch(profileActions.toggleLoader('requestToInvest'))
   setIsOpenModal(false)
@@ -142,6 +146,10 @@ export const deleteInvest = (uid: string): ThunkType => async (dispatch) => {
   })
   if (result) {
     dispatch(profileActions.deleteInvest(uid))
+    dispatch(notificationsActions.addAnyMsg({
+      msg: 'Investor has been removed from list',
+      uid: uuidv4()
+    }))
   }
   dispatch(profileActions.toggleLoader(uid))
 }

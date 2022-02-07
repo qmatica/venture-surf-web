@@ -35,10 +35,6 @@ export const UserRow: FC<IUserRow> = ({
     photoURL, photoBase64, job, activeRole
   } = user
 
-  const onDelete = (uid: string) => {
-    dispatch(deleteInvest(uid))
-  }
-
   const getJob = () => {
     if (!job) return null
 
@@ -88,7 +84,7 @@ export const UserRow: FC<IUserRow> = ({
       </div>
       <div className={styles.status}>{status}</div>
       {isEdit && isBacked && status !== 'accepted' && (
-        <div className={styles.trashIcon} onClick={() => onDelete(uid)}>
+        <div className={styles.trashIcon} onClick={() => dispatch(deleteInvest(uid))}>
           {loaders.includes(uid) ? <PreloaderIcon stroke="#96baf6" /> : <TrashCanIcon />}
         </div>
       )}
