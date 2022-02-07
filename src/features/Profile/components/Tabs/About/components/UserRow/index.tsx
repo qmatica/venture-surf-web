@@ -1,9 +1,12 @@
 import React, { FC } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { getLoadersProfile } from 'features/Profile/selectors'
 import { ProfileType } from 'features/Profile/types'
 import { Link } from 'react-router-dom'
 import { Image } from 'common/components/Image'
-import { UserIcon, TrashCanIcon, CheckmarkIcon } from 'common/icons'
+import {
+  UserIcon, TrashCanIcon, CheckmarkIcon, PreloaderIcon
+} from 'common/icons'
 import cn from 'classnames'
 import { determineJobWithoutActiveRole } from 'common/typeGuards'
 import { deleteInvest } from 'features/Surf/actions'
@@ -15,12 +18,14 @@ interface IUserRow {
   status?: string
   isSelected?: boolean
   isBacked?: boolean
+  isEdit?: boolean
 }
 
 export const UserRow: FC<IUserRow> = ({
-  profile, uid, status, isSelected, isBacked
+  profile, uid, status, isSelected, isBacked, isEdit
 }) => {
   const dispatch = useDispatch()
+  const loaders = useSelector(getLoadersProfile)
   const user = profile.mutuals[uid]
 
   if (!user) return null
@@ -82,7 +87,11 @@ export const UserRow: FC<IUserRow> = ({
         </div>
       </div>
       <div className={styles.status}>{status}</div>
-      {isBacked && status === 'waiting' && (<div className={styles.trashIcon} onClick={() => onDelete(uid)}><TrashCanIcon /></div>)}
+      {isEdit && isBacked && status !== 'accepted' && (
+        <div className={styles.trashIcon} onClick={() => onDelete(uid)}>
+          {loaders.includes(uid) ? <PreloaderIcon stroke="#96baf6" /> : <TrashCanIcon />}
+        </div>
+      )}
     </div>
   )
 }

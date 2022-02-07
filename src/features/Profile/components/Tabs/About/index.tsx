@@ -4,10 +4,11 @@ import React, {
 import { ProfileType } from 'features/Profile/types'
 import { profileInteractionUsers } from 'features/Profile/constants'
 import { Tags } from 'common/components/Tags'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { getLoadersProfile } from 'features/Profile/selectors'
 import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
-import { BriefcaseIcon } from 'common/icons'
+import { BriefcaseIcon, PreloaderIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { addInvest } from 'features/Surf/actions'
 import { UserRow } from './components/UserRow'
@@ -67,6 +68,7 @@ interface IInteraction {
 
 const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   const dispatch = useDispatch()
+  const loaders = useSelector(getLoadersProfile)
   const [isOpenModal, setIsOpenModal] = useState(false)
   const toggleModal = () => setIsOpenModal(!isOpenModal)
   const [selectedRows, setSelectedRows] = useState<{[key: string]: any}>([])
@@ -79,10 +81,11 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   }
   const isSelectedInvestor = Object.values(selectedRows).find((row) => row)
 
+  const isLoading = loaders.includes('requestToInvest')
+
   const onAddInvestor = (selectedRows: {[key: string]: any}) => {
-    const investorList = Object.values(selectedRows).filter((row) => row)
-    dispatch(addInvest(investorList[0], investorList))
-    setIsOpenModal(false)
+    const investorList = Object.values(selectedRows).filter(Boolean)
+    dispatch(addInvest(investorList[0], investorList, setIsOpenModal))
   }
 
   const profileInteraction = useMemo(() => ({
@@ -119,12 +122,20 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
         </div>
         <div className={styles.content}>
           {Object.entries(profileInteraction.value)
-            .map(([uid, value]) =>
-              <UserRow key={uid} profile={profile} uid={uid} status={value.status} isBacked />)}
+            .map(([uid, value]) => (
+              <UserRow
+                key={uid}
+                profile={profile}
+                uid={uid}
+                status={value.status}
+                isBacked
+                isEdit={isEdit}
+              />
+            ))}
           {isEdit && (
-          <div className={styles.labelButton} onClick={toggleModal}>
-            {hasInvestorsToAdd && profileInteraction.buttonLabel}
-          </div>
+            <div className={styles.labelButton} onClick={toggleModal}>
+              {hasInvestorsToAdd && profileInteraction.buttonLabel}
+            </div>
           )}
         </div>
       </div>
@@ -138,22 +149,24 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
       <Modal title="Get backed by" isOpen={isOpenModal} onClose={toggleModal}>
         <>
           <div className={styles.modalContent}>
-            {Object.keys(profile.mutuals)
-              .map((uid) => !profileInteraction.value[uid] && (
-              <div onClick={() => handleSelectRow(uid)}>
-                <UserRow
-                  key={uid}
-                  profile={profile}
-                  uid={uid}
-                  isSelected={selectedRows[uid]}
-                />
-              </div>
-              ))}
+            {Object.keys(profile.mutuals).map(
+              (uid) =>
+                !profileInteraction.value[uid] && (
+                <div onClick={() => handleSelectRow(uid)}>
+                  <UserRow
+                    key={uid}
+                    profile={profile}
+                    uid={uid}
+                    isSelected={selectedRows[uid]}
+                  />
+                </div>
+                )
+            )}
           </div>
           <div className={styles.modalButtonWrapper}>
             {isSelectedInvestor && (
             <div className={styles.approveButton} onClick={() => onAddInvestor(selectedRows)}>
-              Approve that you invested in me
+              {isLoading ? <PreloaderIcon /> : (<div>Approve that you invested in me</div>)}
             </div>
             )}
           </div>
