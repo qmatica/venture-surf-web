@@ -149,6 +149,10 @@ export type profileInteractionUsersType = {
         founder: 'investors',
         investor: 'investments'
     }
+    buttonLabel: {
+        founder: string,
+        investor: string
+    }
 }
 
 export type DeviceType = {

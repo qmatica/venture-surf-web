@@ -156,6 +156,21 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         }
       }
     }
+    case 'PROFILE__ADD_INVEST': {
+      const { profile } = state
+
+      if (!profile) return state
+
+      const list = profileInteractionUsers.content[profile.activeRole]
+
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          [list]: action.investorList
+        }
+      }
+    }
     case 'PROFILE__DELETE_INVEST': {
       const { profile } = state
 

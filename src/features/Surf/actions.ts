@@ -113,7 +113,7 @@ export const like = (
 }
 
 export const acceptInvest = (uid: string): ThunkType => async (dispatch) => {
-  const result = await usersAPI.addInvest(uid).catch((err) => {
+  const result = await usersAPI.addInvest(uid, []).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
@@ -121,11 +121,37 @@ export const acceptInvest = (uid: string): ThunkType => async (dispatch) => {
   }
 }
 
-export const deleteInvest = (uid: string): ThunkType => async (dispatch) => {
+export const addInvest = (
+  uid: string, investorList: string[], setIsOpenModal: (isOpenModal: boolean) => void
+): ThunkType => async (dispatch) => {
+  dispatch(profileActions.toggleLoader('requestToInvest'))
+  const result = await usersAPI.addInvest(uid, investorList).catch((err) => {
+    dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
+  })
+  if (result) {
+    dispatch(profileActions.addInvests(result.investors))
+    dispatch(notificationsActions.addAnyMsg({
+      msg: 'Your request has been sent',
+      uid: uuidv4()
+    }))
+  }
+  dispatch(profileActions.toggleLoader('requestToInvest'))
+  setIsOpenModal(false)
+}
+
+export const deleteInvest = (uid: string): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
+  dispatch(profileActions.toggleLoader(uid))
   const result = await usersAPI.deleteInvest(uid).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
     dispatch(profileActions.deleteInvest(uid))
+    const msg = profile?.activeRole === 'founder' ? 'Investor has been removed from list!' : 'Investment request has been removed from list!'
+    dispatch(notificationsActions.addAnyMsg({
+      msg,
+      uid: uuidv4()
+    }))
   }
+  dispatch(profileActions.toggleLoader(uid))
 }

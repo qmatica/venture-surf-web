@@ -29,30 +29,46 @@
       cursor: pointer
       font-size: 15px
       font-weight: bold
-  .userContainer
-    display: flex
-    width: 100%
-    align-items: center
-    margin-bottom: 10px
-    .photoContainer
-      background: #c7cdd7
-      width: 37px
-      height: 37px
-      border-radius: 100%
-      display: flex
-      justify-content: center
-      align-items: center
-      overflow: hidden
-      img
-        width: 100%
-        color: #030D21
-    .displayName
-      font-size: 17px
-      margin-left: 13px
+    .labelButton
       color: #1557FF
-    .status
-      font-size: 14px
-      color: #8B98B0
-      margin-left: 8px
+      cursor: pointer
 .inlineBlocks
   display: flex
+.backedBy
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: 10px
+  text-align: center
+  padding: 12px 0px
+  background: #f0f3f6
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.08), 0px 2px 24px rgba(0, 0, 0, 0.08)
+  border-radius: 10px
+  .backedByTitle
+    font-family: "Roboto", sans-serif
+    font-weight: bold
+    font-size: 22px
+  .backedByDescription
+    color: #606E8A
+  .addButton
+    display: flex
+    max-width: 300px
+    padding: 16px 20px
+    background: #1557FF
+    border-radius: 10px
+    color: #FFFFFF
+    cursor: pointer
+.approveButton
+  display: flex
+  justify-content: center
+  align-items: center
+  background: #1557FF
+  border-radius: 10px
+  color: #FFFFFF
+  padding: 16px 20px
+  cursor: pointer
+.modalContent
+  overflow: auto
+  margin-bottom: 10px
+.modalButtonWrapper
+  min-height: 60px

@@ -1,13 +1,17 @@
-import React, { FC, useCallback, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import React, {
+  FC, useCallback, useMemo, useState
+} from 'react'
 import { ProfileType } from 'features/Profile/types'
 import { profileInteractionUsers } from 'features/Profile/constants'
-import { UserIcon } from 'common/icons'
-import { Image } from 'common/components/Image'
 import { Tags } from 'common/components/Tags'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { getLoadersProfile } from 'features/Profile/selectors'
 import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
+import { BriefcaseIcon, PreloaderIcon } from 'common/icons'
+import { Modal } from 'features/Modal'
+import { addInvest } from 'features/Surf/actions'
+import { UserRow } from './components/UserRow'
 import styles from './styles.module.sass'
 
 interface IAbout {
@@ -49,57 +53,128 @@ export const About: FC<IAbout> = ({ profile, isEdit }) => {
         tags={profile.tags}
         onSave={isEdit ? updateProfile('tags') : undefined}
       />
-      <Interaction profile={profile} />
+      <Interaction
+        profile={profile}
+        isEdit={isEdit}
+      />
     </div>
   )
 }
 
 interface IInteraction {
   profile: ProfileType
+  isEdit: boolean
 }
 
-const Interaction: FC<IInteraction> = ({ profile }) => {
+const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
+  const dispatch = useDispatch()
+  const loaders = useSelector(getLoadersProfile)
+  const [isOpenModal, setIsOpenModal] = useState(false)
+  const toggleModal = () => setIsOpenModal(!isOpenModal)
+  const [selectedRows, setSelectedRows] = useState<{[key: string]: any}>([])
+  const handleSelectRow = (uid: string) => {
+    if (selectedRows[uid]) {
+      setSelectedRows({ ...selectedRows, [uid]: null })
+    } else {
+      setSelectedRows({ ...selectedRows, [uid]: uid })
+    }
+  }
+  const isSelectedInvestor = Object.values(selectedRows).some(Boolean)
+
+  const isLoading = loaders.includes('requestToInvest')
+
+  const onAddInvestor = (selectedRows: {[key: string]: any}) => {
+    const investorList = Object.values(selectedRows).filter(Boolean)
+    dispatch(addInvest(investorList.shift(), investorList, setIsOpenModal))
+  }
+
   const profileInteraction = useMemo(() => ({
     title: profileInteractionUsers.title[profile.activeRole],
-    value: profile[profileInteractionUsers.content[profile.activeRole]]
+    value: profile[profileInteractionUsers.content[profile.activeRole]],
+    buttonLabel: profileInteractionUsers.buttonLabel[profile.activeRole]
   }), [profile[profileInteractionUsers.content[profile.activeRole]]])
 
-  if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) return null
+  const hasUserToInteract = !!Object.entries(profile.mutuals).find(
+    ([uid, user]) =>
+      !profileInteraction.value?.[uid] && user.activeRole !== profile.activeRole
+  )
+
+  const renderInteractions = useMemo(() => {
+    if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) {
+      if (isEdit && profile.activeRole === 'founder') {
+        return (
+          <div className={styles.backedBy}>
+            <BriefcaseIcon />
+            <div className={styles.backedByTitle}>You are not yet backed by</div>
+            <div className={styles.backedByDescription}>
+              Label your investors. We will send them your request. If they
+              approve, everyone will see who invested in you. This will add you
+              some credits.
+            </div>
+            {hasUserToInteract && <div className={styles.addButton} onClick={toggleModal}>Add my investors</div>}
+          </div>
+        )
+      }
+      return null
+    }
+
+    return (
+      <div className={styles.aboutContainer}>
+        <div className={styles.title}>
+          {profileInteraction.title}
+        </div>
+        <div className={styles.content}>
+          {Object.entries(profileInteraction.value)
+            .map(([uid, value]) => (
+              <UserRow
+                key={uid}
+                profile={profile}
+                uid={uid}
+                status={value.status}
+                isBacked
+                isEdit={isEdit}
+              />
+            ))}
+          {isEdit && (
+            <div className={styles.labelButton} onClick={toggleModal}>
+              {hasUserToInteract && profileInteraction.buttonLabel}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }, [profileInteraction, isEdit, profile.activeRole])
 
   return (
-    <div className={styles.aboutContainer}>
-      <div className={styles.title}>
-        {profileInteraction.title}
-      </div>
-      <div className={styles.content}>
-        {Object.entries(profileInteraction.value)
-          .map(([uid, value]) => {
-            const user = profile.mutuals[uid]
-
-            if (!user) return null
-
-            const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-            const { photoURL, photoBase64 } = user
-            return (
-              <div className={styles.userContainer} key={uid}>
-                <Link to={`/profile/${uid}`}>
-                  <div className={styles.photoContainer}>
-                    <Image
-                      photoURL={photoURL}
-                      photoBase64={photoBase64}
-                      alt={name}
-                      userIcon={UserIcon}
-                    />
-                  </div>
-                </Link>
-                <Link to={`/profile/${uid}`}>
-                  <div className={styles.displayName}>{name}</div>
-                </Link>
-                <div className={styles.status}>{value.status}</div>
-              </div>
-            )
-          })}
-      </div>
-    </div>
+    <>
+      {renderInteractions}
+      {isEdit && hasUserToInteract && (
+      <Modal title="Get backed by" isOpen={isOpenModal} onClose={toggleModal}>
+        <>
+          <div className={styles.modalContent}>
+            {Object.entries(profile.mutuals).map(
+              ([uid, user]) => user.activeRole !== profile.activeRole && !profileInteraction.value?.[uid] && (
+                <div onClick={() => handleSelectRow(uid)}>
+                  <UserRow
+                    key={uid}
+                    profile={profile}
+                    uid={uid}
+                    isSelected={selectedRows[uid]}
+                  />
+                </div>
+              )
+            )}
+          </div>
+          <div className={styles.modalButtonWrapper}>
+            {isSelectedInvestor && (
+            <div className={styles.approveButton} onClick={() => onAddInvestor(selectedRows)}>
+              {isLoading ? <PreloaderIcon /> : (<div>Approve that you invested in me</div>)}
+            </div>
+            )}
+          </div>
+        </>
+      </Modal>
+      )}
+    </>
   )
 }
