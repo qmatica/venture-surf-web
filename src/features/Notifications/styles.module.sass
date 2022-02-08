@@ -160,3 +160,91 @@
     background-color: #838383
   100%
     background-color: #9a9a9a
+
+.notificationItemContainer
+  flex-shrink: 0
+  height: auto!important
+  padding: 10px!important
+  margin: 5px
+  border-radius: 10px!important
+  user-select: text!important
+  flex-direction: column
+  align-items: inherit!important
+  cursor: auto!important
+  &:hover
+    background: none!important
+  &.actionItem
+    background: #F8F9FE
+    &:hover
+      background: #F8F9FE!important
+  &:last-child
+    border-radius: 10px!important
+  .info
+    display: flex
+    flex-shrink: 0
+    align-items: center
+    .photoContainer
+      width: 32px
+      height: 32px
+      border-radius: 10px
+      overflow: hidden
+      display: flex
+      justify-content: center
+      align-items: center
+      flex-shrink: 0
+      margin-right: 10px
+      background: #c8c8c8
+      img
+        width: 100%
+    .name
+      font-size: 15px
+      white-space: nowrap
+    .title
+      font-size: 12px
+      white-space: nowrap
+      margin-left: 5px
+      margin-bottom: -3px
+    .iconContainer
+      display: flex
+      justify-content: center
+      align-items: center
+      padding-left: 10px
+      margin-left: auto
+      .icon
+        background: linear-gradient(180deg, rgba(21, 87, 255, 0.2) 0%, rgba(235, 13, 224, 0.2) 100%)
+        width: 32px
+        height: 32px
+        border-radius: 10px
+        display: flex
+        justify-content: center
+        align-items: center
+  .subTitle
+    display: flex
+    justify-content: center
+    margin-top: 10px
+    font-size: 12px
+    color: #030D21
+  .buttons
+    display: flex
+    justify-content: center
+    margin-top: 10px
+    button
+      margin-right: 20px
+      &.default
+        background: #1557FF
+        border-radius: 8px
+        border: none
+        color: #FFFFFF
+        font-size: 15px
+        height: 33px
+      &.cancel
+        background: #E6ECF4
+        border-radius: 8px
+        border: none
+        color: #030D21
+        font-size: 15px
+        height: 33px
+      &.chat
+        width: 246px
+      &:last-child
+        margin-right: 0

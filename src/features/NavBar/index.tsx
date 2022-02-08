@@ -1,7 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, {
+  FC, ReactElement, useEffect, useRef, useState
+} from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
-  CalendarIcon, ExploreIcon, MailIcon, UserCircleIcon, UsersIcon, AuthIcon, Unlock, ShareIcon, PencilIcon, SettingsIcon
+  CalendarIcon,
+  ExploreIcon,
+  MailIcon,
+  UserCircleIcon,
+  UsersIcon,
+  AuthIcon,
+  Unlock,
+  ShareIcon,
+  PencilIcon,
+  SettingsIcon,
+  BellIcon
 } from 'common/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAuth, getMyUid } from 'features/Auth/selectors'
@@ -13,6 +25,8 @@ import { DropDownButton } from './components/DropDownButton'
 import { getLiked, getLoadersProfile } from '../Profile/selectors'
 import { shareLinkMyProfile } from '../Profile/actions'
 import styles from './styles.module.sass'
+import { NotificationsList } from '../Notifications'
+import { useOutside } from '../../common/hooks'
 
 const pages = [
   {
@@ -34,6 +48,10 @@ const pages = [
     url: '/conversations',
     title: 'Conversations',
     icon: <MailIcon />
+  },
+  {
+    title: 'Notifications',
+    icon: <BellIcon />
   },
   {
     url: '/profile',
@@ -59,19 +77,11 @@ const pagesAdmin = [
 ]
 
 export const NavBar = () => {
-  const location = useLocation()
-  const dispatch = useDispatch()
-
   const auth = useSelector(getAuth)
-  const myUid = useSelector(getMyUid)
   const liked = useSelector(getLiked)
   const isAdminMode = useSelector(getIsAdminMode)
-  const loaders = useSelector(getLoadersProfile)
 
   const [currentPages, setCurrentPages] = useState<PageType[]>(pages)
-  const [isEdit, setIsEdit] = useState(false)
-
-  const toggleEdit = () => setIsEdit(!isEdit)
 
   useEffect(() => {
     if (isAdminMode) {
@@ -100,41 +110,9 @@ export const NavBar = () => {
       {currentPages.map(({ url, title, icon }) => {
         let countNotifications
 
-        if (title === 'Profile') {
-          const myProfileUrl = `${url}/${myUid}`
-          const dropDownList = [
-            {
-              title: 'Profile',
-              url: myProfileUrl,
-              icon: <UserCircleIcon size={26} />
-            },
-            {
-              title: 'Share',
-              onClick: () => dispatch(shareLinkMyProfile()),
-              icon: <ShareIcon />,
-              isLoading: loaders.includes('shareMyProfile')
-            },
-            {
-              title: 'Edit',
-              onClick: toggleEdit,
-              icon: <PencilIcon />
-            },
-            {
-              title: 'Settings',
-              onClick: () => console.log('settings'),
-              icon: <SettingsIcon />
-            }
-          ]
+        if (title === 'Profile') return <ProfileList icon={icon} url={url as string} />
 
-          return (
-            <DropDownButton
-              key={url}
-              icon={icon}
-              list={dropDownList}
-              isActive={location.pathname === myProfileUrl}
-            />
-          )
-        }
+        if (title === 'Notifications') return <NotificationsList key={title} icon={icon} />
 
         if (title === 'Contacts') {
           countNotifications = liked && Object.keys(liked)?.length
@@ -143,7 +121,7 @@ export const NavBar = () => {
         return (
           <NavLink
             key={title}
-            to={url}
+            to={url as string}
             title={title}
             activeClassName={title === 'Admin' ? styles.activeLinkAdmin : styles.activeLink}
           >
@@ -152,7 +130,64 @@ export const NavBar = () => {
           </NavLink>
         )
       })}
-      <EditJob isOpen={isEdit} onClose={toggleEdit} />
     </div>
+  )
+}
+
+interface IProfileList {
+  icon: ReactElement
+  url: string
+}
+
+const ProfileList: FC<IProfileList> = ({ icon, url }) => {
+  const dispatch = useDispatch()
+  const location = useLocation()
+  const myUid = useSelector(getMyUid)
+  const loaders = useSelector(getLoadersProfile)
+  const myProfileUrl = `${url}/${myUid}`
+  const [isEdit, setIsEdit] = useState(false)
+  const [isOpenList, setIsOpenList] = useState(false)
+
+  const toggleOpenList = () => setIsOpenList(!isOpenList)
+  const closeList = () => setIsOpenList(false)
+
+  const toggleEdit = () => setIsEdit(!isEdit)
+
+  const dropDownList = [
+    {
+      title: 'Profile',
+      url: myProfileUrl,
+      icon: <UserCircleIcon size={26} />
+    },
+    {
+      title: 'Share',
+      onClick: () => dispatch(shareLinkMyProfile()),
+      icon: <ShareIcon />,
+      isLoading: loaders.includes('shareMyProfile')
+    },
+    {
+      title: 'Edit',
+      onClick: toggleEdit,
+      icon: <PencilIcon />
+    },
+    {
+      title: 'Settings',
+      onClick: () => console.log('settings'),
+      icon: <SettingsIcon />
+    }
+  ]
+
+  return (
+    <>
+      <DropDownButton
+        icon={icon}
+        list={dropDownList}
+        isActive={location.pathname === myProfileUrl}
+        isOpenList={isOpenList}
+        onCloseList={closeList}
+        onToggleOpenList={toggleOpenList}
+      />
+      <EditJob isOpen={isEdit} onClose={toggleEdit} />
+    </>
   )
 }

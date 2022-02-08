@@ -1,8 +1,12 @@
-import React, { useEffect } from 'react'
+import React, {
+  FC, ReactElement, useEffect, useState
+} from 'react'
 import useSound from 'use-sound'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
-import { CloseIcon, UserPhotoIcon } from 'common/icons'
+import {
+  BulbIcon, CloseIcon, DiplomatIcon, GiftIcon, UserPhotoIcon
+} from 'common/icons'
 import phoneEnd from 'common/images/phoneEnd.png'
 import phoneStart from 'common/images/phoneStart.png'
 import videoStart from 'common/images/videoStart.png'
@@ -13,9 +17,18 @@ import { connect, ConnectOptions } from 'twilio-video'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
 import { useHistory } from 'react-router-dom'
-import { declineCall } from 'features/Profile/actions'
-import { actions } from './actions'
+import { declineCall, openChat } from 'features/Profile/actions'
+import { getAllContacts } from 'features/Contacts/selectors'
+import { UsersType, UserType } from 'features/User/types'
+import moment from 'moment'
+import { profileAPI } from 'api'
+import cn from 'classnames'
+import { accept, ignore } from 'features/Contacts/actions'
+import { Button } from 'common/components/Button'
+import { DropDownButton } from 'features/NavBar/components/DropDownButton'
+import { getMyNotificationsHistory } from './selectors'
 import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
+import { actions } from './actions'
 import styles from './styles.module.sass'
 
 export const Notifications = () => {
@@ -179,5 +192,191 @@ export const Notifications = () => {
       </div>
       )}
     </>
+  )
+}
+
+const tempListIgnoredContacts = {} as UsersType
+
+interface INotificationsList {
+  icon: ReactElement
+}
+
+export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
+  const dispatch = useDispatch()
+  const history = useHistory()
+  const notificationsHistory = useSelector(getMyNotificationsHistory)
+  const allContacts = useSelector(getAllContacts) as { mutuals: UsersType, sent: UsersType, received: UsersType }
+  const [isOpenList, setIsOpenList] = useState(false)
+
+  const toggleOpenList = () => setIsOpenList(!isOpenList)
+  const closeList = () => setIsOpenList(false)
+
+  const readAllNotifications = (id: string) => {
+    profileAPI.readNotifications([id]).then((res) => console.log(res))
+  }
+
+  let countNotifications = 0
+
+  const list = Object.entries(notificationsHistory)
+    .filter(([id, value]) => !['call_instant', 'call_instant_group', 'call_canceled', 'call_declined'].includes(value.type))
+    .sort((a, b) => moment(b[1].ts).unix() - moment(a[1].ts).unix())
+    .map(([id, value]) => {
+      let user = null as UserType | null
+      let contactType = ''
+      let background = false
+      let title = ''
+      let subTitle = null as string | null
+      let icon = null
+      const actions = []
+
+      Object.entries(allContacts).some(([key, contacts]) => {
+        const contact = contacts[value.contact]
+        if (contacts[value.contact]) {
+          contactType = key
+          user = contact
+          return true
+        }
+        return false
+      })
+
+      if (!user) {
+        if (tempListIgnoredContacts[value.contact]) {
+          user = tempListIgnoredContacts[value.contact]
+          contactType = 'ignored'
+        }
+        if (!user) return null
+      }
+
+      const onOpenChat = () => {
+        if (user) {
+          closeList()
+          const redirectToConversations = () => history.push('/conversations')
+          dispatch(openChat(user.uid, redirectToConversations))
+        }
+      }
+
+      if (value.status === 'active') {
+        countNotifications += 1
+      }
+
+      const name = user.displayName || `${user.first_name} ${user.last_name}`
+
+      switch (value.type) {
+        case 'invest': {
+          title = 'backed you up'
+          icon = <DiplomatIcon />
+          break
+        }
+        case 'like':
+        case 'mutual_like': {
+          title = 'is interested in your business'
+          icon = <BulbIcon />
+          background = contactType === 'received'
+
+          if (background) {
+            actions.push(
+              {
+                title: 'Add to mutuals',
+                onClick: () => dispatch(accept(value.contact)),
+                isLoading: user.loading?.includes('accept'),
+                isDisabled: ['accept', 'ignore'].some((action) => user?.loading?.includes(action))
+              },
+              {
+                title: 'Ignore',
+                onClick: () => {
+                  const addContactInTempListIgnore = () => {
+                    tempListIgnoredContacts[value.contact] = user as UserType
+                  }
+                  dispatch(ignore(value.contact, addContactInTempListIgnore))
+                },
+                isLoading: user.loading?.includes('ignore'),
+                isDisabled: ['accept', 'ignore'].some((action) => user?.loading?.includes(action))
+              }
+            )
+          }
+          if (contactType === 'mutuals') {
+            subTitle = 'Added to mutuals'
+            actions.push(
+              {
+                title: 'Chat',
+                onClick: onOpenChat,
+                isLoading: user.loading?.includes('openChat')
+              }
+            )
+          }
+          if (contactType === 'ignored') {
+            subTitle = 'Request removed'
+          }
+          break
+        }
+        case 'intro': {
+          title = 'recommended contact'
+          icon = <GiftIcon />
+          break
+        }
+        case 'intro_you': {
+          title = 'recommended contact'
+          icon = <GiftIcon />
+          break
+        }
+        default: break
+      }
+
+      const buttons = actions.map((action) => {
+        const className = action.title === 'Ignore' ? styles.cancel : styles.default
+
+        return (
+          <Button
+            key={`${id} ${action.title}`}
+            title={action.title}
+            onClick={action.onClick}
+            className={cn(
+              className,
+              action.title === 'Chat' && styles.chat
+            )}
+            disabled={action.isDisabled || action.isLoading}
+          />
+        )
+      })
+
+      return (
+        <div
+          key={id}
+          contact-data={value.contact}
+          type-data={value.type}
+          date-data={value.ts}
+          className={cn(
+            styles.notificationItemContainer,
+            background && styles.actionItem
+          )}
+        >
+          <div className={styles.info}>
+            <div className={styles.photoContainer}>
+              <Image photoURL={user.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
+            </div>
+            <div className={styles.name}>{name}</div>
+            <div className={styles.title}>{title}</div>
+            <div className={styles.iconContainer}>
+              <div className={styles.icon}>
+                {icon}
+              </div>
+            </div>
+          </div>
+          {subTitle && <div className={styles.subTitle}>{subTitle}</div>}
+          {buttons.length > 0 && <div className={styles.buttons}>{buttons}</div>}
+        </div>
+      )
+    })
+
+  return (
+    <DropDownButton
+      icon={icon}
+      list={<>{list}</>}
+      arrow={false}
+      countNotifications={countNotifications}
+      isOpenList={isOpenList}
+      onCloseList={closeList}
+      onToggleOpenList={toggleOpenList}
+    />
   )
 }
