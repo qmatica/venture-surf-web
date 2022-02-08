@@ -14,3 +14,9 @@ export const profileInteractionUsers: profileInteractionUsersType = {
     investor: ''
   }
 }
+
+export const USER_RELATIONS = {
+  MUTUALS: 'mutuals',
+  SENT: 'sent',
+  RECEIVED: 'received'
+}
