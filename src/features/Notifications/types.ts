@@ -14,3 +14,22 @@ export type IncomingCallType = {
     room: string
     token: string
 }
+
+export type NotificationsHistoryType = {
+    [key: string]: {
+        contact: string
+        data: { [key: string]: any }
+        status: 'active' | 'read' | string
+        ts: Date
+        type: 'call_instant'
+            | 'call_instant_group'
+            | 'call_canceled'
+            | 'call_declined'
+            | 'mutual_like'
+            | 'like'
+            | 'intro'
+            | 'intro_you'
+            | 'invest'
+        uid: string
+    }
+}

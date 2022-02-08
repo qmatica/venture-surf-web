@@ -137,12 +137,14 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
 
     const querySnapshot = await getDocs(q)
 
-    const notificationsHistory = {} as any
+    const notificationsHistory = {} as { [key: string]: any }
 
     querySnapshot.forEach((doc) => {
       console.log('notifications', doc.id, ' => ', doc.data())
       notificationsHistory[doc.id] = doc.data()
     })
+
+    dispatch(actionsNotifications.setHistory(notificationsHistory))
 
     onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {

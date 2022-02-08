@@ -95,6 +95,37 @@ export const accept = (uid: string): ThunkType => async (dispatch, getState) => 
   }
 }
 
+export const ignore = (
+  uid: string,
+  addContactInTempListIgnore?: () => void
+): ThunkType => async (dispatch, getState) => {
+  const contacts = 'liked'
+  const { profile } = getState().profile
+
+  if (profile) {
+    const updatedUser = {
+      ...profile[contacts][uid],
+      loading: ['ignore']
+    }
+    dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
+
+    const status = await usersAPI.ignoreLike(uid).catch((err) => {
+      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+    })
+
+    if (status === apiCodes.success) {
+      if (addContactInTempListIgnore) addContactInTempListIgnore()
+
+      const updatedUser = {
+        ...profile[contacts][uid],
+        loading: []
+      }
+
+      dispatch(profileActions.removeUserInMyContacts(updatedUser, contacts))
+    }
+  }
+}
+
 export const shareLinkProfile = (uid: string): ThunkType => async (dispatch, getState) => {
   const contacts = 'mutuals'
   const { profile } = getState().profile

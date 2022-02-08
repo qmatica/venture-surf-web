@@ -93,6 +93,9 @@ export const profileAPI = {
   },
   updateMyTimeSlots(timeSlots: timeSlotsType) {
     return instance.post('api/call', timeSlots).then((res) => res.data)
+  },
+  readNotifications(notifications: string[]) {
+    return instance.patch('api/notifications', { notifications }).then((res) => res.data)
   }
 }
 
@@ -109,7 +112,7 @@ export const usersAPI = {
   withdrawLike(uid: string) {
     return instance.delete(`api/like/${uid}`).then((res) => res.status)
   },
-  ignore(uid: string) {
+  ignoreLike(uid: string) {
     return instance.patch(`api/like/${uid}`).then((res) => res.status)
   },
   getMatches() {

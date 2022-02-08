@@ -502,3 +502,66 @@ export const ArrowNextIcon = () => (
     <path fillRule="evenodd" clipRule="evenodd" d="M10.2197 14.0303C10.5126 14.3232 10.9874 14.3232 11.2803 14.0303L17.5303 7.78033C17.8232 7.48744 17.8232 7.01256 17.5303 6.71967L11.2803 0.46967C10.9874 0.176777 10.5126 0.176777 10.2197 0.46967C9.92678 0.762563 9.92678 1.23744 10.2197 1.53033L15.1893 6.5L0.75 6.5C0.335786 6.5 0 6.83579 0 7.25C0 7.66421 0.335786 8 0.75 8L15.1893 8L10.2197 12.9697C9.92678 13.2626 9.92678 13.7374 10.2197 14.0303Z" fill="#363EFA" />
   </svg>
 )
+
+export const BellIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fillRule="evenodd" clipRule="evenodd" d="M2 18C0.666667 18 0.666667 16 2 16C3.10457 16 4 15.1046 4 14V9C4 4.58172 7.58172 1 12 1C16.4183 1 20 4.58172 20 9V14C20 15.1046 20.8954 16 22 16C23.3333 16 23.3333 18 22 18H2ZM18 14V9C18 5.68629 15.3137 3 12 3C8.68629 3 6 5.68629 6 9V14C6 14.7286 5.80521 15.4117 5.46487 16H18.5351C18.1948 15.4117 18 14.7286 18 14ZM12 22.9965C13.0696 22.9965 14.0583 22.427 14.595 21.5018C14.9817 20.8351 14.5007 20 13.73 20H10.27C9.49929 20 9.01828 20.8351 9.405 21.5018C9.9417 22.427 10.9304 22.9965 12 22.9965Z" fill="#CDD5E5" />
+    <mask id="mask0_805_423" style={{ maskType: 'alpha' }} maskUnits="userSpaceOnUse" x="1" y="1" width="22" height="22">
+      <path fillRule="evenodd" clipRule="evenodd" d="M2 18C0.666667 18 0.666667 16 2 16C3.10457 16 4 15.1046 4 14V9C4 4.58172 7.58172 1 12 1C16.4183 1 20 4.58172 20 9V14C20 15.1046 20.8954 16 22 16C23.3333 16 23.3333 18 22 18H2ZM18 14V9C18 5.68629 15.3137 3 12 3C8.68629 3 6 5.68629 6 9V14C6 14.7286 5.80521 15.4117 5.46487 16H18.5351C18.1948 15.4117 18 14.7286 18 14ZM12 22.9965C13.0696 22.9965 14.0583 22.427 14.595 21.5018C14.9817 20.8351 14.5007 20 13.73 20H10.27C9.49929 20 9.01828 20.8351 9.405 21.5018C9.9417 22.427 10.9304 22.9965 12 22.9965Z" fill="white" />
+    </mask>
+    <g mask="url(#mask0_805_423)">
+      <rect width="24" height="24" fill="#CDD5E5" />
+    </g>
+  </svg>
+)
+
+export const BulbIcon = () => (
+  <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7.51794 0V2.78468H8.48215V0H7.51794ZM3.58065 0.836839L2.79066 1.37942L4.41863 3.65992L5.20819 3.11733L3.58065 0.836839ZM12.4192 0.836839L10.7918 3.11734L11.5814 3.65994L13.2094 1.37942L12.4192 0.836839ZM7.99984 3.54659C5.64103 3.54659 3.72888 4.95167 3.72888 6.68519L6.15544 14H9.84466L12.271 6.68519C12.271 4.9517 10.3588 3.54659 7.99984 3.54659ZM0.329446 4.38232L0 5.27164L2.66624 6.22384L2.99691 5.33494L0.329446 4.38232ZM15.6704 4.38232L13.0029 5.33502L13.3325 6.22402L16 5.27165L15.6704 4.38232ZM2.8681 8.44781L0.126567 9.16914L0.375318 10.0821L3.11685 9.36182L2.8681 8.44781ZM13.1318 8.44781L12.8832 9.3618L15.6248 10.082L15.8733 9.16899L13.1318 8.44781ZM6.10165 15V17H9.89846V15.0002L6.10165 15Z" fill="url(#paint0_linear_23742_5455)" />
+    <defs>
+      <linearGradient id="paint0_linear_23742_5455" x1="8" y1="0" x2="8" y2="17" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#EB0DE0" />
+        <stop offset="1" stopColor="#FB1B0D" />
+      </linearGradient>
+    </defs>
+  </svg>
+)
+
+export const DiplomatIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fillRule="evenodd" clipRule="evenodd" d="M5 2H11V4H5V2ZM3 4V2V0H5H11H13V2V4H14C15.1046 4 16 4.89543 16 6V13.0003C16 14.1049 15.1046 15.0003 14 15.0003H2C0.895431 15.0003 0 14.1049 0 13.0003V6C0 4.89543 0.895431 4 2 4H3Z" fill="url(#paint0_linear_23742_5414)" />
+    <defs>
+      <linearGradient id="paint0_linear_23742_5414" x1="8" y1="0" x2="8" y2="15.0003" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#2C4FFB" />
+        <stop offset="1" stopColor="#0F3DB3" />
+      </linearGradient>
+    </defs>
+  </svg>
+)
+
+export const GiftIcon = () => (
+  <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3.50531 0.0372798C2.72756 0.267811 1.75006 2.27257 2.05829 3.04376C2.64115 4.50211 7.84881 5 7.84881 5L9 3.60284C9 3.60284 5.07249 -0.427248 3.50531 0.0372798Z" fill="url(#paint0_linear_23742_5427)" />
+    <path d="M14.4947 0.0372798C15.2724 0.267811 16.2499 2.27257 15.9417 3.04376C15.3589 4.50211 10.1512 5 10.1512 5L9 3.60284C9 3.60284 12.9275 -0.427248 14.4947 0.0372798Z" fill="url(#paint1_linear_23742_5427)" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M8 5H0.27041C0.121069 5 0 5.06567 0 5.14667V6.85331C0 6.93433 0.121069 7 0.27041 7H2V15.6865C2 15.8596 2.14554 16 2.32514 16L8 16V5ZM10 5V16L15.6749 16C15.8545 16 16 15.8596 16 15.6865V7H17.7296C17.8789 7 18 6.93433 18 6.85331V5.14667C18 5.06565 17.8789 5 17.7296 5H10Z" fill="url(#paint2_linear_23742_5427)" />
+    <path d="M9.00004 3C7.89544 3 7 3.89539 7 5H11C11.0001 3.89546 10.1046 3 9.00004 3Z" fill="url(#paint3_linear_23742_5427)" />
+    <defs>
+      <linearGradient id="paint0_linear_23742_5427" x1="5.5" y1="0" x2="5.5" y2="5" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#1557FF" />
+        <stop offset="1" stopColor="#EB0DE0" />
+      </linearGradient>
+      <linearGradient id="paint1_linear_23742_5427" x1="12.5" y1="0" x2="12.5" y2="5" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#1557FF" />
+        <stop offset="1" stopColor="#EB0DE0" />
+      </linearGradient>
+      <linearGradient id="paint2_linear_23742_5427" x1="9" y1="5" x2="9" y2="16" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#1557FF" />
+        <stop offset="1" stopColor="#EB0DE0" />
+      </linearGradient>
+      <linearGradient id="paint3_linear_23742_5427" x1="9" y1="3" x2="9" y2="5" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#1557FF" />
+        <stop offset="1" stopColor="#EB0DE0" />
+      </linearGradient>
+    </defs>
+  </svg>
+)

@@ -1,8 +1,10 @@
 import { UserType } from 'features/User/types'
 import { Message } from '@twilio/conversations/lib/message'
-import { ActionTypes, IncomingCallType } from './types'
+import { ActionTypes, IncomingCallType, NotificationsHistoryType } from './types'
 
 const initialState = {
+  history: {} as NotificationsHistoryType,
+  isLoadedHistory: false,
   anyMsgs: [] as { msg: string, uid: string }[],
   errorMsg: null as string | null,
   contactsEventsMsgs: [] as { user: UserType, msg: string, uidMsg: string }[],
@@ -13,6 +15,18 @@ const initialState = {
 
 export const NotificationsReducer = (state = initialState, action: ActionTypes) => {
   switch (action.type) {
+    case 'NOTIFICATIONS__SET_HISTORY': {
+      return {
+        ...state,
+        history: action.history
+      }
+    }
+    case 'NOTIFICATIONS__SET_IS_LOADED_HISTORY': {
+      return {
+        ...state,
+        isLoadedHistory: action.isLoadedHistory
+      }
+    }
     case 'NOTIFICATIONS__ADD_ANY_MESSAGE': {
       return {
         ...state,
