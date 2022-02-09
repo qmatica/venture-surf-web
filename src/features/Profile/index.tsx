@@ -56,7 +56,7 @@ export const Profile: FC<IProfile> = ({ match }) => {
   useEffect(() => {
     if (otherProfile) {
       const isRelatedUser = Object.entries(allContacts).some(([key, contacts]) => {
-        if (contacts[match.params.uid]) {
+        if (contacts?.[match.params.uid]) {
           setUserRelationType(key)
           setCurrentUser(contacts[match.params.uid])
           return true
