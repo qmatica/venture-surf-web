@@ -1,5 +1,5 @@
 import React, {
-  FC, useCallback, useMemo, useState
+  FC, useCallback, useMemo, useState, useEffect
 } from 'react'
 import { ProfileType } from 'features/Profile/types'
 import { profileInteractionUsers } from 'features/Profile/constants'
@@ -11,6 +11,7 @@ import { industries, stages } from 'common/constants'
 import { BriefcaseIcon, PreloaderIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { addInvest } from 'features/Surf/actions'
+import cn from 'classnames'
 import { UserRow } from './components/UserRow'
 import styles from './styles.module.sass'
 
@@ -72,6 +73,11 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   const [isOpenModal, setIsOpenModal] = useState(false)
   const toggleModal = () => setIsOpenModal(!isOpenModal)
   const [selectedRows, setSelectedRows] = useState<{[key: string]: any}>([])
+
+  useEffect(() => {
+    setIsOpenModal(false)
+  }, [profile.uid])
+
   const handleSelectRow = (uid: string) => {
     if (selectedRows[uid]) {
       setSelectedRows({ ...selectedRows, [uid]: null })
@@ -166,11 +172,14 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
             )}
           </div>
           <div className={styles.modalButtonWrapper}>
-            {isSelectedInvestor && (
-            <div className={styles.approveButton} onClick={() => onAddInvestor(selectedRows)}>
+            <div
+              className={cn(
+                styles.approveButton, !isSelectedInvestor && styles.buttonDisabled
+              )}
+              onClick={() => onAddInvestor(selectedRows)}
+            >
               {isLoading ? <PreloaderIcon /> : (<div>Approve that you invested in me</div>)}
             </div>
-            )}
           </div>
         </>
       </Modal>

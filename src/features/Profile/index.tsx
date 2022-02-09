@@ -1,4 +1,6 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, {
+  FC, useEffect, useState, useMemo
+} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   actions as actionsContacts, getPublicProfile, getUser, accept, ignore, withdrawLike
@@ -91,25 +93,7 @@ export const Profile: FC<IProfile> = ({ match }) => {
     }
   }, [isLoadingOtherProfile])
 
-  if (!profile || !initialized) return <Preloader />
-
-  const job = {
-    company: profile[profile.activeRole]?.job?.company,
-    title: profile[profile.activeRole]?.job?.title,
-    headline: profile[profile.activeRole]?.job?.headline,
-    email: profile[profile.activeRole]?.job?.email,
-    web: profile[profile.activeRole]?.job?.web,
-    logoCompany: profile[profile.activeRole]?.job?.logoCompany
-  }
-
-  const name = profile.displayName || `${profile.first_name} ${profile.last_name}`
-
-  const createdRoles = {
-    founder: !!profile.founder,
-    investor: !!profile.investor
-  }
-
-  const renderInteractions = () => {
+  const renderInteractions = useMemo(() => {
     switch (userRelationType) {
       case USER_RELATIONS.MUTUALS: {
         return (
@@ -151,6 +135,24 @@ export const Profile: FC<IProfile> = ({ match }) => {
       }
       default: return null
     }
+  }, [userRelationType, currentUser])
+
+  if (!profile || !initialized) return <Preloader />
+
+  const job = {
+    company: profile[profile.activeRole]?.job?.company,
+    title: profile[profile.activeRole]?.job?.title,
+    headline: profile[profile.activeRole]?.job?.headline,
+    email: profile[profile.activeRole]?.job?.email,
+    web: profile[profile.activeRole]?.job?.web,
+    logoCompany: profile[profile.activeRole]?.job?.logoCompany
+  }
+
+  const name = profile.displayName || `${profile.first_name} ${profile.last_name}`
+
+  const createdRoles = {
+    founder: !!profile.founder,
+    investor: !!profile.investor
   }
 
   return (
@@ -180,7 +182,7 @@ export const Profile: FC<IProfile> = ({ match }) => {
         {/*<SwitchRoles activeRole={profile.activeRole} createdRoles={createdRoles} isEdit={!otherProfile} />*/}
       </div>
       <div className={styles.buttonsContainer}>
-        {renderInteractions()}
+        {renderInteractions}
       </div>
       <Tabs tabs={tabs} activeTab={tab} onChange={setTab} badgeComponent={CountBadge} profile={profile} />
       <div>

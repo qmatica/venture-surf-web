@@ -61,17 +61,26 @@ export const UserRow: FC<IUserRow> = ({
 
   return (
     <div className={cn(styles.userContainer, isSelected && styles.selected)}>
-      <Link to={`/profile/${uid}`}>
-        <div className={cn(styles.photoContainer, isSelected && styles.selectedImage)}>
+      <div className={cn(styles.photoContainer, isSelected && styles.selectedImage)}>
+        {isBacked ? (
+          <Link to={`/profile/${uid}`}>
+            <Image
+              photoURL={photoURL}
+              photoBase64={photoBase64}
+              alt={name}
+              userIcon={UserIcon}
+            />
+          </Link>
+        ) : (
           <Image
             photoURL={photoURL}
             photoBase64={photoBase64}
             alt={name}
             userIcon={UserIcon}
           />
-          {isSelected && <div className={styles.checkmark}><CheckmarkIcon /></div>}
-        </div>
-      </Link>
+        )}
+        {isSelected && <div className={styles.checkmark}><CheckmarkIcon /></div>}
+      </div>
       <div>
         {isBacked ? (
           <Link to={`/profile/${uid}`}>
