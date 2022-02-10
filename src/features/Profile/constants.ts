@@ -11,7 +11,11 @@ export const profileInteractionUsers: profileInteractionUsersType = {
   },
   buttonLabel: {
     founder: 'Label my investors',
-    investor: ''
+    investor: 'Add investments'
+  },
+  requestButton: {
+    founder: 'Approve that you invested in me',
+    investor: 'I backed selected founders'
   }
 }
 

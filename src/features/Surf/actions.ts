@@ -122,14 +122,14 @@ export const acceptInvest = (uid: string): ThunkType => async (dispatch) => {
 }
 
 export const addInvest = (
-  uid: string, investorList: string[], setIsOpenModal: (isOpenModal: boolean) => void
+  uid: string, investorList: string[], setIsOpenModal: (isOpenModal: boolean) => void, activeRole: 'investors' | 'investments'
 ): ThunkType => async (dispatch) => {
   dispatch(profileActions.toggleLoader('requestToInvest'))
   const result = await usersAPI.addInvest(uid, investorList).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
-    dispatch(profileActions.addInvests(result.investors))
+    dispatch(profileActions.addInvests(result[activeRole]))
     dispatch(notificationsActions.addAnyMsg({
       msg: 'Your request has been sent',
       uid: uuidv4()

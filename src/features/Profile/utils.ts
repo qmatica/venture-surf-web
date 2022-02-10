@@ -1,6 +1,7 @@
 import { UsersType, UserType } from 'features/User/types'
 import { isSupported, getToken, getMessaging } from 'firebase/messaging'
 import { firebaseApp } from 'store/store'
+import { ProfileType } from 'features/Profile/types'
 import { SlotsType } from './types'
 
 export const compareCountContacts = (prevContacts: UsersType, nextContacts: UsersType) => {
@@ -90,4 +91,49 @@ export const getTokenFcm = async () => {
   })
 
   return token
+}
+
+export const parseUser = (profile: any): UserType => {
+  const {
+    uid,
+    first_name,
+    last_name,
+    displayName,
+    photoURL,
+    photoBase64,
+    activeRole,
+    tags,
+    slots,
+    mutuals,
+    roles,
+    settings,
+    founder,
+    investor,
+    investments,
+    investors
+  } = profile || {}
+
+  return {
+    uid,
+    first_name,
+    last_name,
+    displayName,
+    photoURL,
+    photoBase64,
+    stages: founder?.stages || investor?.stages,
+    industries: founder?.industries || investor?.industries,
+    tags,
+    job: founder?.job || investor?.job,
+    content: {
+      docs: founder?.job || investor?.job,
+      videos: founder?.videos || investor?.videos
+    },
+    activeRole,
+    slots,
+    settings,
+    mutuals,
+    roles,
+    investments,
+    investors
+  } as UserType
 }

@@ -1,4 +1,5 @@
-import React, { FC, memo } from 'react'
+import React, { FC, memo, useState } from 'react'
+import { ProfileType } from 'features/Profile/types'
 import { SwitchRoles } from './components/SwitchRoles'
 import { Body } from './components/Body'
 import { Actions } from './components/Actions'
@@ -28,6 +29,7 @@ export const User: FC<IUser> = memo(({
   typeUser,
   isRecommended = false
 }) => {
+  const [selectedRole, setSelectedRole] = useState<'founder' | 'investor'>(user.activeRole)
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
   let rightSideContent
@@ -44,7 +46,7 @@ export const User: FC<IUser> = memo(({
       break
     }
     case 'assets': {
-      rightSideContent = <Assets />
+      rightSideContent = <Assets user={user} selectedRole={selectedRole} />
       break
     }
     default:
@@ -54,7 +56,13 @@ export const User: FC<IUser> = memo(({
   return (
     <div className={styles.container}>
       {isRecommended && <Recommendations user={user} />}
-      {switchRoles && <SwitchRoles />}
+      {switchRoles && (
+        <SwitchRoles
+          selectedRole={selectedRole}
+          setSelectedRole={setSelectedRole}
+          roles={user.roles}
+        />
+      )}
       <Body
         user={user}
         rightSide={rightSideContent}
@@ -62,7 +70,13 @@ export const User: FC<IUser> = memo(({
         isRecommended={isRecommended}
       />
       {viewActions && <Actions user={user} userName={name} />}
-      {viewVideos && <Videos videos={user.content?.videos} userId={user.uid} userName={name} />}
+      {viewVideos && (
+        <Videos
+          videos={user.content?.videos}
+          userId={user.uid}
+          userName={name}
+        />
+      )}
     </div>
   )
 })

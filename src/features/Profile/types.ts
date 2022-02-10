@@ -152,6 +152,10 @@ export type profileInteractionUsersType = {
     buttonLabel: {
         founder: string,
         investor: string
+    },
+    requestButton: {
+        founder: string,
+        investor: string
     }
 }
 

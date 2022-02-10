@@ -71,8 +71,11 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   const dispatch = useDispatch()
   const loaders = useSelector(getLoadersProfile)
   const [isOpenModal, setIsOpenModal] = useState(false)
-  const toggleModal = () => setIsOpenModal(!isOpenModal)
   const [selectedRows, setSelectedRows] = useState<{[key: string]: any}>([])
+  const toggleModal = () => {
+    setIsOpenModal(!isOpenModal)
+    setSelectedRows([])
+  }
 
   useEffect(() => {
     setIsOpenModal(false)
@@ -89,15 +92,23 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
 
   const isLoading = loaders.includes('requestToInvest')
 
-  const onAddInvestor = (selectedRows: {[key: string]: any}) => {
+  const onAddInvestor = (selectedRows: { [key: string]: any }) => {
     const investorList = Object.values(selectedRows).filter(Boolean)
-    dispatch(addInvest(investorList.shift(), investorList, setIsOpenModal))
+    dispatch(
+      addInvest(
+        investorList.shift(),
+        investorList,
+        setIsOpenModal,
+        profileInteractionUsers.content[profile.activeRole]
+      )
+    )
   }
 
   const profileInteraction = useMemo(() => ({
     title: profileInteractionUsers.title[profile.activeRole],
     value: profile[profileInteractionUsers.content[profile.activeRole]],
-    buttonLabel: profileInteractionUsers.buttonLabel[profile.activeRole]
+    buttonLabel: profileInteractionUsers.buttonLabel[profile.activeRole],
+    requestButton: profileInteractionUsers.requestButton[profile.activeRole]
   }), [profile[profileInteractionUsers.content[profile.activeRole]]])
 
   const hasUserToInteract = !!Object.entries(profile.mutuals).find(
@@ -178,7 +189,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
               )}
               onClick={() => onAddInvestor(selectedRows)}
             >
-              {isLoading ? <PreloaderIcon /> : (<div>Approve that you invested in me</div>)}
+              {isLoading ? <PreloaderIcon /> : (<div>{profileInteraction.requestButton}</div>)}
             </div>
           </div>
         </>
