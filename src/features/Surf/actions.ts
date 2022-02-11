@@ -113,16 +113,18 @@ export const like = (
 }
 
 export const acceptInvest = (uid: string): ThunkType => async (dispatch) => {
+  dispatch(profileActions.toggleLoader(`${uid}-acceptInvest`))
   const result = await usersAPI.addInvest(uid, []).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
     dispatch(profileActions.acceptInvest(uid))
+    dispatch(profileActions.toggleLoader(`${uid}-acceptInvest`))
   }
 }
 
 export const addInvest = (
-  uid: string, investorList: string[], setIsOpenModal: (isOpenModal: boolean) => void, activeRole: 'investors' | 'investments'
+  uid: string, investorList: string[], activeRole: 'investors' | 'investments', setIsOpenModal: (isOpenModal: boolean) => void
 ): ThunkType => async (dispatch) => {
   dispatch(profileActions.toggleLoader('requestToInvest'))
   const result = await usersAPI.addInvest(uid, investorList).catch((err) => {
@@ -139,9 +141,22 @@ export const addInvest = (
   setIsOpenModal(false)
 }
 
+export const addYourself = (uid: string, selectedRole: 'investors' | 'investments'): ThunkType => async (dispatch, getState) => {
+  const result = await usersAPI.addInvest(uid, []).catch((err) => {
+    dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
+  })
+  if (result) {
+    dispatch(profileActions.addYourself(uid, selectedRole))
+    dispatch(notificationsActions.addAnyMsg({
+      msg: 'Your request has been sent',
+      uid: uuidv4()
+    }))
+  }
+}
+
 export const deleteInvest = (uid: string): ThunkType => async (dispatch, getState) => {
   const { profile } = getState().profile
-  dispatch(profileActions.toggleLoader(uid))
+  dispatch(profileActions.toggleLoader(`${uid}-deleteInvest`))
   const result = await usersAPI.deleteInvest(uid).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
@@ -153,5 +168,5 @@ export const deleteInvest = (uid: string): ThunkType => async (dispatch, getStat
       uid: uuidv4()
     }))
   }
-  dispatch(profileActions.toggleLoader(uid))
+  dispatch(profileActions.toggleLoader(`${uid}-deleteInvest`))
 }

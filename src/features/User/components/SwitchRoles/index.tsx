@@ -5,31 +5,33 @@ import styles from './styles.module.sass'
 interface ISwitchRoles {
   selectedRole: 'founder' | 'investor'
   setSelectedRole: (role: 'founder' | 'investor') => void
-  roles: [
-    'investor',
-    'founder'
-]
+  roles: ['investor', 'founder']
 }
 
-export const SwitchRoles: FC<ISwitchRoles> = ({ selectedRole, setSelectedRole, roles }) => (
+export const SwitchRoles: FC<ISwitchRoles> = ({
+  selectedRole,
+  setSelectedRole,
+  roles
+}) => (
   <div className={styles.container}>
+    {roles?.includes('investor') && (
     <div
       className={cn(
         styles.button,
         selectedRole === 'investor' && styles.active
       )}
-      onClick={() => roles.includes('investor') && setSelectedRole('investor')}
+      onClick={() => setSelectedRole('investor')}
     >
       investor
     </div>
+    )}
+    {roles?.includes('founder') && (
     <div
-      className={cn(
-        styles.button,
-        selectedRole === 'founder' && styles.active
-      )}
-      onClick={() => roles.includes('founder') && setSelectedRole('founder')}
+      className={cn(styles.button, selectedRole === 'founder' && styles.active)}
+      onClick={() => setSelectedRole('founder')}
     >
       founder
     </div>
+    )}
   </div>
 )

@@ -110,7 +110,8 @@ export const parseUser = (profile: any): UserType => {
     founder,
     investor,
     investments,
-    investors
+    investors,
+    recommendedByList
   } = profile || {}
 
   return {
@@ -134,6 +135,7 @@ export const parseUser = (profile: any): UserType => {
     mutuals,
     roles,
     investments,
-    investors
-  } as UserType
+    investors,
+    recommendedByList: recommendedByList || []
+  }
 }

@@ -1,5 +1,8 @@
 import React, { FC, memo, useState } from 'react'
-import { ProfileType } from 'features/Profile/types'
+import { Modal } from 'features/Modal'
+import { profileInteractionUsers } from 'features/Profile/constants'
+import { Image } from 'common/components/Image'
+import { UserIcon } from 'common/icons'
 import { SwitchRoles } from './components/SwitchRoles'
 import { Body } from './components/Body'
 import { Actions } from './components/Actions'
@@ -30,6 +33,10 @@ export const User: FC<IUser> = memo(({
   isRecommended = false
 }) => {
   const [selectedRole, setSelectedRole] = useState<'founder' | 'investor'>(user.activeRole)
+  const [isOpenModal, setIsOpenModal] = useState(false)
+  const toggleModal = () => setIsOpenModal(!isOpenModal)
+  const investments = user[profileInteractionUsers.content[selectedRole]]
+  const relatedUsersList = user.mutuals ? Object.values(user.mutuals).filter((mutual) => investments?.[mutual.uid]) : []
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
   let rightSideContent
@@ -46,7 +53,14 @@ export const User: FC<IUser> = memo(({
       break
     }
     case 'assets': {
-      rightSideContent = <Assets user={user} selectedRole={selectedRole} />
+      rightSideContent = (
+        <Assets
+          user={user}
+          selectedRole={selectedRole}
+          onClick={toggleModal}
+          relatedUsersList={relatedUsersList}
+        />
+      )
       break
     }
     default:
@@ -77,6 +91,30 @@ export const User: FC<IUser> = memo(({
           userName={name}
         />
       )}
+      <Modal
+        title={selectedRole === 'investor' ? 'Investments' : 'Backed by '}
+        isOpen={isOpenModal}
+        onClose={toggleModal}
+      >
+        <div className={styles.modalContainer}>
+          {relatedUsersList.map((relatedUser) => (
+            <div key={relatedUser.uid}>
+              <div className={styles.user}>
+                <div className={styles.userPhoto}>
+                  <Image
+                    photoURL={relatedUser.photoURL}
+                    photoBase64={relatedUser.photoBase64}
+                    alt={relatedUser.displayName}
+                    userIcon={UserIcon}
+                  />
+                </div>
+                <div>{relatedUser.displayName}</div>
+                <div className={styles.status}>{investments?.[relatedUser.uid].status}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Modal>
     </div>
   )
 })

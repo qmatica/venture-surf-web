@@ -171,6 +171,30 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         }
       }
     }
+    case 'PROFILE__ADD_YOURSELF': {
+      const { profile } = state
+      const { uid, selectedRole } = action.payload
+
+      if (!profile || !profile.uid) return state
+
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          mutuals: {
+            ...profile.mutuals,
+            [uid]: {
+              ...profile.mutuals[uid],
+              [selectedRole]: {
+                ...profile.mutuals[uid][selecctedRole], //TODO
+                [profile.uid]: profile
+              }
+            }
+          }
+        }
+      }
+    }
+
     case 'PROFILE__DELETE_INVEST': {
       const { profile } = state
 

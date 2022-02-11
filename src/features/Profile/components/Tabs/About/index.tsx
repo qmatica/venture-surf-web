@@ -98,8 +98,8 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
       addInvest(
         investorList.shift(),
         investorList,
-        setIsOpenModal,
-        profileInteractionUsers.content[profile.activeRole]
+        profileInteractionUsers.content[profile.activeRole],
+        setIsOpenModal
       )
     )
   }
@@ -107,8 +107,12 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   const profileInteraction = useMemo(() => ({
     title: profileInteractionUsers.title[profile.activeRole],
     value: profile[profileInteractionUsers.content[profile.activeRole]],
-    buttonLabel: profileInteractionUsers.buttonLabel[profile.activeRole],
-    requestButton: profileInteractionUsers.requestButton[profile.activeRole]
+    labelButton: profileInteractionUsers.labelButton[profile.activeRole],
+    requestButton: profileInteractionUsers.requestButton[profile.activeRole],
+    addButton: profileInteractionUsers.addButton[profile.activeRole],
+    description: profileInteractionUsers.description[profile.activeRole],
+    header: profileInteractionUsers.header[profile.activeRole],
+    modalTitle: profileInteractionUsers.modalTitle[profile.activeRole]
   }), [profile[profileInteractionUsers.content[profile.activeRole]]])
 
   const hasUserToInteract = !!Object.entries(profile.mutuals).find(
@@ -118,17 +122,21 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
 
   const renderInteractions = useMemo(() => {
     if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) {
-      if (isEdit && profile.activeRole === 'founder') {
+      if (isEdit) {
         return (
           <div className={styles.backedBy}>
             <BriefcaseIcon />
-            <div className={styles.backedByTitle}>You are not yet backed by</div>
+            <div className={styles.backedByTitle}>{profileInteraction.header}</div>
             <div className={styles.backedByDescription}>
-              Label your investors. We will send them your request. If they
-              approve, everyone will see who invested in you. This will add you
-              some credits.
+              {profileInteraction.description}
             </div>
-            {hasUserToInteract && <div className={styles.addButton} onClick={toggleModal}>Add my investors</div>}
+            {hasUserToInteract && (
+            <div
+              className={styles.addButton}
+              onClick={toggleModal}
+            >{profileInteraction.addButton}
+            </div>
+            )}
           </div>
         )
       }
@@ -154,7 +162,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
             ))}
           {isEdit && (
             <div className={styles.labelButton} onClick={toggleModal}>
-              {hasUserToInteract && profileInteraction.buttonLabel}
+              {hasUserToInteract && profileInteraction.labelButton}
             </div>
           )}
         </div>
@@ -166,7 +174,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
     <>
       {renderInteractions}
       {isEdit && hasUserToInteract && (
-      <Modal title="Get backed by" isOpen={isOpenModal} onClose={toggleModal}>
+      <Modal title={profileInteraction.modalTitle} isOpen={isOpenModal} onClose={toggleModal}>
         <>
           <div className={styles.modalContent}>
             {Object.entries(profile.mutuals).map(
