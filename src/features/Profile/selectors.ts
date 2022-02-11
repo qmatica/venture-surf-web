@@ -5,6 +5,8 @@ import { FormattedSlotsType } from 'features/Calendar/types'
 
 const getMyProfileSelector = (state: RootState) => state.profile.profile
 
+const getMyActiveRoleSelector = (state: RootState) => state.profile.profile?.activeRole
+
 const getOtherProfileSelector = (state: RootState) => state.contacts.otherProfile
 
 const getLoadersProfileSelector = (state: RootState) => state.profile.loaders
@@ -35,7 +37,19 @@ const getJobProfileSelector = (state: RootState) => {
   return null
 }
 
+const getInvestmentsSelector = (state: RootState) => state.profile.profile?.investments
+
+const getInvestorsSelector = (state: RootState) => state.profile.profile?.investors
+
+export const getAllInvests = createSelector(
+  getInvestmentsSelector,
+  getInvestorsSelector,
+  (investments, investors) => ({ ...investments, ...investors })
+)
+
 export const getMyProfile = createSelector(getMyProfileSelector, (profile) => profile)
+
+export const getMyActiveRole = createSelector(getMyActiveRoleSelector, (activeRole) => activeRole)
 
 export const getLiked = createSelector(getLikedSelector, (liked) => liked)
 

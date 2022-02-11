@@ -82,7 +82,7 @@ export const DropDownButton: FC<IDropDownButton> = ({
       >
         {icon}
         {arrow && <div className={styles.arrow}><ArrowBottomIcon /></div>}
-        {countNotifications && <CounterNotifications count={countNotifications} left={-25} />}
+        <CounterNotifications count={countNotifications} left={-25} />
       </div>
       {isOpenList && (
         <div className={styles.dropDownContainer}>

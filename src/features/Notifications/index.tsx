@@ -21,15 +21,17 @@ import { declineCall, openChat } from 'features/Profile/actions'
 import { getAllContacts } from 'features/Contacts/selectors'
 import { UsersType, UserType } from 'features/User/types'
 import moment from 'moment'
-import { profileAPI } from 'api'
 import cn from 'classnames'
 import { accept, ignore } from 'features/Contacts/actions'
 import { Button } from 'common/components/Button'
 import { DropDownButton } from 'features/NavBar/components/DropDownButton'
 import { getMyNotificationsHistory } from './selectors'
 import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
-import { actions } from './actions'
+import { actions, readAllNotifications } from './actions'
 import styles from './styles.module.sass'
+import { getAllInvests, getMyActiveRole } from '../Profile/selectors'
+import { acceptInvest, deleteInvest } from '../Surf/actions'
+import { ValueNotificationsHistoryType } from './types'
 
 export const Notifications = () => {
   const dispatch = useDispatch()
@@ -195,8 +197,6 @@ export const Notifications = () => {
   )
 }
 
-const tempListIgnoredContacts = {} as UsersType
-
 interface INotificationsList {
   icon: ReactElement
 }
@@ -205,21 +205,56 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
   const dispatch = useDispatch()
   const history = useHistory()
   const notificationsHistory = useSelector(getMyNotificationsHistory)
+  const allInvests = useSelector(getAllInvests)
+  const myActiveRole = useSelector(getMyActiveRole)
   const allContacts = useSelector(getAllContacts) as { mutuals: UsersType, sent: UsersType, received: UsersType }
   const [isOpenList, setIsOpenList] = useState(false)
 
-  const toggleOpenList = () => setIsOpenList(!isOpenList)
-  const closeList = () => setIsOpenList(false)
-
-  const readAllNotifications = (id: string) => {
-    profileAPI.readNotifications([id]).then((res) => console.log(res))
+  const notifications = {
+    count: 0,
+    active: [] as string[]
   }
 
-  let countNotifications = 0
+  const onReadAllNotifications = () => {
+    if (isOpenList) {
+      if (notifications.active.length) dispatch(readAllNotifications(notifications.active))
+    }
+  }
+
+  const toggleOpenList = () => {
+    onReadAllNotifications()
+    setIsOpenList(!isOpenList)
+  }
+  const closeList = () => {
+    onReadAllNotifications()
+    setIsOpenList(false)
+  }
 
   const list = Object.entries(notificationsHistory)
     .filter(([id, value]) => !['call_instant', 'call_instant_group', 'call_canceled', 'call_declined'].includes(value.type))
     .sort((a, b) => moment(b[1].ts).unix() - moment(a[1].ts).unix())
+    .reduce(((
+      prevList: [string, ValueNotificationsHistoryType][],
+      nextItem: [string, ValueNotificationsHistoryType]
+    ) => {
+      if (nextItem[1].data.role === myActiveRole) return prevList
+      if (prevList.length > 0) {
+        const prevItem = prevList[prevList.length - 1]
+        if (prevItem[1].contact === nextItem[1].contact) {
+          if (prevItem[1].type === nextItem[1].type) {
+            const updatedPrevList: [string, ValueNotificationsHistoryType][] = [...prevList]
+            const updatedPrevItem: [string, ValueNotificationsHistoryType] = [...prevItem]
+            updatedPrevItem[1] = {
+              ...updatedPrevItem[1],
+              count: updatedPrevItem[1].count ? (updatedPrevItem[1].count + 1) : 2
+            }
+            updatedPrevList.splice(prevList.length - 1, 1, updatedPrevItem)
+            return updatedPrevList
+          }
+        }
+      }
+      return [...prevList, nextItem]
+    }), [])
     .map(([id, value]) => {
       let user = null as UserType | null
       let contactType = ''
@@ -239,39 +274,61 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
         return false
       })
 
-      if (!user) {
-        if (tempListIgnoredContacts[value.contact]) {
-          user = tempListIgnoredContacts[value.contact]
-          contactType = 'ignored'
-        }
-        if (!user) return null
-      }
+      if (!user) return null
 
       const onOpenChat = () => {
         if (user) {
-          closeList()
-          const redirectToConversations = () => history.push('/conversations')
+          const redirectToConversations = () => {
+            closeList()
+            history.push('/conversations')
+          }
           dispatch(openChat(user.uid, redirectToConversations))
         }
       }
 
       if (value.status === 'active') {
-        countNotifications += 1
+        notifications.count += 1
+        notifications.active.push(id)
       }
 
       const name = user.displayName || `${user.first_name} ${user.last_name}`
+      const num = value.count ? `(${value.count})` : ''
 
       switch (value.type) {
         case 'invest': {
           title = 'backed you up'
           icon = <DiplomatIcon />
+
+          background = allInvests[value.contact].status === 'requested'
+
+          if (background) {
+            actions.push(
+              {
+                title: 'Accept',
+                onClick: () => dispatch(acceptInvest(value.contact)),
+                isLoading: user.loading?.includes('acceptInvest'),
+                isDisabled: ['acceptInvest', 'declineInvest'].some((action) => user?.loading?.includes(action))
+              },
+              {
+                title: 'Decline',
+                onClick: () => dispatch(deleteInvest(value.contact)),
+                isLoading: user.loading?.includes('declineInvest'),
+                isDisabled: ['accept', 'declineInvest'].some((action) => user?.loading?.includes(action))
+              }
+            )
+          }
+
           break
         }
         case 'like':
         case 'mutual_like': {
           title = 'is interested in your business'
           icon = <BulbIcon />
-          background = contactType === 'received'
+          background = contactType === 'received' && !user.ignored
+
+          if (user.ignored) {
+            subTitle = 'Request removed'
+          }
 
           if (background) {
             actions.push(
@@ -283,12 +340,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
               },
               {
                 title: 'Ignore',
-                onClick: () => {
-                  const addContactInTempListIgnore = () => {
-                    tempListIgnoredContacts[value.contact] = user as UserType
-                  }
-                  dispatch(ignore(value.contact, addContactInTempListIgnore))
-                },
+                onClick: () => dispatch(ignore(value.contact)),
                 isLoading: user.loading?.includes('ignore'),
                 isDisabled: ['accept', 'ignore'].some((action) => user?.loading?.includes(action))
               }
@@ -303,9 +355,6 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
                 isLoading: user.loading?.includes('openChat')
               }
             )
-          }
-          if (contactType === 'ignored') {
-            subTitle = 'Request removed'
           }
           break
         }
@@ -323,7 +372,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       }
 
       const buttons = actions.map((action) => {
-        const className = action.title === 'Ignore' ? styles.cancel : styles.default
+        const className = ['Ignore', 'Decline'].includes(action.title) ? styles.cancel : styles.default
 
         return (
           <Button
@@ -334,6 +383,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
               className,
               action.title === 'Chat' && styles.chat
             )}
+            isLoading={action.isLoading}
             disabled={action.isDisabled || action.isLoading}
           />
         )
@@ -342,6 +392,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       return (
         <div
           key={id}
+          id-data={id}
           contact-data={value.contact}
           type-data={value.type}
           date-data={value.ts}
@@ -350,19 +401,34 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
             background && styles.actionItem
           )}
         >
+          <div className={styles.date}>
+            {moment(value.ts).calendar(null, {
+              lastDay: '[Yesterday]',
+              sameDay: 'HH:mm',
+              nextDay: '[Tomorrow]',
+              lastWeek: '[last] dddd',
+              nextWeek: 'dddd',
+              sameElse: 'L'
+            })}
+          </div>
           <div className={styles.info}>
-            <div className={styles.photoContainer}>
-              <Image photoURL={user.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
+            <div className={styles.photoWrapper}>
+              <div className={styles.photoContainer}>
+                {value.status === 'active' && <div className={styles.dot} />}
+                <Image photoURL={user.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
+              </div>
             </div>
             <div className={styles.name}>{name}</div>
-            <div className={styles.title}>{title}</div>
+            <div className={styles.title}>{title} {num}</div>
             <div className={styles.iconContainer}>
               <div className={styles.icon}>
                 {icon}
               </div>
             </div>
           </div>
-          {subTitle && <div className={styles.subTitle}>{subTitle}</div>}
+          {subTitle && (
+            <div className={cn(styles.subTitle, user.ignored && styles.ignored)}>{subTitle}</div>
+          )}
           {buttons.length > 0 && <div className={styles.buttons}>{buttons}</div>}
         </div>
       )
@@ -373,7 +439,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       icon={icon}
       list={<>{list}</>}
       arrow={false}
-      countNotifications={countNotifications}
+      countNotifications={notifications.count}
       isOpenList={isOpenList}
       onCloseList={closeList}
       onToggleOpenList={toggleOpenList}

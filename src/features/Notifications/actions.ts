@@ -1,6 +1,7 @@
 import { UserType } from 'features/User/types'
 import { Message } from '@twilio/conversations/lib/message'
-import { IncomingCallType, NotificationsHistoryType } from './types'
+import { profileAPI } from 'api'
+import { IncomingCallType, NotificationsHistoryType, ThunkType } from './types'
 
 export const actions = {
   setHistory: (history: NotificationsHistoryType) => ({ type: 'NOTIFICATIONS__SET_HISTORY', history } as const),
@@ -30,4 +31,17 @@ export const actions = {
   removeReceivedChatMsg: (sid: string) => ({ type: 'NOTIFICATIONS__REMOVE_RECEIVED_CHAT_MSG', sid } as const),
   addIncomingCall: (payload: IncomingCallType) => ({ type: 'NOTIFICATIONS__ADD_INCOMING_CALL', payload } as const),
   removeIncomingCall: () => ({ type: 'NOTIFICATIONS__REMOVE_INCOMING_CALL' } as const)
+}
+
+export const readAllNotifications = (ids: string[]): ThunkType => async (dispatch, getState) => {
+  const updatedHistory = { ...getState().notifications.history }
+  ids.forEach((id) => {
+    updatedHistory[id].status = 'read'
+  })
+  dispatch(actions.setHistory(updatedHistory))
+  profileAPI.readNotifications(ids).then((res) => {
+    console.log('readNotifications', res)
+  }).catch((err) => {
+    dispatch(actions.addErrorMsg(JSON.stringify(err)))
+  })
 }

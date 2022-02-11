@@ -1,14 +1,14 @@
 import React, { FC } from 'react'
 import { like } from 'features/Surf/actions'
-import { accept, withdrawLike } from 'features/Contacts/actions'
+import { accept, ignore, withdrawLike } from 'features/Contacts/actions'
 import { Button } from 'common/components/Button'
 import { UserPhotoIcon } from 'common/icons'
 import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { determineJobWithoutActiveRole } from 'common/typeGuards'
 import { Image } from 'common/components/Image'
-import styles from './styles.module.sass'
 import { UserType } from '../../types'
+import styles from './styles.module.sass'
 
 interface IBody {
   user: UserType
@@ -71,7 +71,13 @@ export const Body: FC<IBody> = ({
         const onClickAccept = () => {
           dispatch(accept(user.uid))
         }
-        const onClickIgnore = () => {}
+        const onClickIgnore = () => dispatch(ignore(user.uid))
+
+        if (user.ignored) {
+          return (
+            <div style={{ color: '#1557FF', fontSize: 13 }}>Request removed</div>
+          )
+        }
 
         return (
           <>
@@ -108,6 +114,7 @@ export const Body: FC<IBody> = ({
               {job.title && <div className={styles.title}>{job.title}</div>}
               {job.headline && <div className={styles.headline}>{job.headline}</div>}
               {job.position && <div className={styles.position}>{job.position}</div>}
+              {job.roleName && <div className={styles.position}>{job.roleName}</div>}
             </div>
           )}
         </>
@@ -126,6 +133,7 @@ export const Body: FC<IBody> = ({
             {job[activeRole].title && <div className={styles.title}>{job[activeRole].title}</div>}
             {job[activeRole].headline && <div className={styles.headline}>{job[activeRole].headline}</div>}
             {job[activeRole].position && <div className={styles.position}>{job[activeRole].position}</div>}
+            {job[activeRole].roleName && <div className={styles.position}>{job[activeRole].roleName}</div>}
           </div>
         )}
       </>

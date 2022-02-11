@@ -115,7 +115,7 @@ export const NavBar = () => {
         if (title === 'Notifications') return <NotificationsList key={title} icon={icon} />
 
         if (title === 'Contacts') {
-          countNotifications = liked && Object.keys(liked)?.length
+          countNotifications = liked && Object.values(liked).filter((u) => !u.ignored).length
         }
 
         return (
