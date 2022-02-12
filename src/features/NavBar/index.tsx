@@ -157,7 +157,7 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
   const toggleEdit = () => setIsEdit(!isEdit)
 
   const isActiveNotificationsInOtherRole = Object.values(notificationsHistory)
-    .some((notify) => notify.data.role === myActiveRole && notify.status === 'active')
+    .some((notify) => notify.data.role && notify.data.role !== myActiveRole && notify.status === 'active')
 
   const dropDownList = [
     {

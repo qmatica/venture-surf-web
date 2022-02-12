@@ -237,9 +237,10 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       prevList: [string, ValueNotificationsHistoryType][],
       nextItem: [string, ValueNotificationsHistoryType]
     ) => {
+      if (!Object.values(allContacts).some((contacts) => contacts[nextItem[1].contact])) return prevList
       if (
-        nextItem[1].data.role === myActiveRole
-        || ['call_instant', 'call_instant_group', 'call_canceled', 'call_declined'].includes(nextItem[1].type)
+        (nextItem[1].data.role && nextItem[1].data.role !== myActiveRole)
+        || ['call_instant', 'call_instant_group', 'call_canceled', 'call_declined', 'twilio_enter_group'].includes(nextItem[1].type)
       ) {
         return prevList
       }
@@ -304,7 +305,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
           title = 'backed you up'
           icon = <DiplomatIcon />
 
-          background = allInvests[value.contact].status === 'requested'
+          background = allInvests[value.contact]?.status === 'requested'
 
           if (background) {
             actions.push(

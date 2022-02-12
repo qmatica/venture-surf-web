@@ -76,7 +76,7 @@ export const DropDownButton: FC<IDropDownButton> = ({
 
   return (
     <div className={styles.container} ref={dropDownListEventRef}>
-      {isActiveNotify && <Dot top={14} right={25} />}
+      {isActiveNotify && <Dot top={12} right={24} />}
       <div
         className={cn(
           styles.button,

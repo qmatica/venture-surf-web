@@ -33,7 +33,7 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
   const [isLoadingSwitchRole, setIsLoadingSwitchRole] = useState<'founder' | 'investor' | null>(null)
 
   const isActiveNotificationsInOtherRole = Object.values(notificationsHistory)
-    .some((notify) => notify.data.role === activeRole && notify.status === 'active')
+    .some((notify) => notify.data.role && notify.data.role !== activeRole && notify.status === 'active')
 
   const isActiveNotificationInOption = isActiveNotificationsInOtherRole
     ? roles.filter((r) => r !== activeRole)[0]
