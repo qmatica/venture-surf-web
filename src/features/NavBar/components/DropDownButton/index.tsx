@@ -8,6 +8,7 @@ import { useOutside } from 'common/hooks'
 import { DropDownItemType } from 'features/NavBar/types'
 import { determineArray } from 'common/typeGuards'
 import { CounterNotifications } from 'common/components/CounterNotifications'
+import { Dot } from 'common/components/Dot'
 import styles from './styles.module.sass'
 
 interface IDropDownButton {
@@ -19,6 +20,7 @@ interface IDropDownButton {
   isOpenList: boolean
   onCloseList: () => void
   onToggleOpenList: () => void
+  isActiveNotify?: boolean
 }
 
 export const DropDownButton: FC<IDropDownButton> = ({
@@ -29,7 +31,8 @@ export const DropDownButton: FC<IDropDownButton> = ({
   countNotifications,
   isOpenList,
   onCloseList,
-  onToggleOpenList
+  onToggleOpenList,
+  isActiveNotify
 }) => {
   const dropDownListEventRef = useRef(null)
   useOutside(dropDownListEventRef, onCloseList)
@@ -63,6 +66,7 @@ export const DropDownButton: FC<IDropDownButton> = ({
           >
             <div className={styles.icon}>
               {el.isLoading ? <PreloaderIcon stroke="#ccd5e4" /> : el.icon}
+              {el.isActiveNotify && <Dot top={-3} right={13} />}
             </div>
             {el.title}
           </div>
@@ -72,6 +76,7 @@ export const DropDownButton: FC<IDropDownButton> = ({
 
   return (
     <div className={styles.container} ref={dropDownListEventRef}>
+      {isActiveNotify && <Dot top={14} right={25} />}
       <div
         className={cn(
           styles.button,
@@ -82,7 +87,7 @@ export const DropDownButton: FC<IDropDownButton> = ({
       >
         {icon}
         {arrow && <div className={styles.arrow}><ArrowBottomIcon /></div>}
-        {countNotifications && <CounterNotifications count={countNotifications} left={-25} />}
+        <CounterNotifications count={countNotifications} left={-25} />
       </div>
       {isOpenList && (
         <div className={styles.dropDownContainer}>

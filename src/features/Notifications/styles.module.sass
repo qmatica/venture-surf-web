@@ -179,23 +179,32 @@
       background: #F8F9FE!important
   &:last-child
     border-radius: 10px!important
+  .date
+    font-size: 12px
+    color: #9a9a9a
+    margin-bottom: 5px
+    text-align: right
   .info
     display: flex
     flex-shrink: 0
     align-items: center
-    .photoContainer
+    .photoWrapper
       width: 32px
       height: 32px
-      border-radius: 10px
-      overflow: hidden
-      display: flex
-      justify-content: center
-      align-items: center
+      position: relative
       flex-shrink: 0
       margin-right: 10px
-      background: #c8c8c8
-      img
-        width: 100%
+      .photoContainer
+        width: 32px
+        height: 32px
+        border-radius: 10px
+        overflow: hidden
+        display: flex
+        justify-content: center
+        align-items: center
+        background: #c8c8c8
+        img
+          width: 100%
     .name
       font-size: 15px
       white-space: nowrap
@@ -224,6 +233,8 @@
     margin-top: 10px
     font-size: 12px
     color: #030D21
+    &.ignored
+      color: #1557FF
   .buttons
     display: flex
     justify-content: center

@@ -22,11 +22,12 @@ import { CounterNotifications } from 'common/components/CounterNotifications'
 import { EditJob } from 'features/Profile/components/Job'
 import { PageType } from './types'
 import { DropDownButton } from './components/DropDownButton'
-import { getLiked, getLoadersProfile } from '../Profile/selectors'
+import { getLiked, getLoadersProfile, getMyActiveRole } from '../Profile/selectors'
 import { shareLinkMyProfile } from '../Profile/actions'
 import styles from './styles.module.sass'
 import { NotificationsList } from '../Notifications'
 import { useOutside } from '../../common/hooks'
+import { getMyNotificationsHistory } from '../Notifications/selectors'
 
 const pages = [
   {
@@ -115,7 +116,7 @@ export const NavBar = () => {
         if (title === 'Notifications') return <NotificationsList key={title} icon={icon} />
 
         if (title === 'Contacts') {
-          countNotifications = liked && Object.keys(liked)?.length
+          countNotifications = liked && Object.values(liked).filter((u) => !u.ignored).length
         }
 
         return (
@@ -144,6 +145,8 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
   const location = useLocation()
   const myUid = useSelector(getMyUid)
   const loaders = useSelector(getLoadersProfile)
+  const notificationsHistory = useSelector(getMyNotificationsHistory)
+  const myActiveRole = useSelector(getMyActiveRole)
   const myProfileUrl = `${url}/${myUid}`
   const [isEdit, setIsEdit] = useState(false)
   const [isOpenList, setIsOpenList] = useState(false)
@@ -152,6 +155,9 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
   const closeList = () => setIsOpenList(false)
 
   const toggleEdit = () => setIsEdit(!isEdit)
+
+  const isActiveNotificationsInOtherRole = Object.values(notificationsHistory)
+    .some((notify) => notify.data.role === myActiveRole && notify.status === 'active')
 
   const dropDownList = [
     {
@@ -173,7 +179,8 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
     {
       title: 'Settings',
       onClick: () => console.log('settings'),
-      icon: <SettingsIcon />
+      icon: <SettingsIcon />,
+      isActiveNotify: isActiveNotificationsInOtherRole
     }
   ]
 
@@ -186,6 +193,7 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
         isOpenList={isOpenList}
         onCloseList={closeList}
         onToggleOpenList={toggleOpenList}
+        isActiveNotify={isActiveNotificationsInOtherRole}
       />
       <EditJob isOpen={isEdit} onClose={toggleEdit} />
     </>

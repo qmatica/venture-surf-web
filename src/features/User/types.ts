@@ -27,6 +27,7 @@ export type UserType = {
     recommendedByList: RecommendedUserType[]
     chat?: string
     loading?: string[]
+    ignored?: string
     clickedAction?: string
     slots: any
     fullLoaded?: boolean
@@ -57,6 +58,7 @@ export type Job = {
     title?: string
     headline?: string
     position?: string
+    roleName?: string
 }
 
 export type UsersType = { [key: string]: UserType }

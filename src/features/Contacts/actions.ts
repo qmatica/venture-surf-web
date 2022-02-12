@@ -95,10 +95,7 @@ export const accept = (uid: string): ThunkType => async (dispatch, getState) => 
   }
 }
 
-export const ignore = (
-  uid: string,
-  addContactInTempListIgnore?: () => void
-): ThunkType => async (dispatch, getState) => {
+export const ignore = (uid: string): ThunkType => async (dispatch, getState) => {
   const contacts = 'liked'
   const { profile } = getState().profile
 
@@ -114,14 +111,13 @@ export const ignore = (
     })
 
     if (status === apiCodes.success) {
-      if (addContactInTempListIgnore) addContactInTempListIgnore()
-
       const updatedUser = {
         ...profile[contacts][uid],
+        ignored: new Date().toISOString(),
         loading: []
       }
 
-      dispatch(profileActions.removeUserInMyContacts(updatedUser, contacts))
+      dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
     }
   }
 }
