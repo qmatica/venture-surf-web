@@ -41,10 +41,8 @@ export const Surf = () => {
     dispatch(deleteInvest(uid))
   }
 
-  const listRequestedInvestments = requestedInvestments?.map((inv) => {
+  const listRequestedInvestments = requestedInvestments?.filter((inv) => profile.mutuals[inv.uid]).map((inv) => {
     const user = profile.mutuals[inv.uid]
-
-    if (!user) return null
 
     const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
     // TODO: Remove photoURL usage, when photoBase64 comes from backend side.
@@ -81,7 +79,7 @@ export const Surf = () => {
         </div>
       </div>
     )
-  }).filter((i) => i !== null)
+  })
 
   return (
     <div className={styles.container}>

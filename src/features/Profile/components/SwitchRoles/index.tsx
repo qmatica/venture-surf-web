@@ -5,9 +5,10 @@ import { Modal } from 'features/Modal'
 import { Input } from 'common/components/Input'
 import { industries as dictionaryIndustries, stages as dictionaryStages } from 'common/constants'
 import { ChoiceTags } from 'common/components/ChoiceTags'
-import { useDispatch } from 'react-redux'
-import styles from './styles.module.sass'
+import { useDispatch, useSelector } from 'react-redux'
+import { getMyNotificationsHistory } from 'features/Notifications/selectors'
 import { createNewRole, switchRole } from '../../actions'
+import styles from './styles.module.sass'
 
 interface ISwitchRoles {
   activeRole: 'founder' | 'investor'
@@ -23,12 +24,20 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
   activeRole, createdRoles, isEdit, roles
 }) => {
   const dispatch = useDispatch()
+  const notificationsHistory = useSelector(getMyNotificationsHistory)
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [step, setStep] = useState(1)
   const [stages, setStages] = useState<(string | number)[]>([])
   const [industries, setIndustries] = useState<(string | number)[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingSwitchRole, setIsLoadingSwitchRole] = useState<'founder' | 'investor' | null>(null)
+
+  const isActiveNotificationsInOtherRole = Object.values(notificationsHistory)
+    .some((notify) => notify.data.role === activeRole && notify.status === 'active')
+
+  const isActiveNotificationInOption = isActiveNotificationsInOtherRole
+    ? roles.filter((r) => r !== activeRole)[0]
+    : null
 
   useEffect(() => {
     if (isOpenModal) setIsOpenModal(false)
@@ -92,6 +101,7 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
             isLoading={['investor', 'founder'].includes(isLoadingSwitchRole as string)}
             options={isEdit ? roles : []}
             disabled={!!isLoadingSwitchRole || !isEdit}
+            isActiveNotificationInOption={isActiveNotificationInOption}
           />
         ) : isEdit && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
       </div>

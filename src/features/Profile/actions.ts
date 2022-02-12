@@ -14,7 +14,7 @@ import * as UpChunk from '@mux/upchunk'
 import { init as initSurf } from 'features/Surf/actions'
 import { UsersType, UserType } from 'features/User/types'
 import { getMessaging, onMessage } from 'firebase/messaging'
-import { IncomingCallType } from 'features/Notifications/types'
+import { IncomingCallType, ValueNotificationsHistoryType } from 'features/Notifications/types'
 import { firebaseApp } from 'store/store'
 import { determineNotificationContactsOrCall } from 'common/typeGuards'
 import { executeAllPromises } from 'common/utils'
@@ -149,10 +149,13 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added') {
-          console.log('New: doc', change.doc.data())
+          const doc = change.doc.data() as ValueNotificationsHistoryType
+          console.log('New: doc', doc)
           if (!notificationsHistory[change.doc.id]) {
-            console.log('Unregistered doc!', change.doc.data())
-            notificationsHistory[change.doc.id] = change.doc.data()
+            console.log('Unregistered doc!', doc)
+            notificationsHistory[change.doc.id] = doc
+
+            dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
 
             // Входящий звонок
             if (notificationsHistory[change.doc.id].type === 'call_instant') {

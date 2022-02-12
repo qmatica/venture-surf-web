@@ -21,6 +21,15 @@ export const NotificationsReducer = (state = initialState, action: ActionTypes) 
         history: action.history
       }
     }
+    case 'NOTIFICATIONS__ADD_ITEM_IN_HISTORY': {
+      return {
+        ...state,
+        history: {
+          ...state.history,
+          [action.payload.id]: action.payload.value
+        }
+      }
+    }
     case 'NOTIFICATIONS__SET_IS_LOADED_HISTORY': {
       return {
         ...state,

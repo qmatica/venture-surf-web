@@ -12,4 +12,5 @@ export type DropDownItemType = {
   onClick?: () => void
   icon: ReactElement
   isLoading?: boolean
+  isActiveNotify?: boolean
 }

@@ -1,10 +1,15 @@
 import { UserType } from 'features/User/types'
 import { Message } from '@twilio/conversations/lib/message'
 import { profileAPI } from 'api'
-import { IncomingCallType, NotificationsHistoryType, ThunkType } from './types'
+import {
+  IncomingCallType, NotificationsHistoryType, ThunkType, ValueNotificationsHistoryType
+} from './types'
 
 export const actions = {
   setHistory: (history: NotificationsHistoryType) => ({ type: 'NOTIFICATIONS__SET_HISTORY', history } as const),
+  addItemInHistory: (id: string, value: ValueNotificationsHistoryType) => (
+    { type: 'NOTIFICATIONS__ADD_ITEM_IN_HISTORY', payload: { id, value } } as const
+  ),
   setIsLoadedHistory: (isLoadedHistory: boolean) => (
     { type: 'NOTIFICATIONS__SET_IS_LOADED_HISTORY', isLoadedHistory } as const
   ),

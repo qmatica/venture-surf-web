@@ -25,13 +25,14 @@ import cn from 'classnames'
 import { accept, ignore } from 'features/Contacts/actions'
 import { Button } from 'common/components/Button'
 import { DropDownButton } from 'features/NavBar/components/DropDownButton'
+import { Dot } from 'common/components/Dot'
 import { getMyNotificationsHistory } from './selectors'
 import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
 import { actions, readAllNotifications } from './actions'
-import styles from './styles.module.sass'
 import { getAllInvests, getMyActiveRole } from '../Profile/selectors'
 import { acceptInvest, deleteInvest } from '../Surf/actions'
 import { ValueNotificationsHistoryType } from './types'
+import styles from './styles.module.sass'
 
 export const Notifications = () => {
   const dispatch = useDispatch()
@@ -227,17 +228,21 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
   }
   const closeList = () => {
     onReadAllNotifications()
-    setIsOpenList(false)
+    if (isOpenList) setIsOpenList(false)
   }
 
   const list = Object.entries(notificationsHistory)
-    .filter(([id, value]) => !['call_instant', 'call_instant_group', 'call_canceled', 'call_declined'].includes(value.type))
     .sort((a, b) => moment(b[1].ts).unix() - moment(a[1].ts).unix())
     .reduce(((
       prevList: [string, ValueNotificationsHistoryType][],
       nextItem: [string, ValueNotificationsHistoryType]
     ) => {
-      if (nextItem[1].data.role === myActiveRole) return prevList
+      if (
+        nextItem[1].data.role === myActiveRole
+        || ['call_instant', 'call_instant_group', 'call_canceled', 'call_declined'].includes(nextItem[1].type)
+      ) {
+        return prevList
+      }
       if (prevList.length > 0) {
         const prevItem = prevList[prevList.length - 1]
         if (prevItem[1].contact === nextItem[1].contact) {
@@ -414,7 +419,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
           <div className={styles.info}>
             <div className={styles.photoWrapper}>
               <div className={styles.photoContainer}>
-                {value.status === 'active' && <div className={styles.dot} />}
+                {value.status === 'active' && <Dot top={-1} right={-1} />}
                 <Image photoURL={user.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
               </div>
             </div>
