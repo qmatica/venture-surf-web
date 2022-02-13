@@ -28,7 +28,7 @@ import { DropDownButton } from 'features/NavBar/components/DropDownButton'
 import { Dot } from 'common/components/Dot'
 import { getIsLoadedHistory, getMyNotificationsHistory } from './selectors'
 import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
-import { actions, readAllNotifications } from './actions'
+import { actions, readAllNotificationsCurrentRole } from './actions'
 import { getAllInvests, getMyActiveRole } from '../Profile/selectors'
 import { acceptInvest, deleteInvest } from '../Surf/actions'
 import { ValueNotificationsHistoryType } from './types'
@@ -219,13 +219,12 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
   const [isOpenList, setIsOpenList] = useState(false)
 
   const notifications = {
-    count: 0,
-    active: [] as string[]
+    count: 0
   }
 
   const onReadAllNotifications = () => {
     if (isOpenList) {
-      if (notifications.active.length) dispatch(readAllNotifications(notifications.active))
+      dispatch(readAllNotificationsCurrentRole())
     }
   }
 
@@ -244,7 +243,6 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       prevList: [string, ValueNotificationsHistoryType][],
       nextItem: [string, ValueNotificationsHistoryType]
     ) => {
-      // if (!Object.values(allContacts).some((contacts) => contacts[nextItem[1].contact])) return prevList
       if (
         (nextItem[1].data.role && nextItem[1].data.role !== myActiveRole)
         || ['call_instant', 'call_instant_group', 'call_canceled', 'call_declined', 'twilio_enter_group'].includes(nextItem[1].type)
@@ -309,7 +307,6 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
 
       if (value.status === 'active') {
         notifications.count += 1
-        notifications.active.push(id)
       }
 
       const name = user.displayName || `${user.first_name} ${user.last_name}`

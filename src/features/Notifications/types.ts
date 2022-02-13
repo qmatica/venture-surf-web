@@ -23,7 +23,7 @@ export type ValueNotificationsHistoryType = {
     contact: string
     data: { [key: string]: any }
     status: 'active' | 'read' | string
-    ts: Date
+    ts: string
     type: 'call_instant'
       | 'call_instant_group'
       | 'call_canceled'

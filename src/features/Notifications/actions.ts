@@ -1,6 +1,7 @@
 import { UserType } from 'features/User/types'
 import { Message } from '@twilio/conversations/lib/message'
 import { profileAPI } from 'api'
+import { ProfileType } from 'features/Profile/types'
 import {
   IncomingCallType, NotificationsHistoryType, ThunkType, ValueNotificationsHistoryType
 } from './types'
@@ -38,13 +39,24 @@ export const actions = {
   removeIncomingCall: () => ({ type: 'NOTIFICATIONS__REMOVE_INCOMING_CALL' } as const)
 }
 
-export const readAllNotifications = (ids: string[]): ThunkType => async (dispatch, getState) => {
+export const readAllNotificationsCurrentRole = (): ThunkType => async (dispatch, getState) => {
   const updatedHistory = { ...getState().notifications.history }
-  ids.forEach((id) => {
+  const { activeRole } = getState().profile.profile as ProfileType
+
+  const notReadNotify = Object.entries(updatedHistory).reduce((prevIds: string[], [id, value]) => {
+    if (value.status === 'active' && !value.data.role) return [...prevIds, id]
+    if (value.status === 'active' && value.data.role === activeRole) return [...prevIds, id]
+    return prevIds
+  }, [])
+
+  if (!notReadNotify.length) return
+
+  notReadNotify.forEach((id) => {
     updatedHistory[id].status = 'read'
   })
   dispatch(actions.setHistory(updatedHistory))
-  profileAPI.readNotifications(ids).then((res) => {
+
+  profileAPI.readNotifications(notReadNotify).then((res) => {
     console.log('readNotifications', res)
   }).catch((err) => {
     dispatch(actions.addErrorMsg(JSON.stringify(err)))
