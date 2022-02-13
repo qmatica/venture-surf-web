@@ -4,6 +4,7 @@ import { actions as actionsModal } from 'features/Modal/actions'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
+import { actions as actionsContacts } from 'features/Contacts/actions'
 import { getFirebase } from 'react-redux-firebase'
 import { UsersType, UserType } from 'features/User/types'
 import { actions } from './actions'
@@ -12,7 +13,8 @@ export type ActionTypes = InferActionsTypes<typeof actions
                                           | typeof actionsModal
                                           | typeof actionsVideoChat
                                           | typeof actionsConversations
-                                          | typeof actionsNotifications>
+                                          | typeof actionsNotifications
+                                          | typeof actionsContacts>
 export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ProfileType = {

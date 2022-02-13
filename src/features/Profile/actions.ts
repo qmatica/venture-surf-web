@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { profileAPI, usersAPI } from 'api'
 import { apiCodes } from 'common/types'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
+import { actions as actionsContacts } from 'features/Contacts/actions'
 import { actions as actionsConversations, listenMessages, sendMessage } from 'features/Conversations/actions'
 import {
   actions as actionsNotifications
@@ -139,14 +140,43 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
 
     const querySnapshot = await getDocs(q)
 
-    const notificationsHistory = {} as { [key: string]: any }
+    const notificationsHistory = {} as { [key: string]: ValueNotificationsHistoryType }
 
     querySnapshot.forEach((doc) => {
-      console.log('notifications', doc.id, ' => ', doc.data())
-      notificationsHistory[doc.id] = doc.data()
+      const notify = doc.data() as ValueNotificationsHistoryType
+      console.log('notifications', doc.id, ' => ', notify)
+      notificationsHistory[doc.id] = notify
     })
 
     dispatch(actionsNotifications.setHistory(notificationsHistory))
+    dispatch(actionsNotifications.setIsLoadedHistory(true))
+
+    let allContacts = {} as { [key: string]: ProfileType }
+
+    Object.values(contactsList).forEach((contactList: any) => {
+      allContacts = {
+        ...allContacts,
+        ...contactList
+      }
+    })
+
+    const additionalProfiles = {} as { [key: string]: null | ProfileType }
+
+    Object.values(notificationsHistory).forEach((notify) => {
+      if (!allContacts[notify.contact]) {
+        additionalProfiles[notify.contact] = null
+      }
+    })
+
+    executeAllPromises(Object.keys(additionalProfiles).map((uid) => usersAPI.getUser(uid))).then((items) => {
+      const { errors, results } = items
+
+      results.forEach((res) => {
+        additionalProfiles[res.uid] = res
+      })
+
+      dispatch(actionsContacts.setAdditionalProfiles(additionalProfiles))
+    })
 
     onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {

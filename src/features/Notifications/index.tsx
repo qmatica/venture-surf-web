@@ -5,7 +5,7 @@ import useSound from 'use-sound'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
 import {
-  BulbIcon, CloseIcon, DiplomatIcon, GiftIcon, UserPhotoIcon
+  BulbIcon, CloseIcon, DiplomatIcon, GiftIcon, PreloaderIcon, UserPhotoIcon
 } from 'common/icons'
 import phoneEnd from 'common/images/phoneEnd.png'
 import phoneStart from 'common/images/phoneStart.png'
@@ -26,13 +26,14 @@ import { accept, ignore } from 'features/Contacts/actions'
 import { Button } from 'common/components/Button'
 import { DropDownButton } from 'features/NavBar/components/DropDownButton'
 import { Dot } from 'common/components/Dot'
-import { getMyNotificationsHistory } from './selectors'
+import { getIsLoadedHistory, getMyNotificationsHistory } from './selectors'
 import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
 import { actions, readAllNotifications } from './actions'
 import { getAllInvests, getMyActiveRole } from '../Profile/selectors'
 import { acceptInvest, deleteInvest } from '../Surf/actions'
 import { ValueNotificationsHistoryType } from './types'
 import styles from './styles.module.sass'
+import { ProfileType } from '../Profile/types'
 
 export const Notifications = () => {
   const dispatch = useDispatch()
@@ -206,9 +207,15 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
   const dispatch = useDispatch()
   const history = useHistory()
   const notificationsHistory = useSelector(getMyNotificationsHistory)
+  const isLoadedHistory = useSelector(getIsLoadedHistory)
   const allInvests = useSelector(getAllInvests)
   const myActiveRole = useSelector(getMyActiveRole)
-  const allContacts = useSelector(getAllContacts) as { mutuals: UsersType, sent: UsersType, received: UsersType }
+  const allContacts = useSelector(getAllContacts) as {
+    mutuals: UsersType,
+    sent: UsersType,
+    received: UsersType,
+    additional: { [key: string]: ProfileType | null } | null
+  }
   const [isOpenList, setIsOpenList] = useState(false)
 
   const notifications = {
@@ -237,7 +244,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       prevList: [string, ValueNotificationsHistoryType][],
       nextItem: [string, ValueNotificationsHistoryType]
     ) => {
-      if (!Object.values(allContacts).some((contacts) => contacts[nextItem[1].contact])) return prevList
+      // if (!Object.values(allContacts).some((contacts) => contacts[nextItem[1].contact])) return prevList
       if (
         (nextItem[1].data.role && nextItem[1].data.role !== myActiveRole)
         || ['call_instant', 'call_instant_group', 'call_canceled', 'call_declined', 'twilio_enter_group'].includes(nextItem[1].type)
@@ -271,16 +278,24 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       const actions = []
 
       Object.entries(allContacts).some(([key, contacts]) => {
+        if (!contacts) return false
         const contact = contacts[value.contact]
         if (contacts[value.contact]) {
           contactType = key
-          user = contact
+          user = contact as UserType | null
           return true
         }
         return false
       })
 
-      if (!user) return null
+      if (!user) {
+        user = {
+          uid: value.contact,
+          photoURL: '',
+          displayName: 'Deleted',
+          loading: allContacts.additional ? undefined : ['loading']
+        } as UserType
+      }
 
       const onOpenChat = () => {
         if (user) {
@@ -395,6 +410,11 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
         )
       })
 
+      if (['additional', ''].includes(contactType)) {
+        background = false
+        buttons.length = 0
+      }
+
       return (
         <div
           key={id}
@@ -424,7 +444,11 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
                 <Image photoURL={user.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
               </div>
             </div>
-            <div className={styles.name}>{name}</div>
+            <div className={styles.name}>
+              {user.loading?.includes('loading')
+                ? <div className={styles.loadingProfile}><div /></div>
+                : name}
+            </div>
             <div className={styles.title}>{title} {num}</div>
             <div className={styles.iconContainer}>
               <div className={styles.icon}>
@@ -443,7 +467,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
   return (
     <DropDownButton
       icon={icon}
-      list={<>{list}</>}
+      list={isLoadedHistory ? <>{list}</> : <div className={styles.loading}><PreloaderIcon stroke="#96baf6" /></div>}
       arrow={false}
       countNotifications={notifications.count}
       isOpenList={isOpenList}

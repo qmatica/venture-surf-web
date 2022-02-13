@@ -16,6 +16,9 @@ export const actions = {
   ),
   setIsLoadingOtherProfile: (isLoadingOtherProfile: boolean) => (
     { type: 'CONTACTS__SET_IS_LOADING_OTHER_PROFILE', isLoadingOtherProfile } as const
+  ),
+  setAdditionalProfiles: (additionalProfiles: { [key: string]: ProfileType | null }) => (
+    { type: 'CONTACTS__SET_ADDITIONAL_PROFILES', additionalProfiles } as const
   )
 }
 
