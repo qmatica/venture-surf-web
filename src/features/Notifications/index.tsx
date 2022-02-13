@@ -249,20 +249,23 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       ) {
         return prevList
       }
-      if (prevList.length > 0) {
-        const prevItem = prevList[prevList.length - 1]
-        if (prevItem[1].contact === nextItem[1].contact) {
-          if (prevItem[1].type === nextItem[1].type) {
-            const updatedPrevList: [string, ValueNotificationsHistoryType][] = [...prevList]
-            const updatedPrevItem: [string, ValueNotificationsHistoryType] = [...prevItem]
-            updatedPrevItem[1] = {
-              ...updatedPrevItem[1],
-              count: updatedPrevItem[1].count ? (updatedPrevItem[1].count + 1) : 2
-            }
-            updatedPrevList.splice(prevList.length - 1, 1, updatedPrevItem)
-            return updatedPrevList
-          }
+      const foundedIndexItem = prevList.findIndex((prevItem) =>
+        prevItem[1].contact === nextItem[1].contact
+        && prevItem[1].type === nextItem[1].type
+        && !['intro', 'intro_you'].includes(nextItem[1].type))
+
+      if (foundedIndexItem !== -1) {
+        const updatedPrevList: [string, ValueNotificationsHistoryType][] = [...prevList]
+        const updatedPrevItem: [string, ValueNotificationsHistoryType] = [...prevList[foundedIndexItem]]
+
+        updatedPrevItem[1] = {
+          ...updatedPrevItem[1],
+          count: updatedPrevItem[1].count ? (updatedPrevItem[1].count + 1) : 2
         }
+
+        updatedPrevList.splice(foundedIndexItem, 1, updatedPrevItem)
+
+        return updatedPrevList
       }
       return [...prevList, nextItem]
     }), [])

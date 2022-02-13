@@ -17,7 +17,7 @@ export const init = (): ThunkType => async (dispatch, getState) => {
       const { users } = result
 
       executeAllPromises(users.map((user: any) => usersAPI.getUser(user.uid))).then((items) => {
-        const errors = items.errors.map((err) => err.error.replace('Profile for user ', '').replace(' not found!', ''))
+        const errors = items.errors.map((err) => err.error?.replace('Profile for user ', '').replace(' not found!', ''))
         const { results } = items
 
         console.log(`— ${items.results.length} Promises were successful: `, results)
