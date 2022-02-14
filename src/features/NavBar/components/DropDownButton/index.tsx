@@ -21,6 +21,7 @@ interface IDropDownButton {
   onCloseList: () => void
   onToggleOpenList: () => void
   isActiveNotify?: boolean
+  listWidth?: number | 'unset'
 }
 
 export const DropDownButton: FC<IDropDownButton> = ({
@@ -32,7 +33,8 @@ export const DropDownButton: FC<IDropDownButton> = ({
   isOpenList,
   onCloseList,
   onToggleOpenList,
-  isActiveNotify
+  isActiveNotify,
+  listWidth = 'unset'
 }) => {
   const dropDownListEventRef = useRef(null)
   useOutside(dropDownListEventRef, onCloseList)
@@ -90,7 +92,7 @@ export const DropDownButton: FC<IDropDownButton> = ({
         <CounterNotifications count={countNotifications} left={-25} />
       </div>
       {isOpenList && (
-        <div className={styles.dropDownContainer}>
+        <div className={styles.dropDownContainer} style={{ width: listWidth }}>
           {currentList}
         </div>
       )}

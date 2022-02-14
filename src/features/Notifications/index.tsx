@@ -16,7 +16,7 @@ import incomingCallAudio from 'common/audio/incomingCall.mp3'
 import { connect, ConnectOptions } from 'twilio-video'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
-import { useHistory } from 'react-router-dom'
+import { NavLink, useHistory } from 'react-router-dom'
 import { declineCall, openChat } from 'features/Profile/actions'
 import { getAllContacts } from 'features/Contacts/selectors'
 import { UsersType, UserType } from 'features/User/types'
@@ -444,18 +444,36 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
             })}
           </div>
           <div className={styles.info}>
-            <div className={styles.photoWrapper}>
-              <div className={styles.photoContainer}>
-                {value.status === 'active' && <Dot top={-1} right={-1} />}
-                <Image photoURL={user.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
+            <NavLink
+              key={id}
+              to={`/profile/${user.uid}`}
+              onClick={closeList}
+            >
+              <div className={styles.photoWrapper}>
+                <div className={styles.photoContainer}>
+                  {value.status === 'active' && <Dot top={-1} right={-1} />}
+                  <Image photoURL={user.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
+                </div>
               </div>
+            </NavLink>
+            <div className={styles.contentContainer}>
+              <p>
+                <NavLink
+                  key={id}
+                  to={`/profile/${user.uid}`}
+                  className={styles.name}
+                  onClick={closeList}
+                >
+                  <>
+                    {user.loading?.includes('loading')
+                      ? <div className={styles.loadingProfile}><div /></div>
+                      : name}
+                  </>
+                </NavLink>
+                {' '}
+                <span>{title}<span>{num}</span></span>
+              </p>
             </div>
-            <div className={styles.name}>
-              {user.loading?.includes('loading')
-                ? <div className={styles.loadingProfile}><div /></div>
-                : name}
-            </div>
-            <div className={styles.title}>{title} {num}</div>
             <div className={styles.iconContainer}>
               <div className={styles.icon}>
                 {icon}
@@ -479,6 +497,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       isOpenList={isOpenList}
       onCloseList={closeList}
       onToggleOpenList={toggleOpenList}
+      listWidth={430}
     />
   )
 }
