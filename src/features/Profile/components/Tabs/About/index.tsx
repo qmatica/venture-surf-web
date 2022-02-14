@@ -134,11 +134,12 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
               {profileInteraction.description}
             </div>
             {hasUserToInteract && (
-            <div
-              className={styles.addButton}
-              onClick={toggleModal}
-            >{profileInteraction.addButton}
-            </div>
+              <div
+                className={styles.addButton}
+                onClick={toggleModal}
+              >
+                {profileInteraction.addButton}
+              </div>
             )}
           </div>
         )
@@ -169,8 +170,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
             </div>
           )}
           {myProfile?.mutuals[profile.uid as string] &&
-            !hasInteraction &&
-            myProfile?.activeRole !== profile.activeRole && (
+            !hasInteraction && myProfile?.activeRole !== profile.activeRole && (
               <div
                 className={styles.link}
                 onClick={() =>

@@ -15,23 +15,23 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
 }) => (
   <div className={styles.container}>
     {roles?.includes('investor') && (
-    <div
-      className={cn(
-        styles.button,
-        selectedRole === 'investor' && styles.active
-      )}
-      onClick={() => setSelectedRole('investor')}
-    >
-      investor
-    </div>
+      <div
+        className={cn(
+          styles.button,
+          selectedRole === 'investor' && styles.active
+        )}
+        onClick={() => setSelectedRole('investor')}
+      >
+        investor
+      </div>
     )}
     {roles?.includes('founder') && (
-    <div
-      className={cn(styles.button, selectedRole === 'founder' && styles.active)}
-      onClick={() => setSelectedRole('founder')}
-    >
-      founder
-    </div>
+      <div
+        className={cn(styles.button, selectedRole === 'founder' && styles.active)}
+        onClick={() => setSelectedRole('founder')}
+      >
+        founder
+      </div>
     )}
   </div>
 )

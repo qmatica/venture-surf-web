@@ -28,37 +28,34 @@ export const Assets: FC<IAssets> = ({
         <div className={styles.title}>{selectedRole === 'investor' ? 'Investments' : 'Backed by '}</div>
         <div className={styles.linkContainer}>
           {!hasInteraction && myProfile?.activeRole !== selectedRole && (
-          <div
-            className={styles.link}
-            onClick={() =>
-              dispatch(
-                addYourself(user.uid, profileInteractionUsers.content[selectedRole])
-              )}
-          >Add yourself
-          </div>
+            <div
+              className={styles.link}
+              onClick={() =>
+                dispatch(
+                  addYourself(user.uid, profileInteractionUsers.content[selectedRole])
+                )}
+            >Add yourself
+            </div>
           )}
           {relatedUsersList.length > 1 && <div className={styles.link} onClick={onClick}>See all</div>}
         </div>
       </div>
       <div className={styles.users}>
-        {relatedUsersList.map((relatedUser, index) => {
-          if (index > 1) return null
-          return (
-            <div key={relatedUser.uid} className={styles.user}>
-              <div className={styles.userPhoto}>
-                <Image
-                  photoURL={relatedUser.photoURL}
-                  photoBase64={relatedUser.photoBase64}
-                  alt={relatedUser.displayName}
-                  userIcon={UserIcon}
-                />
-              </div>
-              <Link to={`/profile/${relatedUser.uid}`}>
-                <div>{relatedUser.displayName}</div>
-              </Link>
+        {relatedUsersList.slice(0, 2).map((relatedUser) => (
+          <div key={relatedUser.uid} className={styles.user}>
+            <div className={styles.userPhoto}>
+              <Image
+                photoURL={relatedUser.photoURL}
+                photoBase64={relatedUser.photoBase64}
+                alt={relatedUser.displayName}
+                userIcon={UserIcon}
+              />
             </div>
-          )
-        })}
+            <Link to={`/profile/${relatedUser.uid}`}>
+              <div>{relatedUser.displayName}</div>
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   )
