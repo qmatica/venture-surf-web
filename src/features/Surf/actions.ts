@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { deleteFieldsOfObject } from 'common/utils'
 import { ProfileType } from 'features/Profile/types'
 import { actions as contactsActions } from 'features/Contacts/actions'
+import { profileInteractionUsers } from 'features/Profile/constants'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -155,6 +156,7 @@ export const addYourself = (uid: string, selectedRole: 'investors' | 'investment
         [selectedRole]: { ...profile[selectedRole], [myProfile?.uid as string]: { status: 'requested' } }
       }))
     }
+    dispatch(profileActions.addInvests(result[profileInteractionUsers.content[myProfile?.activeRole as 'investor' | 'founder']]))
     dispatch(notificationsActions.addAnyMsg({
       msg: 'Your request has been sent',
       uid: uuidv4()
