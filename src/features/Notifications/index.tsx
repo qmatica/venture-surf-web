@@ -322,6 +322,8 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
 
           background = allInvests[value.contact]?.status === 'requested'
 
+          const list = `${myActiveRole === 'founder' ? 'investments' : 'investors'} list`
+
           if (background) {
             actions.push(
               {
@@ -337,6 +339,10 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
                 isDisabled: ['accept', 'declineInvest'].some((action) => user?.loading?.includes(action))
               }
             )
+          } else if (allInvests[value.contact]?.status === 'accepted') {
+            subTitle = `Added to ${list}`
+          } else {
+            subTitle = 'Request removed'
           }
 
           break
