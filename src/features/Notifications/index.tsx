@@ -274,7 +274,7 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
       let contactType = ''
       let background = false
       let title = ''
-      let subTitle = null as string | null
+      let subTitle = null as string | ReactElement | null
       let icon = null
       const actions = []
 
@@ -385,14 +385,24 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
           }
           break
         }
-        case 'intro': {
-          title = 'recommended contact'
-          icon = <GiftIcon />
-          break
-        }
+        case 'intro':
         case 'intro_you': {
           title = 'recommended contact'
           icon = <GiftIcon />
+          const recommendContact = value.data.contact
+          subTitle = (
+            <>
+              <NavLink
+                to={`/profile/${recommendContact.uid}`}
+                onClick={closeList}
+                style={{ color: '#1557FF', marginRight: 4 }}
+              >
+                {recommendContact.activeName || recommendContact.displayName}
+              </NavLink>
+              {' '}
+              {value.data.message}
+            </>
+          )
           break
         }
         default: break
