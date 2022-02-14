@@ -4,8 +4,9 @@ import { getMyProfile } from 'features/Profile/selectors'
 import { UserIcon } from 'common/icons'
 import { UserType } from 'features/User/types'
 import { Image } from 'common/components/Image'
-import { addInvest } from 'features/Surf/actions'
+import { addYourself } from 'features/Surf/actions'
 import { profileInteractionUsers } from 'features/Profile/constants'
+import { Link } from 'react-router-dom'
 import styles from './styles.module.sass'
 
 interface IAssets {
@@ -25,7 +26,19 @@ export const Assets: FC<IAssets> = ({
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.title}>{selectedRole === 'investor' ? 'Investments' : 'Backed by '}</div>
-        {relatedUsersList.length > 1 && <div className={styles.link} onClick={onClick}>See all</div>}
+        <div className={styles.linkContainer}>
+          {!hasInteraction && myProfile?.activeRole !== selectedRole && (
+          <div
+            className={styles.link}
+            onClick={() =>
+              dispatch(
+                addYourself(user.uid, profileInteractionUsers.content[selectedRole])
+              )}
+          >Add yourself
+          </div>
+          )}
+          {relatedUsersList.length > 1 && <div className={styles.link} onClick={onClick}>See all</div>}
+        </div>
       </div>
       <div className={styles.users}>
         {relatedUsersList.map((relatedUser, index) => {
@@ -40,20 +53,12 @@ export const Assets: FC<IAssets> = ({
                   userIcon={UserIcon}
                 />
               </div>
-              <div>{relatedUser.displayName}</div>
+              <Link to={`/profile/${relatedUser.uid}`}>
+                <div>{relatedUser.displayName}</div>
+              </Link>
             </div>
           )
         })}
-        {!hasInteraction && (
-        <div
-          className={styles.link}
-          // onClick={() =>
-          //   dispatch(
-          //     addYourself()
-          //   )}
-        >Add yourself
-        </div>
-        )}
       </div>
     </div>
   )

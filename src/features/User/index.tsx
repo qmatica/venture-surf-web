@@ -3,6 +3,7 @@ import { Modal } from 'features/Modal'
 import { profileInteractionUsers } from 'features/Profile/constants'
 import { Image } from 'common/components/Image'
 import { UserIcon } from 'common/icons'
+import { Link } from 'react-router-dom'
 import { SwitchRoles } from './components/SwitchRoles'
 import { Body } from './components/Body'
 import { Actions } from './components/Actions'
@@ -35,8 +36,8 @@ export const User: FC<IUser> = memo(({
   const [selectedRole, setSelectedRole] = useState<'founder' | 'investor'>(user.activeRole)
   const [isOpenModal, setIsOpenModal] = useState(false)
   const toggleModal = () => setIsOpenModal(!isOpenModal)
-  const investments = user[profileInteractionUsers.content[selectedRole]]
-  const relatedUsersList = user.mutuals ? Object.values(user.mutuals).filter((mutual) => investments?.[mutual.uid]) : []
+  const invests = user[profileInteractionUsers.content[selectedRole]]
+  const relatedUsersList = user.mutuals ? Object.values(user.mutuals).filter((mutual) => invests?.[mutual.uid]) : []
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
   let rightSideContent
@@ -108,8 +109,10 @@ export const User: FC<IUser> = memo(({
                     userIcon={UserIcon}
                   />
                 </div>
-                <div>{relatedUser.displayName}</div>
-                <div className={styles.status}>{investments?.[relatedUser.uid].status}</div>
+                <Link to={`/profile/${relatedUser.uid}`}>
+                  <div>{relatedUser.displayName}</div>
+                </Link>
+                <div className={styles.status}>{invests?.[relatedUser.uid].status}</div>
               </div>
             </div>
           ))}

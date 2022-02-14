@@ -83,16 +83,30 @@ export const UserRow: FC<IUserRow> = ({
       <div className={styles.status}>{status}</div>
       {isEdit && isBacked && (
       <>
-        {status === 'requested' && (
-        <div className={styles.icon} onClick={() => dispatch(acceptInvest(uid))}>
-          {loaders.includes(`${uid}-acceptInvest`) ? <PreloaderIcon stroke="#96baf6" /> : <AcceptIcon stroke="#96baf6" />}
-        </div>
-        )}
-        {status !== 'accepted' && (
-        <div className={styles.icon} onClick={() => dispatch(deleteInvest(uid))}>
-          {loaders.includes(`${uid}-deleteInvest`) ? <PreloaderIcon stroke="#96baf6" /> : <TrashCanIcon />}
-        </div>
-        )}
+          {status === 'requested' && (
+            <div
+              className={styles.icon}
+              onClick={() => dispatch(acceptInvest(uid))}
+            >
+              {loaders.includes(`${uid}-acceptInvest`) ? (
+                <PreloaderIcon stroke="#96baf6" />
+              ) : (
+                <AcceptIcon stroke="#96baf6" />
+              )}
+            </div>
+          )}
+          {status !== 'accepted' && (
+            <div
+              className={styles.icon}
+              onClick={() => dispatch(deleteInvest(uid))}
+            >
+              {loaders.includes(`${uid}-deleteInvest`) ? (
+                <PreloaderIcon stroke="#96baf6" />
+              ) : (
+                <TrashCanIcon />
+              )}
+            </div>
+          )}
       </>
       )}
     </div>

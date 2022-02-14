@@ -186,7 +186,7 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
             [uid]: {
               ...profile.mutuals[uid],
               [selectedRole]: {
-                ...profile.mutuals[uid][selecctedRole], //TODO
+                ...profile.mutuals[uid][selectedRole],
                 [profile.uid]: profile
               }
             }

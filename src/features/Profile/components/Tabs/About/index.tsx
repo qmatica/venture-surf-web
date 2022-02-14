@@ -5,12 +5,12 @@ import { ProfileType } from 'features/Profile/types'
 import { profileInteractionUsers } from 'features/Profile/constants'
 import { Tags } from 'common/components/Tags'
 import { useDispatch, useSelector } from 'react-redux'
-import { getLoadersProfile } from 'features/Profile/selectors'
+import { getLoadersProfile, getMyProfile } from 'features/Profile/selectors'
 import { updateMyProfile } from 'features/Profile/actions'
 import { industries, stages } from 'common/constants'
 import { BriefcaseIcon, PreloaderIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
-import { addInvest } from 'features/Surf/actions'
+import { addInvest, addYourself } from 'features/Surf/actions'
 import cn from 'classnames'
 import { UserRow } from './components/UserRow'
 import styles from './styles.module.sass'
@@ -70,6 +70,7 @@ interface IInteraction {
 const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   const dispatch = useDispatch()
   const loaders = useSelector(getLoadersProfile)
+  const myProfile = useSelector(getMyProfile)
   const [isOpenModal, setIsOpenModal] = useState(false)
   const [selectedRows, setSelectedRows] = useState<{[key: string]: any}>([])
   const toggleModal = () => {
@@ -88,16 +89,16 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
       setSelectedRows({ ...selectedRows, [uid]: uid })
     }
   }
-  const isSelectedInvestor = Object.values(selectedRows).some(Boolean)
+  const isSelectedInvest = Object.values(selectedRows).some(Boolean)
 
   const isLoading = loaders.includes('requestToInvest')
 
-  const onAddInvestor = (selectedRows: { [key: string]: any }) => {
-    const investorList = Object.values(selectedRows).filter(Boolean)
+  const onAddInvest = (selectedRows: { [key: string]: any }) => {
+    const investList = Object.values(selectedRows).filter(Boolean)
     dispatch(
       addInvest(
-        investorList.shift(),
-        investorList,
+        investList.shift(),
+        investList,
         profileInteractionUsers.content[profile.activeRole],
         setIsOpenModal
       )
@@ -119,6 +120,8 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
     ([uid, user]) =>
       !profileInteraction.value?.[uid] && user.activeRole !== profile.activeRole
   )
+
+  const hasInteraction = Object.keys(profileInteraction.value).some((uid) => uid === myProfile?.uid)
 
   const renderInteractions = useMemo(() => {
     if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) {
@@ -165,6 +168,23 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
               {hasUserToInteract && profileInteraction.labelButton}
             </div>
           )}
+          {myProfile?.mutuals[profile.uid as string] &&
+            !hasInteraction &&
+            myProfile?.activeRole !== profile.activeRole && (
+              <div
+                className={styles.link}
+                onClick={() =>
+                  dispatch(
+                    addYourself(
+                      profile.uid as string,
+                      profileInteractionUsers.content[profile.activeRole],
+                      profile
+                    )
+                  )}
+              >
+                Add yourself
+              </div>
+          )}
         </div>
       </div>
     )
@@ -193,9 +213,9 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
           <div className={styles.modalButtonWrapper}>
             <div
               className={cn(
-                styles.approveButton, !isSelectedInvestor && styles.buttonDisabled
+                styles.approveButton, !isSelectedInvest && styles.buttonDisabled
               )}
-              onClick={() => onAddInvestor(selectedRows)}
+              onClick={() => onAddInvest(selectedRows)}
             >
               {isLoading ? <PreloaderIcon /> : (<div>{profileInteraction.requestButton}</div>)}
             </div>

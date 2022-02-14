@@ -6,6 +6,7 @@ import { actions as notificationsActions } from 'features/Notifications/actions'
 import { v4 as uuidv4 } from 'uuid'
 import { deleteFieldsOfObject } from 'common/utils'
 import { ProfileType } from 'features/Profile/types'
+import { actions as contactsActions } from 'features/Contacts/actions'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -141,12 +142,19 @@ export const addInvest = (
   setIsOpenModal(false)
 }
 
-export const addYourself = (uid: string, selectedRole: 'investors' | 'investments'): ThunkType => async (dispatch, getState) => {
+export const addYourself = (uid: string, selectedRole: 'investors' | 'investments', profile?: ProfileType): ThunkType => async (dispatch, getState) => {
+  const { profile: myProfile } = getState().profile
   const result = await usersAPI.addInvest(uid, []).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
     dispatch(profileActions.addYourself(uid, selectedRole))
+    if (profile) {
+      dispatch(contactsActions.setOtherProfile({
+        ...profile,
+        [selectedRole]: { ...profile[selectedRole], [myProfile?.uid as string]: { status: 'requested' } }
+      }))
+    }
     dispatch(notificationsActions.addAnyMsg({
       msg: 'Your request has been sent',
       uid: uuidv4()
