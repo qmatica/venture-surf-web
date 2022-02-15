@@ -94,16 +94,22 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
   return (
     <>
       <div className={styles.container}>
-        {createdRoles.founder || createdRoles.investor ? (
-          <Dropdown
-            title={activeRole}
-            onClick={() => switchCurrentRole('investor')}
-            isLoading={['investor', 'founder'].includes(isLoadingSwitchRole as string)}
-            options={isEdit ? roles : []}
-            disabled={!!isLoadingSwitchRole || !isEdit}
-            isActiveNotificationInOption={isActiveNotificationInOption}
-          />
-        ) : isEdit && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
+        <Dropdown
+          title={activeRole}
+          onClick={() => switchCurrentRole('investor')}
+          isLoading={['investor', 'founder'].includes(isLoadingSwitchRole as string)}
+          options={isEdit ? roles : []}
+          disabled={!!isLoadingSwitchRole || !isEdit}
+          isActiveNotificationInOption={isActiveNotificationInOption}
+        />
+        {!(createdRoles.founder && createdRoles.investor) && isEdit && (
+        <Button
+          title=""
+          icon="plus"
+          className={styles.default}
+          onClick={toggleModal}
+        />
+        )}
       </div>
       <Modal title={`Create role: ${newRole}`} isOpen={isOpenModal} onClose={toggleModal}>
         <form onSubmit={onSubmit}>
