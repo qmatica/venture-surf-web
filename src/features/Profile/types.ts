@@ -151,7 +151,27 @@ export type profileInteractionUsersType = {
         founder: 'investors',
         investor: 'investments'
     }
-    buttonLabel: {
+    labelButton: {
+        founder: string,
+        investor: string
+    },
+    requestButton: {
+        founder: string,
+        investor: string
+    },
+    addButton: {
+        founder: string,
+        investor: string
+    },
+    description: {
+        founder: string,
+        investor: string
+    },
+    header: {
+        founder: string,
+        investor: string
+    },
+    modalTitle: {
         founder: string,
         investor: string
     }

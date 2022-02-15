@@ -5,11 +5,11 @@ import { ProfileType } from 'features/Profile/types'
 import { Link } from 'react-router-dom'
 import { Image } from 'common/components/Image'
 import {
-  UserIcon, TrashCanIcon, CheckmarkIcon, PreloaderIcon
+  UserIcon, TrashCanIcon, CheckmarkIcon, PreloaderIcon, AcceptIcon
 } from 'common/icons'
 import cn from 'classnames'
 import { determineJobWithoutActiveRole } from 'common/typeGuards'
-import { deleteInvest } from 'features/Surf/actions'
+import { deleteInvest, acceptInvest } from 'features/Surf/actions'
 import styles from './styles.module.sass'
 
 interface IUserRow {
@@ -81,10 +81,33 @@ export const UserRow: FC<IUserRow> = ({
         </div>
       </div>
       <div className={styles.status}>{status}</div>
-      {isEdit && isBacked && status !== 'accepted' && (
-        <div className={styles.trashIcon} onClick={() => dispatch(deleteInvest(uid))}>
-          {loaders.includes(uid) ? <PreloaderIcon stroke="#96baf6" /> : <TrashCanIcon />}
-        </div>
+      {isEdit && isBacked && (
+      <>
+          {status === 'requested' && (
+            <div
+              className={styles.icon}
+              onClick={() => dispatch(acceptInvest(uid))}
+            >
+              {loaders.includes(`${uid}-acceptInvest`) ? (
+                <PreloaderIcon stroke="#96baf6" />
+              ) : (
+                <AcceptIcon stroke="#96baf6" />
+              )}
+            </div>
+          )}
+          {status !== 'accepted' && (
+            <div
+              className={styles.icon}
+              onClick={() => dispatch(deleteInvest(uid))}
+            >
+              {loaders.includes(`${uid}-deleteInvest`) ? (
+                <PreloaderIcon stroke="#96baf6" />
+              ) : (
+                <TrashCanIcon />
+              )}
+            </div>
+          )}
+      </>
       )}
     </div>
   )
