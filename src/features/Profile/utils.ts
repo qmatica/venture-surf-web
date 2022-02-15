@@ -1,7 +1,6 @@
 import { UsersType, UserType } from 'features/User/types'
 import { isSupported, getToken, getMessaging } from 'firebase/messaging'
 import { firebaseApp } from 'store/store'
-import { ProfileType } from 'features/Profile/types'
 import { SlotsType } from './types'
 
 export const compareCountContacts = (prevContacts: UsersType, nextContacts: UsersType) => {
@@ -111,7 +110,17 @@ export const parseUser = (profile: any): UserType => {
     investor,
     investments,
     investors,
-    recommendedByList
+    recommendedByList,
+    loading,
+    name,
+    dt,
+    recommended_by,
+    recommended_at,
+    message,
+    reason,
+    chat,
+    clickedAction,
+    fullLoaded
   } = profile || {}
 
   return {
@@ -136,6 +145,16 @@ export const parseUser = (profile: any): UserType => {
     roles,
     investments,
     investors,
-    recommendedByList: recommendedByList || []
+    recommendedByList,
+    loading,
+    name,
+    dt,
+    recommended_by,
+    recommended_at,
+    message,
+    reason,
+    chat,
+    clickedAction,
+    fullLoaded
   }
 }

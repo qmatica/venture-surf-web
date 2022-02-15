@@ -124,7 +124,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
   const hasInteraction = Object.keys(profileInteraction.value).some((uid) => uid === myProfile?.uid)
 
   const renderInteractions = useMemo(() => {
-    if (!profileInteraction.value || !Object.entries(profileInteraction.value).length) {
+    if (!Object.keys(profileInteraction.value).length) {
       if (isEdit) {
         return (
           <div className={styles.backedBy}>
@@ -169,7 +169,15 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
               {hasUserToInteract && profileInteraction.labelButton}
             </div>
           )}
-          {myProfile?.mutuals[profile.uid as string] &&
+        </div>
+      </div>
+    )
+  }, [profileInteraction, isEdit, profile.activeRole])
+
+  return (
+    <>
+      {renderInteractions}
+      {myProfile?.mutuals[profile.uid as string] &&
             !hasInteraction && myProfile?.activeRole !== profile.activeRole && (
               <div
                 className={styles.link}
@@ -184,15 +192,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
               >
                 Add yourself
               </div>
-          )}
-        </div>
-      </div>
-    )
-  }, [profileInteraction, isEdit, profile.activeRole])
-
-  return (
-    <>
-      {renderInteractions}
+      )}
       {isEdit && hasUserToInteract && (
       <Modal title={profileInteraction.modalTitle} isOpen={isOpenModal} onClose={toggleModal}>
         <>
