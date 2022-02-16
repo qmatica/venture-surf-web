@@ -37,6 +37,17 @@ export type UserType = {
         allow_zoom_calls: boolean
         allow_new_matches: boolean
     }
+    mutuals?: UsersType
+    roles: [
+        'investor',
+        'founder'
+    ]
+} & {
+    [key in 'investments' | 'investors']: {
+        [key: string]: {
+            status: string
+        }
+    }
 }
 
 export type RecommendedUserType = {

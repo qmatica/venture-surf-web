@@ -91,3 +91,70 @@ export const getTokenFcm = async () => {
 
   return token
 }
+
+export const parseUser = (profile: any): UserType => {
+  const {
+    uid,
+    first_name,
+    last_name,
+    displayName,
+    photoURL,
+    photoBase64,
+    activeRole,
+    tags,
+    slots,
+    mutuals,
+    roles,
+    settings,
+    founder,
+    investor,
+    investments,
+    investors,
+    recommendedByList,
+    loading,
+    name,
+    dt,
+    recommended_by,
+    recommended_at,
+    message,
+    reason,
+    chat,
+    clickedAction,
+    fullLoaded
+  } = profile || {}
+
+  return {
+    uid,
+    first_name,
+    last_name,
+    displayName,
+    photoURL,
+    photoBase64,
+    stages: founder?.stages || investor?.stages,
+    industries: founder?.industries || investor?.industries,
+    tags,
+    job: founder?.job || investor?.job,
+    content: {
+      docs: founder?.job || investor?.job,
+      videos: founder?.videos || investor?.videos
+    },
+    activeRole,
+    slots,
+    settings,
+    mutuals,
+    roles,
+    investments,
+    investors,
+    recommendedByList,
+    loading,
+    name,
+    dt,
+    recommended_by,
+    recommended_at,
+    message,
+    reason,
+    chat,
+    clickedAction,
+    fullLoaded
+  }
+}
