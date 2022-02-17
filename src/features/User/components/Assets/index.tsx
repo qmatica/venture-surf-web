@@ -21,13 +21,17 @@ export const Assets: FC<IAssets> = ({
 }) => {
   const dispatch = useDispatch()
   const myProfile = useSelector(getMyProfile)
-  const hasInteraction = relatedUsersList.some((relatedUser) => relatedUser.uid === myProfile?.uid)
-  return (
+  const canInteract =
+    !relatedUsersList.some(
+      (relatedUser) => relatedUser.uid === myProfile?.uid
+    ) && myProfile?.activeRole !== selectedRole
+
+  return relatedUsersList.length || canInteract ? (
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.title}>{selectedRole === 'investor' ? 'Investments' : 'Backed by '}</div>
         <div className={styles.linkContainer}>
-          {!hasInteraction && myProfile?.activeRole !== selectedRole && (
+          {canInteract && (
             <div
               className={styles.link}
               onClick={() =>
@@ -37,7 +41,7 @@ export const Assets: FC<IAssets> = ({
             >Add yourself
             </div>
           )}
-          {relatedUsersList.length > 1 && <div className={styles.link} onClick={onClick}>See all</div>}
+          {relatedUsersList.length > 2 && <div className={styles.link} onClick={onClick}>See all</div>}
         </div>
       </div>
       <div className={styles.users}>
@@ -58,5 +62,5 @@ export const Assets: FC<IAssets> = ({
         ))}
       </div>
     </div>
-  )
+  ) : null
 }

@@ -5,14 +5,18 @@ import styles from './styles.module.sass'
 
 interface IToggle {
   id: string
-  discription: string
+  description: string
+  value?: boolean
+  onClick?: () => void
 }
 
-export const Toggle: FC<IToggle> = ({ id, discription }) => (
+export const Toggle: FC<IToggle> = ({
+  id, description, value, onClick
+}) => (
   <div className={styles.notifications}>
-    <div>{discription}</div>
+    <div className={styles.description}>{description}</div>
     <label className={styles.switch} htmlFor={id}>
-      <input type="checkbox" id={id} />
+      <input type="checkbox" id={id} checked={value} onClick={onClick} />
       <span className={cn(styles.slider, styles.round)} />
     </label>
   </div>
