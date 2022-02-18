@@ -526,7 +526,8 @@ export const updateMyProfile = (
     if ('tags' in value) {
       status = await profileAPI.updateMyProfile(value)
     } else if ('settings' in value) {
-      status = await profileAPI.updateSettings(value)
+      status = await profileAPI.updateSettings({ settings: value.settings })
+      await profileAPI.updateActiveRole(profile.activeRole, { hidden: value.hidden })
     } else {
       status = await profileAPI.updateActiveRole(profile.activeRole, value)
     }
@@ -534,10 +535,17 @@ export const updateMyProfile = (
     if (status === apiCodes.success) {
       let updatedProfile
 
-      if ('tags' in value || 'settings' in value) {
+      if ('tags' in value) {
         updatedProfile = {
           ...profile,
           ...value
+        }
+      } else if ('settings' in value) {
+        updatedProfile = {
+          ...profile,
+          settings: {
+            ...value.settings
+          }
         }
       } else {
         updatedProfile = {

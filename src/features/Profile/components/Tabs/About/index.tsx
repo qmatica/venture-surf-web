@@ -107,7 +107,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
 
   const profileInteraction = useMemo(() => ({
     title: profileInteractionUsers.title[profile.activeRole],
-    value: profile[profileInteractionUsers.content[profile.activeRole]],
+    value: profile[profileInteractionUsers.content[profile.activeRole]] || {},
     labelButton: profileInteractionUsers.labelButton[profile.activeRole],
     requestButton: profileInteractionUsers.requestButton[profile.activeRole],
     addButton: profileInteractionUsers.addButton[profile.activeRole],

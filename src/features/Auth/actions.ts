@@ -18,7 +18,8 @@ export const actions = {
   setIsWaitingProfileData: (isWaitingProfileData: boolean) => (
     { type: 'SIGN_IN_SET_IS_WAITING_PROFILE_DATA', isWaitingProfileData } as const
   ),
-  setReset: () => ({ type: 'SIGN_IN__SET_RESET' } as const)
+  setReset: () => ({ type: 'SIGN_IN__SET_RESET' } as const),
+  logout: () => ({ type: 'LOG_OUT' } as const)
 }
 
 export const signInWithPhoneNumber = (phoneNumber: string, applicationVerifier: ApplicationVerifier): ThunkType =>
@@ -93,3 +94,23 @@ export const getOnboardingProfile = (code: string): ThunkType => async (dispatch
     }
   }
 }
+
+export const signOut = (): ThunkType =>
+  async (dispatch, getState, getFirebase) => {
+    dispatch(actions.setIsLoading(true))
+    const deviceId = localStorage.getItem('deviceId')
+    if (deviceId) {
+      await profileAPI.forgetDevice(deviceId)
+    }
+
+    getFirebase().auth().signOut()
+      .then(() => {
+        dispatch(actions.logout())
+        localStorage.clear()
+        dispatch(actions.setIsLoading(false))
+      })
+      .catch((err) => {
+        console.log('signOut failed:', err)
+        dispatch(actions.setIsLoading(false))
+      })
+  }

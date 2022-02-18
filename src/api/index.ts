@@ -99,6 +99,9 @@ export const profileAPI = {
   },
   updateSettings(settings: { [key: string]: any }) {
     return instance.post('api/settings', settings).then((res) => res.status)
+  },
+  forgetDevice(device: string) {
+    return instance.post('api/forgetDevice', { device }).then((res) => res.status)
   }
 }
 

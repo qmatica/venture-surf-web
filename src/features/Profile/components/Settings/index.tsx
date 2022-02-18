@@ -5,8 +5,9 @@ import { Button } from 'common/components/Button'
 import { Modal } from 'features/Modal'
 import { SwitchRoles } from 'features/Profile/components/SwitchRoles'
 import { getMyProfile } from 'features/Profile/selectors'
-import { DeleteIcon, EyeBlackIcon } from 'common/icons'
+import { DeleteIcon, EyeBlackIcon, LogOutIcon } from 'common/icons'
 import { updateMyProfile } from 'features/Profile/actions'
+import { signOut } from 'features/Auth/actions'
 import { Toggle } from './Toggle'
 import styles from './styles.module.sass'
 
@@ -18,8 +19,16 @@ interface ISettings {
 export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
   const profile = useSelector(getMyProfile)
   const [selectedSettings, setSelectedSettings] = useState({ ...profile?.settings })
+  const [rolesToHide, setRolesToHide] = useState({ investor: true, founder: true })
   const dispatch = useDispatch()
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const hiddenRoles = localStorage.getItem('hiddenRoles')
+    if (hiddenRoles) {
+      setRolesToHide(JSON.parse(hiddenRoles))
+    }
+  }, [])
 
   useEffect(() => {
     if (!isOpen) setSelectedSettings({ ...profile?.settings })
@@ -30,10 +39,21 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
 
     const onFinish = () => {
       onClose()
+      localStorage.setItem('hiddenRoles', JSON.stringify(rolesToHide))
       setIsLoading(false)
     }
 
-    dispatch(updateMyProfile({ settings: selectedSettings }, onFinish))
+    const filteredRoles = Object.keys(rolesToHide).filter((role) => rolesToHide[role as 'investor' | 'founder'])
+
+    dispatch(
+      updateMyProfile(
+        {
+          settings: selectedSettings,
+          hidden: filteredRoles
+        },
+        onFinish
+      )
+    )
   }
 
   if (!profile) return null
@@ -48,8 +68,9 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
         <div className={styles.container}>
           <div className={styles.row1}>
             <div className={styles.business}>
-              {(!createdRoles.founder || !createdRoles.investor)
-              && <div className={styles.subTitle}>Business page</div>}
+              {(!createdRoles.founder || !createdRoles.investor) && (
+                <div className={styles.subTitle}>Business page</div>
+              )}
               <SwitchRoles
                 activeRole={profile.activeRole}
                 createdRoles={createdRoles}
@@ -98,15 +119,23 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
             <Toggle id="experimental" description="experimental features" />
             <div className={styles.accountSettings}>Account Settings</div>
             <Toggle
-              id="visible"
+              id="founder-visible"
               description="Founder profile visible in Surf"
+              value={rolesToHide.founder}
+              onClick={() => setRolesToHide({ ...rolesToHide, founder: !rolesToHide.founder })}
+            />
+            <Toggle
+              id="investor-visible"
+              description="Investor profile visible in Surf"
+              value={rolesToHide.investor}
+              onClick={() => setRolesToHide({ ...rolesToHide, investor: !rolesToHide.investor })}
             />
             <div className={styles.icons}>
               <div className={styles.icon}><EyeBlackIcon /></div>
               <div>How others see your profile</div>
             </div>
-            <div className={styles.icons}>
-              <div className={styles.icon}><EyeBlackIcon /></div>
+            <div className={styles.icons} onClick={() => dispatch(signOut())}>
+              <div className={styles.icon}><LogOutIcon /></div>
               <div>Log out</div>
             </div>
             <div className={cn(styles.icons, styles.delete)}>
