@@ -78,7 +78,6 @@ export const Profile: FC<IProfile> = ({ match }) => {
     } else if (match.params.uid !== myUid) {
       dispatch(getUser(match.params.uid))
     } else {
-      if (otherProfile) dispatch(actionsContacts.setOtherProfile(null))
       setInitialized(true)
     }
     return () => {

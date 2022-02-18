@@ -7,7 +7,9 @@ import { SwitchRoles } from 'features/Profile/components/SwitchRoles'
 import { getMyProfile } from 'features/Profile/selectors'
 import { DeleteIcon, EyeBlackIcon, LogOutIcon } from 'common/icons'
 import { updateMyProfile } from 'features/Profile/actions'
-import { signOut } from 'features/Auth/actions'
+import { signOut, deleteMyUser } from 'features/Auth/actions'
+import { actions as actionsContacts } from 'features/Contacts/actions'
+import { useHistory } from 'react-router-dom'
 import { Toggle } from './Toggle'
 import styles from './styles.module.sass'
 
@@ -17,16 +19,23 @@ interface ISettings {
 }
 
 export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
+  const history = useHistory()
   const profile = useSelector(getMyProfile)
   const [selectedSettings, setSelectedSettings] = useState({ ...profile?.settings })
   const [rolesToHide, setRolesToHide] = useState({ investor: true, founder: true })
+  const [disableNotification, setDisableNotification] = useState(false)
   const dispatch = useDispatch()
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const hiddenRoles = localStorage.getItem('hiddenRoles')
+    const isNotificationDisabled = localStorage.getItem('notifications')
+
     if (hiddenRoles) {
       setRolesToHide(JSON.parse(hiddenRoles))
+    }
+    if (isNotificationDisabled) {
+      setDisableNotification(JSON.parse(isNotificationDisabled))
     }
   }, [])
 
@@ -40,6 +49,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
     const onFinish = () => {
       onClose()
       localStorage.setItem('hiddenRoles', JSON.stringify(rolesToHide))
+      localStorage.setItem('notifications', JSON.stringify(disableNotification))
       setIsLoading(false)
     }
 
@@ -62,15 +72,25 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
     founder: !!profile.founder,
     investor: !!profile.investor
   }
+
+  const showMyProfile = () => {
+    dispatch(actionsContacts.setOtherProfile(profile))
+    onClose()
+    if (window.location.pathname.split('/')[1] !== 'profile') {
+      history.push(`/profile/${profile.uid}`)
+    }
+  }
+
   return (
-    <Modal title="Settings" onClose={onClose} isOpen={isOpen}>
-      <>
+    <Modal title="" onClose={onClose} isOpen={isOpen}>
+      <div className={styles.settingsContainer}>
         <div className={styles.container}>
           <div className={styles.row1}>
+            <div className={styles.title}>Settings</div>
             <div className={styles.business}>
-              {(!createdRoles.founder || !createdRoles.investor) && (
+              {(!createdRoles.founder || !createdRoles.investor) ? (
                 <div className={styles.subTitle}>Business page</div>
-              )}
+              ) : (<div className={styles.subTitle}> </div>)}
               <SwitchRoles
                 activeRole={profile.activeRole}
                 createdRoles={createdRoles}
@@ -79,6 +99,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
                 roles={profile.roles}
               />
             </div>
+            <div className={styles.line} />
             <Toggle
               id="voice-calls"
               description="Allow unscheduled voice calls from my network"
@@ -89,7 +110,9 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
                   disable_instant_calls: !selectedSettings.disable_instant_calls
                 })}
             />
+            <div className={styles.line} />
             <div className={cn(styles.subTitle, styles.separator)}>Notifications</div>
+            <div className={styles.line} />
             <Toggle
               id="requests"
               description="Requests to connect"
@@ -113,11 +136,15 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
             <Toggle
               id="5mins"
               description="5 minutes to the next meeting"
+              value={!disableNotification}
+              onClick={() => setDisableNotification(!disableNotification)}
             />
           </div>
           <div className={styles.row2}>
-            <Toggle id="experimental" description="experimental features" />
+            <Toggle id="experimental" description="Experimental features" />
+            <div className={styles.line} />
             <div className={styles.accountSettings}>Account Settings</div>
+            <div className={styles.line} />
             <Toggle
               id="founder-visible"
               description="Founder profile visible in Surf"
@@ -130,7 +157,11 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
               value={rolesToHide.investor}
               onClick={() => setRolesToHide({ ...rolesToHide, investor: !rolesToHide.investor })}
             />
-            <div className={styles.icons}>
+            <div className={styles.line} />
+            <div
+              className={styles.icons}
+              onClick={showMyProfile}
+            >
               <div className={styles.icon}><EyeBlackIcon /></div>
               <div>How others see your profile</div>
             </div>
@@ -138,17 +169,24 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
               <div className={styles.icon}><LogOutIcon /></div>
               <div>Log out</div>
             </div>
-            <div className={cn(styles.icons, styles.delete)}>
+            <div
+              className={cn(styles.icons, styles.delete)}
+              onClick={() => dispatch(deleteMyUser(profile.uid as string))}
+            >
               <div className={styles.icon}><DeleteIcon /></div>
               <div>Delete all data</div>
             </div>
           </div>
         </div>
         <div className={styles.buttons}>
-          <Button title="Save" onClick={save} isLoading={isLoading} />
-          <Button title="Close" onClick={onClose} />
+          <div className={styles.save}>
+            <Button title="Save" onClick={save} isLoading={isLoading} />
+          </div>
+          <div>
+            <Button title="Close" onClick={onClose} />
+          </div>
         </div>
-      </>
+      </div>
     </Modal>
   )
 }

@@ -44,6 +44,13 @@ export const Notifications = () => {
     anyMsgs, errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall, scheduledMeetMsgs
   } = useSelector((state: RootState) => state.notifications)
 
+  const [hideScheduledMeetMsgs, setHideScheduledMeetMsgs] = useState()
+  const isNotificationDisabled = localStorage.getItem('notifications')
+
+  useEffect(() => {
+    if (isNotificationDisabled) setHideScheduledMeetMsgs(JSON.parse(isNotificationDisabled))
+  }, [])
+
   useEffect(() => {
     if (incomingCall) {
       console.log('incomingCall')
@@ -171,7 +178,7 @@ export const Notifications = () => {
               <div className={styles.close} onClick={() => removeAnyMsg(uid)}><CloseIcon /></div>
             </div>
           ))}
-          <ScheduledMeetMsgs msgs={scheduledMeetMsgs} />
+          {!hideScheduledMeetMsgs && <ScheduledMeetMsgs msgs={scheduledMeetMsgs} />}
         </div>
       )}
 
@@ -392,13 +399,13 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
           const recommendContact = value.data.contact
           subTitle = (
             <>
-              <NavLink
+              {/* <NavLink
                 to={`/profile/${recommendContact.uid}`}
                 onClick={closeList}
                 style={{ color: '#1557FF', marginRight: 4 }}
               >
                 {recommendContact.activeName || recommendContact.displayName}
-              </NavLink>
+              </NavLink> */}
               {' '}
               {value.data.message}
             </>

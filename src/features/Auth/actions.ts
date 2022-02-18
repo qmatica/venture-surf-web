@@ -1,10 +1,11 @@
 import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
 import { init as initProfile, actions as profileActions } from 'features/Profile/actions'
-import { profileAPI, linkedInAPI } from 'api'
+import { profileAPI, linkedInAPI, usersAPI } from 'api'
 import { getTokenFcm } from 'features/Profile/utils'
 import { VOIP_TOKEN, BUNDLE } from 'common/constants'
 import { init as initSurf } from '../Surf/actions'
 import { ThunkType } from './types'
+import { actions as actionsNotifications } from '../Notifications/actions'
 
 export const actions = {
   setAuth: (auth: boolean) => ({ type: 'SIGN_IN__SET_AUTH', auth } as const),
@@ -114,3 +115,16 @@ export const signOut = (): ThunkType =>
         dispatch(actions.setIsLoading(false))
       })
   }
+
+export const deleteMyUser = (uid: string):ThunkType => async (dispatch, getState, getFirebase) => {
+  getFirebase().auth().signOut()
+    .then(() => {
+      dispatch(actions.setIsLoading(true))
+      dispatch(actions.logout())
+      localStorage.clear()
+    })
+
+  const result = await usersAPI.deleteUser(uid).catch((err) => {
+    dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+  })
+}
