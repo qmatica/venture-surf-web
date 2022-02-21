@@ -1,6 +1,8 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, {
+  FC, useEffect, useState, useMemo
+} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Redirect, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import cn from 'classnames'
 import { Button } from 'common/components/Button'
 import { Modal } from 'features/Modal'
@@ -10,6 +12,9 @@ import { DeleteIcon, EyeBlackIcon, LogOutIcon } from 'common/icons'
 import { updateMyProfile } from 'features/Profile/actions'
 import { signOut, deleteMyUser } from 'features/Auth/actions'
 import { actions as actionsContacts } from 'features/Contacts/actions'
+import { RoleType } from 'features/Profile/types'
+import { LOCAL_STORAGE_VALUES, SETTINGS_MODAL } from 'common/constants'
+import { DeleteAllDataModal } from 'features/Profile/components/Settings/DeleteAllDataModal'
 import { Toggle } from './Toggle'
 import styles from './styles.module.sass'
 
@@ -20,37 +25,47 @@ interface ISettings {
 
 export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
   const history = useHistory()
-  const profile = useSelector(getMyProfile)
-  const [selectedSettings, setSelectedSettings] = useState({ ...profile?.settings })
-  const [rolesToHide, setRolesToHide] = useState({
-    investor: !!profile?.investor?.hidden,
-    founder: !!profile?.founder?.hidden
-  })
-  const [disableNotification, setDisableNotification] = useState(false)
   const dispatch = useDispatch()
   const [isLoading, setIsLoading] = useState(false)
+  const [isDeleteAllDataModalOpen, setIsDeleteAllDataModalOpen] = useState(false)
+  const profile = useSelector(getMyProfile)
+  const [selectedSettings, setSelectedSettings] = useState({ ...profile?.settings })
+  const allSettingsInitial = useMemo(() => ({
+    ...profile?.settings,
+    investor: !!profile?.investor?.hidden,
+    founder: !!profile?.founder?.hidden,
+    isNotificationDisabled: JSON.parse(localStorage.getItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS) || 'false')
+  }), [profile?.settings, profile?.investor?.hidden, profile?.founder?.hidden])
+  const [rolesToHide, setRolesToHide] = useState({
+    investor: allSettingsInitial.investor,
+    founder: allSettingsInitial.founder
+  })
+  const [isNotificationDisabled, setIsNotificationDisabled] = useState<boolean>(
+    allSettingsInitial.isNotificationDisabled
+  )
+
+  const disabledButton = profile
+    ? JSON.stringify(Object.entries({
+      ...selectedSettings,
+      ...rolesToHide,
+      isNotificationDisabled
+    }).sort()) === JSON.stringify(Object.entries(allSettingsInitial).sort())
+    : false
 
   useEffect(() => {
-    const hiddenRoles = localStorage.getItem('hiddenRoles')
-    const isNotificationDisabled = localStorage.getItem('notifications')
-
-    if (hiddenRoles) {
-      setRolesToHide(JSON.parse(hiddenRoles))
+    if (!isOpen) {
+      setSelectedSettings({ ...profile?.settings })
+      setRolesToHide({
+        investor: !!profile?.investor?.hidden,
+        founder: !!profile?.founder?.hidden
+      })
     }
-    if (isNotificationDisabled) {
-      setDisableNotification(JSON.parse(isNotificationDisabled))
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isOpen) setSelectedSettings({ ...profile?.settings })
-    setRolesToHide({ investor: !!profile?.investor?.hidden, founder: !!profile?.founder?.hidden })
   }, [isOpen])
 
   const save = () => {
     setIsLoading(true)
 
-    const filteredRoles = Object.keys(rolesToHide).filter((role) => rolesToHide[role as 'investor' | 'founder'])
+    const filteredRoles = Object.keys(rolesToHide).filter((role) => rolesToHide[role as RoleType])
 
     dispatch(
       updateMyProfile(
@@ -82,117 +97,130 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
   }
 
   return (
-    <Modal title="" onClose={onClose} isOpen={isOpen}>
-      <div className={styles.settingsContainer}>
-        <div className={styles.container}>
-          <div className={styles.row1}>
-            <div className={styles.title}>Settings</div>
-            <div className={styles.business}>
-              {(!createdRoles.founder || !createdRoles.investor) ? (
-                <div className={styles.subTitle}>Business page</div>
-              ) : (<div className={styles.subTitle}> </div>)}
-              <SwitchRoles
-                activeRole={profile.activeRole}
-                createdRoles={createdRoles}
-                isEdit
-                customButton
-                roles={profile.roles}
-              />
-            </div>
-            <div className={styles.line} />
-            <Toggle
-              id="voice-calls"
-              description="Allow unscheduled voice calls from my network"
-              value={selectedSettings.disable_instant_calls}
-              onClick={() => {
-                console.log(selectedSettings, '================selectedSettings')
-                setSelectedSettings({
-                  ...selectedSettings,
-                  disable_instant_calls: !selectedSettings.disable_instant_calls
-                })
-              }}
-            />
-            <div className={styles.line} />
-            <div className={cn(styles.subTitle, styles.separator)}>Notifications</div>
-            <div className={styles.line} />
-            <Toggle
-              id="requests"
-              description="Requests to connect"
-              value={selectedSettings.allow_new_matches}
-              onClick={() =>
-                setSelectedSettings({
-                  ...selectedSettings,
-                  allow_new_matches: !selectedSettings.allow_new_matches
-                })}
-            />
-            <Toggle
-              id="updates"
-              description="Updates from people follow"
-              value={selectedSettings.allow_founder_updates}
-              onClick={() =>
-                setSelectedSettings({
-                  ...selectedSettings,
-                  allow_founder_updates: !selectedSettings.allow_founder_updates
-                })}
-            />
-            <Toggle
-              id="5mins"
-              description="5 minutes to the next meeting"
-              value={!disableNotification}
-              onClick={() => setDisableNotification(!disableNotification)}
-            />
-          </div>
-          <div className={styles.row2}>
-            <Toggle id="experimental" description="Experimental features" />
-            <div className={styles.line} />
-            <div className={styles.accountSettings}>Account Settings</div>
-            <div className={styles.line} />
-            {profile.founder && (
+    <>
+      <Modal title="" onClose={onClose} isOpen={isOpen}>
+        <div className={styles.settingsContainer}>
+          <div className={styles.container}>
+            <div className={styles.row1}>
+              <div className={styles.title}>Settings</div>
+              <div className={styles.business}>
+                {(!createdRoles.founder || !createdRoles.investor) ? (
+                  <div className={styles.subTitle}>Business page</div>
+                ) : (<div className={styles.subTitle}> </div>)}
+                <SwitchRoles
+                  activeRole={profile.activeRole}
+                  createdRoles={createdRoles}
+                  isEdit
+                  customButton
+                  roles={profile.roles}
+                />
+              </div>
+              <div className={styles.line} />
               <Toggle
-                id="founder-visible"
-                description="Founder profile visible in Surf"
-                value={rolesToHide.founder}
-                onClick={() => setRolesToHide({ ...rolesToHide, founder: !rolesToHide.founder })}
+                id="voice-calls"
+                description={SETTINGS_MODAL.ALLOW_UNSCHEDULED_CALLS}
+                value={selectedSettings.disable_instant_calls}
+                onClick={() =>
+                  setSelectedSettings({
+                    ...selectedSettings,
+                    disable_instant_calls: !selectedSettings.disable_instant_calls
+                  })}
               />
-            )}
-            {profile.investor && (
+              <div className={styles.line} />
+              <div className={cn(styles.subTitle, styles.separator)}>{SETTINGS_MODAL.NOTIFICATIONS}</div>
+              <div className={styles.line} />
               <Toggle
-                id="investor-visible"
-                description="Investor profile visible in Surf"
-                value={rolesToHide.investor}
-                onClick={() => setRolesToHide({ ...rolesToHide, investor: !rolesToHide.investor })}
+                id="requests"
+                description={SETTINGS_MODAL.REQUESTS_TO_CONNECT}
+                value={selectedSettings.allow_new_matches}
+                onClick={() =>
+                  setSelectedSettings({
+                    ...selectedSettings,
+                    allow_new_matches: !selectedSettings.allow_new_matches
+                  })}
               />
-            )}
-            <div className={styles.line} />
-            <div
-              className={styles.icons}
-              onClick={showMyProfile}
-            >
-              <div className={styles.icon}><EyeBlackIcon /></div>
-              <div>How others see your profile</div>
+              <Toggle
+                id="updates"
+                description={SETTINGS_MODAL.UPDATES_FROM_PEOPLE}
+                value={selectedSettings.allow_founder_updates}
+                onClick={() =>
+                  setSelectedSettings({
+                    ...selectedSettings,
+                    allow_founder_updates: !selectedSettings.allow_founder_updates
+                  })}
+              />
+              <Toggle
+                id="5mins"
+                description={SETTINGS_MODAL.NOTIFY_BEFORE_MEETINGS}
+                value={isNotificationDisabled}
+                onClick={() => {
+                  setIsNotificationDisabled(!isNotificationDisabled)
+                  localStorage.setItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS, String(!isNotificationDisabled))
+                }}
+              />
             </div>
-            <div className={styles.icons} onClick={() => dispatch(signOut())}>
-              <div className={styles.icon}><LogOutIcon /></div>
-              <div>Log out</div>
-            </div>
-            <div
-              className={cn(styles.icons, styles.delete)}
-              onClick={() => dispatch(deleteMyUser(profile.uid as string))}
-            >
-              <div className={styles.icon}><DeleteIcon /></div>
-              <div>Delete all data</div>
+            <div className={styles.row2}>
+              {/* TODO: Experimental feature API is not ready yet */}
+              <Toggle id="experimental" description={SETTINGS_MODAL.EXPERIMENTAL_FEATURES} />
+              <div className={styles.line} />
+              <div className={styles.accountSettings}>Account Settings</div>
+              <div className={styles.line} />
+              {profile.founder && (
+                <Toggle
+                  id="founder-visible"
+                  description={SETTINGS_MODAL.VISIBLE_FOUNDER_PROFILE}
+                  value={rolesToHide.founder}
+                  onClick={() => setRolesToHide({ ...rolesToHide, founder: !rolesToHide.founder })}
+                />
+              )}
+              {profile.investor && (
+                <Toggle
+                  id="investor-visible"
+                  description={SETTINGS_MODAL.VISIBLE_INVESTOR_PROFILE}
+                  value={rolesToHide.investor}
+                  onClick={() => setRolesToHide({ ...rolesToHide, investor: !rolesToHide.investor })}
+                />
+              )}
+              <div className={styles.line} />
+              <div
+                className={styles.icons}
+                onClick={showMyProfile}
+              >
+                <div className={styles.icon}><EyeBlackIcon /></div>
+                <div>{SETTINGS_MODAL.HOW_OTHERS_SEE}</div>
+              </div>
+              <div className={styles.icons} onClick={() => dispatch(signOut())}>
+                <div className={styles.icon}><LogOutIcon /></div>
+                <div>{SETTINGS_MODAL.LOG_OUT}</div>
+              </div>
+              <div
+                className={cn(styles.icons, styles.delete)}
+                onClick={() => setIsDeleteAllDataModalOpen(true)}
+              >
+                <div className={styles.icon}><DeleteIcon /></div>
+                <div>{SETTINGS_MODAL.DELETE_ALL_DATA}</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div className={styles.buttons}>
-          <div className={styles.save}>
-            <Button title="Save" onClick={save} isLoading={isLoading} />
-          </div>
-          <div>
+          <div className={styles.buttons}>
+            <Button
+              title="Save"
+              onClick={save}
+              isLoading={isLoading}
+              disabled={disabledButton}
+            />
             <Button title="Close" onClick={onClose} />
           </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
+      <DeleteAllDataModal
+        isOpen={isDeleteAllDataModalOpen}
+        onClose={() => setIsDeleteAllDataModalOpen(false)}
+        onSubmit={() => {
+          setIsDeleteAllDataModalOpen(false)
+          return dispatch(deleteMyUser(profile.uid as string))
+        }}
+      />
+    </>
   )
 }

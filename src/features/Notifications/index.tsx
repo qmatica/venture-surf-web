@@ -26,6 +26,7 @@ import { accept, ignore } from 'features/Contacts/actions'
 import { Button } from 'common/components/Button'
 import { DropDownButton } from 'features/NavBar/components/DropDownButton'
 import { Dot } from 'common/components/Dot'
+import { LOCAL_STORAGE_VALUES } from 'common/constants'
 import { getIsLoadedHistory, getMyNotificationsHistory } from './selectors'
 import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
 import { actions, readAllNotificationsCurrentRole } from './actions'
@@ -45,7 +46,7 @@ export const Notifications = () => {
   } = useSelector((state: RootState) => state.notifications)
 
   const [hideScheduledMeetMsgs, setHideScheduledMeetMsgs] = useState()
-  const isNotificationDisabled = localStorage.getItem('notifications')
+  const isNotificationDisabled = localStorage.getItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS)
 
   useEffect(() => {
     if (isNotificationDisabled) setHideScheduledMeetMsgs(JSON.parse(isNotificationDisabled))

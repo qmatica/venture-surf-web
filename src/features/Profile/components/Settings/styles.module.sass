@@ -26,11 +26,17 @@
   font-weight: 800
   padding: 15px
 .buttons
-  display: flex
+  display: grid
+  grid-gap: 30px
+  grid-auto-flow: column;
   justify-content: end
   margin-top: 40px
-  .save
-    margin-right: 30px
+  [disabled]
+    background-color: #BED0FF
+    &:hover
+      border: none
+      background-color: #BED0FF
+      cursor: auto
 .icons
   display: flex
   padding: 15px
