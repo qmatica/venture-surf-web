@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Redirect, useHistory } from 'react-router-dom'
 import cn from 'classnames'
 import { Button } from 'common/components/Button'
 import { Modal } from 'features/Modal'
@@ -9,7 +10,6 @@ import { DeleteIcon, EyeBlackIcon, LogOutIcon } from 'common/icons'
 import { updateMyProfile } from 'features/Profile/actions'
 import { signOut, deleteMyUser } from 'features/Auth/actions'
 import { actions as actionsContacts } from 'features/Contacts/actions'
-import { useHistory } from 'react-router-dom'
 import { Toggle } from './Toggle'
 import styles from './styles.module.sass'
 
@@ -22,7 +22,10 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
   const history = useHistory()
   const profile = useSelector(getMyProfile)
   const [selectedSettings, setSelectedSettings] = useState({ ...profile?.settings })
-  const [rolesToHide, setRolesToHide] = useState({ investor: true, founder: true })
+  const [rolesToHide, setRolesToHide] = useState({
+    investor: !!profile?.investor?.hidden,
+    founder: !!profile?.founder?.hidden
+  })
   const [disableNotification, setDisableNotification] = useState(false)
   const dispatch = useDispatch()
   const [isLoading, setIsLoading] = useState(false)
@@ -41,17 +44,11 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (!isOpen) setSelectedSettings({ ...profile?.settings })
+    setRolesToHide({ investor: !!profile?.investor?.hidden, founder: !!profile?.founder?.hidden })
   }, [isOpen])
 
   const save = () => {
     setIsLoading(true)
-
-    const onFinish = () => {
-      onClose()
-      localStorage.setItem('hiddenRoles', JSON.stringify(rolesToHide))
-      localStorage.setItem('notifications', JSON.stringify(disableNotification))
-      setIsLoading(false)
-    }
 
     const filteredRoles = Object.keys(rolesToHide).filter((role) => rolesToHide[role as 'investor' | 'founder'])
 
@@ -61,7 +58,10 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
           settings: selectedSettings,
           hidden: filteredRoles
         },
-        onFinish
+        () => {
+          onClose()
+          setIsLoading(false)
+        }
       )
     )
   }
@@ -104,11 +104,13 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
               id="voice-calls"
               description="Allow unscheduled voice calls from my network"
               value={selectedSettings.disable_instant_calls}
-              onClick={() =>
+              onClick={() => {
+                console.log(selectedSettings, '================selectedSettings')
                 setSelectedSettings({
                   ...selectedSettings,
                   disable_instant_calls: !selectedSettings.disable_instant_calls
-                })}
+                })
+              }}
             />
             <div className={styles.line} />
             <div className={cn(styles.subTitle, styles.separator)}>Notifications</div>
@@ -145,18 +147,22 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
             <div className={styles.line} />
             <div className={styles.accountSettings}>Account Settings</div>
             <div className={styles.line} />
-            <Toggle
-              id="founder-visible"
-              description="Founder profile visible in Surf"
-              value={rolesToHide.founder}
-              onClick={() => setRolesToHide({ ...rolesToHide, founder: !rolesToHide.founder })}
-            />
-            <Toggle
-              id="investor-visible"
-              description="Investor profile visible in Surf"
-              value={rolesToHide.investor}
-              onClick={() => setRolesToHide({ ...rolesToHide, investor: !rolesToHide.investor })}
-            />
+            {profile.founder && (
+              <Toggle
+                id="founder-visible"
+                description="Founder profile visible in Surf"
+                value={rolesToHide.founder}
+                onClick={() => setRolesToHide({ ...rolesToHide, founder: !rolesToHide.founder })}
+              />
+            )}
+            {profile.investor && (
+              <Toggle
+                id="investor-visible"
+                description="Investor profile visible in Surf"
+                value={rolesToHide.investor}
+                onClick={() => setRolesToHide({ ...rolesToHide, investor: !rolesToHide.investor })}
+              />
+            )}
             <div className={styles.line} />
             <div
               className={styles.icons}

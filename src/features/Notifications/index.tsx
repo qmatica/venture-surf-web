@@ -399,13 +399,13 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
           const recommendContact = value.data.contact
           subTitle = (
             <>
-              {/* <NavLink
-                to={`/profile/${recommendContact.uid}`}
+              <NavLink
+                to={`/profile/${recommendContact?.uid}`}
                 onClick={closeList}
                 style={{ color: '#1557FF', marginRight: 4 }}
               >
-                {recommendContact.activeName || recommendContact.displayName}
-              </NavLink> */}
+                {recommendContact?.activeName || recommendContact?.displayName}
+              </NavLink>
               {' '}
               {value.data.message}
             </>

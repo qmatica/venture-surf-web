@@ -20,7 +20,8 @@ export const actions = {
     { type: 'SIGN_IN_SET_IS_WAITING_PROFILE_DATA', isWaitingProfileData } as const
   ),
   setReset: () => ({ type: 'SIGN_IN__SET_RESET' } as const),
-  logout: () => ({ type: 'LOG_OUT' } as const)
+  logout: () => ({ type: 'LOG_OUT' } as const),
+  deleteUser: (uid: string) => ({ type: 'DELETE_USER' } as const)
 }
 
 export const signInWithPhoneNumber = (phoneNumber: string, applicationVerifier: ApplicationVerifier): ThunkType =>
@@ -116,7 +117,7 @@ export const signOut = (): ThunkType =>
       })
   }
 
-export const deleteMyUser = (uid: string):ThunkType => async (dispatch, getState, getFirebase) => {
+export const deleteMyUser = (uid: string): ThunkType => async (dispatch, getState, getFirebase) => {
   getFirebase().auth().signOut()
     .then(() => {
       dispatch(actions.setIsLoading(true))
@@ -124,7 +125,7 @@ export const deleteMyUser = (uid: string):ThunkType => async (dispatch, getState
       localStorage.clear()
     })
 
-  const result = await usersAPI.deleteUser(uid).catch((err) => {
+  await usersAPI.deleteUser(uid).catch((err) => {
     dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
   })
 }
