@@ -58,3 +58,30 @@ export const CLIENT_ID = '862iqtc4nxrbtq'
 export const CLIENT_SECRET = '4XeDtFnJQ3e0PCDo'
 export const LINKEDIN_CALLBACK = '/linkedin_callback'
 export const REDIRECT_URI = `${window.location.origin}${LINKEDIN_CALLBACK}`
+
+export const LOCAL_STORAGE_VALUES = {
+  NOTIFY_BEFORE_MEETINGS: 'notifyBeforeMeetings'
+}
+
+export const SETTINGS_MODAL = {
+  ALLOW_UNSCHEDULED_CALLS: 'Allow unscheduled voice calls from my network',
+  UPDATES_FROM_PEOPLE: 'Updates from people follow',
+  NOTIFY_BEFORE_MEETINGS: '5 minutes to the next meeting',
+  VISIBLE_FOUNDER_PROFILE: 'Founder profile visible in Surf',
+  VISIBLE_INVESTOR_PROFILE: 'Investor profile visible in Surf',
+  EXPERIMENTAL_FEATURES: 'Experimental features',
+  REQUESTS_TO_CONNECT: 'Requests to connect',
+  DELETE_ALL_DATA: 'Delete all data',
+  NOTIFICATIONS: 'Notifications',
+  LOG_OUT: 'Log out',
+  HOW_OTHERS_SEE: 'How others see your profile'
+}
+
+export const DELETE_ALL_DATA_MODAL = {
+  TITLE: 'Delete all data',
+  BODY: 'Your account, personal data, PDF files, videos, connections and appointments will be deleted.',
+  WARNING: 'This cannot be undone.',
+  CONFIRMATION: 'Are you sure?',
+  CANCEL: 'Cancel',
+  DELETE: 'Delete'
+}

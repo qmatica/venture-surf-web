@@ -1,13 +1,16 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, {
+  FC, ReactNode, useEffect, useState
+} from 'react'
 import { Button } from 'common/components/Button'
 import { Dropdown } from 'common/components/Dropdown'
 import { Modal } from 'features/Modal'
 import { Input } from 'common/components/Input'
 import { industries as dictionaryIndustries, stages as dictionaryStages } from 'common/constants'
+import { PlusIcon } from 'common/icons'
 import { ChoiceTags } from 'common/components/ChoiceTags'
 import { useDispatch, useSelector } from 'react-redux'
 import { getMyNotificationsHistory } from 'features/Notifications/selectors'
-import { createNewRole, switchRole } from '../../actions'
+import { createNewRole, switchRole } from 'features/Profile/actions'
 import styles from './styles.module.sass'
 
 interface ISwitchRoles {
@@ -18,10 +21,11 @@ interface ISwitchRoles {
   }
   isEdit: boolean
   roles: string[]
+  customButton?: boolean
 }
 
 export const SwitchRoles: FC<ISwitchRoles> = ({
-  activeRole, createdRoles, isEdit, roles
+  activeRole, createdRoles, isEdit, roles, customButton
 }) => {
   const dispatch = useDispatch()
   const notificationsHistory = useSelector(getMyNotificationsHistory)
@@ -94,16 +98,31 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
   return (
     <>
       <div className={styles.container}>
-        {createdRoles.founder || createdRoles.investor ? (
-          <Dropdown
-            title={activeRole}
-            onClick={() => switchCurrentRole('investor')}
-            isLoading={['investor', 'founder'].includes(isLoadingSwitchRole as string)}
-            options={isEdit ? roles : []}
-            disabled={!!isLoadingSwitchRole || !isEdit}
-            isActiveNotificationInOption={isActiveNotificationInOption}
-          />
-        ) : isEdit && <Button title="" icon="plus" className={styles.default} onClick={toggleModal} />}
+        {customButton ? (
+          <>
+            {!(createdRoles.founder && createdRoles.investor) && isEdit && (
+            <div onClick={toggleModal} className={`${styles.actionTag} ${styles.leftTag}`}><PlusIcon /></div>)}
+          </>
+        ) : (
+          <>
+            <Dropdown
+              title={activeRole}
+              onClick={() => switchCurrentRole('investor')}
+              isLoading={['investor', 'founder'].includes(isLoadingSwitchRole as string)}
+              options={isEdit ? roles : []}
+              disabled={!!isLoadingSwitchRole || !isEdit}
+              isActiveNotificationInOption={isActiveNotificationInOption}
+            />
+            {!(createdRoles.founder && createdRoles.investor) && isEdit && (
+            <Button
+              title=""
+              icon="plus"
+              className={styles.default}
+              onClick={toggleModal}
+            />
+            )}
+          </>
+        )}
       </div>
       <Modal title={`Create role: ${newRole}`} isOpen={isOpenModal} onClose={toggleModal}>
         <form onSubmit={onSubmit}>

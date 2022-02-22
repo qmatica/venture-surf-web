@@ -62,6 +62,7 @@ export type ProfileType = {
     }
 } & {
     [key in 'founder' | 'investor']: {
+        hidden: boolean
         stages: number[]
         roles: string[]
         industries: string[]

@@ -26,6 +26,7 @@ import { accept, ignore } from 'features/Contacts/actions'
 import { Button } from 'common/components/Button'
 import { DropDownButton } from 'features/NavBar/components/DropDownButton'
 import { Dot } from 'common/components/Dot'
+import { LOCAL_STORAGE_VALUES } from 'common/constants'
 import { getIsLoadedHistory, getMyNotificationsHistory } from './selectors'
 import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
 import { actions, readAllNotificationsCurrentRole } from './actions'
@@ -43,6 +44,13 @@ export const Notifications = () => {
   const {
     anyMsgs, errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall, scheduledMeetMsgs
   } = useSelector((state: RootState) => state.notifications)
+
+  const [hideScheduledMeetMsgs, setHideScheduledMeetMsgs] = useState()
+  const isNotificationDisabled = localStorage.getItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS)
+
+  useEffect(() => {
+    if (isNotificationDisabled) setHideScheduledMeetMsgs(JSON.parse(isNotificationDisabled))
+  }, [])
 
   useEffect(() => {
     if (incomingCall) {
@@ -171,7 +179,7 @@ export const Notifications = () => {
               <div className={styles.close} onClick={() => removeAnyMsg(uid)}><CloseIcon /></div>
             </div>
           ))}
-          <ScheduledMeetMsgs msgs={scheduledMeetMsgs} />
+          {!hideScheduledMeetMsgs && <ScheduledMeetMsgs msgs={scheduledMeetMsgs} />}
         </div>
       )}
 
@@ -393,11 +401,11 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
           subTitle = (
             <>
               <NavLink
-                to={`/profile/${recommendContact.uid}`}
+                to={`/profile/${recommendContact?.uid}`}
                 onClick={closeList}
                 style={{ color: '#1557FF', marginRight: 4 }}
               >
-                {recommendContact.activeName || recommendContact.displayName}
+                {recommendContact?.activeName || recommendContact?.displayName}
               </NavLink>
               {' '}
               {value.data.message}

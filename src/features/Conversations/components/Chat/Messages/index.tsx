@@ -92,7 +92,7 @@ export const Messages = () => {
                           <div>{myMessage ? 'Outgoing call' : 'Incoming call'}</div>
                           <div className={styles.summaryWrapper}>
                             <div className={styles.callSummary}>{moment(message.dateUpdated).format('HH:mm')}</div>
-                            {duration && <div className={styles.callSummary}>{formatSeconds(duration)}</div>}
+                            {duration && <div className={styles.callSummary}>,&nbsp; {formatSeconds(duration)}</div>}
                           </div>
                         </div>
                         <div className={styles.callIcon}>

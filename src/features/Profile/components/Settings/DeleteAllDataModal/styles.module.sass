@@ -1,0 +1,23 @@
+@mixin commonTextStyles
+  font-family: "Roboto", sans-serif
+  font-size: 14px
+  text-align: center
+  margin: 16px
+
+.wrapper
+  display: flex
+  align-items: center
+  flex-direction: column
+  .title
+    @include commonTextStyles
+    font-size: 16px
+    font-weight: 900
+  .body
+    @include commonTextStyles
+  .buttons
+    display: grid
+    grid-auto-flow: column
+    grid-gap: 30px
+    margin-top: 16px
+    button
+      max-width: max-content

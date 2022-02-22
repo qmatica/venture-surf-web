@@ -20,6 +20,7 @@ import { getAuth, getMyUid } from 'features/Auth/selectors'
 import { getIsAdminMode } from 'features/Admin/selectors'
 import { CounterNotifications } from 'common/components/CounterNotifications'
 import { EditJob } from 'features/Profile/components/Job'
+import { SettingsEdit } from 'features/Profile/components/Settings'
 import { PageType } from './types'
 import { DropDownButton } from './components/DropDownButton'
 import { getLiked, getLoadersProfile, getMyActiveRole } from '../Profile/selectors'
@@ -149,12 +150,14 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
   const myActiveRole = useSelector(getMyActiveRole)
   const myProfileUrl = `${url}/${myUid}`
   const [isEdit, setIsEdit] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isOpenList, setIsOpenList] = useState(false)
 
   const toggleOpenList = () => setIsOpenList(!isOpenList)
   const closeList = () => setIsOpenList(false)
 
   const toggleEdit = () => setIsEdit(!isEdit)
+  const toggleSettings = () => setIsSettingsOpen(!isSettingsOpen)
 
   const isActiveNotificationsInOtherRole = Object.values(notificationsHistory)
     .some((notify) => notify.data.role && notify.data.role !== myActiveRole && notify.status === 'active')
@@ -178,7 +181,7 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
     },
     {
       title: 'Settings',
-      onClick: () => console.log('settings'),
+      onClick: toggleSettings,
       icon: <SettingsIcon />,
       isActiveNotify: isActiveNotificationsInOtherRole
     }
@@ -196,6 +199,7 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
         isActiveNotify={isActiveNotificationsInOtherRole}
       />
       <EditJob isOpen={isEdit} onClose={toggleEdit} />
+      <SettingsEdit isOpen={isSettingsOpen} onClose={toggleSettings} />
     </>
   )
 }
