@@ -21,7 +21,7 @@ import { determineNotificationContactsOrCall } from 'common/typeGuards'
 import { executeAllPromises, isNumber } from 'common/utils'
 import moment from 'moment'
 import { FormattedSlotsType } from 'features/Calendar/types'
-import { getFirestore } from 'redux-firestore'
+import { RoleType } from 'features/Profile/types'
 import { VOIP_TOKEN, BUNDLE } from 'common/constants'
 import { addToClipboardPublicLinkProfile } from 'common/actions'
 
@@ -522,38 +522,32 @@ export const updateMyProfile = (
   const { profile } = getState().profile
   if (profile) {
     let status
+    let updatedProfile = { ...profile }
 
     if ('tags' in value) {
       status = await profileAPI.updateMyProfile(value)
     } else if ('settings' in value) {
       status = await profileAPI.updateSettings({ settings: value.settings })
       await profileAPI.updateActiveRole(profile.activeRole, { hidden: value.hidden })
+      value.hidden.forEach((role: RoleType) => {
+        if (updatedProfile[role]) updatedProfile[role].hidden = true
+      })
     } else {
       status = await profileAPI.updateActiveRole(profile.activeRole, value)
     }
 
     if (status === apiCodes.success) {
-      let updatedProfile
-
       if ('tags' in value) {
         updatedProfile = {
-          ...profile,
+          ...updatedProfile,
           ...value
         }
       } else if ('settings' in value) {
-        updatedProfile = {
-          ...profile,
-          settings: {
-            ...value.settings
-          }
-        }
+        updatedProfile.settings = value.settings
       } else {
-        updatedProfile = {
-          ...profile,
-          [profile.activeRole]: {
-            ...profile[profile.activeRole],
-            ...value
-          }
+        updatedProfile[profile.activeRole] = {
+          ...updatedProfile[profile.activeRole],
+          ...value
         }
       }
 
