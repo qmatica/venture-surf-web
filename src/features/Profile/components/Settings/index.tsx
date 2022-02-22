@@ -64,6 +64,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
 
   const save = () => {
     setIsLoading(true)
+    localStorage.setItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS, String(isNotificationDisabled))
 
     const filteredRoles = Object.keys(rolesToHide).filter((role) => rolesToHide[role as RoleType])
 
@@ -153,10 +154,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
                 id="5mins"
                 description={SETTINGS_MODAL.NOTIFY_BEFORE_MEETINGS}
                 value={isNotificationDisabled}
-                onClick={() => {
-                  setIsNotificationDisabled(!isNotificationDisabled)
-                  localStorage.setItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS, String(!isNotificationDisabled))
-                }}
+                onClick={() => setIsNotificationDisabled(!isNotificationDisabled)}
               />
             </div>
             <div className={styles.row2}>
