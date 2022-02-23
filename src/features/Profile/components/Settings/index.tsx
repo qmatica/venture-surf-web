@@ -31,6 +31,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
   const profile = useSelector(getMyProfile)
   const [selectedSettings, setSelectedSettings] = useState({ ...profile?.settings })
   const allSettingsInitial = useMemo(() => ({
+    allow_founder_updates: false,
     ...profile?.settings,
     investor: !!profile?.investor?.hidden,
     founder: !!profile?.founder?.hidden,
@@ -56,8 +57,8 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
     if (!isOpen) {
       setSelectedSettings({ ...profile?.settings })
       setRolesToHide({
-        investor: !!profile?.investor?.hidden,
-        founder: !!profile?.founder?.hidden
+        investor: allSettingsInitial.investor,
+        founder: allSettingsInitial.founder
       })
     }
   }, [isOpen])
@@ -167,7 +168,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
                 <Toggle
                   id="founder-visible"
                   description={SETTINGS_MODAL.VISIBLE_FOUNDER_PROFILE}
-                  value={rolesToHide.founder}
+                  value={!rolesToHide.founder}
                   onClick={() => setRolesToHide({ ...rolesToHide, founder: !rolesToHide.founder })}
                 />
               )}
@@ -175,7 +176,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
                 <Toggle
                   id="investor-visible"
                   description={SETTINGS_MODAL.VISIBLE_INVESTOR_PROFILE}
-                  value={rolesToHide.investor}
+                  value={!rolesToHide.investor}
                   onClick={() => setRolesToHide({ ...rolesToHide, investor: !rolesToHide.investor })}
                 />
               )}
