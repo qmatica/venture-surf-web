@@ -19,10 +19,11 @@ import { ConversationsReducer } from 'features/Conversations/reducer'
 import { CalendarReducer } from 'features/Calendar/reducer'
 import { AdminReducer } from 'features/Admin/reducer'
 import { config } from 'config/firebase'
+import { AppStateType, ActionTypes, RootState } from 'common/types'
 
 export const firebaseApp = firebase.initializeApp(config)
 
-export const rootReducer = combineReducers({
+export const appReducer = combineReducers({
   firebase: firebaseReducer,
   app: AppReducer,
   auth: AuthReducer,
@@ -36,6 +37,14 @@ export const rootReducer = combineReducers({
   calendar: CalendarReducer,
   admin: AdminReducer
 })
+
+export const rootReducer = (state: any, action: ActionTypes) => {
+  if (action.type === 'LOG_OUT') {
+    return appReducer(undefined, action)
+  }
+
+  return appReducer(state, action)
+}
 
 const middlewares = [
   thunk.withExtraArgument(getFirebase)

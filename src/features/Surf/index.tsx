@@ -41,51 +41,51 @@ export const Surf = () => {
     dispatch(deleteInvest(uid))
   }
 
+  const listRequestedInvestments = requestedInvestments?.filter((inv) => profile.mutuals[inv.uid]).map((inv) => {
+    const user = profile.mutuals[inv.uid]
+
+    const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+    // TODO: Remove photoURL usage, when photoBase64 comes from backend side.
+    const { photoURL, photoBase64 } = user
+    const list = `${profile.activeRole === 'founder' ? 'investments' : 'investors'} list`
+
+    return (
+      <div className={styles.invContainer} key={inv.uid}>
+        <div className={styles.userContainer}>
+          <div className={styles.photoContainer}>
+            <Image
+              photoURL={photoURL}
+              photoBase64={photoBase64}
+              alt={name}
+              userIcon={UserPhotoIcon}
+            />
+          </div>
+          <div className={styles.textContainer}>
+            <div className={styles.name}>{name}</div>
+            <div className={styles.about}>added you to {list}</div>
+          </div>
+        </div>
+        <div className={styles.buttonsContainer}>
+          <Button
+            isLoading={loaders.includes(`onAcceptInvest-${inv.uid}`)}
+            title="Accept"
+            onClick={() => onAcceptInvestor(inv.uid)}
+          />
+          <Button
+            isLoading={loaders.includes(`onDeleteInvest-${inv.uid}`)}
+            title="Decline"
+            onClick={() => onDeleteInvestor(inv.uid)}
+          />
+        </div>
+      </div>
+    )
+  })
+
   return (
     <div className={styles.container}>
-      {requestedInvestments && requestedInvestments.length > 0 && (
+      {listRequestedInvestments && listRequestedInvestments.length > 0 && (
         <div className={styles.requestedInvestmentsContainer}>
-          {requestedInvestments.map((inv) => {
-            const user = profile.mutuals[inv.uid]
-
-            if (!user) return null
-
-            const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-            // TODO: Remove photoURL usage, when photoBase64 comes from backend side.
-            const { photoURL, photoBase64 } = user
-            const list = `${profile.activeRole === 'founder' ? 'investments' : 'investors'} list`
-
-            return (
-              <div className={styles.invContainer} key={inv.uid}>
-                <div className={styles.userContainer}>
-                  <div className={styles.photoContainer}>
-                    <Image
-                      photoURL={photoURL}
-                      photoBase64={photoBase64}
-                      alt={name}
-                      userIcon={UserPhotoIcon}
-                    />
-                  </div>
-                  <div className={styles.textContainer}>
-                    <div className={styles.name}>{name}</div>
-                    <div className={styles.about}>added you to {list}</div>
-                  </div>
-                </div>
-                <div className={styles.buttonsContainer}>
-                  <Button
-                    isLoading={loaders.includes(`onAcceptInvest-${inv.uid}`)}
-                    title="Accept"
-                    onClick={() => onAcceptInvestor(inv.uid)}
-                  />
-                  <Button
-                    isLoading={loaders.includes(`onDeleteInvest-${inv.uid}`)}
-                    title="Decline"
-                    onClick={() => onDeleteInvestor(inv.uid)}
-                  />
-                </div>
-              </div>
-            )
-          })}
+          {listRequestedInvestments}
         </div>
       )}
       {recommendedUsers.length > 0 && (

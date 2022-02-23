@@ -96,6 +96,15 @@ export const profileAPI = {
   },
   updateMyTimeSlots(timeSlots: timeSlotsType) {
     return instance.post('api/call', timeSlots).then((res) => res.data)
+  },
+  readNotifications(notifications: string[]) {
+    return instance.patch('api/notifications', { notifications }).then((res) => res.data)
+  },
+  updateSettings(settings: { [key: string]: any }) {
+    return instance.post('api/settings', settings).then((res) => res.status)
+  },
+  forgetDevice(device: string) {
+    return instance.post('api/forgetDevice', { device }).then((res) => res.status)
   }
 }
 
@@ -112,7 +121,7 @@ export const usersAPI = {
   withdrawLike(uid: string) {
     return instance.delete(`api/like/${uid}`).then((res) => res.status)
   },
-  ignore(uid: string) {
+  ignoreLike(uid: string) {
     return instance.patch(`api/like/${uid}`).then((res) => res.status)
   },
   getMatches() {
@@ -155,11 +164,14 @@ export const usersAPI = {
   connectToCall(startTime: string, uid: string) {
     return instance.post(`/api/call/${uid}/${startTime}`).then((res) => res.data)
   },
-  addInvest(uid: string) {
-    return instance.post(`api/invest/${uid}`).then((res) => res.data)
+  addInvest(uid: string, others: string[]) {
+    return instance.post(`api/invest/${uid}`, { others }).then((res) => res.data)
   },
   deleteInvest(uid: string) {
     return instance.delete(`api/invest/${uid}`).then((res) => res.data)
+  },
+  getCallHistory() {
+    return instance.get('api/call-history').then((res) => res.data)
   }
 }
 

@@ -111,6 +111,9 @@
     display: flex
     justify-content: center
     align-items: center
+    overflow: hidden
+    img
+      width: 100%
   .displayName
     font-family: "Roboto", sans-serif
     font-size: 20px
@@ -157,3 +160,150 @@
     background-color: #838383
   100%
     background-color: #9a9a9a
+
+.notificationItemContainer
+  flex-shrink: 0
+  height: auto!important
+  padding: 10px!important
+  margin: 5px
+  border-radius: 10px!important
+  user-select: text!important
+  flex-direction: column
+  align-items: inherit!important
+  cursor: auto!important
+  &:hover
+    background: none!important
+  &.actionItem
+    background: #F8F9FE
+    &:hover
+      background: #F8F9FE!important
+  &:last-child
+    border-radius: 10px!important
+  .date
+    font-size: 12px
+    color: #9a9a9a
+    margin-bottom: 5px
+    text-align: right
+  .info
+    display: flex
+    flex-shrink: 0
+    align-items: center
+    .photoWrapper
+      width: 32px
+      height: 32px
+      position: relative
+      flex-shrink: 0
+      margin-right: 10px
+      .photoContainer
+        width: 32px
+        height: 32px
+        border-radius: 10px
+        overflow: hidden
+        display: flex
+        justify-content: center
+        align-items: center
+        background: #c8c8c8
+        img
+          width: 100%
+        svg
+          transform: scale(0.6)
+    .contentContainer
+      p
+        span
+          font-size: 12px
+          color: #030D21
+          span
+            margin-left: 3px
+      .name
+        font-size: 15px
+        white-space: nowrap
+        color: #1557FF
+        display: inline-block
+      .loadingProfile
+        width: 150px
+        height: 20px
+        border-radius: 6px
+        background: #f8f8f8
+        overflow: hidden
+        margin-bottom: -3px
+        div
+          width: 100%
+          height: 100%
+          position: relative
+          overflow: hidden
+          &::before
+            content: ''
+            display: block
+            position: absolute
+            left: -200px
+            top: 0
+            height: 100%
+            width: 100%
+            background: linear-gradient(to right, transparent 0%, #ececec 50%, transparent 100%)
+            animation: load 1s ease-out infinite
+    .title
+      font-size: 12px
+      white-space: nowrap
+      margin-left: 5px
+      margin-bottom: -3px
+    .iconContainer
+      display: flex
+      justify-content: center
+      align-items: center
+      padding-left: 10px
+      margin-left: auto
+      .icon
+        background: linear-gradient(180deg, rgba(21, 87, 255, 0.2) 0%, rgba(235, 13, 224, 0.2) 100%)
+        width: 32px
+        height: 32px
+        border-radius: 10px
+        display: flex
+        justify-content: center
+        align-items: center
+  .subTitle
+    display: flex
+    justify-content: center
+    margin-top: 10px
+    font-size: 12px
+    color: #030D21
+    &.ignored
+      color: #1557FF
+  .buttons
+    display: flex
+    justify-content: center
+    margin-top: 10px
+    button
+      margin-right: 20px
+      &.default
+        background: #1557FF
+        border-radius: 8px
+        border: none
+        color: #FFFFFF
+        font-size: 15px
+        height: 33px
+      &.cancel
+        background: #E6ECF4
+        border-radius: 8px
+        border: none
+        color: #030D21
+        font-size: 15px
+        height: 33px
+      &.chat
+        width: 246px
+      &:last-child
+        margin-right: 0
+.loading
+  width: 200px
+  height: 100px!important
+  display: flex
+  justify-content: center
+  align-items: center
+  padding: 0!important
+  &:hover
+    background: #FFFFFF!important
+    cursor: default!important
+@keyframes load
+  from
+    left: -200px
+  to
+    left: 100%

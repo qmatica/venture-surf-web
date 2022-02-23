@@ -1,16 +1,20 @@
-import { Participant as ParticipantType } from 'twilio-video'
+import { Participant as ParticipantType, Room } from 'twilio-video'
 import { Modal } from 'features/Modal'
-import React, { createRef, useEffect, useState } from 'react'
+import React, {
+  createRef, useEffect, useState, useCallback
+} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
-import { actions as profileActions, declineCall } from 'features/Profile/actions'
+import { actions as profileActions, declineCall, sendCallSummary } from 'features/Profile/actions'
 import { Participant } from './components/Participant'
 import { actions } from './actions'
 import styles from './styles.module.sass'
 import { NavBar } from './components/NavBar'
 
 export const VideoChat = () => {
-  const { room, remoteUserUid, viewEndCallAll } = useSelector((state: RootState) => state.videoChat)
+  const {
+    room, remoteUserUid, viewEndCallAll, isOwnerCall
+  } = useSelector((state: RootState) => state.videoChat)
 
   const dispatch = useDispatch()
   const videoContainerRef = createRef<HTMLDivElement>()
@@ -42,6 +46,10 @@ export const VideoChat = () => {
     setDominantSpeakerParticipant(participant)
   }
 
+  const roomDisconnected = () => {
+    if (isOwnerCall) dispatch(sendCallSummary(room?.sid as string))
+  }
+
   useEffect(() => {
     if (room && !isOpenModal) setIsOpenModal(true)
     if (!room && isOpenModal) {
@@ -54,6 +62,7 @@ export const VideoChat = () => {
       room.on('participantConnected', participantConnected)
       room.on('participantDisconnected', participantDisconnected)
       room.on('dominantSpeakerChanged', dominantSpeakerChanged)
+      room.on('disconnected', roomDisconnected)
       room.participants.forEach(participantConnected)
     }
     return () => {
@@ -61,6 +70,7 @@ export const VideoChat = () => {
         room.off('participantConnected', participantConnected)
         room.off('participantDisconnected', participantDisconnected)
         room.off('dominantSpeakerChanged', dominantSpeakerChanged)
+        room.off('disconnected', roomDisconnected)
       }
     }
   }, [room])

@@ -47,7 +47,7 @@ export const Actions: FC<IActions> = ({ user, userName }) => {
   }
 
   const onOpenChat = () => {
-    const redirectToConversations = () => history.push('conversations')
+    const redirectToConversations = () => history.push('/conversations')
     dispatch(openChat(user.uid, redirectToConversations))
   }
 

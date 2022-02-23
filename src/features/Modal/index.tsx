@@ -3,7 +3,7 @@ import { CloseIcon } from 'common/icons'
 import styles from './styles.module.sass'
 
 interface IModal {
-  title: string | undefined
+  title?: string | undefined
   isOpen: boolean
   onClose: () => void
   children?: ReactElement | null

@@ -40,6 +40,18 @@ export const getReceived = createSelector(
   (received) => (received ? Object.values(received) : [])
 )
 
+const getAdditionalProfilesSelector = (state: RootState) => state.contacts.additionalProfiles
+
+export const getAllContacts = createSelector(
+  getMutualsSelector,
+  getSentSelector,
+  getReceivedSelector,
+  getAdditionalProfilesSelector,
+  (mutuals, sent, received, additional) => ({
+    mutuals, sent, received, additional
+  })
+)
+
 const getOtherProfileSelector = (state: RootState) => state.contacts.otherProfile
 
 export const getOtherProfile = createSelector(getOtherProfileSelector, (profile) => profile)

@@ -27,6 +27,7 @@ export type UserType = {
     recommendedByList: RecommendedUserType[]
     chat?: string
     loading?: string[]
+    ignored?: string
     clickedAction?: string
     slots: any
     fullLoaded?: boolean
@@ -35,6 +36,17 @@ export type UserType = {
         allow_founder_updates: boolean
         allow_zoom_calls: boolean
         allow_new_matches: boolean
+    }
+    mutuals?: UsersType
+    roles: [
+        'investor',
+        'founder'
+    ]
+} & {
+    [key in 'investments' | 'investors']: {
+        [key: string]: {
+            status: string
+        }
     }
 }
 
@@ -57,6 +69,7 @@ export type Job = {
     title?: string
     headline?: string
     position?: string
+    roleName?: string
 }
 
 export type UsersType = { [key: string]: UserType }

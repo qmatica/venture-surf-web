@@ -6,6 +6,8 @@ import { actions as notificationsActions } from 'features/Notifications/actions'
 import { v4 as uuidv4 } from 'uuid'
 import { deleteFieldsOfObject } from 'common/utils'
 import { ProfileType } from 'features/Profile/types'
+import { actions as contactsActions } from 'features/Contacts/actions'
+import { profileInteractionUsers } from 'features/Profile/constants'
 import { ThunkType } from './types'
 
 export const actions = {
@@ -113,19 +115,68 @@ export const like = (
 }
 
 export const acceptInvest = (uid: string): ThunkType => async (dispatch) => {
-  const result = await usersAPI.addInvest(uid).catch((err) => {
+  dispatch(profileActions.toggleLoader(`${uid}-acceptInvest`))
+  const result = await usersAPI.addInvest(uid, []).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
     dispatch(profileActions.acceptInvest(uid))
+    dispatch(profileActions.toggleLoader(`${uid}-acceptInvest`))
   }
 }
 
-export const deleteInvest = (uid: string): ThunkType => async (dispatch) => {
+export const addInvest = (
+  uid: string, investorList: string[], activeRole: 'investors' | 'investments', setIsOpenModal: (isOpenModal: boolean) => void
+): ThunkType => async (dispatch) => {
+  dispatch(profileActions.toggleLoader('requestToInvest'))
+  const result = await usersAPI.addInvest(uid, investorList).catch((err) => {
+    dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
+  })
+  if (result) {
+    dispatch(profileActions.addInvests(result[activeRole]))
+    dispatch(notificationsActions.addAnyMsg({
+      msg: 'Your request has been sent',
+      uid: uuidv4()
+    }))
+  }
+  dispatch(profileActions.toggleLoader('requestToInvest'))
+  setIsOpenModal(false)
+}
+
+export const addYourself = (uid: string, selectedRole: 'investors' | 'investments', profile?: ProfileType): ThunkType => async (dispatch, getState) => {
+  const { profile: myProfile } = getState().profile
+  const result = await usersAPI.addInvest(uid, []).catch((err) => {
+    dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
+  })
+  if (result) {
+    dispatch(profileActions.addYourself(uid, selectedRole))
+    if (profile) {
+      dispatch(contactsActions.setOtherProfile({
+        ...profile,
+        [selectedRole]: { ...profile[selectedRole], [myProfile?.uid as string]: { status: 'requested' } }
+      }))
+    }
+    dispatch(profileActions.addInvests(result[profileInteractionUsers.content[myProfile?.activeRole as 'investor' | 'founder']]))
+    dispatch(notificationsActions.addAnyMsg({
+      msg: 'Your request has been sent',
+      uid: uuidv4()
+    }))
+  }
+}
+
+export const deleteInvest = (uid: string): ThunkType => async (dispatch, getState) => {
+  const { profile } = getState().profile
+  dispatch(profileActions.toggleLoader(`${uid}-deleteInvest`))
   const result = await usersAPI.deleteInvest(uid).catch((err) => {
     dispatch(notificationsActions.addAnyMsg({ msg: JSON.stringify(err), uid: uuidv4() }))
   })
   if (result) {
     dispatch(profileActions.deleteInvest(uid))
+    const msg = profile?.activeRole === 'founder' ? 'Investor has been removed from list!' : 'Investment request has been removed from list!'
+    dispatch(notificationsActions.addAnyMsg({
+      msg,
+      uid: uuidv4()
+    }))
   }
+  dispatch(profileActions.toggleLoader(`${uid}-deleteInvest`))
 }

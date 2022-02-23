@@ -1,10 +1,11 @@
 import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
 import { init as initProfile, actions as profileActions } from 'features/Profile/actions'
-import { profileAPI, linkedInAPI } from 'api'
+import { profileAPI, linkedInAPI, usersAPI } from 'api'
 import { getTokenFcm } from 'features/Profile/utils'
 import { VOIP_TOKEN, BUNDLE, REDIRECT_URI } from 'common/constants'
 import { init as initSurf } from '../Surf/actions'
 import { ThunkType } from './types'
+import { actions as actionsNotifications } from '../Notifications/actions'
 
 export const actions = {
   setAuth: (auth: boolean) => ({ type: 'SIGN_IN__SET_AUTH', auth } as const),
@@ -18,7 +19,9 @@ export const actions = {
   setIsWaitingProfileData: (isWaitingProfileData: boolean) => (
     { type: 'SIGN_IN_SET_IS_WAITING_PROFILE_DATA', isWaitingProfileData } as const
   ),
-  setReset: () => ({ type: 'SIGN_IN__SET_RESET' } as const)
+  setReset: () => ({ type: 'SIGN_IN__SET_RESET' } as const),
+  logout: () => ({ type: 'LOG_OUT' } as const),
+  deleteUser: (uid: string) => ({ type: 'DELETE_USER' } as const)
 }
 
 export const signInWithPhoneNumber = (phoneNumber: string, applicationVerifier: ApplicationVerifier): ThunkType =>
@@ -88,4 +91,37 @@ export const getOnboardingProfile = (code: string): ThunkType => async (dispatch
       dispatch(profileActions.setMyProfile(registeredProfile))
     }
   }
+}
+
+export const signOut = (): ThunkType =>
+  async (dispatch, getState, getFirebase) => {
+    dispatch(actions.setIsLoading(true))
+    const deviceId = localStorage.getItem('deviceId')
+    if (deviceId) {
+      await profileAPI.forgetDevice(deviceId)
+    }
+
+    getFirebase().auth().signOut()
+      .then(() => {
+        dispatch(actions.logout())
+        localStorage.clear()
+        dispatch(actions.setIsLoading(false))
+      })
+      .catch((err) => {
+        console.log('signOut failed:', err)
+        dispatch(actions.setIsLoading(false))
+      })
+  }
+
+export const deleteMyUser = (uid: string): ThunkType => async (dispatch, getState, getFirebase) => {
+  getFirebase().auth().signOut()
+    .then(() => {
+      dispatch(actions.setIsLoading(true))
+      dispatch(actions.logout())
+      localStorage.clear()
+    })
+
+  await usersAPI.deleteUser(uid).catch((err) => {
+    dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+  })
 }

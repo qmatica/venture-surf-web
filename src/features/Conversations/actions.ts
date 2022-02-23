@@ -4,6 +4,7 @@ import { profileAPI } from 'api'
 import { actions as actionsProfile } from 'features/Profile/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import Conversation from '@twilio/conversations/lib/conversation'
+import { v4 as uuidv4 } from 'uuid'
 import { ChatType, MessageType, ThunkType } from './types'
 
 export const actions = {
@@ -172,25 +173,30 @@ export const listenMessages = (
   })
 }
 
-export const sendMessage = (message: string, chat: string): ThunkType => async (dispatch, getState) => {
-  const { auth } = getState().firebase
-  const { chats } = getState().conversations
+export const sendMessage = (message: string, chat: string, attributes?: any): ThunkType =>
+  async (dispatch, getState) => {
+    const { auth } = getState().firebase
+    const { chats } = getState().conversations
 
-  const newMessage: Message | MessageType = {
-    author: auth.uid,
-    body: message,
-    dateCreated: new Date(),
-    dateUpdated: new Date(),
-    index: chats[chat].messages.length,
-    sid: (Math.random() + 1).toString(36).substring(7),
-    aggregatedDeliveryReceipt: null
-  }
+    const newMessage: Message | MessageType = {
+      author: auth.uid,
+      body: message,
+      dateCreated: new Date(),
+      dateUpdated: new Date(),
+      index: chats[chat].messages?.length || 0,
+      sid: (Math.random() + 1).toString(36).substring(7),
+      aggregatedDeliveryReceipt: null
+    }
+    dispatch(actions.addMessage(newMessage, chat))
 
-  dispatch(actions.addMessage(newMessage, chat))
+    const receivedMessages = chats[chat]?.messages.filter((message) => message.author !== auth.uid)
+    const res = await chats[chat].conversation?.sendMessage(message, {
+      messageId: uuidv4(),
+      repliedMessage: receivedMessages[receivedMessages.length - 1]?.index,
+      ...attributes
+    })
 
-  const res = await chats[chat].conversation?.sendMessage(message)
-
-  console.log(res)
+    console.log(res)
 
   // const body = {
   //   Body: message,
@@ -219,4 +225,4 @@ export const sendMessage = (message: string, chat: string): ThunkType => async (
   //   console.log(updatedMessage)
   //   dispatch(actions.updateMessage(updatedMessage, chat))
   // }
-}
+  }

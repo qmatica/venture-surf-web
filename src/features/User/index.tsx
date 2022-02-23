@@ -1,4 +1,9 @@
-import React, { FC, memo } from 'react'
+import React, { FC, memo, useState } from 'react'
+import { Modal } from 'features/Modal'
+import { profileInteractionUsers } from 'features/Profile/constants'
+import { Image } from 'common/components/Image'
+import { UserIcon } from 'common/icons'
+import { Link } from 'react-router-dom'
 import { SwitchRoles } from './components/SwitchRoles'
 import { Body } from './components/Body'
 import { Actions } from './components/Actions'
@@ -28,6 +33,11 @@ export const User: FC<IUser> = memo(({
   typeUser,
   isRecommended = false
 }) => {
+  const [selectedRole, setSelectedRole] = useState<'founder' | 'investor'>(user.activeRole)
+  const [isOpenModal, setIsOpenModal] = useState(false)
+  const toggleModal = () => setIsOpenModal(!isOpenModal)
+  const invests = user[profileInteractionUsers.content[selectedRole]]
+  const relatedUsersList = user.mutuals ? Object.values(user.mutuals).filter((mutual) => invests?.[mutual.uid]) : []
   const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
 
   let rightSideContent
@@ -44,7 +54,14 @@ export const User: FC<IUser> = memo(({
       break
     }
     case 'assets': {
-      rightSideContent = <Assets />
+      rightSideContent = (
+        <Assets
+          user={user}
+          selectedRole={selectedRole}
+          onClick={toggleModal}
+          relatedUsersList={relatedUsersList}
+        />
+      )
       break
     }
     default:
@@ -54,7 +71,13 @@ export const User: FC<IUser> = memo(({
   return (
     <div className={styles.container}>
       {isRecommended && <Recommendations user={user} />}
-      {switchRoles && <SwitchRoles />}
+      {switchRoles && (
+        <SwitchRoles
+          selectedRole={selectedRole}
+          setSelectedRole={setSelectedRole}
+          roles={user.roles}
+        />
+      )}
       <Body
         user={user}
         rightSide={rightSideContent}
@@ -62,7 +85,39 @@ export const User: FC<IUser> = memo(({
         isRecommended={isRecommended}
       />
       {viewActions && <Actions user={user} userName={name} />}
-      {viewVideos && <Videos videos={user.content?.videos} userId={user.uid} userName={name} />}
+      {viewVideos && (
+        <Videos
+          videos={user.content?.videos}
+          userId={user.uid}
+          userName={name}
+        />
+      )}
+      <Modal
+        title={selectedRole === 'investor' ? 'Investments' : 'Backed by '}
+        isOpen={isOpenModal}
+        onClose={toggleModal}
+      >
+        <div className={styles.modalContainer}>
+          {relatedUsersList.map((relatedUser) => (
+            <div key={relatedUser.uid}>
+              <div className={styles.user}>
+                <div className={styles.userPhoto}>
+                  <Image
+                    photoURL={relatedUser.photoURL}
+                    photoBase64={relatedUser.photoBase64}
+                    alt={relatedUser.displayName}
+                    userIcon={UserIcon}
+                  />
+                </div>
+                <Link to={`/profile/${relatedUser.uid}`}>
+                  <div>{relatedUser.displayName}</div>
+                </Link>
+                <div className={styles.status}>{invests?.[relatedUser.uid].status}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Modal>
     </div>
   )
 })

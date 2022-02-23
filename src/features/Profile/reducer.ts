@@ -156,6 +156,45 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         }
       }
     }
+    case 'PROFILE__ADD_INVEST': {
+      const { profile } = state
+
+      if (!profile) return state
+
+      const list = profileInteractionUsers.content[profile.activeRole]
+
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          [list]: action.investorList
+        }
+      }
+    }
+    case 'PROFILE__ADD_YOURSELF': {
+      const { profile } = state
+      const { uid, selectedRole } = action.payload
+
+      if (!profile || !profile.uid) return state
+
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          mutuals: {
+            ...profile.mutuals,
+            [uid]: {
+              ...profile.mutuals[uid],
+              [selectedRole]: {
+                ...profile.mutuals[uid][selectedRole],
+                [profile.uid]: profile
+              }
+            }
+          }
+        }
+      }
+    }
+
     case 'PROFILE__DELETE_INVEST': {
       const { profile } = state
 

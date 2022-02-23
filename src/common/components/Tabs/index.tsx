@@ -19,7 +19,7 @@ export const Tabs: FC<ITabs> = ({
     {tabs.map(({ title, value, Component }) => {
       let countContacts
       if (profile && title === 'Received') {
-        countContacts = Object.keys(profile.liked)?.length
+        countContacts = Object.values(profile.liked).filter((u) => !u.ignored).length
       }
       return (
         <div

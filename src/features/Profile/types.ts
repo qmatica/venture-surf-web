@@ -4,6 +4,7 @@ import { actions as actionsModal } from 'features/Modal/actions'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
+import { actions as actionsContacts } from 'features/Contacts/actions'
 import { getFirebase } from 'react-redux-firebase'
 import { UsersType, UserType } from 'features/User/types'
 import { actions } from './actions'
@@ -12,7 +13,8 @@ export type ActionTypes = InferActionsTypes<typeof actions
                                           | typeof actionsModal
                                           | typeof actionsVideoChat
                                           | typeof actionsConversations
-                                          | typeof actionsNotifications>
+                                          | typeof actionsNotifications
+                                          | typeof actionsContacts>
 export type ThunkType = ThunkAction<Promise<void | boolean> | void, AppStateType, typeof getFirebase, ActionTypes>
 
 export type ProfileType = {
@@ -60,6 +62,7 @@ export type ProfileType = {
     }
 } & {
     [key in 'founder' | 'investor']: {
+        hidden: boolean
         stages: number[]
         roles: string[]
         industries: string[]
@@ -148,6 +151,30 @@ export type profileInteractionUsersType = {
     content: {
         founder: 'investors',
         investor: 'investments'
+    }
+    labelButton: {
+        founder: string,
+        investor: string
+    },
+    requestButton: {
+        founder: string,
+        investor: string
+    },
+    addButton: {
+        founder: string,
+        investor: string
+    },
+    description: {
+        founder: string,
+        investor: string
+    },
+    header: {
+        founder: string,
+        investor: string
+    },
+    modalTitle: {
+        founder: string,
+        investor: string
     }
 }
 

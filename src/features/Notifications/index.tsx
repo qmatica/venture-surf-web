@@ -1,8 +1,12 @@
-import React, { useEffect } from 'react'
+import React, {
+  FC, ReactElement, useEffect, useState
+} from 'react'
 import useSound from 'use-sound'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'common/types'
-import { CloseIcon, UserPhotoIcon } from 'common/icons'
+import {
+  BulbIcon, CloseIcon, DiplomatIcon, GiftIcon, PreloaderIcon, UserPhotoIcon
+} from 'common/icons'
 import phoneEnd from 'common/images/phoneEnd.png'
 import phoneStart from 'common/images/phoneStart.png'
 import videoStart from 'common/images/videoStart.png'
@@ -12,11 +16,25 @@ import incomingCallAudio from 'common/audio/incomingCall.mp3'
 import { connect, ConnectOptions } from 'twilio-video'
 import { actions as actionsVideoChat } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
-import { useHistory } from 'react-router-dom'
-import { declineCall } from 'features/Profile/actions'
-import { actions } from './actions'
+import { NavLink, useHistory } from 'react-router-dom'
+import { declineCall, openChat } from 'features/Profile/actions'
+import { getAllContacts } from 'features/Contacts/selectors'
+import { UsersType, UserType } from 'features/User/types'
+import moment from 'moment'
+import cn from 'classnames'
+import { accept, ignore } from 'features/Contacts/actions'
+import { Button } from 'common/components/Button'
+import { DropDownButton } from 'features/NavBar/components/DropDownButton'
+import { Dot } from 'common/components/Dot'
+import { LOCAL_STORAGE_VALUES } from 'common/constants'
+import { getIsLoadedHistory, getMyNotificationsHistory } from './selectors'
 import { ScheduledMeetMsgs } from './components/ScheduledMeetMsgs'
+import { actions, readAllNotificationsCurrentRole } from './actions'
+import { getAllInvests, getMyActiveRole } from '../Profile/selectors'
+import { acceptInvest, deleteInvest } from '../Surf/actions'
+import { ValueNotificationsHistoryType } from './types'
 import styles from './styles.module.sass'
+import { ProfileType } from '../Profile/types'
 
 export const Notifications = () => {
   const dispatch = useDispatch()
@@ -26,6 +44,13 @@ export const Notifications = () => {
   const {
     anyMsgs, errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall, scheduledMeetMsgs
   } = useSelector((state: RootState) => state.notifications)
+
+  const [hideScheduledMeetMsgs, setHideScheduledMeetMsgs] = useState()
+  const isNotificationDisabled = localStorage.getItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS)
+
+  useEffect(() => {
+    if (isNotificationDisabled) setHideScheduledMeetMsgs(JSON.parse(isNotificationDisabled))
+  }, [])
 
   useEffect(() => {
     if (incomingCall) {
@@ -38,8 +63,9 @@ export const Notifications = () => {
 
   const replyWithVideo = () => {
     if (incomingCall) {
-      connect(incomingCall.data.token, {
-        room: incomingCall.data.room,
+      // TODO: Отправить на бэк accept call with deviceId для получения push при входе нового участника
+      connect(incomingCall.token, {
+        room: incomingCall.room,
         dominantSpeaker: true
       } as ConnectOptions)
         .then((room) => {
@@ -57,7 +83,7 @@ export const Notifications = () => {
     if (incomingCall) {
       stop()
       dispatch(actions.removeIncomingCall())
-      dispatch(declineCall(incomingCall.data.uid))
+      dispatch(declineCall(incomingCall.uid))
     }
   }
 
@@ -153,16 +179,16 @@ export const Notifications = () => {
               <div className={styles.close} onClick={() => removeAnyMsg(uid)}><CloseIcon /></div>
             </div>
           ))}
-          <ScheduledMeetMsgs msgs={scheduledMeetMsgs} />
+          {!hideScheduledMeetMsgs && <ScheduledMeetMsgs msgs={scheduledMeetMsgs} />}
         </div>
       )}
 
       {incomingCall && (
       <div className={styles.incomingCallContainer}>
         <div className={styles.photoContainer}>
-          <UserPhotoIcon />
+          <Image photoURL={incomingCall.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
         </div>
-        <div className={styles.displayName}>{incomingCall.notification.body}</div>
+        <div className={styles.displayName}>{incomingCall.name}</div>
         <div className={styles.event}>Incoming call...</div>
         <div className={styles.buttonsContainer}>
           <div className={styles.button} onClick={onDeclineCall}>
@@ -178,5 +204,318 @@ export const Notifications = () => {
       </div>
       )}
     </>
+  )
+}
+
+interface INotificationsList {
+  icon: ReactElement
+}
+
+export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
+  const dispatch = useDispatch()
+  const history = useHistory()
+  const notificationsHistory = useSelector(getMyNotificationsHistory)
+  const isLoadedHistory = useSelector(getIsLoadedHistory)
+  const allInvests = useSelector(getAllInvests)
+  const myActiveRole = useSelector(getMyActiveRole)
+  const allContacts = useSelector(getAllContacts) as {
+    mutuals: UsersType,
+    sent: UsersType,
+    received: UsersType,
+    additional: { [key: string]: ProfileType | null } | null
+  }
+  const [isOpenList, setIsOpenList] = useState(false)
+
+  const notifications = {
+    count: 0
+  }
+
+  const onReadAllNotifications = () => {
+    if (isOpenList) {
+      dispatch(readAllNotificationsCurrentRole())
+    }
+  }
+
+  const toggleOpenList = () => {
+    onReadAllNotifications()
+    setIsOpenList(!isOpenList)
+  }
+  const closeList = () => {
+    onReadAllNotifications()
+    if (isOpenList) setIsOpenList(false)
+  }
+
+  const list = Object.entries(notificationsHistory)
+    .sort((a, b) => moment(b[1].ts).unix() - moment(a[1].ts).unix())
+    .reduce(((
+      prevList: [string, ValueNotificationsHistoryType][],
+      nextItem: [string, ValueNotificationsHistoryType]
+    ) => {
+      if (
+        (nextItem[1].data.role && nextItem[1].data.role !== myActiveRole)
+        || ['call_instant', 'call_instant_group', 'call_canceled', 'call_declined', 'twilio_enter_group'].includes(nextItem[1].type)
+      ) {
+        return prevList
+      }
+      const foundedIndexItem = prevList.findIndex((prevItem) =>
+        prevItem[1].contact === nextItem[1].contact
+        && prevItem[1].type === nextItem[1].type
+        && !['intro', 'intro_you'].includes(nextItem[1].type))
+
+      if (foundedIndexItem !== -1) {
+        const updatedPrevList: [string, ValueNotificationsHistoryType][] = [...prevList]
+        const updatedPrevItem: [string, ValueNotificationsHistoryType] = [...prevList[foundedIndexItem]]
+
+        updatedPrevItem[1] = {
+          ...updatedPrevItem[1],
+          count: updatedPrevItem[1].count ? (updatedPrevItem[1].count + 1) : 2
+        }
+
+        updatedPrevList.splice(foundedIndexItem, 1, updatedPrevItem)
+
+        return updatedPrevList
+      }
+      return [...prevList, nextItem]
+    }), [])
+    .map(([id, value]) => {
+      let user = null as UserType | null
+      let contactType = ''
+      let background = false
+      let title = ''
+      let subTitle = null as string | ReactElement | null
+      let icon = null
+      const actions = []
+
+      Object.entries(allContacts).some(([key, contacts]) => {
+        if (!contacts) return false
+        const contact = contacts[value.contact]
+        if (contacts[value.contact]) {
+          contactType = key
+          user = contact as UserType | null
+          return true
+        }
+        return false
+      })
+
+      if (!user) {
+        user = {
+          uid: value.contact,
+          photoURL: '',
+          displayName: 'Deleted',
+          loading: allContacts.additional ? undefined : ['loading']
+        } as UserType
+      }
+
+      const onOpenChat = () => {
+        if (user) {
+          const redirectToConversations = () => {
+            closeList()
+            history.push('/conversations')
+          }
+          dispatch(openChat(user.uid, redirectToConversations))
+        }
+      }
+
+      if (value.status === 'active') {
+        notifications.count += 1
+      }
+
+      const name = user.displayName || `${user.first_name} ${user.last_name}`
+      const num = value.count ? `(${value.count})` : ''
+
+      switch (value.type) {
+        case 'invest': {
+          title = 'backed you up'
+          icon = <DiplomatIcon />
+
+          background = allInvests[value.contact]?.status === 'requested'
+
+          const list = `${myActiveRole === 'founder' ? 'investments' : 'investors'} list`
+
+          if (background) {
+            actions.push(
+              {
+                title: 'Accept',
+                onClick: () => dispatch(acceptInvest(value.contact)),
+                isLoading: user.loading?.includes('acceptInvest'),
+                isDisabled: ['acceptInvest', 'declineInvest'].some((action) => user?.loading?.includes(action))
+              },
+              {
+                title: 'Decline',
+                onClick: () => dispatch(deleteInvest(value.contact)),
+                isLoading: user.loading?.includes('declineInvest'),
+                isDisabled: ['accept', 'declineInvest'].some((action) => user?.loading?.includes(action))
+              }
+            )
+          } else if (allInvests[value.contact]?.status === 'accepted') {
+            subTitle = `Added to ${list}`
+          } else {
+            subTitle = 'Request removed'
+          }
+
+          break
+        }
+        case 'like':
+        case 'mutual_like': {
+          title = 'is interested in your business'
+          icon = <BulbIcon />
+          background = contactType === 'received' && !user.ignored
+
+          if (user.ignored) {
+            subTitle = 'Request removed'
+          }
+
+          if (background) {
+            actions.push(
+              {
+                title: 'Add to mutuals',
+                onClick: () => dispatch(accept(value.contact)),
+                isLoading: user.loading?.includes('accept'),
+                isDisabled: ['accept', 'ignore'].some((action) => user?.loading?.includes(action))
+              },
+              {
+                title: 'Ignore',
+                onClick: () => dispatch(ignore(value.contact)),
+                isLoading: user.loading?.includes('ignore'),
+                isDisabled: ['accept', 'ignore'].some((action) => user?.loading?.includes(action))
+              }
+            )
+          }
+          if (contactType === 'mutuals') {
+            subTitle = 'Added to mutuals'
+            actions.push(
+              {
+                title: 'Chat',
+                onClick: onOpenChat,
+                isLoading: user.loading?.includes('openChat')
+              }
+            )
+          }
+          break
+        }
+        case 'intro':
+        case 'intro_you': {
+          title = 'recommended contact'
+          icon = <GiftIcon />
+          const recommendContact = value.data.contact
+          subTitle = (
+            <>
+              <NavLink
+                to={`/profile/${recommendContact?.uid}`}
+                onClick={closeList}
+                style={{ color: '#1557FF', marginRight: 4 }}
+              >
+                {recommendContact?.activeName || recommendContact?.displayName}
+              </NavLink>
+              {' '}
+              {value.data.message}
+            </>
+          )
+          break
+        }
+        default: break
+      }
+
+      const buttons = actions.map((action) => {
+        const className = ['Ignore', 'Decline'].includes(action.title) ? styles.cancel : styles.default
+
+        return (
+          <Button
+            key={`${id} ${action.title}`}
+            title={action.title}
+            onClick={action.onClick}
+            className={cn(
+              className,
+              action.title === 'Chat' && styles.chat
+            )}
+            isLoading={action.isLoading}
+            disabled={action.isDisabled || action.isLoading}
+          />
+        )
+      })
+
+      if (['additional', ''].includes(contactType)) {
+        background = false
+        buttons.length = 0
+      }
+
+      return (
+        <div
+          key={id}
+          id-data={id}
+          contact-data={value.contact}
+          type-data={value.type}
+          date-data={value.ts}
+          className={cn(
+            styles.notificationItemContainer,
+            background && styles.actionItem
+          )}
+        >
+          <div className={styles.date}>
+            {moment(value.ts).calendar(null, {
+              lastDay: '[Yesterday]',
+              sameDay: 'HH:mm',
+              nextDay: '[Tomorrow]',
+              lastWeek: '[last] dddd',
+              nextWeek: 'dddd',
+              sameElse: 'L'
+            })}
+          </div>
+          <div className={styles.info}>
+            <NavLink
+              key={id}
+              to={`/profile/${user.uid}`}
+              onClick={closeList}
+            >
+              <div className={styles.photoWrapper}>
+                <div className={styles.photoContainer}>
+                  {value.status === 'active' && <Dot top={-1} right={-1} />}
+                  <Image photoURL={user.photoURL} photoBase64="" userIcon={UserPhotoIcon} />
+                </div>
+              </div>
+            </NavLink>
+            <div className={styles.contentContainer}>
+              <p>
+                <NavLink
+                  key={id}
+                  to={`/profile/${user.uid}`}
+                  className={styles.name}
+                  onClick={closeList}
+                >
+                  <>
+                    {user.loading?.includes('loading')
+                      ? <div className={styles.loadingProfile}><div /></div>
+                      : name}
+                  </>
+                </NavLink>
+                {' '}
+                <span>{title}<span>{num}</span></span>
+              </p>
+            </div>
+            <div className={styles.iconContainer}>
+              <div className={styles.icon}>
+                {icon}
+              </div>
+            </div>
+          </div>
+          {subTitle && (
+            <div className={cn(styles.subTitle, user.ignored && styles.ignored)}>{subTitle}</div>
+          )}
+          {buttons.length > 0 && <div className={styles.buttons}>{buttons}</div>}
+        </div>
+      )
+    })
+
+  return (
+    <DropDownButton
+      icon={icon}
+      list={isLoadedHistory ? <>{list}</> : <div className={styles.loading}><PreloaderIcon stroke="#96baf6" /></div>}
+      arrow={false}
+      countNotifications={notifications.count}
+      isOpenList={isOpenList}
+      onCloseList={closeList}
+      onToggleOpenList={toggleOpenList}
+      listWidth={430}
+    />
   )
 }

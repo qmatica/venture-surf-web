@@ -25,6 +25,7 @@ jobs:
         echo REACT_APP_FIREBASE_APIKEY=${{ secrets.REACT_APP_FIREBASE_APIKEY }} >> .env
         echo REACT_APP_FIREBASE_APP_ID=${{ secrets.REACT_APP_FIREBASE_APP_ID }} >> .env
         echo REACT_APP_FIREBASE_MEASUREMENT_ID=${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }} >> .env
+        echo REACT_APP_REDIRECT_URI=${{ secrets.REACT_APP_REDIRECT_URI }} >> .env
         cat .env
     - name: yarn install and build
       run: |
@@ -35,6 +36,7 @@ jobs:
         REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY }}
         REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
         REACT_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }}
+        REACT_APP_REDIRECT_URI: ${{ secrets.REACT_APP_REDIRECT_URI }}
     - name: Archive Build
       uses: actions/upload-artifact@v2
       with:

@@ -16,6 +16,9 @@ export const actions = {
   ),
   setIsLoadingOtherProfile: (isLoadingOtherProfile: boolean) => (
     { type: 'CONTACTS__SET_IS_LOADING_OTHER_PROFILE', isLoadingOtherProfile } as const
+  ),
+  setAdditionalProfiles: (additionalProfiles: { [key: string]: ProfileType | null }) => (
+    { type: 'CONTACTS__SET_ADDITIONAL_PROFILES', additionalProfiles } as const
   )
 }
 
@@ -91,6 +94,33 @@ export const accept = (uid: string): ThunkType => async (dispatch, getState) => 
 
       dispatch(profileActions.removeUserInMyContacts(updatedUser, contacts))
       dispatch(profileActions.addUserInMyContacts(updatedUser, 'mutuals'))
+    }
+  }
+}
+
+export const ignore = (uid: string): ThunkType => async (dispatch, getState) => {
+  const contacts = 'liked'
+  const { profile } = getState().profile
+
+  if (profile) {
+    const updatedUser = {
+      ...profile[contacts][uid],
+      loading: ['ignore']
+    }
+    dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
+
+    const status = await usersAPI.ignoreLike(uid).catch((err) => {
+      dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+    })
+
+    if (status === apiCodes.success) {
+      const updatedUser = {
+        ...profile[contacts][uid],
+        ignored: new Date().toISOString(),
+        loading: []
+      }
+
+      dispatch(profileActions.updateUserInMyContacts(updatedUser, contacts))
     }
   }
 }

@@ -26,15 +26,20 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.17)
   border-radius: 0 0 16px 16px
   overflow: hidden
-.dropdownMenuItem
+.dropdownMenuItemContainer
   @include commonFontStyles
   padding: 10px
   text-transform: capitalize
   text-align: center
   cursor: pointer
   transition: 0.1s
+  display: flex
+  justify-content: center
+  align-items: center
   &:hover
     background: #f4f7fa
+  .item
+    position: relative
 .dropdownExpanded
   border-radius: 16px 16px 0 0
   > svg
