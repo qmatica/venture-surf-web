@@ -22,7 +22,7 @@ import { executeAllPromises, isNumber } from 'common/utils'
 import moment from 'moment'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import { getFirestore } from 'redux-firestore'
-import { VOIP_TOKEN, BUNDLE } from 'common/constants'
+import { VOIP_TOKEN, BUNDLE, NOTIFICATION_TYPES } from 'common/constants'
 import { addToClipboardPublicLinkProfile } from 'common/actions'
 
 import {
@@ -41,6 +41,7 @@ import { compareCountContacts, compareNowSlot, getTokenFcm } from './utils'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
+  setMyProfileLiked: (liked: any) => ({ type: 'PROFILE__SET_MY_PROFILE_LIKED', liked } as const),
   updateMyProfilePhoto: (photoURL: string) => ({ type: 'PROFILE__UPDATE_MY_PROFILE_PHOTO', photoURL } as const),
   updateMyContacts: (updatedUsers: any) => ({ type: 'PROFILE__UPDATE_MY_CONTACTS', updatedUsers } as const),
   addUserInMyContacts: (user: UserType, contacts: 'mutuals' | 'likes' | 'liked') => (
@@ -188,45 +189,30 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             console.log('Unregistered doc!', doc)
             notificationsHistory[change.doc.id] = doc
 
-            dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
-
             // Входящий звонок
-            if (notificationsHistory[change.doc.id].type === 'call_instant') {
-              const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
+            switch (notificationsHistory[change.doc.id].type) {
+              case NOTIFICATION_TYPES.LIKE: {
+                const user = getState().surf.users.find((user) => user.uid === doc.contact)
 
-              const user = profile.mutuals[contact]
+                const liked = {
+                  [user?.uid as string]: {
+                    activeName: user?.displayName,
+                    activeRole: user?.activeRole,
+                    displayName: user?.displayName,
+                    photoURL: user?.photoURL,
+                    uid: user?.uid,
+                    job: { [user?.activeRole as string]: user?.job }
+                  }
+                }
+                dispatch(showNotification({
+                  contact: liked[user?.uid as string],
+                  action: 'addUserInMyContacts'
+                } as any, 'liked'))
 
-              const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-              const { photoURL } = user
-
-              const payload = {
-                uid: contact,
-                name,
-                photoURL,
-                room,
-                token
+                dispatch(actions.setMyProfileLiked(liked))
+                break
               }
-
-              dispatch(actionsNotifications.addIncomingCall(payload))
-            }
-
-            if (notificationsHistory[change.doc.id].type === 'call_instant_group') {
-              const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
-
-              const user = profile.mutuals[contact]
-
-              const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-              const { photoURL } = user
-
-              const payload = {
-                uid: contact,
-                name,
-                photoURL,
-                room,
-                token
-              }
-
-              dispatch(actionsNotifications.addIncomingCall(payload))
+              default: break
             }
           }
         }
@@ -364,7 +350,7 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
     console.log('My profile updated: ', newProfile)
 
     if (profile) {
-      const contactsList = ['mutuals', 'likes', 'liked'] as const
+      const contactsList = ['mutuals', 'likes'] as const
 
       contactsList.forEach((contacts) => {
         const result = compareCountContacts(profile[contacts], newProfile[contacts])

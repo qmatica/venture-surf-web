@@ -85,3 +85,13 @@ export const DELETE_ALL_DATA_MODAL = {
   CANCEL: 'Cancel',
   DELETE: 'Delete'
 }
+
+export const NOTIFICATION_TYPES = {
+  CALL_INSTANT: 'call_instant',
+  CALL_INSTANT_GROUP: 'call_instant_group',
+  LIKE: 'like',
+  MUTUAL_LIKE: 'mutual_like',
+  INVEST: 'invest',
+  INTRO: 'intro',
+  SHARE: 'share'
+}
