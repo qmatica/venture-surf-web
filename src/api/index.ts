@@ -41,6 +41,9 @@ export const profileAPI = {
   afterLogin(device: DeviceType) {
     return instance.post('api/afterLogin', { device }).then((res) => res.data)
   },
+  getLinkedinToken(authorizationCode: string, redirectUri: string) {
+    return instance.post('api/linkedin_accessToken', { code: authorizationCode, redirect_uri: redirectUri }).then((res) => res.data.access_token)
+  },
   afterSignup(profile: ProfileType) {
     return instance.post('api/afterSignup', profile).then((res) => res.data)
   },
@@ -194,23 +197,5 @@ export const linkedInAPI = {
     return linkedInInstance.get('v2/me', {
       headers: { Authorization: `Bearer ${access_token}` }
     }).then((res) => res.data)
-  },
-  createAccessToken(code: string) {
-    const linkedInInstance = axios.create({
-      baseURL: 'https://www.linkedin.com/oauth'
-    })
-    const body = new URLSearchParams()
-    body.append('grant_type', 'authorization_code')
-    body.append('code', code)
-    body.append('redirect_uri', REDIRECT_URI as string)
-    body.append('client_id', CLIENT_ID)
-    body.append('client_secret', CLIENT_SECRET)
-
-    return linkedInInstance.post('v2/accessToken',
-      body, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      }).then((res) => res.data.access_token)
   }
 }

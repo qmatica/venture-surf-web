@@ -2,7 +2,7 @@ import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
 import { init as initProfile, actions as profileActions } from 'features/Profile/actions'
 import { profileAPI, linkedInAPI } from 'api'
 import { getTokenFcm } from 'features/Profile/utils'
-import { VOIP_TOKEN, BUNDLE } from 'common/constants'
+import { VOIP_TOKEN, BUNDLE, REDIRECT_URI } from 'common/constants'
 import { init as initSurf } from '../Surf/actions'
 import { ThunkType } from './types'
 
@@ -62,7 +62,7 @@ export const confirmCode = (code: string): ThunkType => async (dispatch, getStat
 
 export const getOnboardingProfile = (code: string): ThunkType => async (dispatch) => {
   const profileData = localStorage.getItem('onboardingProfile')
-  const access_token = await linkedInAPI.createAccessToken(code)
+  const access_token = await profileAPI.getLinkedinToken(code, REDIRECT_URI)
   const response = await linkedInAPI.getMyProfileFromLinkedIn(access_token)
 
   if (profileData && response) {
@@ -78,16 +78,12 @@ export const getOnboardingProfile = (code: string): ThunkType => async (dispatch
         bundle: BUNDLE
       }
 
-      const updatedProfile = {
-        ...JSON.parse(profileData),
+      await profileAPI.updateMyProfile({
         displayName: `${response.localizedFirstName} ${response.localizedLastName}`,
         first_name: response.localizedFirstName,
         last_name: response.localizedLastName,
-        linkedIn_ID: response.id,
-        device
-      }
-
-      await profileAPI.afterSignup(updatedProfile)
+        linkedIn_ID: response.id
+      })
       const registeredProfile = await profileAPI.afterLogin(device)
       dispatch(profileActions.setMyProfile(registeredProfile))
     }
