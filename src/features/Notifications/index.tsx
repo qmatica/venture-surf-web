@@ -39,7 +39,9 @@ import { ProfileType } from '../Profile/types'
 export const Notifications = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const [playIncomingCall, { stop }] = useSound(incomingCallAudio)
+  const [playIncomingCall, { stop }] = useSound(incomingCallAudio, {
+    loop: true
+  })
 
   const {
     anyMsgs, errorMsg, contactsEventsMsgs, receivedChatMsgs, incomingCall, scheduledMeetMsgs

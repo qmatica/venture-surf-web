@@ -228,6 +228,22 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
 
               dispatch(actionsNotifications.addIncomingCall(payload))
             }
+
+            if (notificationsHistory[change.doc.id].type === 'twilio_enter_group') {
+              const { data: { room, token } } = notificationsHistory[change.doc.id]
+
+              connect(token, {
+                room,
+                dominantSpeaker: true
+              } as ConnectOptions)
+                .then((room) => {
+                  dispatch(actionsVideoChat.setRoom(room, 'fixedThis'))
+                  stop()
+                }).catch((err) => {
+                  console.log(err)
+                  dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+                })
+            }
           }
         }
         if (change.type === 'modified') {
