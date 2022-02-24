@@ -42,6 +42,7 @@ import { compareCountContacts, compareNowSlot, getTokenFcm } from './utils'
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
   setMyProfileLiked: (liked: any) => ({ type: 'PROFILE__SET_MY_PROFILE_LIKED', liked } as const),
+  setMyProfileMutualsLike: (mutuals: any) => ({ type: 'PROFILE__SET_MY_PROFILE_MUTUALS', mutuals } as const),
   updateMyProfilePhoto: (photoURL: string) => ({ type: 'PROFILE__UPDATE_MY_PROFILE_PHOTO', photoURL } as const),
   updateMyContacts: (updatedUsers: any) => ({ type: 'PROFILE__UPDATE_MY_CONTACTS', updatedUsers } as const),
   addUserInMyContacts: (user: UserType, contacts: 'mutuals' | 'likes' | 'liked') => (
@@ -181,7 +182,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     })
 
     onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
+      snapshot.docChanges().forEach(async (change) => {
         if (change.type === 'added') {
           const doc = change.doc.data() as ValueNotificationsHistoryType
           console.log('New: doc', doc)
@@ -189,27 +190,80 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             console.log('Unregistered doc!', doc)
             notificationsHistory[change.doc.id] = doc
 
+            dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
+
             // Входящий звонок
             switch (notificationsHistory[change.doc.id].type) {
               case NOTIFICATION_TYPES.LIKE: {
-                const user = getState().surf.users.find((user) => user.uid === doc.contact)
-
+                const likedUser = await usersAPI.getUser(doc.contact)
                 const liked = {
-                  [user?.uid as string]: {
-                    activeName: user?.displayName,
-                    activeRole: user?.activeRole,
-                    displayName: user?.displayName,
-                    photoURL: user?.photoURL,
-                    uid: user?.uid,
-                    job: { [user?.activeRole as string]: user?.job }
+                  [doc.contact as string]: {
+                    ...likedUser,
+                    job: {
+                      investor: likedUser?.investor?.job,
+                      founder: likedUser?.founder?.job
+                    }
                   }
                 }
                 dispatch(showNotification({
-                  contact: liked[user?.uid as string],
+                  contact: liked[doc.contact as string],
                   action: 'addUserInMyContacts'
                 } as any, 'liked'))
 
                 dispatch(actions.setMyProfileLiked(liked))
+                break
+              }
+              case NOTIFICATION_TYPES.MUTUAL_LIKE: {
+                const mutualsUser = await usersAPI.getUser(doc.contact)
+                const mutuals = {
+                  [doc.contact as string]: {
+                    ...mutualsUser,
+                    job: {
+                      investor: mutualsUser?.investor?.job,
+                      founder: mutualsUser?.founder?.job
+                    }
+                  }
+                }
+
+                dispatch(showNotification({
+                  contact: mutuals[doc.contact as string],
+                  action: 'addUserInMyContacts'
+                } as any, 'mutuals'))
+
+                dispatch(actions.setMyProfileMutualsLike(mutuals))
+                break
+              }
+              case NOTIFICATION_TYPES.CALL_INSTANT: {
+                const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
+                const user = profile.mutuals[contact]
+                const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+                const { photoURL } = user
+                const payload = {
+                  uid: contact,
+                  name,
+                  photoURL,
+                  room,
+                  token
+                }
+                dispatch(actionsNotifications.addIncomingCall(payload))
+                break
+              }
+              case NOTIFICATION_TYPES.CALL_INSTANT_GROUP: {
+                const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
+
+                const user = profile.mutuals[contact]
+
+                const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+                const { photoURL } = user
+                const payload = {
+                  uid: contact,
+                  name,
+                  photoURL,
+                  room,
+                  token
+                }
+
+                dispatch(actionsNotifications.addIncomingCall(payload))
                 break
               }
               default: break
@@ -342,7 +396,7 @@ const getFullProfiles = (
 const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFirebase) => {
   const { auth } = getState().firebase
 
-  getFirebase().firestore().doc(`profiles/${auth.uid}`).onSnapshot(async (doc) => {
+  getFirebase().firestore().doc(`profiles/${auth.uid}`).onSnapshot(async (doc: any) => {
     const { profile } = getState().profile
     // const { isOwnerCall } = getState().videoChat
     const newProfile = doc.data() as ProfileType
@@ -350,8 +404,7 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
     console.log('My profile updated: ', newProfile)
 
     if (profile) {
-      const contactsList = ['mutuals', 'likes'] as const
-
+      const contactsList = ['likes'] as const
       contactsList.forEach((contacts) => {
         const result = compareCountContacts(profile[contacts], newProfile[contacts])
         if (result) {
@@ -605,7 +658,7 @@ export const uploadVideo = (
 
     setIsOpenModal(false)
 
-    const unSubscribe = await getFirebase().firestore().doc(ref).onSnapshot(async (doc) => {
+    const unSubscribe = await getFirebase().firestore().doc(ref).onSnapshot(async (doc: any) => {
       const video = doc.data() as onSnapshotVideoType
 
       if (video.status === 'ready') {

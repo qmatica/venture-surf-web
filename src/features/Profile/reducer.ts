@@ -18,6 +18,12 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         profile: { ...state.profile, liked: { ...state.profile?.liked, ...action.liked } } as ProfileType
       }
     }
+    case 'PROFILE__SET_MY_PROFILE_MUTUALS': {
+      return {
+        ...state,
+        profile: { ...state.profile, mutuals: { ...state.profile?.mutuals, ...action.mutuals } } as ProfileType
+      }
+    }
     case 'PROFILE__UPDATE_MY_PROFILE_PHOTO':
       return { ...state, profile: { ...state.profile, photoURL: action.photoURL } as ProfileType }
     case 'PROFILE__SET_PROGRESS_FILE':
