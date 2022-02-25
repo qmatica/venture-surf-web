@@ -225,6 +225,24 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         }
       }
     }
+    case 'PROFILE__ADD_INVESTMENT': {
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          investments: { ...state.profile?.investments, ...action.investment }
+        } as ProfileType // TODO: fix type error
+      }
+    }
+    case 'PROFILE__ADD_INVESTOR': {
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          investors: { ...state.profile?.investors, ...action.investor }
+        } as ProfileType // TODO: fix type error
+      }
+    }
     default: return state
   }
 }

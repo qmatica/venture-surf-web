@@ -11,12 +11,6 @@ export const actions = {
   addItemInHistory: (id: string, value: ValueNotificationsHistoryType) => (
     { type: 'NOTIFICATIONS__ADD_ITEM_IN_HISTORY', payload: { id, value } } as const
   ),
-  addLikeNotification: (value: any) => (
-    { type: 'NOTIFICATIONS__ADD_LIKE', payload: value } as const
-  ),
-  addMutualLikeNotification: (value: any) => (
-     { type: 'NOTIFICATIONS__ADD_MUTUAL_LIKE', payload: value } as const
-  ),
   setIsLoadedHistory: (isLoadedHistory: boolean) => (
     { type: 'NOTIFICATIONS__SET_IS_LOADED_HISTORY', isLoadedHistory } as const
   ),

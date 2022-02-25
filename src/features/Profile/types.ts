@@ -80,10 +80,12 @@ export type ProfileType = {
         }
     }
 } & {
-    [key in 'investments' | 'investors']: {
-        [key: string]: {
-            status: string
-        }
+    [key in 'investments' | 'investors']: InvestmentType
+}
+
+export type InvestmentType = {
+    [key: string]: {
+        status: string
     }
 }
 

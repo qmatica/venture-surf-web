@@ -34,7 +34,8 @@ import {
   ResultCompareContactsType,
   ContactsListType,
   ResultCompareInstanceCallType,
-  SlotsType
+  SlotsType,
+  InvestmentType
 } from './types'
 import { ChatType } from '../Conversations/types'
 import { compareCountContacts, compareNowSlot, getTokenFcm } from './utils'
@@ -70,7 +71,9 @@ export const actions = {
   acceptInvest: (uid: string) => ({ type: 'PROFILE__ACCEPT_INVEST', uid } as const),
   addInvests: (investorList: string[]) => ({ type: 'PROFILE__ADD_INVEST', investorList } as const),
   addYourself: (uid: string, selectedRole: 'investments' | 'investors') => ({ type: 'PROFILE__ADD_YOURSELF', payload: { uid, selectedRole } } as const),
-  deleteInvest: (uid: string) => ({ type: 'PROFILE__DELETE_INVEST', uid } as const)
+  deleteInvest: (uid: string) => ({ type: 'PROFILE__DELETE_INVEST', uid } as const),
+  addInvestment: (investment: InvestmentType) => ({ type: 'PROFILE__ADD_INVESTMENT', investment } as const),
+  addInvestor: (investor: InvestmentType) => ({ type: 'PROFILE__ADD_INVESTOR', investor } as const)
 }
 
 let activeActions: string[] = []
@@ -231,6 +234,14 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
                 } as any, 'mutuals'))
 
                 dispatch(actions.setMyProfileMutualsLike(mutuals))
+                break
+              }
+              case NOTIFICATION_TYPES.INVEST: {
+                const isDocFounder = doc.data.role === 'founder'
+                const notificationMsg = ['New request for funding', 'New request for investment'][Number(isDocFounder)]
+                const actionToUpdateProfile = [actions.addInvestment, actions.addInvestor][Number(isDocFounder)]
+                dispatch(actionToUpdateProfile({ [doc.contact]: { status: doc.data.status } }))
+                dispatch(actionsNotifications.addAnyMsg({ msg: notificationMsg, uid: uuidv4() }))
                 break
               }
               case NOTIFICATION_TYPES.CALL_INSTANT: {
