@@ -1,5 +1,5 @@
 import React, {
-  createRef, FC, memo, useEffect, useState
+  createRef, FC, memo, RefObject, useEffect, useMemo, useState
 } from 'react'
 import {
   Participant as ParticipantType,
@@ -16,9 +16,14 @@ interface IParticipant {
   style?: {
     [key: string]: any
   }
+  userName?: string
+  dominantVideoRef?: RefObject<HTMLVideoElement>
+  isDominant?: boolean
 }
 
-export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
+export const Participant: FC<IParticipant> = memo(({
+  participant, style, userName, dominantVideoRef, isDominant
+}) => {
   const [videoTracks, setVideoTracks] = useState<VideoTrackType[]>([])
   const [audioTracks, setAudioTracks] = useState<AudioTrackType[]>([])
   const videoRef = createRef<HTMLVideoElement>()
@@ -60,11 +65,16 @@ export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
     const videoTrack = videoTracks[0]
     if (videoRef.current) {
       videoTrack?.attach(videoRef.current)
+      if (dominantVideoRef?.current) {
+        if (isDominant) {
+          videoTrack?.attach(dominantVideoRef.current)
+        }
+      }
     }
     return () => {
       videoTrack?.detach()
     }
-  }, [videoTracks])
+  }, [videoTracks, isDominant])
 
   useEffect(() => {
     const audioTrack = audioTracks[0]
@@ -78,8 +88,9 @@ export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
 
   return (
     <div className={styles.container} style={style}>
-      <video ref={videoRef} autoPlay />
+      <video id={participant.sid} ref={videoRef} autoPlay />
       <audio ref={audioRef} autoPlay />
+      {userName && <div className={styles.userName}>{userName}</div>}
     </div>
   )
 })

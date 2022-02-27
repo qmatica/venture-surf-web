@@ -13,8 +13,7 @@ import videoStart from 'common/images/videoStart.png'
 import { Image } from 'common/components/Image'
 // @ts-ignore
 import incomingCallAudio from 'common/audio/incomingCall.mp3'
-import { connect, ConnectOptions } from 'twilio-video'
-import { actions as actionsVideoChat } from 'features/VideoChat/actions'
+import { connectToVideoRoom } from 'features/VideoChat/actions'
 import { actions as actionsConversations } from 'features/Conversations/actions'
 import { NavLink, useHistory } from 'react-router-dom'
 import { declineCall, openChat } from 'features/Profile/actions'
@@ -66,18 +65,11 @@ export const Notifications = () => {
   const replyWithVideo = () => {
     if (incomingCall) {
       // TODO: Отправить на бэк accept call with deviceId для получения push при входе нового участника
-      connect(incomingCall.token, {
-        room: incomingCall.room,
-        dominantSpeaker: true
-      } as ConnectOptions)
-        .then((room) => {
-          dispatch(actionsVideoChat.setRoom(room, 'fixedThis'))
-          dispatch(actions.removeIncomingCall())
-          stop()
-        }).catch((err) => {
-          console.log(err)
-          dispatch(actions.addErrorMsg(JSON.stringify(err)))
-        })
+      const { room, token } = incomingCall
+
+      stop()
+      dispatch(connectToVideoRoom(room, token))
+      dispatch(actions.removeIncomingCall())
     }
   }
 
