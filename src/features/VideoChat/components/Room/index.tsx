@@ -67,6 +67,7 @@ export const Room: FC<IRoom> = ({ room }) => {
         userName={name}
         dominantVideoRef={dominantVideoRef}
         isDominant={dominantSpeakerParticipant?.sid === participant.sid}
+        muted={room.localParticipant === participant}
       />
     )
   }), [participants, dominantSpeakerParticipant, dominantVideoRef])
