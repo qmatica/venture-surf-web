@@ -140,7 +140,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
 
     querySnapshot.forEach((doc) => {
       const notify = doc.data() as ValueNotificationsHistoryType
-      console.log('notifications', doc.id, ' => ', notify)
+      // console.log('notifications', doc.id, ' => ', notify)
       notificationsHistory[doc.id] = notify
     })
 
@@ -178,7 +178,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added') {
           const doc = change.doc.data() as ValueNotificationsHistoryType
-          console.log('New: doc', doc)
+          // console.log('New: doc', doc)
           if (!notificationsHistory[change.doc.id]) {
             console.log('Unregistered doc!', doc)
             notificationsHistory[change.doc.id] = doc

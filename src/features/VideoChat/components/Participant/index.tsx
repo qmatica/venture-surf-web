@@ -13,17 +13,15 @@ import styles from './styles.module.sass'
 
 interface IParticipant {
   participant: ParticipantType
-  style?: {
-    [key: string]: any
-  }
   userName?: string
   dominantVideoRef?: RefObject<HTMLVideoElement>
   isDominant?: boolean
   muted?: boolean
+  isHidden?: boolean
 }
 
 export const Participant: FC<IParticipant> = memo(({
-  participant, style, userName, dominantVideoRef, isDominant, muted
+  participant, userName, dominantVideoRef, isDominant, muted, isHidden
 }) => {
   const [videoTracks, setVideoTracks] = useState<VideoTrackType[]>([])
   const [audioTracks, setAudioTracks] = useState<AudioTrackType[]>([])
@@ -88,7 +86,7 @@ export const Participant: FC<IParticipant> = memo(({
   }, [audioTracks])
 
   return (
-    <div className={styles.container} style={style}>
+    <div className={styles.container} style={{ visibility: isHidden ? 'hidden' : 'visible' }}>
       <video id={participant.sid} ref={videoRef} autoPlay />
       {!muted && <audio ref={audioRef} autoPlay />}
       {userName && <div className={styles.userName}>{userName}</div>}

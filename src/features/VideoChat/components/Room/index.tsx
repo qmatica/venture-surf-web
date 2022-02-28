@@ -1,22 +1,28 @@
 import React, {
   createRef, FC, useEffect, useMemo, useState
 } from 'react'
-import { Participant as ParticipantType, Room as RoomType } from 'twilio-video'
+import {
+  Participant as ParticipantType,
+  Room as RoomType,
+  Track as TrackType,
+  LocalDataTrack as LocalDataTrackType
+} from 'twilio-video'
 import { usePrevious } from 'common/hooks'
 import { useDispatch, useSelector } from 'react-redux'
 import { Modal } from 'features/Modal'
 import { getAllContacts } from 'features/Contacts/selectors'
 import { actions as profileActions } from 'features/Profile/actions'
-import { actions } from '../../actions'
-import styles from './styles.module.sass'
 import { Participant } from '../Participant'
 import { NavBar } from '../NavBar'
+import { actions } from '../../actions'
+import styles from './styles.module.sass'
 
 interface IRoom {
   room: RoomType
+  localDataTrack: LocalDataTrackType
 }
 
-export const Room: FC<IRoom> = ({ room }) => {
+export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
   const dispatch = useDispatch()
   const dominantVideoRef = createRef<HTMLVideoElement>()
 
@@ -25,7 +31,7 @@ export const Room: FC<IRoom> = ({ room }) => {
   const [participants, setParticipants] = useState<{ [key: string]: ParticipantType }>({
     [room.localParticipant.sid]: room.localParticipant
   })
-  const [dominantSpeakerParticipant, setDominantSpeakerParticipant] = useState<ParticipantType | null>(null)
+  const [sidDominantSpeakerParticipant, setSidDominantSpeakerParticipant] = useState<string>('')
 
   const allContacts = useSelector(getAllContacts)
   const formattedAllContacts = useMemo(() => Object.values(allContacts).reduce((prevState, nextItem) =>
@@ -39,22 +45,24 @@ export const Room: FC<IRoom> = ({ room }) => {
             [room.localParticipant.sid]: room.localParticipant
           })
 
-          prevState.room.off('participantConnected', participantConnected)
-          prevState.room.off('participantDisconnected', participantDisconnected)
-          // prevState.room.off('disconnected', roomDisconnected)
-          prevState.room.off('dominantSpeakerChanged', dominantSpeakerChanged)
+          roomListeners(prevState.room, 'off')
         }
       }
 
-      room.on('participantConnected', participantConnected)
-      room.on('participantDisconnected', participantDisconnected)
-      // room.on('disconnected', roomDisconnected)
-      room.on('dominantSpeakerChanged', dominantSpeakerChanged)
+      roomListeners(room, 'on')
       room.participants.forEach(participantConnected)
     }
   }, [room])
 
-  const allParticipants = useMemo(() => Object.entries(participants).map(([sid, participant]) => {
+  const roomListeners = (room: RoomType | any, action: 'on' | 'off') => {
+    room[action]('participantConnected', participantConnected)
+    room[action]('participantDisconnected', participantDisconnected)
+    room[action]('trackSubscribed', subscribedTracks)
+    // room[action]('disconnected', roomDisconnected)
+    room[action]('dominantSpeakerChanged', dominantSpeakerChanged)
+  }
+
+  const allParticipants = useMemo(() => Object.entries(participants).map(([sid, participant], i, arr) => {
     const { identity } = participant
     const user = formattedAllContacts && formattedAllContacts[identity]
 
@@ -66,11 +74,12 @@ export const Room: FC<IRoom> = ({ room }) => {
         participant={participant}
         userName={name}
         dominantVideoRef={dominantVideoRef}
-        isDominant={dominantSpeakerParticipant?.sid === participant.sid}
-        muted={room.localParticipant === participant}
+        isDominant={arr.length === 1 || sidDominantSpeakerParticipant === participant.sid}
+        muted={room.localParticipant.sid === participant.sid}
+        isHidden={arr.length === 1}
       />
     )
-  }), [participants, dominantSpeakerParticipant, dominantVideoRef])
+  }), [participants, sidDominantSpeakerParticipant, dominantVideoRef])
 
   const leave = () => {
     room?.disconnect()
@@ -101,13 +110,39 @@ export const Room: FC<IRoom> = ({ room }) => {
 
   const dominantSpeakerChanged = (participant: ParticipantType) => {
     console.log('dominantSpeakerChanged', participant)
-    setDominantSpeakerParticipant((prevSpeakerParticipant) => {
-      if (
-        prevSpeakerParticipant
-        && participant
-        && prevSpeakerParticipant.sid === participant.sid
-      ) return prevSpeakerParticipant
-      return participant
+
+    if (!participant) return
+
+    localDataTrack.send(participant.sid)
+
+    setSidDominantSpeaker(participant.sid)
+  }
+
+  const setSidDominantSpeaker = (sid: string) => {
+    setSidDominantSpeakerParticipant((prevSidSpeakerParticipant) => {
+      if (prevSidSpeakerParticipant === sid) return prevSidSpeakerParticipant
+      return sid
+    })
+  }
+
+  // define local dominant speaker
+  const subscribedTracks = (track: TrackType) => {
+    let sidCountDominantSpeaker = {} as { [sid: string]: number }
+    track.on('message', (sidDominantSpeaker) => {
+      console.log('subscribedTracks - sidDominantSpeaker: ', sidDominantSpeaker)
+
+      if (!sidCountDominantSpeaker[sidDominantSpeaker]) {
+        sidCountDominantSpeaker = {}
+      }
+
+      sidCountDominantSpeaker[sidDominantSpeaker] = sidCountDominantSpeaker[sidDominantSpeaker]
+        ? sidCountDominantSpeaker[sidDominantSpeaker] + 1
+        : 1
+
+      // if all participants send my local sid
+      if (sidCountDominantSpeaker[sidDominantSpeaker] >= Object.keys(participants).length - 1) {
+        setSidDominantSpeaker(sidDominantSpeaker)
+      }
     })
   }
 
@@ -115,9 +150,10 @@ export const Room: FC<IRoom> = ({ room }) => {
   //   if (isOwnerCall) dispatch(sendCallSummary(room?.sid as string))
   // }
 
-  const dominantName = dominantSpeakerParticipant
-    && formattedAllContacts
-    && formattedAllContacts[dominantSpeakerParticipant.identity]?.displayName
+  const dominantName =
+    formattedAllContacts
+    && sidDominantSpeakerParticipant
+    && formattedAllContacts[participants[sidDominantSpeakerParticipant].identity]?.displayName
 
   return (
     <Modal

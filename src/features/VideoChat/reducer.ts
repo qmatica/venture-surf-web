@@ -1,8 +1,9 @@
-import { Room } from 'twilio-video'
+import { Room, LocalDataTrack } from 'twilio-video'
 import { ActionTypes } from './types'
 
 const initialState = {
   room: null as Room | null,
+  localDataTrack: null as LocalDataTrack | null,
   viewEndCallAll: false,
   isOwnerCall: false
 }
@@ -13,6 +14,12 @@ export const VideoChatReducer = (state = initialState, action: ActionTypes): typ
       return {
         ...state,
         room: action.room
+      }
+    }
+    case 'VIDEO_CHAT__SET_LOCAL_DATA_TRACK': {
+      return {
+        ...state,
+        localDataTrack: action.localDataTrack
       }
     }
     case 'VIDEO_CHAT__SET_VIEW_END_CALL_ALL': {

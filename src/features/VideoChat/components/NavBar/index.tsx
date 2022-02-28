@@ -19,21 +19,19 @@ interface INavbar {
 
 export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
   const [isEnabledMultimedia, setIsEnabledMultimedia] = useState({
-    video: true,
-    audio: true
+    videoTracks: true,
+    audioTracks: true
   })
   const [isActiveListMembers, setIsActiveListMembers] = useState(false)
 
-  const toggleMultimedia = (multimedia: 'audio' | 'video') => {
+  const toggleMultimedia = (kindMultimedia: 'audioTracks' | 'videoTracks') => {
     setIsEnabledMultimedia({
       ...isEnabledMultimedia,
-      [multimedia]: !isEnabledMultimedia[multimedia]
+      [kindMultimedia]: !isEnabledMultimedia[kindMultimedia]
     })
 
-    const kindMultimedia = multimedia === 'audio' ? 'audioTracks' : 'videoTracks'
-
     localParticipant[kindMultimedia].forEach((t) => {
-      if (isEnabledMultimedia[multimedia]) {
+      if (isEnabledMultimedia[kindMultimedia]) {
         t.track.disable()
         return
       }
@@ -45,16 +43,16 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
     <div className={styles.navBarContainer}>
       <div>
         <ButtonMultimedia
-          isActive={isEnabledMultimedia.audio}
+          isActive={isEnabledMultimedia.audioTracks}
           icon="audio"
-          title={isEnabledMultimedia.audio ? 'Mute' : 'Unmute'}
-          onClick={() => toggleMultimedia('audio')}
+          title={isEnabledMultimedia.audioTracks ? 'Mute' : 'Unmute'}
+          onClick={() => toggleMultimedia('audioTracks')}
         />
         <ButtonMultimedia
-          isActive={isEnabledMultimedia.video}
+          isActive={isEnabledMultimedia.videoTracks}
           icon="video"
-          title={isEnabledMultimedia.video ? 'Off video' : 'On video'}
-          onClick={() => toggleMultimedia('video')}
+          title={isEnabledMultimedia.videoTracks ? 'Off video' : 'On video'}
+          onClick={() => toggleMultimedia('videoTracks')}
         />
       </div>
       <div>
