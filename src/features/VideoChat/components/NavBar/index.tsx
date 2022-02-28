@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react'
 import { LocalParticipant as LocalParticipantType } from 'twilio-video'
 import { Button } from 'common/components/Button'
 import { Image } from 'common/components/Image'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getMutuals } from 'features/Contacts/selectors'
 import { MapParticipantsType } from 'features/VideoChat/types'
 import {
@@ -10,6 +10,7 @@ import {
 } from 'common/icons'
 import cn from 'classnames'
 import { usersAPI } from 'api'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
 import styles from './styles.module.sass'
 
 interface INavbar {
@@ -81,17 +82,25 @@ interface IListMembers {
 }
 
 const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
+  const dispatch = useDispatch()
   const mutuals = useSelector(getMutuals)
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState<string | null>(null)
 
   if (!isActive) return null
 
   const invite = async (uid: string) => {
+    setLoading(uid)
     const deviceId = localStorage.getItem('deviceId') as string
 
-    const response = await usersAPI.inviteInVideoRoom(uid, deviceId, 'now')
-
-    console.log(response)
+    usersAPI.inviteInVideoRoom(uid, deviceId, 'now')
+      .then((res) => {
+        console.log(res)
+        setLoading(null)
+      })
+      .catch((err) => {
+        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+      })
   }
 
   const list = mutuals?.filter((m) => !Object.values(participants).find((p) => p.identity === m.uid)).map((user) => {
@@ -111,7 +120,12 @@ const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
           </div>
           <div className={styles.name}>{name}</div>
         </div>
-        <Button title="Invite" onClick={() => invite(user.uid)} />
+        <Button
+          title="Invite"
+          onClick={() => invite(user.uid)}
+          isLoading={loading === user.uid}
+          disabled={!!loading}
+        />
       </div>
     )
   })
