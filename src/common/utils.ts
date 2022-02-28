@@ -1,4 +1,5 @@
 import { History } from 'history'
+import { UserType } from 'features/User/types'
 
 export const pipe = (...fns: ((value: any) => any)[]) =>
   (input: any) =>
@@ -100,3 +101,31 @@ export const formatSeconds = (sec: string | number): string => {
 }
 
 export const isNumber = (n: string): boolean => !isNaN(Number(n))
+
+export const formatRecommendedUsers = (recommendedUsers: { [key: string]: UserType[] }) => {
+  const formattedRecommendedUsers: { [key: string]: UserType } = {}
+  Object.keys(recommendedUsers).forEach((uid) => {
+    recommendedUsers[uid].forEach((user: UserType) => {
+      if (user.recommended_by) {
+        const { message } = user
+
+        const recommendedByList = !formattedRecommendedUsers[user.uid]
+          ? [{ ...user.recommended_by, message }]
+          : [...formattedRecommendedUsers[user.uid].recommendedByList, { ...user.recommended_by, message }]
+
+        let newUser = {
+          ...user,
+          recommendedByList
+        }
+
+        newUser = deleteFieldsOfObject(
+          newUser,
+          ['message', 'recommended_by', 'reason', 'recommended_at']
+        )
+
+        formattedRecommendedUsers[user.uid] = newUser
+      }
+    })
+  })
+  return formattedRecommendedUsers
+}

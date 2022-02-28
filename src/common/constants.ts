@@ -93,5 +93,6 @@ export const NOTIFICATION_TYPES = {
   MUTUAL_LIKE: 'mutual_like',
   INVEST: 'invest',
   INTRO: 'intro',
+  INTRO_YOU: 'intro_you',
   SHARE: 'share'
 }

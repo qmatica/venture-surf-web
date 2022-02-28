@@ -12,13 +12,13 @@ import {
   actions as actionsNotifications
 } from 'features/Notifications/actions'
 import * as UpChunk from '@mux/upchunk'
-import { init as initSurf } from 'features/Surf/actions'
+import { init as initSurf, actions as surfActions } from 'features/Surf/actions'
 import { UsersType, UserType } from 'features/User/types'
 import { getMessaging, onMessage } from 'firebase/messaging'
 import { IncomingCallType, ValueNotificationsHistoryType } from 'features/Notifications/types'
 import { firebaseApp } from 'store/store'
 import { determineNotificationContactsOrCall } from 'common/typeGuards'
-import { executeAllPromises, isNumber } from 'common/utils'
+import { executeAllPromises, isNumber, formatRecommendedUsers } from 'common/utils'
 import moment from 'moment'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import { VOIP_TOKEN, BUNDLE, NOTIFICATION_TYPES } from 'common/constants'
@@ -242,6 +242,19 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
                 const actionToUpdateProfile = [actions.addInvestment, actions.addInvestor][Number(isDocFounder)]
                 dispatch(actionToUpdateProfile({ [doc.contact]: { status: doc.data.status } }))
                 dispatch(actionsNotifications.addAnyMsg({ msg: notificationMsg, uid: uuidv4() }))
+                break
+              }
+              case NOTIFICATION_TYPES.INTRO: {
+                const response = await usersAPI.getRecommended()
+                const recommendedUsers = formatRecommendedUsers(response)
+                const introName = doc.data.contact.displayName
+                dispatch(actionsNotifications.addAnyMsg({ msg: `New recommended user ${introName}`, uid: uuidv4() }))
+                dispatch(surfActions.setRecommendedUsers(Object.values(recommendedUsers)))
+                break
+              }
+              case NOTIFICATION_TYPES.INTRO_YOU: {
+                const introName = doc.data.broker.displayName
+                dispatch(actionsNotifications.addAnyMsg({ msg: `Your account recommended from ${introName}`, uid: uuidv4() }))
                 break
               }
               case NOTIFICATION_TYPES.CALL_INSTANT: {

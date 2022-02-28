@@ -4,7 +4,7 @@ import { UserType } from 'features/User/types'
 import { actions as profileActions } from 'features/Profile/actions'
 import { actions as notificationsActions } from 'features/Notifications/actions'
 import { v4 as uuidv4 } from 'uuid'
-import { deleteFieldsOfObject } from 'common/utils'
+import { formatRecommendedUsers } from 'common/utils'
 import { ProfileType } from 'features/Profile/types'
 import { actions as contactsActions } from 'features/Contacts/actions'
 import { profileInteractionUsers } from 'features/Profile/constants'
@@ -37,31 +37,8 @@ export const init = (): ThunkType => async (dispatch, getState) => {
   if (!response) return
 
   const recommendedUsers: { [key: string]: UserType[] } = response[0]
-  const formattedRecommendedUsers: { [key: string]: UserType } = {}
 
-  Object.keys(recommendedUsers).forEach((uid) => {
-    recommendedUsers[uid].forEach((user) => {
-      if (user.recommended_by) {
-        const { message } = user
-
-        const recommendedByList = !formattedRecommendedUsers[user.uid]
-          ? [{ ...user.recommended_by, message }]
-          : [...formattedRecommendedUsers[user.uid].recommendedByList, { ...user.recommended_by, message }]
-
-        let newUser = {
-          ...user,
-          recommendedByList
-        }
-
-        newUser = deleteFieldsOfObject(
-          newUser,
-          ['message', 'recommended_by', 'reason', 'recommended_at']
-        )
-
-        formattedRecommendedUsers[user.uid] = newUser
-      }
-    })
-  })
+  const formattedRecommendedUsers = formatRecommendedUsers(recommendedUsers)
 
   dispatch(actions.setRecommendedUsers(Object.values(formattedRecommendedUsers)))
 
