@@ -4,20 +4,21 @@ import { Button } from 'common/components/Button'
 import { Image } from 'common/components/Image'
 import { useSelector } from 'react-redux'
 import { getMutuals } from 'features/Contacts/selectors'
+import { MapParticipantsType } from 'features/VideoChat/types'
 import {
   MicIcon, MicOffIcon, UserPhotoIcon, VideoIcon2, VideoOffIcon2
 } from 'common/icons'
 import cn from 'classnames'
-import moment from 'moment'
 import { usersAPI } from 'api'
 import styles from './styles.module.sass'
 
 interface INavbar {
   localParticipant: LocalParticipantType
   onLeave: () => void
+  participants: MapParticipantsType
 }
 
-export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
+export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants }) => {
   const [isEnabledMultimedia, setIsEnabledMultimedia] = useState({
     videoTracks: true,
     audioTracks: true
@@ -62,7 +63,7 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
             onClick={() => setIsActiveListMembers(!isActiveListMembers)}
             className={cn(styles.addMembers, isActiveListMembers && styles.active)}
           />
-          <ListMembers isActive={isActiveListMembers} />
+          <ListMembers participants={participants} isActive={isActiveListMembers} />
         </div>
         <Button
           title="Leave"
@@ -74,7 +75,12 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
   )
 }
 
-const ListMembers = ({ isActive = false }) => {
+interface IListMembers {
+  isActive: boolean
+  participants: MapParticipantsType
+}
+
+const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
   const mutuals = useSelector(getMutuals)
   const [search, setSearch] = useState('')
 
@@ -88,7 +94,7 @@ const ListMembers = ({ isActive = false }) => {
     console.log(response)
   }
 
-  const list = mutuals?.map((user) => {
+  const list = mutuals?.filter((m) => !Object.values(participants).find((p) => p.identity === m.uid)).map((user) => {
     const name = user.displayName || `${user.first_name} ${user.last_name}`
     if (!name.toLocaleLowerCase().includes(search.toLocaleLowerCase())) return null
 

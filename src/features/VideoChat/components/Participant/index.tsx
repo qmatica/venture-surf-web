@@ -86,7 +86,7 @@ export const Participant: FC<IParticipant> = memo(({
   }, [audioTracks])
 
   return (
-    <div className={styles.container} style={{ visibility: isHidden ? 'hidden' : 'visible' }}>
+    <div className={styles.container} style={{ display: isHidden ? 'none' : 'flex' }}>
       <video id={participant.sid} ref={videoRef} autoPlay />
       {!muted && <audio ref={audioRef} autoPlay />}
       {userName && <div className={styles.userName}>{userName}</div>}

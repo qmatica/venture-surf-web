@@ -12,9 +12,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Modal } from 'features/Modal'
 import { getAllContacts } from 'features/Contacts/selectors'
 import { actions as profileActions } from 'features/Profile/actions'
+import { getMyUid } from 'features/Auth/selectors'
+import { getMyName } from 'features/Profile/selectors'
 import { Participant } from '../Participant'
 import { NavBar } from '../NavBar'
 import { actions } from '../../actions'
+import { MapParticipantsType } from '../../types'
 import styles from './styles.module.sass'
 
 interface IRoom {
@@ -25,10 +28,12 @@ interface IRoom {
 export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
   const dispatch = useDispatch()
   const dominantVideoRef = createRef<HTMLVideoElement>()
+  const myUid = useSelector(getMyUid)
+  const myName = useSelector(getMyName)
 
   const prevState = usePrevious({ room })
 
-  const [participants, setParticipants] = useState<{ [key: string]: ParticipantType }>({
+  const [participants, setParticipants] = useState<MapParticipantsType>({
     [room.localParticipant.sid]: room.localParticipant
   })
   const [sidDominantSpeakerParticipant, setSidDominantSpeakerParticipant] = useState<string>('')
@@ -64,9 +69,18 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
 
   const allParticipants = useMemo(() => Object.entries(participants).map(([sid, participant], i, arr) => {
     const { identity } = participant
-    const user = formattedAllContacts && formattedAllContacts[identity]
 
-    const name = user ? user.displayName || `${user.first_name} ${user.last_name}` : ''
+    let name = identity === myUid ? myName : ''
+
+    if (!name) {
+      const user = formattedAllContacts && formattedAllContacts[identity]
+
+      if (user) {
+        name = user.displayName || `${user.first_name} ${user.last_name}`
+      }
+    }
+
+    const isDominant = arr.length === 1 || (arr.length === 2 && participant.sid !== room.localParticipant.sid)
 
     return (
       <Participant
@@ -74,15 +88,16 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
         participant={participant}
         userName={name}
         dominantVideoRef={dominantVideoRef}
-        isDominant={arr.length === 1 || sidDominantSpeakerParticipant === participant.sid}
+        isDominant={isDominant || sidDominantSpeakerParticipant === participant.sid}
         muted={room.localParticipant.sid === participant.sid}
-        isHidden={arr.length === 1}
+        isHidden={isDominant}
       />
     )
   }), [participants, sidDominantSpeakerParticipant, dominantVideoRef])
 
   const leave = () => {
-    room?.disconnect()
+    roomListeners(room, 'off')
+    room.disconnect()
     dispatch(actions.reset())
     dispatch(profileActions.updateMySlots('del', 'now'))
   }
@@ -147,13 +162,29 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
   }
 
   // const roomDisconnected = () => {
-  //   if (isOwnerCall) dispatch(sendCallSummary(room?.sid as string))
+  //   if (isOwnerCall) dispatch(sendCallSummary(room.sid))
   // }
 
-  const dominantName =
-    formattedAllContacts
-    && sidDominantSpeakerParticipant
-    && formattedAllContacts[participants[sidDominantSpeakerParticipant].identity]?.displayName
+  const getDominantName = () => {
+    if (formattedAllContacts) {
+      if (sidDominantSpeakerParticipant) {
+        if (sidDominantSpeakerParticipant === room.localParticipant.sid) {
+          return myName
+        }
+        return formattedAllContacts[participants[sidDominantSpeakerParticipant]?.identity]?.displayName
+      }
+
+      const allParticipants = Object.values(participants)
+      if (allParticipants.length === 2) {
+        const participant = allParticipants.find((p) => p.sid !== room.localParticipant.sid)
+
+        if (participant) {
+          return formattedAllContacts[participant.identity]?.displayName
+        }
+      }
+    }
+    return null
+  }
 
   return (
     <Modal
@@ -167,10 +198,10 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
           {allParticipants}
         </div>
         <div className={styles.dominantParticipantContainer}>
-          <div className={styles.dominantName}>{dominantName}</div>
+          <div className={styles.dominantName}>{getDominantName()}</div>
           <video ref={dominantVideoRef} autoPlay />
         </div>
-        <NavBar localParticipant={room.localParticipant} onLeave={leave} />
+        <NavBar participants={participants} localParticipant={room.localParticipant} onLeave={leave} />
       </div>
     </Modal>
   )

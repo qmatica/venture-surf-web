@@ -1,12 +1,12 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { RootState } from 'common/types'
 import { Room } from './components/Room'
+import { getVideoChat } from './selectors'
 
 export const VideoChat = () => {
   const {
     room, localDataTrack, viewEndCallAll, isOwnerCall
-  } = useSelector((state: RootState) => state.videoChat)
+  } = useSelector(getVideoChat)
 
   if (!room) return null
   if (!localDataTrack) return null
