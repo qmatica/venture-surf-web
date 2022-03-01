@@ -1,29 +1,25 @@
-import { connect, ConnectOptions } from 'twilio-video'
 import {
-  collection, doc, getDoc, getDocs, query, where, onSnapshot
+  collection, getDocs, query, onSnapshot
 } from 'firebase/firestore'
-import { v4 as uuidv4 } from 'uuid'
-import { profileAPI, usersAPI } from 'api'
-import { apiCodes } from 'common/types'
-import { actions as actionsVideoChat } from 'features/VideoChat/actions'
-import { actions as actionsContacts } from 'features/Contacts/actions'
-import { actions as actionsConversations, listenMessages, sendMessage } from 'features/Conversations/actions'
-import {
-  actions as actionsNotifications
-} from 'features/Notifications/actions'
 import * as UpChunk from '@mux/upchunk'
+import { v4 as uuidv4 } from 'uuid'
+import moment from 'moment'
+import { profileAPI, usersAPI } from 'api'
 import { init as initSurf, actions as surfActions } from 'features/Surf/actions'
+import { actions as actionsConversations, listenMessages, sendMessage } from 'features/Conversations/actions'
+import { actions as actionsVideoChat, connectToVideoRoom } from 'features/VideoChat/actions'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
+import { actions as actionsContacts } from 'features/Contacts/actions'
+import { ValueNotificationsHistoryType } from 'features/Notifications/types'
+import { FormattedSlotsType } from 'features/Calendar/types'
 import { UsersType, UserType } from 'features/User/types'
-import { getMessaging, onMessage } from 'firebase/messaging'
-import { IncomingCallType, ValueNotificationsHistoryType } from 'features/Notifications/types'
-import { firebaseApp } from 'store/store'
+import { ChatType } from 'features/Conversations/types'
+import { RoleType, InvestmentType } from 'features/Profile/types'
+import { addToClipboardPublicLinkProfile } from 'common/actions'
 import { determineNotificationContactsOrCall } from 'common/typeGuards'
 import { executeAllPromises, isNumber, formatRecommendedUsers } from 'common/utils'
-import moment from 'moment'
-import { FormattedSlotsType } from 'features/Calendar/types'
 import { VOIP_TOKEN, BUNDLE, NOTIFICATION_TYPES } from 'common/constants'
-import { RoleType } from 'features/Profile/types'
-import { addToClipboardPublicLinkProfile } from 'common/actions'
+import { apiCodes } from 'common/types'
 
 import {
   JobType,
@@ -34,11 +30,9 @@ import {
   ResultCompareContactsType,
   ContactsListType,
   ResultCompareInstanceCallType,
-  SlotsType,
-  InvestmentType
+  SlotsType
 } from './types'
-import { ChatType } from '../Conversations/types'
-import { compareCountContacts, compareNowSlot, getTokenFcm } from './utils'
+import { compareCountContacts, getTokenFcm } from './utils'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
@@ -201,7 +195,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
 
     querySnapshot.forEach((doc) => {
       const notify = doc.data() as ValueNotificationsHistoryType
-      console.log('notifications', doc.id, ' => ', notify)
+      // console.log('notifications', doc.id, ' => ', notify)
       notificationsHistory[doc.id] = notify
     })
 
@@ -239,7 +233,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
       snapshot.docChanges().forEach(async (change) => {
         if (change.type === 'added') {
           const doc = change.doc.data() as ValueNotificationsHistoryType
-          console.log('New: doc', doc)
+          // console.log('New: doc', doc)
           if (!notificationsHistory[change.doc.id]) {
             console.log('Unregistered doc!', doc)
             notificationsHistory[change.doc.id] = doc
@@ -312,6 +306,12 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
                 break
               }
               default: break
+            }
+
+            if (notificationsHistory[change.doc.id].type === 'twilio_enter_group') {
+              const { data: { room, token } } = notificationsHistory[change.doc.id]
+
+              dispatch(connectToVideoRoom(room, token))
             }
           }
         }
@@ -540,7 +540,7 @@ export const showNotification =
           const { room } = getState().videoChat
           if (room) {
             room.disconnect()
-            dispatch(actionsVideoChat.setRoom(null, null))
+            dispatch(actionsVideoChat.setRoom(null))
           }
           return
         }
@@ -859,16 +859,8 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
     })
 
     if (response) {
-      const room = await connect(response.token, {
-        room: response.room,
-        dominantSpeaker: true
-      } as ConnectOptions).catch((err) => {
-        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
-      })
-
-      if (room) {
-        dispatch(actionsVideoChat.setRoom(room, uid))
-      }
+      const { room, token } = response
+      dispatch(connectToVideoRoom(room, token))
     }
 
     dispatch(togglePreloader(contacts, uid, 'callNow'))

@@ -1,5 +1,5 @@
 import React, {
-  createRef, FC, memo, useEffect, useState
+  createRef, FC, memo, RefObject, useEffect, useMemo, useState
 } from 'react'
 import {
   Participant as ParticipantType,
@@ -13,12 +13,16 @@ import styles from './styles.module.sass'
 
 interface IParticipant {
   participant: ParticipantType
-  style?: {
-    [key: string]: any
-  }
+  userName?: string
+  dominantVideoRef?: RefObject<HTMLVideoElement>
+  isDominant?: boolean
+  muted?: boolean
+  isHidden?: boolean
 }
 
-export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
+export const Participant: FC<IParticipant> = memo(({
+  participant, userName, dominantVideoRef, isDominant, muted, isHidden
+}) => {
   const [videoTracks, setVideoTracks] = useState<VideoTrackType[]>([])
   const [audioTracks, setAudioTracks] = useState<AudioTrackType[]>([])
   const videoRef = createRef<HTMLVideoElement>()
@@ -30,7 +34,7 @@ export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
   const trackSubscribed = (track: VideoTrackType | AudioTrackType) => {
     if (track.kind === 'video') {
       setVideoTracks((videoTracks) => [...videoTracks, track])
-    } else if (track.kind === 'audio') {
+    } else if (track.kind === 'audio' && !muted) {
       setAudioTracks((audioTracks) => [...audioTracks, track])
     }
   }
@@ -45,7 +49,7 @@ export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
 
   useEffect(() => {
     setVideoTracks(trackPubsToTracks(participant.videoTracks))
-    setAudioTracks(trackPubsToTracks(participant.audioTracks))
+    if (!muted) setAudioTracks(trackPubsToTracks(participant.audioTracks))
 
     participant.on('trackSubscribed', trackSubscribed)
     participant.on('trackUnsubscribed', trackUnsubscribed)
@@ -60,11 +64,16 @@ export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
     const videoTrack = videoTracks[0]
     if (videoRef.current) {
       videoTrack?.attach(videoRef.current)
+      if (dominantVideoRef?.current) {
+        if (isDominant) {
+          videoTrack?.attach(dominantVideoRef.current)
+        }
+      }
     }
     return () => {
       videoTrack?.detach()
     }
-  }, [videoTracks])
+  }, [videoTracks, isDominant])
 
   useEffect(() => {
     const audioTrack = audioTracks[0]
@@ -77,9 +86,10 @@ export const Participant: FC<IParticipant> = memo(({ participant, style }) => {
   }, [audioTracks])
 
   return (
-    <div className={styles.container} style={style}>
-      <video ref={videoRef} autoPlay />
-      <audio ref={audioRef} autoPlay />
+    <div className={styles.container} style={{ display: isHidden ? 'none' : 'flex' }}>
+      <video id={participant.sid} ref={videoRef} autoPlay />
+      {!muted && <audio ref={audioRef} autoPlay />}
+      {userName && <div className={styles.userName}>{userName}</div>}
     </div>
   )
 })

@@ -47,6 +47,13 @@ export const getAllInvests = createSelector(
   (investments, investors) => ({ ...investments, ...investors })
 )
 
+export const getDisplayNameSelector = (state: RootState) => state.profile.profile?.displayName
+export const getFirstNameSelector = (state: RootState) => state.profile.profile?.first_name
+export const getLastNameSelector = (state: RootState) => state.profile.profile?.last_name
+
+export const getMyName = createSelector(getDisplayNameSelector, getFirstNameSelector, getLastNameSelector,
+  (displayName, firstName, lastName) => displayName || `${firstName} ${lastName}`)
+
 export const getMyProfile = createSelector(getMyProfileSelector, (profile) => profile)
 
 export const getMyActiveRole = createSelector(getMyActiveRoleSelector, (activeRole) => activeRole)

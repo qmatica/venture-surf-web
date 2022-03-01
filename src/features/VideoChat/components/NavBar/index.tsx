@@ -2,38 +2,38 @@ import React, { FC, useState } from 'react'
 import { LocalParticipant as LocalParticipantType } from 'twilio-video'
 import { Button } from 'common/components/Button'
 import { Image } from 'common/components/Image'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getMutuals } from 'features/Contacts/selectors'
+import { MapParticipantsType } from 'features/VideoChat/types'
 import {
   MicIcon, MicOffIcon, UserPhotoIcon, VideoIcon2, VideoOffIcon2
 } from 'common/icons'
 import cn from 'classnames'
-import moment from 'moment'
 import { usersAPI } from 'api'
+import { actions as actionsNotifications } from 'features/Notifications/actions'
 import styles from './styles.module.sass'
 
 interface INavbar {
   localParticipant: LocalParticipantType
   onLeave: () => void
+  participants: MapParticipantsType
 }
 
-export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
+export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants }) => {
   const [isEnabledMultimedia, setIsEnabledMultimedia] = useState({
-    video: true,
-    audio: true
+    videoTracks: true,
+    audioTracks: true
   })
   const [isActiveListMembers, setIsActiveListMembers] = useState(false)
 
-  const toggleMultimedia = (multimedia: 'audio' | 'video') => {
+  const toggleMultimedia = (kindMultimedia: 'audioTracks' | 'videoTracks') => {
     setIsEnabledMultimedia({
       ...isEnabledMultimedia,
-      [multimedia]: !isEnabledMultimedia[multimedia]
+      [kindMultimedia]: !isEnabledMultimedia[kindMultimedia]
     })
 
-    const kindMultimedia = multimedia === 'audio' ? 'audioTracks' : 'videoTracks'
-
     localParticipant[kindMultimedia].forEach((t) => {
-      if (isEnabledMultimedia[multimedia]) {
+      if (isEnabledMultimedia[kindMultimedia]) {
         t.track.disable()
         return
       }
@@ -45,16 +45,16 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
     <div className={styles.navBarContainer}>
       <div>
         <ButtonMultimedia
-          isActive={isEnabledMultimedia.audio}
+          isActive={isEnabledMultimedia.audioTracks}
           icon="audio"
-          title={isEnabledMultimedia.audio ? 'Mute' : 'Unmute'}
-          onClick={() => toggleMultimedia('audio')}
+          title={isEnabledMultimedia.audioTracks ? 'Mute' : 'Unmute'}
+          onClick={() => toggleMultimedia('audioTracks')}
         />
         <ButtonMultimedia
-          isActive={isEnabledMultimedia.video}
+          isActive={isEnabledMultimedia.videoTracks}
           icon="video"
-          title={isEnabledMultimedia.video ? 'Off video' : 'On video'}
-          onClick={() => toggleMultimedia('video')}
+          title={isEnabledMultimedia.videoTracks ? 'Off video' : 'On video'}
+          onClick={() => toggleMultimedia('videoTracks')}
         />
       </div>
       <div>
@@ -64,7 +64,7 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
             onClick={() => setIsActiveListMembers(!isActiveListMembers)}
             className={cn(styles.addMembers, isActiveListMembers && styles.active)}
           />
-          <ListMembers isActive={isActiveListMembers} />
+          <ListMembers participants={participants} isActive={isActiveListMembers} />
         </div>
         <Button
           title="Leave"
@@ -76,21 +76,34 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave }) => {
   )
 }
 
-const ListMembers = ({ isActive = false }) => {
+interface IListMembers {
+  isActive: boolean
+  participants: MapParticipantsType
+}
+
+const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
+  const dispatch = useDispatch()
   const mutuals = useSelector(getMutuals)
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState<string | null>(null)
 
   if (!isActive) return null
 
   const invite = async (uid: string) => {
+    setLoading(uid)
     const deviceId = localStorage.getItem('deviceId') as string
 
-    const response = await usersAPI.inviteInVideoRoom(uid, deviceId, 'now')
-
-    console.log(response)
+    usersAPI.inviteInVideoRoom(uid, deviceId, 'now')
+      .then((res) => {
+        console.log(res)
+        setLoading(null)
+      })
+      .catch((err) => {
+        dispatch(actionsNotifications.addErrorMsg(JSON.stringify(err)))
+      })
   }
 
-  const list = mutuals?.map((user) => {
+  const list = mutuals?.filter((m) => !Object.values(participants).find((p) => p.identity === m.uid)).map((user) => {
     const name = user.displayName || `${user.first_name} ${user.last_name}`
     if (!name.toLocaleLowerCase().includes(search.toLocaleLowerCase())) return null
 
@@ -107,7 +120,12 @@ const ListMembers = ({ isActive = false }) => {
           </div>
           <div className={styles.name}>{name}</div>
         </div>
-        <Button title="Invite" onClick={() => invite(user.uid)} />
+        <Button
+          title="Invite"
+          onClick={() => invite(user.uid)}
+          isLoading={loading === user.uid}
+          disabled={!!loading}
+        />
       </div>
     )
   })

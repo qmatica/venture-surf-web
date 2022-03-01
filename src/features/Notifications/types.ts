@@ -28,6 +28,7 @@ export type ValueNotificationsHistoryType = {
       | 'call_instant_group'
       | 'call_canceled'
       | 'call_declined'
+      | 'twilio_enter_group'
       | 'mutual_like'
       | 'like'
       | 'intro'
