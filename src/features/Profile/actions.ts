@@ -78,6 +78,57 @@ export const actions = {
 
 let activeActions: string[] = []
 
+const onLikeNotification = async (contactUid: string, dispatch: (action: any) => void) => {
+  const likedUser = await usersAPI.getUser(contactUid)
+  const liked = {
+    [contactUid]: {
+      ...likedUser,
+      job: {
+        investor: likedUser?.investor?.job,
+        founder: likedUser?.founder?.job
+      }
+    }
+  }
+  dispatch(showNotification({
+    contact: liked[contactUid],
+    action: 'addUserInMyContacts'
+  } as any, 'liked'))
+  dispatch(actions.setMyProfileLiked(liked))
+}
+
+const onMutualLikeNotification = async (contactUid: string, dispatch: (action: any) => void) => {
+  const mutualsUser = await usersAPI.getUser(contactUid)
+  const mutuals = {
+    [contactUid]: {
+      ...mutualsUser,
+      job: {
+        investor: mutualsUser?.investor?.job,
+        founder: mutualsUser?.founder?.job
+      }
+    }
+  }
+  dispatch(showNotification({
+    contact: mutuals[contactUid],
+    action: 'addUserInMyContacts'
+  } as any, 'mutuals'))
+  dispatch(actions.setMyProfileMutualsLike(mutuals))
+}
+
+const onInvestNotification = (uid: string, role: RoleType, status: string, dispatch: (action: any) => void) => {
+  const isDocFounder = role === 'founder'
+  const notificationMsg = ['New request for funding', 'New request for investment'][Number(isDocFounder)]
+  const actionToUpdateProfile = [actions.addInvestment, actions.addInvestor][Number(isDocFounder)]
+  dispatch(actionToUpdateProfile({ [uid]: { status } }))
+  dispatch(actionsNotifications.addAnyMsg({ msg: notificationMsg, uid: uuidv4() }))
+}
+
+const onIntroNotification = async (userName: string, dispatch: (action: any) => void) => {
+  const response = await usersAPI.getRecommended()
+  const recommendedUsers = formatRecommendedUsers(response)
+  dispatch(actionsNotifications.addAnyMsg({ msg: `New recommended user ${userName}`, uid: uuidv4() }))
+  dispatch(surfActions.setRecommendedUsers(Object.values(recommendedUsers)))
+}
+
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
   try {
     let deviceId = localStorage.getItem('deviceId')
@@ -194,67 +245,37 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             notificationsHistory[change.doc.id] = doc
 
             dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
-
             // Входящий звонок
             switch (notificationsHistory[change.doc.id].type) {
               case NOTIFICATION_TYPES.LIKE: {
-                const likedUser = await usersAPI.getUser(doc.contact)
-                const liked = {
-                  [doc.contact as string]: {
-                    ...likedUser,
-                    job: {
-                      investor: likedUser?.investor?.job,
-                      founder: likedUser?.founder?.job
-                    }
-                  }
-                }
-                dispatch(showNotification({
-                  contact: liked[doc.contact as string],
-                  action: 'addUserInMyContacts'
-                } as any, 'liked'))
-
-                dispatch(actions.setMyProfileLiked(liked))
+                await onLikeNotification(doc.contact, dispatch)
                 break
               }
               case NOTIFICATION_TYPES.MUTUAL_LIKE: {
-                const mutualsUser = await usersAPI.getUser(doc.contact)
-                const mutuals = {
-                  [doc.contact as string]: {
-                    ...mutualsUser,
-                    job: {
-                      investor: mutualsUser?.investor?.job,
-                      founder: mutualsUser?.founder?.job
-                    }
-                  }
-                }
-
-                dispatch(showNotification({
-                  contact: mutuals[doc.contact as string],
-                  action: 'addUserInMyContacts'
-                } as any, 'mutuals'))
-
-                dispatch(actions.setMyProfileMutualsLike(mutuals))
+                await onMutualLikeNotification(doc.contact, dispatch)
                 break
               }
               case NOTIFICATION_TYPES.INVEST: {
-                const isDocFounder = doc.data.role === 'founder'
-                const notificationMsg = ['New request for funding', 'New request for investment'][Number(isDocFounder)]
-                const actionToUpdateProfile = [actions.addInvestment, actions.addInvestor][Number(isDocFounder)]
-                dispatch(actionToUpdateProfile({ [doc.contact]: { status: doc.data.status } }))
-                dispatch(actionsNotifications.addAnyMsg({ msg: notificationMsg, uid: uuidv4() }))
+                onInvestNotification(doc.contact, doc.data.role, doc.data.status, dispatch)
                 break
               }
               case NOTIFICATION_TYPES.INTRO: {
-                const response = await usersAPI.getRecommended()
-                const recommendedUsers = formatRecommendedUsers(response)
-                const introName = doc.data.contact.displayName
-                dispatch(actionsNotifications.addAnyMsg({ msg: `New recommended user ${introName}`, uid: uuidv4() }))
-                dispatch(surfActions.setRecommendedUsers(Object.values(recommendedUsers)))
+                await onIntroNotification(doc.data.contact.displayName, dispatch)
                 break
               }
               case NOTIFICATION_TYPES.INTRO_YOU: {
-                const introName = doc.data.broker.displayName
-                dispatch(actionsNotifications.addAnyMsg({ msg: `Your account recommended from ${introName}`, uid: uuidv4() }))
+                dispatch(actionsNotifications.addAnyMsg({
+                  msg: `Your account recommended from ${doc.data.broker.displayName}`,
+                  uid: uuidv4()
+                }))
+                break
+              }
+              case NOTIFICATION_TYPES.SHARE: {
+                const user = await usersAPI.getUser(doc.contact)
+                dispatch(actionsNotifications.addAnyMsg({
+                  msg: `Meeting invitation from ${user.first_name} ${user.last_name}`,
+                  uid: uuidv4()
+                }))
                 break
               }
               case NOTIFICATION_TYPES.CALL_INSTANT: {

@@ -231,7 +231,7 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         profile: {
           ...state.profile,
           investments: { ...state.profile?.investments, ...action.investment }
-        } as ProfileType // TODO: fix type error
+        } as ProfileType
       }
     }
     case 'PROFILE__ADD_INVESTOR': {
@@ -240,7 +240,7 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         profile: {
           ...state.profile,
           investors: { ...state.profile?.investors, ...action.investor }
-        } as ProfileType // TODO: fix type error
+        } as ProfileType
       }
     }
     default: return state
