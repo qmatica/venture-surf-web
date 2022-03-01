@@ -18,7 +18,9 @@ import { getMessaging, onMessage } from 'firebase/messaging'
 import { IncomingCallType, ValueNotificationsHistoryType } from 'features/Notifications/types'
 import { firebaseApp } from 'store/store'
 import { determineNotificationContactsOrCall } from 'common/typeGuards'
-import { executeAllPromises, isNumber } from 'common/utils'
+import {
+  executeAllPromises, isNumber, minutesToMs, createScheduledNotification, cancelScheduledNotification
+} from 'common/utils'
 import moment from 'moment'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import { RoleType } from 'features/Profile/types'
@@ -69,6 +71,34 @@ export const actions = {
   addInvests: (investorList: string[]) => ({ type: 'PROFILE__ADD_INVEST', investorList } as const),
   addYourself: (uid: string, selectedRole: 'investments' | 'investors') => ({ type: 'PROFILE__ADD_YOURSELF', payload: { uid, selectedRole } } as const),
   deleteInvest: (uid: string) => ({ type: 'PROFILE__DELETE_INVEST', uid } as const)
+}
+
+const scheduleMeeting = (uid: string, date: string) => {
+  const SCHEDULED_MEETINGS = 'scheduledMeetingsToNotify'
+  const meetingId = `${uid}_${date}`
+  const scheduledMeetings = JSON.parse(localStorage.getItem(SCHEDULED_MEETINGS) || '[]')
+  const meetingStartTimeMs = moment(date).unix() * 1000
+  const fiveMinBeforeMeeting = meetingStartTimeMs - minutesToMs(5)
+  if (!scheduledMeetings?.includes(meetingId) && fiveMinBeforeMeeting > Date.now()) {
+    createScheduledNotification(
+      `You have a meeting at: ${moment(date).toDate()}`,
+      fiveMinBeforeMeeting,
+      meetingId
+    )
+    localStorage.setItem(SCHEDULED_MEETINGS, JSON.stringify([...scheduledMeetings, meetingId]))
+  }
+}
+
+const cancelMeeting = (uid: string, date: string) => {
+  const SCHEDULED_MEETINGS = 'scheduledMeetingsToNotify'
+  const meetingId = `${uid}_${date}`
+  const scheduledMeetings = JSON.parse(localStorage.getItem(SCHEDULED_MEETINGS) || '[]')
+  scheduledMeetings.filter((meeting: string) => meeting !== meetingId)
+  cancelScheduledNotification(meetingId)
+  localStorage.setItem(
+    SCHEDULED_MEETINGS,
+    JSON.stringify(scheduledMeetings.filter((meeting: string) => meeting !== meetingId))
+  )
 }
 
 let activeActions: string[] = []
@@ -184,6 +214,10 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
         if (change.type === 'added') {
           const doc = change.doc.data() as ValueNotificationsHistoryType
           console.log('New: doc', doc)
+
+          if (doc.type === 'call_scheduled') scheduleMeeting(doc.contact, doc.data.start_time)
+          if (doc.type === 'call_canceled') cancelMeeting(doc.contact, doc.data.start_time)
+
           if (!notificationsHistory[change.doc.id]) {
             console.log('Unregistered doc!', doc)
             notificationsHistory[change.doc.id] = doc
@@ -1021,6 +1055,7 @@ export const connectToCall = (date: string, uid: string): ThunkType => async (di
         msg: `You have scheduled a meeting with ${companionName}`,
         uid: uuidv4()
       }))
+      scheduleMeeting(uid, formattedDate)
     }
   }
 }

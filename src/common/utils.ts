@@ -100,3 +100,40 @@ export const formatSeconds = (sec: string | number): string => {
 }
 
 export const isNumber = (n: string): boolean => !isNaN(Number(n))
+
+export const minutesToMs = (min: number) => min * 60 * 1000
+
+export const createScheduledNotification = (
+  body: string, timestamp: number, tag: string
+) => {
+  Notification.requestPermission().then(async (permission) => {
+    if (permission === 'granted') {
+      const registration = await navigator.serviceWorker.getRegistration()
+      // @ts-ignore
+      if (registration && 'showTrigger' in Notification.prototype && window.TimestampTrigger) {
+        registration.showNotification('VentureSurf', {
+          tag,
+          body,
+          // @ts-ignore
+          showTrigger: new window.TimestampTrigger(timestamp),
+          icon: 'common/images/logo.jpg'
+        })
+      }
+    }
+  })
+}
+
+export const cancelScheduledNotification = (tag: string) => {
+  Notification.requestPermission().then(async (permission) => {
+    if (permission === 'granted') {
+      const registration = await navigator.serviceWorker.getRegistration()
+      if (registration) {
+        const notifications = await registration.getNotifications({
+          tag,
+          includeTriggered: true
+        } as any)
+        notifications.forEach((notification) => notification.close())
+      }
+    }
+  })
+}

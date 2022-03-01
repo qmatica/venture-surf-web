@@ -34,6 +34,7 @@ export type ValueNotificationsHistoryType = {
       | 'intro'
       | 'intro_you'
       | 'invest'
+      | 'call_scheduled'
     uid: string
     count?: number
 }

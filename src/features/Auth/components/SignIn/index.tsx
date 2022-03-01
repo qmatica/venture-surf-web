@@ -49,6 +49,10 @@ export const SignIn = () => {
     return <Redirect to="/surf" />
   }
 
+  useEffect(() => {
+    if (codeInputRef.current && confirmation) codeInputRef.current.focus()
+  }, [confirmation])
+
   return (
     <div>
       {!confirmation ? (
