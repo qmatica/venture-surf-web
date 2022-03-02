@@ -1,4 +1,6 @@
 import { History } from 'history'
+import { UserType } from 'features/User/types'
+import { BROWSER_PERMISSIONS } from 'common/constants'
 
 export const pipe = (...fns: ((value: any) => any)[]) =>
   (input: any) =>
@@ -107,7 +109,7 @@ export const createScheduledNotification = (
   body: string, timestamp: number, tag: string
 ) => {
   Notification.requestPermission().then(async (permission) => {
-    if (permission === 'granted') {
+    if (permission === BROWSER_PERMISSIONS.GRANTED) {
       const registration = await navigator.serviceWorker.getRegistration()
       // @ts-ignore
       if (registration && 'showTrigger' in Notification.prototype && window.TimestampTrigger) {
@@ -125,7 +127,7 @@ export const createScheduledNotification = (
 
 export const cancelScheduledNotification = (tag: string) => {
   Notification.requestPermission().then(async (permission) => {
-    if (permission === 'granted') {
+    if (permission === BROWSER_PERMISSIONS.GRANTED) {
       const registration = await navigator.serviceWorker.getRegistration()
       if (registration) {
         const notifications = await registration.getNotifications({
@@ -136,4 +138,32 @@ export const cancelScheduledNotification = (tag: string) => {
       }
     }
   })
+}
+
+export const formatRecommendedUsers = (recommendedUsers: { [key: string]: UserType[] }) => {
+  const formattedRecommendedUsers: { [key: string]: UserType } = {}
+  Object.keys(recommendedUsers).forEach((uid) => {
+    recommendedUsers[uid].forEach((user: UserType) => {
+      if (user.recommended_by) {
+        const { message } = user
+
+        const recommendedByList = !formattedRecommendedUsers[user.uid]
+          ? [{ ...user.recommended_by, message }]
+          : [...formattedRecommendedUsers[user.uid].recommendedByList, { ...user.recommended_by, message }]
+
+        let newUser = {
+          ...user,
+          recommendedByList
+        }
+
+        newUser = deleteFieldsOfObject(
+          newUser,
+          ['message', 'recommended_by', 'reason', 'recommended_at']
+        )
+
+        formattedRecommendedUsers[user.uid] = newUser
+      }
+    })
+  })
+  return formattedRecommendedUsers
 }

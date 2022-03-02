@@ -12,6 +12,18 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
   switch (action.type) {
     case 'PROFILE__SET_MY_PROFILE':
       return { ...state, profile: action.profile }
+    case 'PROFILE__SET_MY_PROFILE_LIKED': {
+      return {
+        ...state,
+        profile: { ...state.profile, liked: { ...state.profile?.liked, ...action.liked } } as ProfileType
+      }
+    }
+    case 'PROFILE__SET_MY_PROFILE_MUTUALS': {
+      return {
+        ...state,
+        profile: { ...state.profile, mutuals: { ...state.profile?.mutuals, ...action.mutuals } } as ProfileType
+      }
+    }
     case 'PROFILE__UPDATE_MY_PROFILE_PHOTO':
       return { ...state, profile: { ...state.profile, photoURL: action.photoURL } as ProfileType }
     case 'PROFILE__SET_PROGRESS_FILE':
@@ -211,6 +223,24 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
           ...profile,
           [list]: updatedInvestList
         }
+      }
+    }
+    case 'PROFILE__ADD_INVESTMENT': {
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          investments: { ...state.profile?.investments, ...action.investment }
+        } as ProfileType
+      }
+    }
+    case 'PROFILE__ADD_INVESTOR': {
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          investors: { ...state.profile?.investors, ...action.investor }
+        } as ProfileType
       }
     }
     default: return state

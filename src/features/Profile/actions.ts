@@ -5,7 +5,7 @@ import * as UpChunk from '@mux/upchunk'
 import { v4 as uuidv4 } from 'uuid'
 import moment from 'moment'
 import { profileAPI, usersAPI } from 'api'
-import { init as initSurf } from 'features/Surf/actions'
+import { init as initSurf, actions as surfActions } from 'features/Surf/actions'
 import { actions as actionsConversations, listenMessages, sendMessage } from 'features/Conversations/actions'
 import { actions as actionsVideoChat, connectToVideoRoom } from 'features/VideoChat/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
@@ -14,13 +14,20 @@ import { ValueNotificationsHistoryType } from 'features/Notifications/types'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import { UsersType, UserType } from 'features/User/types'
 import { ChatType } from 'features/Conversations/types'
-import { RoleType } from 'features/Profile/types'
+import { RoleType, InvestmentType } from 'features/Profile/types'
 import { addToClipboardPublicLinkProfile } from 'common/actions'
 import { determineNotificationContactsOrCall } from 'common/typeGuards'
 import {
-  executeAllPromises, isNumber, minutesToMs, createScheduledNotification, cancelScheduledNotification
+  executeAllPromises,
+  isNumber,
+  minutesToMs,
+  createScheduledNotification,
+  cancelScheduledNotification,
+  formatRecommendedUsers
 } from 'common/utils'
-import { VOIP_TOKEN, BUNDLE } from 'common/constants'
+import {
+  VOIP_TOKEN, BUNDLE, NOTIFICATION_TYPES, LOCAL_STORAGE_VALUES
+} from 'common/constants'
 import { apiCodes } from 'common/types'
 
 import {
@@ -38,6 +45,8 @@ import { compareCountContacts, getTokenFcm } from './utils'
 
 export const actions = {
   setMyProfile: (profile: any) => ({ type: 'PROFILE__SET_MY_PROFILE', profile } as const),
+  setMyProfileLiked: (liked: any) => ({ type: 'PROFILE__SET_MY_PROFILE_LIKED', liked } as const),
+  setMyProfileMutualsLike: (mutuals: any) => ({ type: 'PROFILE__SET_MY_PROFILE_MUTUALS', mutuals } as const),
   updateMyProfilePhoto: (photoURL: string) => ({ type: 'PROFILE__UPDATE_MY_PROFILE_PHOTO', photoURL } as const),
   updateMyContacts: (updatedUsers: any) => ({ type: 'PROFILE__UPDATE_MY_CONTACTS', updatedUsers } as const),
   addUserInMyContacts: (user: UserType, contacts: 'mutuals' | 'likes' | 'liked') => (
@@ -65,13 +74,14 @@ export const actions = {
   acceptInvest: (uid: string) => ({ type: 'PROFILE__ACCEPT_INVEST', uid } as const),
   addInvests: (investorList: string[]) => ({ type: 'PROFILE__ADD_INVEST', investorList } as const),
   addYourself: (uid: string, selectedRole: 'investments' | 'investors') => ({ type: 'PROFILE__ADD_YOURSELF', payload: { uid, selectedRole } } as const),
-  deleteInvest: (uid: string) => ({ type: 'PROFILE__DELETE_INVEST', uid } as const)
+  deleteInvest: (uid: string) => ({ type: 'PROFILE__DELETE_INVEST', uid } as const),
+  addInvestment: (investment: InvestmentType) => ({ type: 'PROFILE__ADD_INVESTMENT', investment } as const),
+  addInvestor: (investor: InvestmentType) => ({ type: 'PROFILE__ADD_INVESTOR', investor } as const)
 }
 
 const scheduleMeeting = (uid: string, date: string) => {
-  const SCHEDULED_MEETINGS = 'scheduledMeetingsToNotify'
-  const meetingId = `${uid}_${date}`
-  const scheduledMeetings = JSON.parse(localStorage.getItem(SCHEDULED_MEETINGS) || '[]')
+  const meetingId = `${uid}${LOCAL_STORAGE_VALUES.SEPARATOR}${date}`
+  const scheduledMeetings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_VALUES.SCHEDULED_MEETINGS) || '[]')
   const meetingStartTimeMs = moment(date).unix() * 1000
   const fiveMinBeforeMeeting = meetingStartTimeMs - minutesToMs(5)
   if (!scheduledMeetings?.includes(meetingId) && fiveMinBeforeMeeting > Date.now()) {
@@ -80,23 +90,73 @@ const scheduleMeeting = (uid: string, date: string) => {
       fiveMinBeforeMeeting,
       meetingId
     )
-    localStorage.setItem(SCHEDULED_MEETINGS, JSON.stringify([...scheduledMeetings, meetingId]))
+    localStorage.setItem(LOCAL_STORAGE_VALUES.SCHEDULED_MEETINGS, JSON.stringify([...scheduledMeetings, meetingId]))
   }
 }
 
 const cancelMeeting = (uid: string, date: string) => {
-  const SCHEDULED_MEETINGS = 'scheduledMeetingsToNotify'
-  const meetingId = `${uid}_${date}`
-  const scheduledMeetings = JSON.parse(localStorage.getItem(SCHEDULED_MEETINGS) || '[]')
+  const meetingId = `${uid}${LOCAL_STORAGE_VALUES.SEPARATOR}${date}`
+  const scheduledMeetings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_VALUES.SCHEDULED_MEETINGS) || '[]')
   scheduledMeetings.filter((meeting: string) => meeting !== meetingId)
   cancelScheduledNotification(meetingId)
   localStorage.setItem(
-    SCHEDULED_MEETINGS,
+    LOCAL_STORAGE_VALUES.SCHEDULED_MEETINGS,
     JSON.stringify(scheduledMeetings.filter((meeting: string) => meeting !== meetingId))
   )
 }
 
 let activeActions: string[] = []
+
+const onLikeNotification = async (contactUid: string, dispatch: (action: any) => void) => {
+  const likedUser = await usersAPI.getUser(contactUid)
+  const liked = {
+    [contactUid]: {
+      ...likedUser,
+      job: {
+        investor: likedUser?.investor?.job,
+        founder: likedUser?.founder?.job
+      }
+    }
+  }
+  dispatch(showNotification({
+    contact: liked[contactUid],
+    action: 'addUserInMyContacts'
+  } as any, 'liked'))
+  dispatch(actions.setMyProfileLiked(liked))
+}
+
+const onMutualLikeNotification = async (contactUid: string, dispatch: (action: any) => void) => {
+  const mutualsUser = await usersAPI.getUser(contactUid)
+  const mutuals = {
+    [contactUid]: {
+      ...mutualsUser,
+      job: {
+        investor: mutualsUser?.investor?.job,
+        founder: mutualsUser?.founder?.job
+      }
+    }
+  }
+  dispatch(showNotification({
+    contact: mutuals[contactUid],
+    action: 'addUserInMyContacts'
+  } as any, 'mutuals'))
+  dispatch(actions.setMyProfileMutualsLike(mutuals))
+}
+
+const onInvestNotification = (uid: string, role: RoleType, status: string, dispatch: (action: any) => void) => {
+  const isDocFounder = role === 'founder'
+  const notificationMsg = ['New request for funding', 'New request for investment'][Number(isDocFounder)]
+  const actionToUpdateProfile = [actions.addInvestment, actions.addInvestor][Number(isDocFounder)]
+  dispatch(actionToUpdateProfile({ [uid]: { status } }))
+  dispatch(actionsNotifications.addAnyMsg({ msg: notificationMsg, uid: uuidv4() }))
+}
+
+const onIntroNotification = async (userName: string, dispatch: (action: any) => void) => {
+  const response = await usersAPI.getRecommended()
+  const recommendedUsers = formatRecommendedUsers(response)
+  dispatch(actionsNotifications.addAnyMsg({ msg: `New recommended user ${userName}`, uid: uuidv4() }))
+  dispatch(surfActions.setRecommendedUsers(Object.values(recommendedUsers)))
+}
 
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
   try {
@@ -205,57 +265,86 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     })
 
     onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
+      snapshot.docChanges().forEach(async (change) => {
         if (change.type === 'added') {
           const doc = change.doc.data() as ValueNotificationsHistoryType
           // console.log('New: doc', doc)
 
-          if (doc.type === 'call_scheduled') scheduleMeeting(doc.contact, doc.data.start_time)
-          if (doc.type === 'call_canceled') cancelMeeting(doc.contact, doc.data.start_time)
+          if (doc.type === NOTIFICATION_TYPES.CALL_SCHEDULED) scheduleMeeting(doc.contact, doc.data.start_time)
+          if (doc.type === NOTIFICATION_TYPES.CALL_CANCELED) cancelMeeting(doc.contact, doc.data.start_time)
 
           if (!notificationsHistory[change.doc.id]) {
             console.log('Unregistered doc!', doc)
             notificationsHistory[change.doc.id] = doc
 
             dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
-
             // Входящий звонок
-            if (notificationsHistory[change.doc.id].type === 'call_instant') {
-              const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
-
-              const user = profile.mutuals[contact]
-
-              const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-              const { photoURL } = user
-
-              const payload = {
-                uid: contact,
-                name,
-                photoURL,
-                room,
-                token
+            switch (notificationsHistory[change.doc.id].type) {
+              case NOTIFICATION_TYPES.LIKE: {
+                await onLikeNotification(doc.contact, dispatch)
+                break
               }
-
-              dispatch(actionsNotifications.addIncomingCall(payload))
-            }
-
-            if (notificationsHistory[change.doc.id].type === 'call_instant_group') {
-              const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
-
-              const user = profile.mutuals[contact]
-
-              const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-              const { photoURL } = user
-
-              const payload = {
-                uid: contact,
-                name,
-                photoURL,
-                room,
-                token
+              case NOTIFICATION_TYPES.MUTUAL_LIKE: {
+                await onMutualLikeNotification(doc.contact, dispatch)
+                break
               }
+              case NOTIFICATION_TYPES.INVEST: {
+                onInvestNotification(doc.contact, doc.data.role, doc.data.status, dispatch)
+                break
+              }
+              case NOTIFICATION_TYPES.INTRO: {
+                await onIntroNotification(doc.data.contact.displayName, dispatch)
+                break
+              }
+              case NOTIFICATION_TYPES.INTRO_YOU: {
+                dispatch(actionsNotifications.addAnyMsg({
+                  msg: `Your account recommended from ${doc.data.broker.displayName}`,
+                  uid: uuidv4()
+                }))
+                break
+              }
+              case NOTIFICATION_TYPES.SHARE: {
+                const user = await usersAPI.getUser(doc.contact)
+                dispatch(actionsNotifications.addAnyMsg({
+                  msg: `Meeting invitation from ${user.first_name} ${user.last_name}`,
+                  uid: uuidv4()
+                }))
+                break
+              }
+              case NOTIFICATION_TYPES.CALL_INSTANT: {
+                const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
+                const user = profile.mutuals[contact]
+                const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+                const { photoURL } = user
+                const payload = {
+                  uid: contact,
+                  name,
+                  photoURL,
+                  room,
+                  token
+                }
+                dispatch(actionsNotifications.addIncomingCall(payload))
+                break
+              }
+              case NOTIFICATION_TYPES.CALL_INSTANT_GROUP: {
+                const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
 
-              dispatch(actionsNotifications.addIncomingCall(payload))
+                const user = profile.mutuals[contact]
+
+                const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+                const { photoURL } = user
+                const payload = {
+                  uid: contact,
+                  name,
+                  photoURL,
+                  room,
+                  token
+                }
+
+                dispatch(actionsNotifications.addIncomingCall(payload))
+                break
+              }
+              default: break
             }
 
             if (notificationsHistory[change.doc.id].type === 'twilio_enter_group') {
@@ -391,7 +480,7 @@ const getFullProfiles = (
 const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFirebase) => {
   const { auth } = getState().firebase
 
-  getFirebase().firestore().doc(`profiles/${auth.uid}`).onSnapshot(async (doc) => {
+  getFirebase().firestore().doc(`profiles/${auth.uid}`).onSnapshot(async (doc: any) => {
     const { profile } = getState().profile
     // const { isOwnerCall } = getState().videoChat
     const newProfile = doc.data() as ProfileType
@@ -399,8 +488,7 @@ const listenUpdateMyProfile = (): ThunkType => async (dispatch, getState, getFir
     console.log('My profile updated: ', newProfile)
 
     if (profile) {
-      const contactsList = ['mutuals', 'likes', 'liked'] as const
-
+      const contactsList = ['likes'] as const
       contactsList.forEach((contacts) => {
         const result = compareCountContacts(profile[contacts], newProfile[contacts])
         if (result) {
@@ -654,7 +742,7 @@ export const uploadVideo = (
 
     setIsOpenModal(false)
 
-    const unSubscribe = await getFirebase().firestore().doc(ref).onSnapshot(async (doc) => {
+    const unSubscribe = await getFirebase().firestore().doc(ref).onSnapshot(async (doc: any) => {
       const video = doc.data() as onSnapshotVideoType
 
       if (video.status === 'ready') {

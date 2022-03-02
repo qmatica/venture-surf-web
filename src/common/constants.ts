@@ -60,7 +60,9 @@ export const LINKEDIN_CALLBACK = '/linkedin_callback'
 export const REDIRECT_URI = `${window.location.origin}${LINKEDIN_CALLBACK}`
 
 export const LOCAL_STORAGE_VALUES = {
-  NOTIFY_BEFORE_MEETINGS: 'notifyBeforeMeetings'
+  NOTIFY_BEFORE_MEETINGS: 'notifyBeforeMeetings',
+  SCHEDULED_MEETINGS: 'scheduledMeetingsToNotify',
+  SEPARATOR: '_'
 }
 
 export const SETTINGS_MODAL = {
@@ -84,4 +86,21 @@ export const DELETE_ALL_DATA_MODAL = {
   CONFIRMATION: 'Are you sure?',
   CANCEL: 'Cancel',
   DELETE: 'Delete'
+}
+
+export const NOTIFICATION_TYPES = {
+  CALL_INSTANT: 'call_instant',
+  CALL_INSTANT_GROUP: 'call_instant_group',
+  LIKE: 'like',
+  MUTUAL_LIKE: 'mutual_like',
+  INVEST: 'invest',
+  INTRO: 'intro',
+  INTRO_YOU: 'intro_you',
+  SHARE: 'share',
+  CALL_SCHEDULED: 'call_scheduled',
+  CALL_CANCELED: 'call_canceled'
+}
+
+export const BROWSER_PERMISSIONS = {
+  GRANTED: 'granted'
 }
