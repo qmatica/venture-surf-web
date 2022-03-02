@@ -91,6 +91,8 @@ export const DELETE_ALL_DATA_MODAL = {
 export const NOTIFICATION_TYPES = {
   CALL_INSTANT: 'call_instant',
   CALL_INSTANT_GROUP: 'call_instant_group',
+  CALL_DECLINED: 'call_declined',
+  CALL_FINISHED: 'call_finished',
   LIKE: 'like',
   MUTUAL_LIKE: 'mutual_like',
   INVEST: 'invest',

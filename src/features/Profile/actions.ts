@@ -311,6 +311,16 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
                 }))
                 break
               }
+              case NOTIFICATION_TYPES.CALL_DECLINED: {
+                const { displayName } = profile.mutuals[doc.contact]
+                dispatch(actionsNotifications.addAnyMsg({ msg: `${displayName} declined your call`, uid: uuidv4() }))
+                break
+              }
+              case NOTIFICATION_TYPES.CALL_FINISHED: {
+                const { displayName } = profile.mutuals[doc.contact]
+                dispatch(actionsNotifications.addAnyMsg({ msg: `${displayName} Call is ended`, uid: uuidv4() }))
+                break
+              }
               case NOTIFICATION_TYPES.CALL_INSTANT: {
                 const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
                 const user = profile.mutuals[contact]
