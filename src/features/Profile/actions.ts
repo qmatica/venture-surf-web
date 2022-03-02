@@ -278,7 +278,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             notificationsHistory[change.doc.id] = doc
 
             dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
-            // Входящий звонок
+
             switch (notificationsHistory[change.doc.id].type) {
               case NOTIFICATION_TYPES.LIKE: {
                 await onLikeNotification(doc.contact, dispatch)
@@ -321,6 +321,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
                 dispatch(actionsNotifications.addAnyMsg({ msg: `${displayName} Call is ended`, uid: uuidv4() }))
                 break
               }
+              // Входящий звонок
               case NOTIFICATION_TYPES.CALL_INSTANT: {
                 const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
                 const user = profile.mutuals[contact]
