@@ -11,10 +11,13 @@
     display: flex
     align-items: center
     flex-shrink: 0
+    overflow: hidden
   .listContainer
     display: flex
     flex-direction: column
     height: 100%
+    overflow-x: hidden
+    overflow-y: auto
     .preloaderContainer
       width: 100%
       height: 100%
@@ -22,7 +25,7 @@
       justify-content: center
       align-items: center
     .dialogItem
-      height: 61px
+      min-height: 60px
       display: flex
       width: 100%
       cursor: pointer
@@ -54,6 +57,9 @@
         .name
           font-size: 17px
           color: #030D21
+          text-overflow: ellipsis
+          overflow: hidden
+          white-space: nowrap
         .lastMessage
           font-size: 13px
           line-height: 17px
