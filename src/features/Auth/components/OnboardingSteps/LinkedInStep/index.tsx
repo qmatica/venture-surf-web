@@ -1,8 +1,10 @@
 import React, { FC } from 'react'
-import cn from 'classnames'
+import { profileAPI } from 'api'
 import { OnboardingUserType } from 'features/Profile/types'
 import { LinkedInIconSm, LinkedInAndVS } from 'common/icons'
 import { linkedInAuthUrl } from 'features/Auth/constants'
+import { getTokenFcm } from 'features/Profile/utils'
+import { VOIP_TOKEN, BUNDLE } from 'common/constants'
 import styles from './styles.module.sass'
 
 interface ILinkedInStep {
@@ -12,9 +14,22 @@ interface ILinkedInStep {
 export const LinkedInStep: FC<ILinkedInStep> = ({
   onboardingProfile
 }) => {
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     localStorage.setItem('onboardingProfile', JSON.stringify(onboardingProfile))
-    window.open(linkedInAuthUrl, '_self')
+    const deviceId = localStorage.getItem('deviceId')
+    if (deviceId) {
+      const fcmToken = await getTokenFcm()
+      const device = {
+        id: deviceId,
+        os: window.navigator.appVersion,
+        fcm_token: fcmToken,
+        voip_token: VOIP_TOKEN,
+        bundle: BUNDLE
+      }
+
+      await profileAPI.afterSignup({ ...onboardingProfile, device } as any)
+      window.open(linkedInAuthUrl, '_self')
+    }
   }
   return (
     <div>
