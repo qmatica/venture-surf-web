@@ -42,13 +42,23 @@ export const getReceived = createSelector(
 
 const getAdditionalProfilesSelector = (state: RootState) => state.contacts.additionalProfiles
 
+const getSurfUsersSelector = (state: RootState) => state.surf.users
+const getRecommendUsersSelector = (state: RootState) => state.surf.recommendedUsers
+
 export const getAllContacts = createSelector(
   getMutualsSelector,
   getSentSelector,
   getReceivedSelector,
   getAdditionalProfilesSelector,
-  (mutuals, sent, received, additional) => ({
-    mutuals, sent, received, additional
+  getSurfUsersSelector,
+  getRecommendUsersSelector,
+  (mutuals, sent, received, additional, surf, recommended) => ({
+    mutuals,
+    sent,
+    received,
+    additional,
+    surf: Object.assign({}, ...surf.map((u) => ({ [u.uid]: u }))),
+    recommended: Object.assign({}, ...recommended.map((u) => ({ [u.uid]: u })))
   })
 )
 

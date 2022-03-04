@@ -216,7 +216,9 @@ export const NotificationsList: FC<INotificationsList> = ({ icon }) => {
     mutuals: UsersType,
     sent: UsersType,
     received: UsersType,
-    additional: { [key: string]: ProfileType | null } | null
+    additional: { [key: string]: ProfileType | null } | null,
+    surf: UsersType,
+    recommended: UsersType
   }
   const [isOpenList, setIsOpenList] = useState(false)
 

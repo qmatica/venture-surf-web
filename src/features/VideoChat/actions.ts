@@ -29,6 +29,7 @@ export const connectToVideoRoom = (room: string, token: string): ThunkType =>
     const localDataTrack = new LocalDataTrack()
 
     navigator.mediaDevices.enumerateDevices().then((devices) => {
+      console.log('Media devices: ', devices)
       const videoInput = devices.find((device) => device.kind === 'videoinput')
       if (videoInput) {
         return createLocalTracks({ audio: true, video: { deviceId: videoInput.deviceId } })
