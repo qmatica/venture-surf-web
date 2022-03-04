@@ -106,3 +106,24 @@ export const NOTIFICATION_TYPES = {
 export const BROWSER_PERMISSIONS = {
   GRANTED: 'granted'
 }
+
+export const CHOOSING_SLOTS_MODAL = {
+  CANCEL: 'Cancel',
+  SUBMIT: 'Submit',
+  WEEKLY: 'weekly',
+  DAILY: 'daily',
+  REPEAT_WEEKLY: 'Repeat weekly',
+  REPEAT_DAILY: 'Repeat daily',
+  CUSTOM_ID: 'custom',
+  CUSTOM: 'Custom',
+  ONLY_CURRENT_DATE: 'Only the current date',
+  ONLY_CURRENT_DATE_ID: 'only'
+}
+
+export const CUSTOM_REPEAT_MODAL = {
+  TITLE: 'Custom repeat',
+  DAYS: 'Select days',
+  WEEK: 'Repeat for the next',
+  CUSTOM_REPEAT: 'End repeat on',
+  BACK: 'Back'
+}

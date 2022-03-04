@@ -11,6 +11,8 @@ import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
 import { UserIcon } from 'common/icons'
 import { Image } from 'common/components/Image'
+import { ChoosingSlotsModal } from 'features/Calendar/ChoosingSlotsModal'
+import { CustomRepeatModal } from 'features/Calendar/CustomRepeatModal'
 import styles from './styles.module.sass'
 import { FormattedSlotsType } from './types'
 
@@ -115,6 +117,8 @@ const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
 }
 
 export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }) => {
+  const [isChoosingSlotsModalOpen, setIsChoosingSlotsModalOpen] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(true)
   const toDay = new Date()
   const [currentDate, setCurrentDate] = useState<Date | string>(new Date())
   const [currentViewName, setCurrentViewName] = useState('Day')
@@ -128,28 +132,44 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
   }
 
   return (
-    <div className={styles.container}>
-      <Scheduler data={schedulerData}>
-        <ViewState
-          currentDate={currentDate}
-          onCurrentDateChange={onCurrentDateChange}
-          currentViewName={currentViewName}
-          onCurrentViewNameChange={onCurrentViewNameChange}
-        />
-        <DayView
-          startDayHour={moment(toDay).isSame(moment(currentDate), 'day')
-            ? toDay.getHours()
-            : undefined}
-          cellDuration={60}
-          timeTableCellComponent={(props) => TimeTableCell({ ...props, otherSlots, uid })}
-        />
-        <WeekView cellDuration={15} />
-        <MonthView />
-        <Toolbar />
-        <DateNavigator />
-        <ViewSwitcher />
-      </Scheduler>
-      <ReactTooltip />
-    </div>
+    <>
+      <div className={styles.container}>
+        <Scheduler data={schedulerData}>
+          <ViewState
+            currentDate={currentDate}
+            onCurrentDateChange={onCurrentDateChange}
+            currentViewName={currentViewName}
+            onCurrentViewNameChange={onCurrentViewNameChange}
+          />
+          <DayView
+            startDayHour={moment(toDay).isSame(moment(currentDate), 'day')
+              ? toDay.getHours()
+              : undefined}
+            cellDuration={60}
+            timeTableCellComponent={(props) => TimeTableCell({ ...props, otherSlots, uid })}
+          />
+          <WeekView cellDuration={15} />
+          <MonthView />
+          <Toolbar />
+          <DateNavigator />
+          <ViewSwitcher />
+        </Scheduler>
+        <ReactTooltip />
+      </div>
+      <ChoosingSlotsModal
+        isOpen={isChoosingSlotsModalOpen}
+        onClose={() => setIsChoosingSlotsModalOpen(false)}
+        onSubmit={() => {
+          setIsChoosingSlotsModalOpen(false)
+        }}
+      />
+      <CustomRepeatModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={() => {
+          setIsModalOpen(false)
+        }}
+      />
+    </>
   )
 }
