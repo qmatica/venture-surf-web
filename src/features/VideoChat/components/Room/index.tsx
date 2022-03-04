@@ -1,5 +1,5 @@
 import React, {
-  createRef, FC, useEffect, useMemo, useState
+  createRef, FC, useCallback, useEffect, useMemo, useState
 } from 'react'
 import {
   Participant as ParticipantType,
@@ -12,8 +12,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Modal } from 'features/Modal'
 import { getAllContacts } from 'features/Contacts/selectors'
 import { actions as profileActions } from 'features/Profile/actions'
+import { actions as notificationsActions } from 'features/Notifications/actions'
 import { getMyUid } from 'features/Auth/selectors'
 import { getMyName } from 'features/Profile/selectors'
+import { getAdditionalProfiles } from 'features/Contacts/actions'
+import { usersAPI } from 'api'
 import { Participant } from '../Participant'
 import { NavBar } from '../NavBar'
 import { actions } from '../../actions'
@@ -30,6 +33,7 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
   const dominantVideoRef = createRef<HTMLVideoElement>()
   const myUid = useSelector(getMyUid)
   const myName = useSelector(getMyName)
+  const allContacts = useSelector(getAllContacts)
 
   const prevState = usePrevious({ room })
 
@@ -38,7 +42,6 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
   })
   const [sidDominantSpeakerParticipant, setSidDominantSpeakerParticipant] = useState<string>('')
 
-  const allContacts = useSelector(getAllContacts)
   const formattedAllContacts = useMemo(() => Object.values(allContacts).reduce((prevState, nextItem) =>
     ({ ...prevState, ...nextItem }), {}), [allContacts])
 
@@ -59,6 +62,18 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
     }
   }, [room])
 
+  useEffect(() => {
+    const unknownContacts = Object.values(participants).filter((p) => {
+      const { identity } = p
+      if (identity === myUid) return false
+      return !formattedAllContacts[identity]
+    })
+
+    dispatch(getAdditionalProfiles(unknownContacts.map((c) => c.identity)))
+
+    console.log('unknownContacts', unknownContacts)
+  }, [participants, formattedAllContacts])
+
   const roomListeners = (room: RoomType | any, action: 'on' | 'off') => {
     room[action]('participantConnected', participantConnected)
     room[action]('participantDisconnected', participantDisconnected)
@@ -66,6 +81,16 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
     // room[action]('disconnected', roomDisconnected)
     room[action]('dominantSpeakerChanged', dominantSpeakerChanged)
   }
+
+  const sendLike = useCallback((uid: string) => {
+    usersAPI.like(uid)
+      .then(() => {
+        dispatch(notificationsActions.addAnyMsg({ msg: 'Request sended', uid: `${uid}-send-like` }))
+      })
+      .catch((err) => {
+        dispatch(notificationsActions.addErrorMsg(JSON.stringify(err)))
+      })
+  }, [])
 
   const allParticipants = useMemo(() => Object.entries(participants).map(([sid, participant], i, arr) => {
     const { identity } = participant
@@ -82,6 +107,8 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
 
     const isDominant = arr.length === 1 || (arr.length === 2 && participant.sid !== room.localParticipant.sid)
 
+    const isMutual = identity === myUid || !!(allContacts.mutuals && allContacts.mutuals[identity])
+
     return (
       <Participant
         key={`${sid}-list`}
@@ -91,9 +118,10 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
         isDominant={isDominant || sidDominantSpeakerParticipant === participant.sid}
         muted={room.localParticipant.sid === participant.sid}
         isHidden={isDominant}
+        onSendLike={isMutual ? null : sendLike}
       />
     )
-  }), [participants, sidDominantSpeakerParticipant, dominantVideoRef])
+  }), [participants, sidDominantSpeakerParticipant, dominantVideoRef, formattedAllContacts])
 
   const leave = () => {
     roomListeners(room, 'off')

@@ -9,7 +9,7 @@ import { init as initSurf, actions as surfActions } from 'features/Surf/actions'
 import { actions as actionsConversations, listenMessages, sendMessage } from 'features/Conversations/actions'
 import { actions as actionsVideoChat, connectToVideoRoom } from 'features/VideoChat/actions'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
-import { actions as actionsContacts } from 'features/Contacts/actions'
+import { getAdditionalProfiles } from 'features/Contacts/actions'
 import { ValueNotificationsHistoryType } from 'features/Notifications/types'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import { UsersType, UserType } from 'features/User/types'
@@ -254,15 +254,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
       }
     })
 
-    executeAllPromises(Object.keys(additionalProfiles).map((uid) => usersAPI.getUser(uid))).then((items) => {
-      const { errors, results } = items
-
-      results.forEach((res) => {
-        additionalProfiles[res.uid] = res
-      })
-
-      dispatch(actionsContacts.setAdditionalProfiles(additionalProfiles))
-    })
+    dispatch(getAdditionalProfiles(Object.keys(additionalProfiles)))
 
     onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach(async (change) => {

@@ -9,6 +9,7 @@ import {
   AudioTrackPublication,
   VideoTrackPublication
 } from 'twilio-video'
+import { Button } from 'common/components/Button'
 import styles from './styles.module.sass'
 
 interface IParticipant {
@@ -18,10 +19,11 @@ interface IParticipant {
   isDominant?: boolean
   muted?: boolean
   isHidden?: boolean
+  onSendLike?: ((uid: string) => void) | null
 }
 
 export const Participant: FC<IParticipant> = memo(({
-  participant, userName, dominantVideoRef, isDominant, muted, isHidden
+  participant, userName, dominantVideoRef, isDominant, muted, isHidden, onSendLike
 }) => {
   const [videoTracks, setVideoTracks] = useState<VideoTrackType[]>([])
   const [audioTracks, setAudioTracks] = useState<AudioTrackType[]>([])
@@ -90,6 +92,29 @@ export const Participant: FC<IParticipant> = memo(({
       <video id={participant.sid} ref={videoRef} autoPlay />
       {!muted && <audio ref={audioRef} autoPlay />}
       {userName && <div className={styles.userName}>{userName}</div>}
+      {onSendLike && (
+        <ButtonLike onClick={() => onSendLike(participant.identity)} />
+      )}
     </div>
   )
 })
+
+interface IButtonLike {
+  onClick: () => void
+}
+
+const ButtonLike: FC<IButtonLike> = ({ onClick }) => {
+  const [isDisabled, setIsDisabled] = useState(false)
+
+  return (
+    <Button
+      title="Like"
+      className={styles.likeButton}
+      onClick={() => {
+        onClick()
+        setIsDisabled(true)
+      }}
+      disabled={isDisabled}
+    />
+  )
+}

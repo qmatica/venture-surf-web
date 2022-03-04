@@ -7,6 +7,7 @@ import { apiCodes } from 'common/types'
 import { addToClipboardPublicLinkProfile } from 'common/actions'
 import { v4 as uuidv4 } from 'uuid'
 import { ThunkType } from './types'
+import { executeAllPromises } from '../../common/utils'
 
 export const actions = {
   setSearch: (search: string) => ({ type: 'CONTACTS__SET_SEARCH', search } as const),
@@ -198,4 +199,20 @@ export const recommendUser = (
     console.log('recommendUser', result)
   }
   onFinish()
+}
+
+export const getAdditionalProfiles = (uids: string[]): ThunkType => async (dispatch, getState) => {
+  if (!uids.length) return
+
+  const additionalProfiles = getState().contacts.additionalProfiles || {}
+
+  executeAllPromises(uids.map((uid) => usersAPI.getUser(uid)))
+    .then((items) => {
+      const { errors, results } = items
+
+      dispatch(actions.setAdditionalProfiles({
+        ...additionalProfiles,
+        ...Object.assign({}, ...results.map((res) => ({ [res.uid]: res })))
+      }))
+    })
 }
