@@ -11,6 +11,7 @@ import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
 import { UserIcon } from 'common/icons'
 import { Image } from 'common/components/Image'
+import { ChooseSlotsModal } from 'features/Calendar/ChooseSlotsModal'
 import styles from './styles.module.sass'
 import { FormattedSlotsType } from './types'
 
@@ -26,9 +27,12 @@ interface ITimeTableCell {
   startDate?: Date
   otherSlots?: FormattedSlotsType
   uid?: string
+  openChooseSlotsModal: () => void
 }
 
-const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
+const TimeTableCell = ({
+  startDate, otherSlots, uid, openChooseSlotsModal
+}: ITimeTableCell) => {
   const dispatch = useDispatch()
 
   const mySlots = useSelector(getMySlots)
@@ -38,8 +42,12 @@ const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
   hours = (`0${hours}`).slice(-2)
 
   const toggleTimeSlot = (date: string) => {
-    const action = mySlots.find((slot) => moment(slot.date).isSame(date)) ? 'del' : 'add'
-    dispatch(updateTimeSlots(action, date))
+    if (uid) {
+      const action = mySlots.find((slot) => moment(slot.date).isSame(date)) ? 'del' : 'add'
+      dispatch(updateTimeSlots(action, date))
+    } else {
+      openChooseSlotsModal()
+    }
   }
 
   const onConnectToCall = (date: string) => {
@@ -118,6 +126,7 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
   const toDay = new Date()
   const [currentDate, setCurrentDate] = useState<Date | string>(new Date())
   const [currentViewName, setCurrentViewName] = useState('Day')
+  const [isChooseSlotsModalOpen, setIsChooseSlotsModalOpen] = useState(false)
 
   const onCurrentDateChange = (value: Date) => {
     setCurrentDate(value)
@@ -128,28 +137,39 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
   }
 
   return (
-    <div className={styles.container}>
-      <Scheduler data={schedulerData}>
-        <ViewState
-          currentDate={currentDate}
-          onCurrentDateChange={onCurrentDateChange}
-          currentViewName={currentViewName}
-          onCurrentViewNameChange={onCurrentViewNameChange}
+    <>
+      <div className={styles.container}>
+        <Scheduler data={schedulerData}>
+          <ViewState
+            currentDate={currentDate}
+            onCurrentDateChange={onCurrentDateChange}
+            currentViewName={currentViewName}
+            onCurrentViewNameChange={onCurrentViewNameChange}
+          />
+          <DayView
+            startDayHour={moment(toDay).isSame(moment(currentDate), 'day')
+              ? toDay.getHours()
+              : undefined}
+            cellDuration={60}
+            timeTableCellComponent={(props) => TimeTableCell({
+              ...props, otherSlots, uid, openChooseSlotsModal: () => setIsChooseSlotsModalOpen(true)
+            })}
+          />
+          <WeekView cellDuration={15} />
+          <MonthView />
+          <Toolbar />
+          <DateNavigator />
+          <ViewSwitcher />
+        </Scheduler>
+        <ReactTooltip />
+      </div>
+      {isChooseSlotsModalOpen && (
+        <ChooseSlotsModal
+          isOpen
+          onClose={() => setIsChooseSlotsModalOpen(false)}
+          onSubmit={() => setIsChooseSlotsModalOpen(false)}
         />
-        <DayView
-          startDayHour={moment(toDay).isSame(moment(currentDate), 'day')
-            ? toDay.getHours()
-            : undefined}
-          cellDuration={60}
-          timeTableCellComponent={(props) => TimeTableCell({ ...props, otherSlots, uid })}
-        />
-        <WeekView cellDuration={15} />
-        <MonthView />
-        <Toolbar />
-        <DateNavigator />
-        <ViewSwitcher />
-      </Scheduler>
-      <ReactTooltip />
-    </div>
+      )}
+    </>
   )
 }
