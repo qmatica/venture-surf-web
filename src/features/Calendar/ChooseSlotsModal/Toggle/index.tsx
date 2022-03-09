@@ -5,18 +5,18 @@ interface IToggle {
   id: string
   name: string
   description: string
-  value?: boolean
-  onClick?: () => void
+  value?: string
+  handleChange?: () => void
 }
 
 export const Toggle: FC<IToggle> = ({
-  id, description, value, name, onClick
+  id, description, value, name, handleChange
 }) => (
   <div>
     <label htmlFor={id}>
       <div className={styles.content}>
         <div className={styles.radio}>
-          <input name={name} type="radio" id={id} checked={value} onClick={onClick} />
+          <input name={name} type="radio" id={id} value={value} onChange={handleChange} />
         </div>
         <div className={styles.description}>{description}</div>
       </div>

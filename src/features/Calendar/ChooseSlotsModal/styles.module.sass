@@ -1,3 +1,14 @@
+.weekDays
+  display: grid
+  grid-auto-flow: column
+  grid-gap: 10px
+  justify-content: space-between
+  margin-top: 12px;
+.selectDays
+  border: none
+  color: #9ca1a7
+  background-color: white
+  outline: none
 .repeatDays
   margin: 20px 0
 .title
@@ -10,27 +21,27 @@
   margin: 20px 0
   border-bottom: 0.5px solid #9ca1a7
   padding-bottom: 10px
-.customDate
-  color: #9ca1a7
 .buttons
   display: flex
   justify-content: space-between
-.weekDays
-  display: flex
-  justify-content: space-between
-.button
-  .button
+.weekDay
   background-color: #9ca1a7
   border: none
   color: white
-  padding: 10px 8px
-  width: 40px;
+  padding: 10px 3px
+  width: 60px
   text-align: center
   text-decoration: none
   display: inline-block
-  margin: 4px 2px
   cursor: pointer
-  font-size: 20px
-  border-radius: 5%
+  font-size: 18px
+  border-radius: 5px
   &:hover
     background: #83878a
+.selectedWeekDay
+  background-color: #EB0DE0
+  &:hover
+    background: #EB0DE0
+.buttonDisabled
+  pointer-events: none
+  background: #D7DFED

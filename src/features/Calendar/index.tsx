@@ -11,8 +11,7 @@ import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
 import { UserIcon } from 'common/icons'
 import { Image } from 'common/components/Image'
-import { ChoosingSlotsModal } from 'features/Calendar/ChoosingSlotsModal'
-import { CustomRepeatModal } from 'features/Calendar/CustomRepeatModal'
+import { ChooseSlotsModal } from 'features/Calendar/ChooseSlotsModal'
 import styles from './styles.module.sass'
 import { FormattedSlotsType } from './types'
 
@@ -28,9 +27,12 @@ interface ITimeTableCell {
   startDate?: Date
   otherSlots?: FormattedSlotsType
   uid?: string
+  openChooseSlotsModal: () => void
 }
 
-const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
+const TimeTableCell = ({
+  startDate, otherSlots, uid, openChooseSlotsModal
+}: ITimeTableCell) => {
   const dispatch = useDispatch()
 
   const mySlots = useSelector(getMySlots)
@@ -40,8 +42,12 @@ const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
   hours = (`0${hours}`).slice(-2)
 
   const toggleTimeSlot = (date: string) => {
-    const action = mySlots.find((slot) => moment(slot.date).isSame(date)) ? 'del' : 'add'
-    dispatch(updateTimeSlots(action, date))
+    if (uid) {
+      const action = mySlots.find((slot) => moment(slot.date).isSame(date)) ? 'del' : 'add'
+      dispatch(updateTimeSlots(action, date))
+    } else {
+      openChooseSlotsModal()
+    }
   }
 
   const onConnectToCall = (date: string) => {
@@ -117,11 +123,10 @@ const TimeTableCell = ({ startDate, otherSlots, uid }: ITimeTableCell) => {
 }
 
 export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }) => {
-  const [isChoosingSlotsModalOpen, setIsChoosingSlotsModalOpen] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(true)
   const toDay = new Date()
   const [currentDate, setCurrentDate] = useState<Date | string>(new Date())
   const [currentViewName, setCurrentViewName] = useState('Day')
+  const [isChooseSlotsModalOpen, setIsChooseSlotsModalOpen] = useState(false)
 
   const onCurrentDateChange = (value: Date) => {
     setCurrentDate(value)
@@ -146,7 +151,9 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
               ? toDay.getHours()
               : undefined}
             cellDuration={60}
-            timeTableCellComponent={(props) => TimeTableCell({ ...props, otherSlots, uid })}
+            timeTableCellComponent={(props) => TimeTableCell({
+              ...props, otherSlots, uid, openChooseSlotsModal: () => setIsChooseSlotsModalOpen(true)
+            })}
           />
           <WeekView cellDuration={15} />
           <MonthView />
@@ -156,20 +163,13 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
         </Scheduler>
         <ReactTooltip />
       </div>
-      <ChoosingSlotsModal
-        isOpen={isChoosingSlotsModalOpen}
-        onClose={() => setIsChoosingSlotsModalOpen(false)}
-        onSubmit={() => {
-          setIsChoosingSlotsModalOpen(false)
-        }}
-      />
-      <CustomRepeatModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={() => {
-          setIsModalOpen(false)
-        }}
-      />
+      {isChooseSlotsModalOpen && (
+        <ChooseSlotsModal
+          isOpen
+          onClose={() => setIsChooseSlotsModalOpen(false)}
+          onSubmit={() => setIsChooseSlotsModalOpen(false)}
+        />
+      )}
     </>
   )
 }
