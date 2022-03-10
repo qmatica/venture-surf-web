@@ -45,7 +45,7 @@ export const profileAPI = {
     return instance.post('api/linkedin_accessToken', { code: authorizationCode, redirect_uri: redirectUri }).then((res) => res.data.access_token)
   },
   getLinkedinProfile(accessToken: string) {
-    return instance.post('linkedin_me', {}, { headers: { Authorization: `Bearer ${accessToken}` } }).then((res) => res.data.access_token)
+    return instance.get('linkedin_me', { headers: { Authorization: `Bearer ${accessToken}` } }).then((res) => res.data)
   },
   afterSignup(profile: ProfileType) {
     return instance.post('api/afterSignup', profile).then((res) => res.data)
