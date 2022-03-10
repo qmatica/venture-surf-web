@@ -19,7 +19,7 @@ const instance = axios.create({
 instance.interceptors.request.use(
   async (config) => {
     const authUser = getFirebase().auth().currentUser?.toJSON() as AuthUserType | undefined
-    if (authUser) {
+    if (authUser && !config.url?.includes('linkedin_me')) {
       // eslint-disable-next-line no-param-reassign
       config.headers.Authorization = `Bearer ${authUser.stsTokenManager.accessToken}`
     }
@@ -43,6 +43,9 @@ export const profileAPI = {
   },
   getLinkedinToken(authorizationCode: string, redirectUri: string) {
     return instance.post('api/linkedin_accessToken', { code: authorizationCode, redirect_uri: redirectUri }).then((res) => res.data.access_token)
+  },
+  getLinkedinProfile(accessToken: string) {
+    return instance.post('linkedin_me', {}, { headers: { Authorization: `Bearer ${accessToken}` } }).then((res) => res.data.access_token)
   },
   afterSignup(profile: ProfileType) {
     return instance.post('api/afterSignup', profile).then((res) => res.data)
@@ -198,16 +201,5 @@ export const lokalizeAPI = {
       headers
     })
     return lokaliseInstance.get('branches').then((res) => res.data)
-  }
-}
-
-export const linkedInAPI = {
-  getMyProfileFromLinkedIn(access_token: string) {
-    const linkedInInstance = axios.create({
-      baseURL: 'https://api.linkedin.com'
-    })
-    return linkedInInstance.get('v2/me', {
-      headers: { Authorization: `Bearer ${access_token}` }
-    }).then((res) => res.data)
   }
 }
