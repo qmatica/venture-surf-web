@@ -49,6 +49,7 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
     }).catch(() => {
       // eslint-disable-next-line no-alert
       alert('Could not share the screen.')
+      console.log('Could not share the screen.')
     })
   }
 
