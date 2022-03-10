@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react'
-import { LocalParticipant as LocalParticipantType } from 'twilio-video'
+import { LocalParticipant as LocalParticipantType, LocalVideoTrack } from 'twilio-video'
 import { Button } from 'common/components/Button'
 import { Image } from 'common/components/Image'
 import { useDispatch, useSelector } from 'react-redux'
@@ -41,6 +41,16 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
     })
   }
 
+  const onScreenSharing = () => {
+    // @ts-ignore
+    navigator.mediaDevices.getDisplayMedia().then((stream) => {
+      const screenTrack = new LocalVideoTrack(stream.getTracks()[0])
+      localParticipant.publishTrack(screenTrack)
+    }).catch(() => {
+      alert('Could not share the screen.')
+    })
+  }
+
   return (
     <div className={styles.navBarContainer}>
       <div>
@@ -58,6 +68,11 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
         />
       </div>
       <div>
+        <Button
+          title="Screen sharing"
+          className={styles.screenSharing}
+          onClick={onScreenSharing}
+        />
         <div className={styles.addMembersContainer}>
           <Button
             title="Add members"
