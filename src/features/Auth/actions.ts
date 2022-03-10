@@ -1,6 +1,6 @@
 import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
 import { init as initProfile, actions as profileActions } from 'features/Profile/actions'
-import { profileAPI, linkedInAPI, usersAPI } from 'api'
+import { profileAPI, usersAPI } from 'api'
 import { getTokenFcm } from 'features/Profile/utils'
 import { VOIP_TOKEN, BUNDLE, REDIRECT_URI } from 'common/constants'
 import { init as initSurf } from '../Surf/actions'
@@ -66,7 +66,7 @@ export const confirmCode = (code: string): ThunkType => async (dispatch, getStat
 export const getOnboardingProfile = (code: string): ThunkType => async (dispatch) => {
   const profileData = localStorage.getItem('onboardingProfile')
   const access_token = await profileAPI.getLinkedinToken(code, REDIRECT_URI)
-  const response = await linkedInAPI.getMyProfileFromLinkedIn(access_token)
+  const response = await profileAPI.getLinkedinProfile(access_token)
 
   if (profileData && response) {
     localStorage.removeItem('onboardingProfile')
