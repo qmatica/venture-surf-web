@@ -47,6 +47,7 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
       const screenTrack = new LocalVideoTrack(stream.getTracks()[0])
       localParticipant.publishTrack(screenTrack)
     }).catch(() => {
+      // eslint-disable-next-line no-alert
       alert('Could not share the screen.')
     })
   }
