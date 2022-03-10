@@ -2,7 +2,7 @@ import React, { FC, useState, useEffect } from 'react'
 import cn from 'classnames'
 import { Button } from 'common/components/Button'
 import {
-  CHOOSE_SLOTS_MODAL, SLOTS_REPEAT, WEEKDAY, CHOOSE_SLOTS_MODAL_VALUES, WEEKDAYS
+  CHOOSE_SLOTS_MODAL, SLOTS_REPEAT, CHOOSE_SLOTS_MODAL_VALUES, WEEKDAYS
 } from 'features/Calendar/constants'
 import { Modal } from 'features/Modal'
 import { getMySlots } from 'features/Profile/selectors'
@@ -26,8 +26,8 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
   isOpen, onClose, onSubmit, selectedDateSlot
 }) => {
   const [repeatSlots, setIsModalOpen] = useState<SlotType | undefined>()
-  const currentDayOfWeek = (new Date()).getDay()
-  const [selectedWeekDays, setSelectedWeekDays] = useState<number[]>([WEEKDAYS[currentDayOfWeek].value])
+  const currentDayOfWeek = new Date().getDay()
+  const [selectedWeekDays, setSelectedWeekDays] = useState<number[]>([])
   const [selectedWeek, setSelectedWeek] = useState(1)
   const endDateBasedOnWeeks = (weekCount: number) => moment().add(weekCount, 'weeks').format('YYYY-MM-DD')
   const weekBasedOnEndDate = (endDate: string) => moment(endDate).add(1, 'd').diff(moment(), 'weeks')
@@ -49,8 +49,17 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
   const dispatch = useDispatch()
   const handelOnSubmit = () => {
     const action = mySlots.find(({ date }) => moment(date).isSame(selectedDateSlot)) ? 'del' : 'add'
-    dispatch(updateTimeSlots(action, selectedDateSlot, repeatSlots))
-    onSubmit()
+    if (repeatSlots === SLOTS_REPEAT.CUSTOM) {
+      const recurrents = selectedWeekDays.reduce((acc) => [...acc, `W${selectedWeek}`], [`W${selectedWeek}`])
+      const dates = selectedWeekDays.reduce(
+        (acc, dayOfWeek) => [...acc, moment(selectedDateSlot).day(dayOfWeek + 7).format('YYYY-MM-DDTHH:mm:00')], [moment(selectedDateSlot).format('YYYY-MM-DDTHH:mm:00')]
+      )
+
+      dispatch(updateTimeSlots(action, dates, recurrents as any))
+    } else {
+      dispatch(updateTimeSlots(action, selectedDateSlot, repeatSlots))
+      onSubmit()
+    }
   }
 
   return (
@@ -76,12 +85,15 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
                 {WEEKDAYS.map(({ value, label }) => (
                   <div
                     key={value}
-                    className={cn(styles.weekDay, selectedWeekDays.includes(value) && styles.selectedWeekDay)}
+                    className={cn(
+                      styles.weekDay,
+                      (selectedWeekDays.includes(value) || currentDayOfWeek === value) && styles.selectedWeekDay
+                    )}
                     onClick={() => (
                       selectedWeekDays.includes(value)
                         ? setSelectedWeekDays(selectedWeekDays.filter(
                           (selectedWeekDay) => selectedWeekDay !== value
-                          || selectedWeekDay === WEEKDAYS[currentDayOfWeek].value
+                          || selectedWeekDay === currentDayOfWeek
                         ))
                         : setSelectedWeekDays([...selectedWeekDays, value])
                     )}

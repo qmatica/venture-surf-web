@@ -65,7 +65,7 @@ export const actions = {
   toggleLoader: (loader: string) => (
     { type: 'PROFILE__TOGGLE_LOADER', loader } as const
   ),
-  updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
+  updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType | string[]) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   ),
   addChatInMutual: (uid: string, chat: string) => (
@@ -1064,23 +1064,29 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
 
 export const updateTimeSlots = (
   action: 'add' | 'del' | 'disable' | 'enable',
-  date: string,
-  recurrent: SlotType = 'Z'
+  date: string | string[],
+  recurrent: SlotType | SlotType[] = 'Z'
 ): ThunkType => async (dispatch) => {
   const timeZone = moment(new Date()).utcOffset()
-  const formattedDate = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${recurrent}`
+  const formattedDate = []
+  if (Array.isArray(date)) {
+    formattedDate.push(...date.map((d, i) => `${moment(d).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${recurrent[i]}`))
+  } else {
+    formattedDate.push(`${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${recurrent}`)
+  }
 
-  const result = await profileAPI.updateMyTimeSlots({ [action]: [formattedDate] }).catch((err) => {
+  const result = await profileAPI.updateMyTimeSlots({ [action]: formattedDate }).catch((err) => {
     dispatch(actionsNotifications.addErrorMsg(err.toString()))
   })
 
   if (result) {
     if (!result.errors.length) {
-      let timeSlot: string | SlotsType = formattedDate
+      let timeSlot: any = formattedDate
       if (action === 'add') {
-        timeSlot = {
-          [formattedDate]: { status: 'free', duration: 15 }
-        }
+        timeSlot = {}
+        formattedDate.forEach((date) => {
+          timeSlot[date] = { status: 'free', duration: 15 }
+        })
       }
       dispatch(actions.updateMySlots(action, timeSlot))
     }
