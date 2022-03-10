@@ -34,6 +34,7 @@ export const Participant: FC<IParticipant> = memo(({
     Array.from(trackMap.values()).map((publication: any) => publication.track).filter((track) => track !== null)
 
   const trackSubscribed = (track: VideoTrackType | AudioTrackType) => {
+    console.log('PUBLISH NEW TRACK: ', track)
     if (track.kind === 'video') {
       setVideoTracks((videoTracks) => [...videoTracks, track])
     } else if (track.kind === 'audio' && !muted) {
@@ -63,7 +64,7 @@ export const Participant: FC<IParticipant> = memo(({
   }, [participant])
 
   useEffect(() => {
-    const videoTrack = videoTracks[0]
+    const videoTrack = videoTracks[videoTracks.length - 1]
     if (videoRef.current) {
       videoTrack?.attach(videoRef.current)
       if (dominantVideoRef?.current) {
