@@ -11,7 +11,7 @@ import { actions as actionsVideoChat, connectToVideoRoom } from 'features/VideoC
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { getAdditionalProfiles } from 'features/Contacts/actions'
 import { ValueNotificationsHistoryType } from 'features/Notifications/types'
-import { FormattedSlotsType } from 'features/Calendar/types'
+import { FormattedSlotsType, SlotType } from 'features/Calendar/types'
 import { UsersType, UserType } from 'features/User/types'
 import { ChatType } from 'features/Conversations/types'
 import { RoleType, InvestmentType } from 'features/Profile/types'
@@ -1064,10 +1064,11 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
 
 export const updateTimeSlots = (
   action: 'add' | 'del' | 'disable' | 'enable',
-  date: string
+  date: string,
+  recurrent: SlotType = 'Z'
 ): ThunkType => async (dispatch) => {
   const timeZone = moment(new Date()).utcOffset()
-  const formattedDate = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}Z`
+  const formattedDate = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${recurrent}`
 
   const result = await profileAPI.updateMyTimeSlots({ [action]: [formattedDate] }).catch((err) => {
     dispatch(actionsNotifications.addErrorMsg(err.toString()))

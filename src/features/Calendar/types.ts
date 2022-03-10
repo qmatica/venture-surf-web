@@ -27,3 +27,5 @@ export type FormattedSlotsType = {
   disabled?: []
   reccurent?: string
 }[]
+
+export type SlotType = 'Z' | 'W' | 'D' | 'custom'
