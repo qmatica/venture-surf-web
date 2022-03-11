@@ -53,8 +53,8 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
   if (!createdRoles.founder) newRole = 'Founder'
   if (!createdRoles.investor) newRole = 'Investor'
 
-  const titleStages = newRole === 'Founder' ? 'My startup space is' : 'My investors industries'
-  const titleIndustries = newRole === 'Founder' ? 'Startup space' : 'My investments stages'
+  const titleStages = 'Space'
+  const titleIndustries = 'Stages'
 
   const toggleModal = () => setIsOpenModal(!isOpenModal)
   const nextStep = () => setStep(step + 1)
@@ -113,14 +113,6 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
               disabled={!!isLoadingSwitchRole || !isEdit}
               isActiveNotificationInOption={isActiveNotificationInOption}
             />
-            {!(createdRoles.founder && createdRoles.investor) && isEdit && (
-            <Button
-              title=""
-              icon="plus"
-              className={styles.default}
-              onClick={toggleModal}
-            />
-            )}
           </>
         )}
       </div>

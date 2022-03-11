@@ -12,9 +12,9 @@ import { BriefcaseIcon, PreloaderIcon } from 'common/icons'
 import { Modal } from 'features/Modal'
 import { addInvest, addYourself } from 'features/Surf/actions'
 import cn from 'classnames'
+import { Button } from 'common/components/Button'
 import { UserRow } from './components/UserRow'
 import styles from './styles.module.sass'
-import { Button } from '../../../../../common/components/Button'
 
 interface IAbout {
     profile: ProfileType
