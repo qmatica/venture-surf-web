@@ -102,7 +102,7 @@ export const ChoiceTags: FC<ITags> = ({ tags, dictionary, onChange }) => {
             type="text"
             className={cn(styles.input, errors.tag && styles.errorInput)}
             autoComplete="off"
-            placeholder="Type keyword"
+            placeholder="Type tag"
           />
           <button
             type="submit"

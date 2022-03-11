@@ -80,13 +80,13 @@ export const Deck: FC<IDeck> = ({ profile, isEdit }) => {
                     <EyeIcon />
                   </a>
                 </div>
-                <div
-                  onClick={() =>
-                    downloadFile(url, title)
-                      .catch(() => dispatch(actionsNotifications.addErrorMsg('Failed to download')))}
-                  className={styles.download}
-                ><DownloadIcon />
-                </div>
+                {/*<div*/}
+                {/*  onClick={() =>*/}
+                {/*    downloadFile(url, title)*/}
+                {/*      .catch(() => dispatch(actionsNotifications.addErrorMsg('Failed to download')))}*/}
+                {/*  className={styles.download}*/}
+                {/*><DownloadIcon />*/}
+                {/*</div>*/}
                 {isEdit && (
                 <div onClick={() => {
                   toggleModal()

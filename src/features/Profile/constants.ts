@@ -10,8 +10,8 @@ export const profileInteractionUsers: profileInteractionUsersType = {
     investor: 'investments'
   },
   labelButton: {
-    founder: 'Label my investors',
-    investor: 'Add investments'
+    founder: '+ Add',
+    investor: '+ Add'
   },
   requestButton: {
     founder: 'Approve that you invested in me',

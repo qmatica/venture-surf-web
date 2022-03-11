@@ -9,7 +9,7 @@ export const actionsUser = {
     icon: LikeIcon
   },
   withdrawLike: {
-    title: 'Withdraw like',
+    title: 'Cancel request',
     action: 'withdrawLike',
     icon: WithdrawLikeIcon
   },

@@ -104,7 +104,7 @@ export const Profile: FC<IProfile> = ({ match }) => {
 
         return (
           <Button
-            title="Withdraw like"
+            title="Cancel request"
             isLoading={currentUser?.loading?.includes('withdrawLike')}
             onClick={() =>
               dispatch(

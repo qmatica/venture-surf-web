@@ -79,7 +79,7 @@ export const Tags: FC<ITags> = ({
               disabled={tags?.join(',') === updatableTags.join(',')}
             />
             <Button
-              title="Close"
+              title="Cancel"
               className={cn(styles.button, styles.close)}
               onClick={toggleModal}
             />

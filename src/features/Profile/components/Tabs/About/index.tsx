@@ -14,6 +14,7 @@ import { addInvest, addYourself } from 'features/Surf/actions'
 import cn from 'classnames'
 import { UserRow } from './components/UserRow'
 import styles from './styles.module.sass'
+import { Button } from '../../../../../common/components/Button'
 
 interface IAbout {
     profile: ProfileType
@@ -26,9 +27,6 @@ export const About: FC<IAbout> = ({ profile, isEdit }) => {
     dispatch(updateMyProfile({ [field]: value }))
   }, [profile])
 
-  const titleStages = profile.activeRole === 'founder' ? 'My startup space is' : 'My investors industries'
-  const titleIndustries = profile.activeRole === 'founder' ? 'My startup is' : 'My investments stages'
-
   return (
     <div className={styles.container}>
       {profile.about && (
@@ -38,19 +36,19 @@ export const About: FC<IAbout> = ({ profile, isEdit }) => {
         </div>
       )}
       <Tags
-        title={titleStages}
-        tags={profile[profile.activeRole]?.stages}
-        dictionary={stages[profile.activeRole]}
-        onSave={isEdit ? updateProfile('stages') : undefined}
-      />
-      <Tags
-        title={titleIndustries}
+        title="Space"
         tags={profile[profile.activeRole]?.industries}
         dictionary={industries}
         onSave={isEdit ? updateProfile('industries') : undefined}
       />
       <Tags
-        title="Keywords"
+        title="Stage"
+        tags={profile[profile.activeRole]?.stages}
+        dictionary={stages[profile.activeRole]}
+        onSave={isEdit ? updateProfile('stages') : undefined}
+      />
+      <Tags
+        title="Tags"
         tags={profile.tags}
         onSave={isEdit ? updateProfile('tags') : undefined}
       />
@@ -154,25 +152,43 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
         </div>
         <div className={styles.content}>
           {Object.entries(profileInteraction.value)
-            .map(([uid, value]) => (
-              <UserRow
-                key={uid}
-                profile={profile}
-                uid={uid}
-                status={value.status}
-                isBacked
-                isEdit={isEdit}
-              />
-            ))}
-          {isEdit && (
-            <div className={styles.labelButton} onClick={toggleModal}>
-              {hasUserToInteract && profileInteraction.labelButton}
-            </div>
+            .map(([uid, value]) => {
+              let statusTitle = value.status === 'accepted' ? 'verified' : value.status
+
+              if (myProfile?.uid !== profile.uid) {
+                statusTitle = value.status === 'accepted' ? 'verified' : ''
+              }
+              return (
+                <UserRow
+                  key={uid}
+                  profile={profile}
+                  uid={uid}
+                  status={statusTitle}
+                  isBacked
+                  isEdit={isEdit}
+                />
+              )
+            })}
+          {isEdit && hasUserToInteract && (
+            <Button
+              title={profileInteraction.labelButton}
+              onClick={toggleModal}
+              className={styles.addInvestButton}
+            />
           )}
         </div>
       </div>
     )
   }, [profileInteraction, isEdit, profile.activeRole])
+
+  let addYourselfTitle = ''
+
+  if (myProfile?.activeRole === 'founder' && profile.activeRole === 'investor') {
+    addYourselfTitle = 'Backed me'
+  }
+  if (myProfile?.activeRole === 'investor' && profile.activeRole === 'founder') {
+    addYourselfTitle = 'I am on cap table'
+  }
 
   return (
     <>
@@ -190,7 +206,7 @@ const Interaction: FC<IInteraction> = ({ profile, isEdit }) => {
                     )
                   )}
               >
-                Add yourself
+                {addYourselfTitle}
               </div>
       )}
       {isEdit && hasUserToInteract && (

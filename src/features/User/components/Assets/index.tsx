@@ -21,10 +21,24 @@ export const Assets: FC<IAssets> = ({
 }) => {
   const dispatch = useDispatch()
   const myProfile = useSelector(getMyProfile)
+
+  if (!myProfile) return null
+
+  const { uid, activeRole } = myProfile
+
   const canInteract =
     !relatedUsersList.some(
-      (relatedUser) => relatedUser.uid === myProfile?.uid
-    ) && myProfile?.activeRole !== selectedRole
+      (relatedUser) => relatedUser.uid === uid
+    ) && activeRole !== selectedRole
+
+  let addYourselfTitle = ''
+
+  if (activeRole === 'founder' && selectedRole === 'investor') {
+    addYourselfTitle = 'Backed me'
+  }
+  if (activeRole === 'investor' && selectedRole === 'founder') {
+    addYourselfTitle = 'I am on cap table'
+  }
 
   return relatedUsersList.length || canInteract ? (
     <div className={styles.container}>
@@ -38,7 +52,8 @@ export const Assets: FC<IAssets> = ({
                 dispatch(
                   addYourself(user.uid, profileInteractionUsers.content[selectedRole])
                 )}
-            >Add yourself
+            >
+              {addYourselfTitle}
             </div>
           )}
           {relatedUsersList.length > 2 && <div className={styles.link} onClick={onClick}>See all</div>}

@@ -54,7 +54,7 @@ export const SwitchRoles: FC<ISwitchRoles> = ({
   if (!createdRoles.investor) newRole = 'Investor'
 
   const titleStages = newRole === 'Founder' ? 'My startup space is' : 'My investors industries'
-  const titleIndustries = newRole === 'Founder' ? 'My startup is' : 'My investments stages'
+  const titleIndustries = newRole === 'Founder' ? 'Startup space' : 'My investments stages'
 
   const toggleModal = () => setIsOpenModal(!isOpenModal)
   const nextStep = () => setStep(step + 1)

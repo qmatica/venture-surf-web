@@ -72,7 +72,7 @@ export const Actions: FC<IActions> = ({ user, userName }) => {
         disabled={user.settings?.disable_instant_calls}
       />
       <Button
-        title="Open chat"
+        title="Chat"
         isLoading={user.loading?.includes('openChat')}
         onClick={onOpenChat}
         icon="mail"
@@ -84,12 +84,12 @@ export const Actions: FC<IActions> = ({ user, userName }) => {
         icon="calendar"
       />
       <Button
-        title="Share link profile"
+        title="Share profile"
         isLoading={user.loading?.includes('shareLinkProfile')}
         onClick={onShareLinkProfile}
       />
       <Button
-        title="Recommended"
+        title="Make intro"
         isLoading={false}
         onClick={toggleModalRecommend}
         icon="people"

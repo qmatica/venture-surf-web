@@ -17,10 +17,10 @@ export const Tags: FC<ITags> = ({
   activeRole
 }) => (
   <div className={styles.container}>
-    <TagsComponent title="My startup is" tags={industries} dictionary={dicIndustries} minSize />
     {activeRole && (
-    <TagsComponent title="My startup space is" tags={stages} dictionary={dicStages[activeRole]} minSize />
+      <TagsComponent title="Stage" tags={stages} dictionary={dicStages[activeRole]} minSize />
     )}
-    <TagsComponent title="My keywords" tags={tags} minSize />
+    <TagsComponent title="Startup space" tags={industries} dictionary={dicIndustries} minSize />
+    <TagsComponent title="Tags" tags={tags} minSize />
   </div>
 )

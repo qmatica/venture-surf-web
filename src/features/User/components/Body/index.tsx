@@ -42,10 +42,9 @@ export const Body: FC<IBody> = ({
 
         return (
           <Button
-            title={isCLicked ? 'Withdraw like' : 'Like'}
+            title={isCLicked ? 'Cancel request' : 'Connect'}
             isLoading={loading?.some((el) => ['like', 'withdrawLike'].includes(el))}
             onClick={onClick}
-            icon={isCLicked ? 'withdrawLike' : 'like'}
           />
         )
       }
@@ -60,10 +59,9 @@ export const Body: FC<IBody> = ({
 
         return (
           <Button
-            title={isCLicked ? 'Like' : 'Withdraw like'}
+            title={isCLicked ? 'Connect' : 'Cancel request'}
             isLoading={loading?.some((el) => ['withdrawLike', 'like'].includes(el))}
             onClick={onClick}
-            icon={isCLicked ? 'like' : 'withdrawLike'}
           />
         )
       }

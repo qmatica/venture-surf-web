@@ -112,7 +112,9 @@ export const User: FC<IUser> = memo(({
                 <Link to={`/profile/${relatedUser.uid}`}>
                   <div>{relatedUser.displayName}</div>
                 </Link>
-                <div className={styles.status}>{invests?.[relatedUser.uid].status}</div>
+                <div className={styles.status}>
+                  {invests?.[relatedUser.uid].status === 'accepted' && 'verified'}
+                </div>
               </div>
             </div>
           ))}

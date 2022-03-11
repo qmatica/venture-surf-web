@@ -62,13 +62,13 @@ export const Surf = () => {
           </div>
           <div className={styles.textContainer}>
             <div className={styles.name}>{name}</div>
-            <div className={styles.about}>added you to {list}</div>
+            <div className={styles.about}>Added you to {list}</div>
           </div>
         </div>
         <div className={styles.buttonsContainer}>
           <Button
             isLoading={loaders.includes(`onAcceptInvest-${inv.uid}`)}
-            title="Accept"
+            title="Confirm"
             onClick={() => onAcceptInvestor(inv.uid)}
           />
           <Button
