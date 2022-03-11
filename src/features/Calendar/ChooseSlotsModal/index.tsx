@@ -20,17 +20,15 @@ interface IChooseSlotsModal {
   selectedDateSlot: string
 }
 
-const currentDate = moment().add(7, 'days').format('YYYY-MM-DD')
-
 export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
   isOpen, onClose, onSubmit, selectedDateSlot
 }) => {
   const [repeatSlots, setIsModalOpen] = useState<SlotType | undefined>()
-  const currentDayOfWeek = new Date().getDay()
+  const currentDayOfWeek = new Date(selectedDateSlot).getDay()
   const [selectedWeekDays, setSelectedWeekDays] = useState<number[]>([])
   const [selectedWeek, setSelectedWeek] = useState(1)
-  const endDateBasedOnWeeks = (weekCount: number) => moment().add(weekCount, 'weeks').format('YYYY-MM-DD')
-  const weekBasedOnEndDate = (endDate: string) => moment(endDate).add(1, 'd').diff(moment(), 'weeks')
+  const endDateBasedOnWeeks = (weekCount: number) => moment(selectedDateSlot).add(weekCount, 'weeks').format('YYYY-MM-DD')
+  const weekBasedOnEndDate = (endDate: string) => moment(endDate).add(1, 'd').diff(moment(selectedDateSlot), 'weeks')
   const [selectedEndDate, setSelectedEndDate] = useState(endDateBasedOnWeeks(selectedWeek))
 
   useEffect(() => {
@@ -41,25 +39,27 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
     setSelectedWeek(weekBasedOnEndDate(selectedEndDate))
   }, [selectedEndDate])
 
-  const weeks = Array(999).fill(0).map((_, i) => i)
+  const weeks = Array(999).fill(0).map((_, i) => i + 1)
   const isSubmitDisabled = !repeatSlots
-    || (repeatSlots === SLOTS_REPEAT.CUSTOM && (!selectedWeekDays.length || !selectedEndDate))
-
   const mySlots = useSelector(getMySlots)
   const dispatch = useDispatch()
   const handelOnSubmit = () => {
     const action = mySlots.find(({ date }) => moment(date).isSame(selectedDateSlot)) ? 'del' : 'add'
     if (repeatSlots === SLOTS_REPEAT.CUSTOM) {
-      const recurrents = selectedWeekDays.reduce((acc) => [...acc, `W${selectedWeek}`], [`W${selectedWeek}`])
+      const recurrents = selectedWeekDays.reduce((acc) => [...acc, `W${selectedWeek}`], [`W${selectedWeek + 1}`])
       const dates = selectedWeekDays.reduce(
-        (acc, dayOfWeek) => [...acc, moment(selectedDateSlot).day(dayOfWeek + 7).format('YYYY-MM-DDTHH:mm:00')], [moment(selectedDateSlot).format('YYYY-MM-DDTHH:mm:00')]
+        (acc, dayOfWeek) => [
+          ...acc,
+          moment(selectedDateSlot)
+            .day(dayOfWeek < currentDayOfWeek ? dayOfWeek + 7 : dayOfWeek)
+            .format('YYYY-MM-DDTHH:mm:00')
+        ], [moment(selectedDateSlot).format('YYYY-MM-DDTHH:mm:00')]
       )
-
       dispatch(updateTimeSlots(action, dates, recurrents as any))
     } else {
       dispatch(updateTimeSlots(action, selectedDateSlot, repeatSlots))
-      onSubmit()
     }
+    onSubmit()
   }
 
   return (

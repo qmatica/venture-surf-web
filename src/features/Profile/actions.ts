@@ -65,7 +65,7 @@ export const actions = {
   toggleLoader: (loader: string) => (
     { type: 'PROFILE__TOGGLE_LOADER', loader } as const
   ),
-  updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType | string[]) => (
+  updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   ),
   addChatInMutual: (uid: string, chat: string) => (
@@ -1084,8 +1084,15 @@ export const updateTimeSlots = (
       let timeSlot: any = formattedDate
       if (action === 'add') {
         timeSlot = {}
-        formattedDate.forEach((date) => {
-          timeSlot[date] = { status: 'free', duration: 15 }
+        formattedDate.forEach((date, i) => {
+          const [recLetter, ...[count]] = recurrent[i] as any
+          timeSlot[date.substring(0, date.indexOf(recLetter) + 1)] = {
+            status: 'free',
+            duration: 15,
+            recurrent: recLetter,
+            disabled: [],
+            ...(count ? { count } : {})
+          }
         })
       }
       dispatch(actions.updateMySlots(action, timeSlot))
