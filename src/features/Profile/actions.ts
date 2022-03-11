@@ -11,7 +11,7 @@ import { actions as actionsVideoChat, connectToVideoRoom } from 'features/VideoC
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { getAdditionalProfiles } from 'features/Contacts/actions'
 import { ValueNotificationsHistoryType } from 'features/Notifications/types'
-import { FormattedSlotsType } from 'features/Calendar/types'
+import { FormattedSlotsType, SlotType } from 'features/Calendar/types'
 import { UsersType, UserType } from 'features/User/types'
 import { ChatType } from 'features/Conversations/types'
 import { RoleType, InvestmentType } from 'features/Profile/types'
@@ -1064,22 +1064,36 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
 
 export const updateTimeSlots = (
   action: 'add' | 'del' | 'disable' | 'enable',
-  date: string
+  date: string | string[],
+  recurrent: SlotType | SlotType[] = 'Z'
 ): ThunkType => async (dispatch) => {
   const timeZone = moment(new Date()).utcOffset()
-  const formattedDate = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}Z`
+  const formattedDate = []
+  if (Array.isArray(date)) {
+    formattedDate.push(...date.map((d, i) => `${moment(d).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${recurrent[i]}`))
+  } else {
+    formattedDate.push(`${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${recurrent}`)
+  }
 
-  const result = await profileAPI.updateMyTimeSlots({ [action]: [formattedDate] }).catch((err) => {
+  const result = await profileAPI.updateMyTimeSlots({ [action]: formattedDate }).catch((err) => {
     dispatch(actionsNotifications.addErrorMsg(err.toString()))
   })
 
   if (result) {
     if (!result.errors.length) {
-      let timeSlot: string | SlotsType = formattedDate
+      let timeSlot: any = formattedDate
       if (action === 'add') {
-        timeSlot = {
-          [formattedDate]: { status: 'free', duration: 15 }
-        }
+        timeSlot = {}
+        formattedDate.forEach((date, i) => {
+          const [recLetter, ...[count]] = recurrent[i] as any
+          timeSlot[date.substring(0, date.indexOf(recLetter) + 1)] = {
+            status: 'free',
+            duration: 15,
+            recurrent: recLetter,
+            disabled: [],
+            ...(count ? { count } : {})
+          }
+        })
       }
       dispatch(actions.updateMySlots(action, timeSlot))
     }

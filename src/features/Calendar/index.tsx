@@ -28,10 +28,11 @@ interface ITimeTableCell {
   otherSlots?: FormattedSlotsType
   uid?: string
   openChooseSlotsModal: () => void
+  setSelectedDateSlot: (selectedDateSlot: string) => void
 }
 
 const TimeTableCell = ({
-  startDate, otherSlots, uid, openChooseSlotsModal
+  startDate, otherSlots, uid, openChooseSlotsModal, setSelectedDateSlot
 }: ITimeTableCell) => {
   const dispatch = useDispatch()
 
@@ -44,7 +45,7 @@ const TimeTableCell = ({
   const toggleTimeSlot = (date: string) => {
     if (uid) {
       const action = mySlots.find((slot) => moment(slot.date).isSame(date)) ? 'del' : 'add'
-      dispatch(updateTimeSlots(action, date))
+      dispatch(updateTimeSlots(action, date, 'Z'))
     } else {
       openChooseSlotsModal()
     }
@@ -91,6 +92,7 @@ const TimeTableCell = ({
             key={dateSlot}
             className={`${classNameMyOpenedSlot} ${classNameIsTimeBefore} ${classNameIsClosedSlot} ${classNameMyScheduledSlot}`}
             onClick={() => {
+              setSelectedDateSlot(dateSlot)
               if (myScheduledSlot || isTimeBefore) return
               if (otherSlots) {
                 if (otherSlot) onConnectToCall(dateSlot)
@@ -127,6 +129,7 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
   const [currentDate, setCurrentDate] = useState<Date | string>(new Date())
   const [currentViewName, setCurrentViewName] = useState('Day')
   const [isChooseSlotsModalOpen, setIsChooseSlotsModalOpen] = useState(false)
+  const [selectedDateSlot, setSelectedDateSlot] = useState('')
 
   const onCurrentDateChange = (value: Date) => {
     setCurrentDate(value)
@@ -152,7 +155,11 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
               : undefined}
             cellDuration={60}
             timeTableCellComponent={(props) => TimeTableCell({
-              ...props, otherSlots, uid, openChooseSlotsModal: () => setIsChooseSlotsModalOpen(true)
+              ...props,
+              otherSlots,
+              uid,
+              openChooseSlotsModal: () => setIsChooseSlotsModalOpen(true),
+              setSelectedDateSlot
             })}
           />
           <WeekView cellDuration={15} />
@@ -165,6 +172,7 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
       </div>
       {isChooseSlotsModalOpen && (
         <ChooseSlotsModal
+          selectedDateSlot={selectedDateSlot}
           isOpen
           onClose={() => setIsChooseSlotsModalOpen(false)}
           onSubmit={() => setIsChooseSlotsModalOpen(false)}
