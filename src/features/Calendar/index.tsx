@@ -57,7 +57,7 @@ const TimeTableCell = ({
       if (action === 'del') {
         const repeatSlots = currentSlot
         if (repeatSlots?.reccurent === SLOTS_REPEAT.CURRENT_DATE || !repeatSlots?.reccurent) {
-          //TODO: Make an API call
+          // TODO: Make an API call
         } else {
           openDeleteSlotsModal()
         }
