@@ -9,8 +9,9 @@ import { getMySlots } from 'features/Profile/selectors'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateTimeSlots } from 'features/Profile/actions'
 import moment from 'moment'
-import { Toggle } from './Toggle/index'
+import { Toggle } from '../Toggle/index'
 import styles from './styles.module.sass'
+import calendarStyles from '../styles.module.sass'
 import { SlotType } from '../types'
 
 interface IChooseSlotsModal {
@@ -23,7 +24,7 @@ interface IChooseSlotsModal {
 export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
   isOpen, onClose, onSubmit, selectedDateSlot
 }) => {
-  const [repeatSlots, setIsModalOpen] = useState<SlotType | undefined>()
+  const [selectedSlotType, setSelectedSlotType] = useState<SlotType | undefined>()
   const currentDayOfWeek = new Date(selectedDateSlot).getDay()
   const [selectedWeekDays, setSelectedWeekDays] = useState<number[]>([])
   const [selectedWeek, setSelectedWeek] = useState(1)
@@ -40,12 +41,12 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
   }, [selectedEndDate])
 
   const weeks = Array(999).fill(0).map((_, i) => i + 1)
-  const isSubmitDisabled = !repeatSlots
+  const isSubmitDisabled = !selectedSlotType
   const mySlots = useSelector(getMySlots)
   const dispatch = useDispatch()
   const handelOnSubmit = () => {
     const action = mySlots.find(({ date }) => moment(date).isSame(selectedDateSlot)) ? 'del' : 'add'
-    if (repeatSlots === SLOTS_REPEAT.CUSTOM) {
+    if (selectedSlotType === SLOTS_REPEAT.CUSTOM) {
       const recurrents = selectedWeekDays.reduce((acc) => [...acc, `W${selectedWeek}`], [`W${selectedWeek + 1}`])
       const dates = selectedWeekDays.reduce(
         (acc, dayOfWeek) => [
@@ -57,7 +58,7 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
       )
       dispatch(updateTimeSlots(action, dates, recurrents as any))
     } else {
-      dispatch(updateTimeSlots(action, selectedDateSlot, repeatSlots))
+      dispatch(updateTimeSlots(action, selectedDateSlot, selectedSlotType))
     }
     onSubmit()
   }
@@ -72,12 +73,12 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
               id={value}
               description={description}
               value={value}
-              handleChange={() => setIsModalOpen(value)}
+              handleChange={() => setSelectedSlotType(value)}
               name="date"
             />
           ))}
         </div>
-        {repeatSlots === SLOTS_REPEAT.CUSTOM && (
+        {selectedSlotType === SLOTS_REPEAT.CUSTOM && (
           <div>
             <div className={styles.repeatDays}>
               <div className={styles.days}>{CHOOSE_SLOTS_MODAL.DAYS}</div>
@@ -119,13 +120,13 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
             </div>
           </div>
         )}
-        <div className={styles.buttons}>
+        <div className={calendarStyles.buttons}>
           <Button title={CHOOSE_SLOTS_MODAL.CANCEL} onClick={onClose} />
           <Button
             title={CHOOSE_SLOTS_MODAL.SUBMIT}
             onClick={handelOnSubmit}
             disabled={isSubmitDisabled}
-            className={isSubmitDisabled ? styles.buttonDisabled : ''}
+            className={isSubmitDisabled ? calendarStyles.buttonDisabled : ''}
           />
         </div>
       </div>

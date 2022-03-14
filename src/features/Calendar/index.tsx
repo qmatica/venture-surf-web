@@ -12,6 +12,8 @@ import ReactTooltip from 'react-tooltip'
 import { UserIcon } from 'common/icons'
 import { Image } from 'common/components/Image'
 import { ChooseSlotsModal } from 'features/Calendar/ChooseSlotsModal'
+import { DeleteSlotsModal } from 'features/Calendar/DeleteSlotsModal'
+import { SLOTS_REPEAT } from './constants'
 import styles from './styles.module.sass'
 import { FormattedSlotsType } from './types'
 
@@ -28,11 +30,12 @@ interface ITimeTableCell {
   otherSlots?: FormattedSlotsType
   uid?: string
   openChooseSlotsModal: () => void
+  openDeleteSlotsModal: () => void
   setSelectedDateSlot: (selectedDateSlot: string) => void
 }
 
 const TimeTableCell = ({
-  startDate, otherSlots, uid, openChooseSlotsModal, setSelectedDateSlot
+  startDate, otherSlots, uid, openChooseSlotsModal, setSelectedDateSlot, openDeleteSlotsModal
 }: ITimeTableCell) => {
   const dispatch = useDispatch()
 
@@ -42,12 +45,23 @@ const TimeTableCell = ({
   let hours: string | number | undefined = startDate?.getHours()
   hours = (`0${hours}`).slice(-2)
 
-  const toggleTimeSlot = (date: string) => {
+  const toggleTimeSlot = (selectedDate: string) => {
+    const currentSlot = mySlots.find(({ date }) => moment(date).isSame(selectedDate))
+    const action = currentSlot ? 'del' : 'add'
     if (uid) {
-      const action = mySlots.find((slot) => moment(slot.date).isSame(date)) ? 'del' : 'add'
-      dispatch(updateTimeSlots(action, date, 'Z'))
+      dispatch(updateTimeSlots(action, selectedDate, 'Z'))
     } else {
-      openChooseSlotsModal()
+      if (action === 'add') {
+        openChooseSlotsModal()
+      }
+      if (action === 'del') {
+        const repeatSlots = currentSlot
+        if (repeatSlots?.reccurent === SLOTS_REPEAT.CURRENT_DATE || !repeatSlots?.reccurent) {
+          //TODO: Make an API call
+        } else {
+          openDeleteSlotsModal()
+        }
+      }
     }
   }
 
@@ -129,6 +143,7 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
   const [currentDate, setCurrentDate] = useState<Date | string>(new Date())
   const [currentViewName, setCurrentViewName] = useState('Day')
   const [isChooseSlotsModalOpen, setIsChooseSlotsModalOpen] = useState(false)
+  const [isDeleteSlotsModalOpen, setIsDeleteSlotsModalOpen] = useState(false)
   const [selectedDateSlot, setSelectedDateSlot] = useState('')
 
   const onCurrentDateChange = (value: Date) => {
@@ -159,6 +174,7 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
               otherSlots,
               uid,
               openChooseSlotsModal: () => setIsChooseSlotsModalOpen(true),
+              openDeleteSlotsModal: () => setIsDeleteSlotsModalOpen(true),
               setSelectedDateSlot
             })}
           />
@@ -176,6 +192,13 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
           isOpen
           onClose={() => setIsChooseSlotsModalOpen(false)}
           onSubmit={() => setIsChooseSlotsModalOpen(false)}
+        />
+      )}
+      {isDeleteSlotsModalOpen && (
+        <DeleteSlotsModal
+          isOpen
+          onClose={() => setIsDeleteSlotsModalOpen(false)}
+          onSubmit={() => setIsDeleteSlotsModalOpen(false)}
         />
       )}
     </>

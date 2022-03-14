@@ -79,3 +79,22 @@ export const WEEKDAYS: { value: number, label: string }[] = [
     label: WEEKDAY.SAT
   }
 ]
+
+export const DELETE_SLOTS_MODAL = {
+  CANCEL: 'Cancel',
+  SUBMIT: 'Submit',
+  DELETE_CURRENT: 'Delete this event only',
+  DELETE_ALL: 'Delete all future events',
+  TITLE: 'Delete Event'
+}
+
+export const DELETE_SLOTS_MODAL_VALUES: { value: SlotType, description: string }[] = [
+  {
+    value: SLOTS_REPEAT.CURRENT_DATE,
+    description: DELETE_SLOTS_MODAL.DELETE_CURRENT
+  },
+  {
+    value: SLOTS_REPEAT.CUSTOM,
+    description: DELETE_SLOTS_MODAL.DELETE_ALL
+  }
+]

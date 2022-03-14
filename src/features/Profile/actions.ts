@@ -1065,14 +1065,14 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
 export const updateTimeSlots = (
   action: 'add' | 'del' | 'disable' | 'enable',
   date: string | string[],
-  recurrent: SlotType | SlotType[] = 'Z'
+  reccurent: SlotType | SlotType[] = 'Z'
 ): ThunkType => async (dispatch) => {
   const timeZone = moment(new Date()).utcOffset()
   const formattedDate = []
   if (Array.isArray(date)) {
-    formattedDate.push(...date.map((d, i) => `${moment(d).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${recurrent[i]}`))
+    formattedDate.push(...date.map((d, i) => `${moment(d).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${reccurent[i]}`))
   } else {
-    formattedDate.push(`${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${recurrent}`)
+    formattedDate.push(`${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${reccurent}`)
   }
 
   const result = await profileAPI.updateMyTimeSlots({ [action]: formattedDate }).catch((err) => {
@@ -1085,11 +1085,11 @@ export const updateTimeSlots = (
       if (action === 'add') {
         timeSlot = {}
         formattedDate.forEach((date, i) => {
-          const [recLetter, ...[count]] = recurrent[i] as any
+          const [recLetter, ...[count]] = reccurent[i] as any
           timeSlot[date.substring(0, date.indexOf(recLetter) + 1)] = {
             status: 'free',
             duration: 15,
-            recurrent: recLetter,
+            reccurent: recLetter,
             disabled: [],
             ...(count ? { count } : {})
           }
