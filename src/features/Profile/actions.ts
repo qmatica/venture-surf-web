@@ -187,7 +187,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     return null
   })
 
-  if (profile) return
+  if (!profile) return
 
   const { auth: { uid } } = getState().firebase
 
