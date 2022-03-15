@@ -46,8 +46,8 @@ const TimeTableCell = ({
   hours = (`0${hours}`).slice(-2)
 
   const toggleTimeSlot = (selectedDate: string) => {
-    const currentSlot = mySlots.find(({ date }) => moment(date).isSame(selectedDate))
-    const action = currentSlot ? 'del' : 'add'
+    const selectedSlot = mySlots.find(({ date }) => moment(date).isSame(selectedDate))
+    const action = selectedSlot ? 'del' : 'add'
     if (uid) {
       dispatch(updateTimeSlots(action, selectedDate, 'Z'))
     } else {
@@ -55,9 +55,8 @@ const TimeTableCell = ({
         openChooseSlotsModal()
       }
       if (action === 'del') {
-        const repeatSlots = currentSlot
-        if (repeatSlots?.reccurent === SLOTS_REPEAT.CURRENT_DATE || !repeatSlots?.reccurent) {
-          // TODO: Make an API call
+        if (selectedSlot?.reccurent === SLOTS_REPEAT.CURRENT_DATE || !selectedSlot?.reccurent) {
+          dispatch(updateTimeSlots(action, selectedSlot?.date as any, SLOTS_REPEAT.CURRENT_DATE))
         } else {
           openDeleteSlotsModal()
         }
@@ -196,6 +195,7 @@ export const Calendar = ({ otherSlots, uid }: { otherSlots?: any, uid?: string }
       )}
       {isDeleteSlotsModalOpen && (
         <DeleteSlotsModal
+          selectedDateSlot={selectedDateSlot}
           isOpen
           onClose={() => setIsDeleteSlotsModalOpen(false)}
           onSubmit={() => setIsDeleteSlotsModalOpen(false)}

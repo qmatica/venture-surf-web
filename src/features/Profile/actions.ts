@@ -68,6 +68,9 @@ export const actions = {
   updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   ),
+  deleteMySlots: (slot: string | SlotsType) => (
+    { type: 'PROFILE__DELETE_MY_SLOTS', payload: { slot } } as const
+  ),
   addChatInMutual: (uid: string, chat: string) => (
     { type: 'PROFILE__ADD_CHAT_IN_MUTUAL', payload: { uid, chat } } as const
   ),
@@ -1094,8 +1097,15 @@ export const updateTimeSlots = (
             ...(count ? { count } : {})
           }
         })
+        dispatch(actions.updateMySlots(action, timeSlot))
       }
-      dispatch(actions.updateMySlots(action, timeSlot))
+
+      if (action === 'del') {
+        if (reccurent === 'Z') {
+          const selectDate = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${reccurent}`
+          dispatch(actions.deleteMySlots(selectDate))
+        }
+      }
     }
   }
 }

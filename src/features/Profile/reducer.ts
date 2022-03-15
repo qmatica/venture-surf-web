@@ -148,6 +148,19 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
       }
       return state
     }
+    case 'PROFILE__DELETE_MY_SLOTS': {
+      if (!state.profile) return state
+      const mySlots = state.profile.slots
+      const currentSlot: any = action.payload.slot
+      const { [currentSlot]: _, ...updateMySlots }: any = mySlots
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          slots: updateMySlots
+        }
+      }
+    }
     case 'PROFILE__ACCEPT_INVEST': {
       const { profile } = state
 
