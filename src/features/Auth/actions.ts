@@ -43,14 +43,15 @@ export const signInWithPhoneNumber = (phoneNumber: string, applicationVerifier: 
 export const confirmCode = (code: string): ThunkType => async (dispatch, getState) => {
   dispatch(actions.setIsLoading(true))
 
-  const { confirmation } = getState().auth
+  const { auth: { confirmation } } = getState()
 
   confirmation?.confirm(code)
     .then(async (res) => {
       console.log('confirmCode success. User:', res.user)
       dispatch(actions.setIsLoading(false))
       dispatch(actions.setIsWaitingProfileData(true))
-      await Promise.all([dispatch(initProfile()), dispatch(initSurf())])
+      await dispatch(initProfile())
+      await dispatch(initSurf())
       dispatch(actions.setIsWaitingProfileData(false))
       dispatch(actions.setAuth(true))
     })

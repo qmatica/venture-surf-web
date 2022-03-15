@@ -23,6 +23,9 @@ export const actions = {
 }
 
 export const init = (): ThunkType => async (dispatch, getState) => {
+  const { profile: { isRegistration } } = getState()
+  if (isRegistration) return
+
   const { getMatches, getRecommended } = usersAPI
 
   const response = await Promise.all([getRecommended(), getMatches()]).catch((err) => {

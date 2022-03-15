@@ -159,215 +159,218 @@ const onIntroNotification = async (userName: string, dispatch: (action: any) => 
 }
 
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
-  try {
-    let deviceId = localStorage.getItem('deviceId')
+  let deviceId = localStorage.getItem('deviceId')
 
-    if (!deviceId) {
-      deviceId = uuidv4()
-      localStorage.setItem('deviceId', deviceId)
-    }
+  if (!deviceId) {
+    deviceId = uuidv4()
+    localStorage.setItem('deviceId', deviceId)
+  }
 
-    const fcm_token = await getTokenFcm()
+  const fcm_token = await getTokenFcm()
 
-    if (fcm_token) {
-      dispatch(actions.setIsActiveFcm(true))
-    }
+  if (fcm_token) {
+    dispatch(actions.setIsActiveFcm(true))
+  }
 
-    const device = {
-      id: deviceId,
-      os: window.navigator.appVersion,
-      fcm_token,
-      voip_token: VOIP_TOKEN,
-      bundle: BUNDLE
-    }
+  const device = {
+    id: deviceId,
+    os: window.navigator.appVersion,
+    fcm_token,
+    voip_token: VOIP_TOKEN,
+    bundle: BUNDLE
+  }
 
-    const profile = await profileAPI.afterLogin(device)
+  if (getState().profile.isRegistration) return
 
-    const { auth: { uid } } = getState().firebase
+  const profile = await profileAPI.afterLogin(device).catch(() => {
+    dispatch(actions.setMyProfile(null))
+    return null
+  })
 
-    const contactsList: any = {
-      mutuals: {},
-      likes: {},
-      liked: {}
-    }
+  if (profile) return
 
-    Object.keys(contactsList).forEach((contacts) => {
-      Object.keys(profile[contacts]).forEach((key) => {
-        contactsList[contacts][key] = {
-          ...profile[contacts][key],
-          uid: key
-        }
-      })
-    })
+  const { auth: { uid } } = getState().firebase
 
-    const updatedProfile = {
-      ...profile,
-      ...contactsList,
-      uid,
-      currentDeviceId: deviceId
-    }
-    dispatch(actions.setMyProfile(updatedProfile))
+  const contactsList: any = {
+    mutuals: {},
+    likes: {},
+    liked: {}
+  }
 
-    dispatch(getFullProfiles(contactsList.mutuals, 'mutuals'))
-
-    // if (fcm_token) {
-    //   const messaging = getMessaging(firebaseApp)
-    //
-    //   onMessage(messaging, (payload) => {
-    //     console.log('Message received. ', payload)
-    //     dispatch(checkIncomingCall(payload))
-    //   })
-    // }
-
-    dispatch(listenSchedulesMeetings())
-    dispatch(listenUpdateMyProfile())
-
-    const q = query(collection(getFirebase().firestore(), `profiles/${uid}/notifications`))
-
-    const querySnapshot = await getDocs(q)
-
-    const notificationsHistory = {} as { [key: string]: ValueNotificationsHistoryType }
-
-    querySnapshot.forEach((doc) => {
-      const notify = doc.data() as ValueNotificationsHistoryType
-      // console.log('notifications', doc.id, ' => ', notify)
-      notificationsHistory[doc.id] = notify
-    })
-
-    dispatch(actionsNotifications.setHistory(notificationsHistory))
-    dispatch(actionsNotifications.setIsLoadedHistory(true))
-
-    let allContacts = {} as { [key: string]: ProfileType }
-
-    Object.values(contactsList).forEach((contactList: any) => {
-      allContacts = {
-        ...allContacts,
-        ...contactList
+  Object.keys(contactsList).forEach((contacts) => {
+    Object.keys(profile[contacts]).forEach((key) => {
+      contactsList[contacts][key] = {
+        ...profile[contacts][key],
+        uid: key
       }
     })
+  })
 
-    const additionalProfiles = {} as { [key: string]: null | ProfileType }
+  const updatedProfile = {
+    ...profile,
+    ...contactsList,
+    uid,
+    currentDeviceId: deviceId
+  }
+  dispatch(actions.setMyProfile(updatedProfile))
 
-    Object.values(notificationsHistory).forEach((notify) => {
-      if (!allContacts[notify.contact]) {
-        additionalProfiles[notify.contact] = null
-      }
-    })
+  dispatch(getFullProfiles(contactsList.mutuals, 'mutuals'))
 
-    dispatch(getAdditionalProfiles(Object.keys(additionalProfiles)))
+  // if (fcm_token) {
+  //   const messaging = getMessaging(firebaseApp)
+  //
+  //   onMessage(messaging, (payload) => {
+  //     console.log('Message received. ', payload)
+  //     dispatch(checkIncomingCall(payload))
+  //   })
+  // }
 
-    onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach(async (change) => {
-        if (change.type === 'added') {
-          const doc = change.doc.data() as ValueNotificationsHistoryType
-          // console.log('New: doc', doc)
+  dispatch(listenSchedulesMeetings())
+  dispatch(listenUpdateMyProfile())
 
-          if (doc.type === NOTIFICATION_TYPES.CALL_SCHEDULED) scheduleMeeting(doc.contact, doc.data.start_time)
-          if (doc.type === NOTIFICATION_TYPES.CALL_CANCELED) cancelMeeting(doc.contact, doc.data.start_time)
+  const q = query(collection(getFirebase().firestore(), `profiles/${uid}/notifications`))
 
-          if (!notificationsHistory[change.doc.id]) {
-            console.log('Unregistered doc!', doc)
-            notificationsHistory[change.doc.id] = doc
+  const querySnapshot = await getDocs(q)
 
-            dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
+  const notificationsHistory = {} as { [key: string]: ValueNotificationsHistoryType }
 
-            switch (notificationsHistory[change.doc.id].type) {
-              case NOTIFICATION_TYPES.LIKE: {
-                await onLikeNotification(doc.contact, dispatch)
-                break
-              }
-              case NOTIFICATION_TYPES.MUTUAL_LIKE: {
-                await onMutualLikeNotification(doc.contact, dispatch)
-                break
-              }
-              case NOTIFICATION_TYPES.INVEST: {
-                onInvestNotification(doc.contact, doc.data.role, doc.data.status, dispatch)
-                break
-              }
-              case NOTIFICATION_TYPES.INTRO: {
-                await onIntroNotification(doc.data.contact.displayName, dispatch)
-                break
-              }
-              case NOTIFICATION_TYPES.INTRO_YOU: {
-                dispatch(actionsNotifications.addAnyMsg({
-                  msg: `Your account recommended from ${doc.data.broker.displayName}`,
-                  uid: uuidv4()
-                }))
-                break
-              }
-              case NOTIFICATION_TYPES.SHARE: {
-                const user = await usersAPI.getUser(doc.contact)
-                dispatch(actionsNotifications.addAnyMsg({
-                  msg: `Meeting invitation from ${user.first_name} ${user.last_name}`,
-                  uid: uuidv4()
-                }))
-                break
-              }
-              case NOTIFICATION_TYPES.CALL_DECLINED: {
-                const { displayName } = profile.mutuals[doc.contact]
-                dispatch(actionsNotifications.addAnyMsg({ msg: `${displayName} declined your call`, uid: uuidv4() }))
-                break
-              }
-              case NOTIFICATION_TYPES.CALL_FINISHED: {
-                const { displayName } = profile.mutuals[doc.contact]
-                dispatch(actionsNotifications.addAnyMsg({ msg: `${displayName} Call is ended`, uid: uuidv4() }))
-                break
-              }
-              // Входящий звонок
-              case NOTIFICATION_TYPES.CALL_INSTANT: {
-                const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
-                const user = profile.mutuals[contact]
-                const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-                const { photoURL } = user
-                const payload = {
-                  uid: contact,
-                  name,
-                  photoURL,
-                  room,
-                  token
-                }
-                dispatch(actionsNotifications.addIncomingCall(payload))
-                break
-              }
-              case NOTIFICATION_TYPES.CALL_INSTANT_GROUP: {
-                const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
+  querySnapshot.forEach((doc) => {
+    const notify = doc.data() as ValueNotificationsHistoryType
+    // console.log('notifications', doc.id, ' => ', notify)
+    notificationsHistory[doc.id] = notify
+  })
 
-                const user = profile.mutuals[contact]
+  dispatch(actionsNotifications.setHistory(notificationsHistory))
+  dispatch(actionsNotifications.setIsLoadedHistory(true))
 
-                const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-                const { photoURL } = user
-                const payload = {
-                  uid: contact,
-                  name,
-                  photoURL,
-                  room,
-                  token
-                }
+  let allContacts = {} as { [key: string]: ProfileType }
 
-                dispatch(actionsNotifications.addIncomingCall(payload))
-                break
-              }
-              default: break
+  Object.values(contactsList).forEach((contactList: any) => {
+    allContacts = {
+      ...allContacts,
+      ...contactList
+    }
+  })
+
+  const additionalProfiles = {} as { [key: string]: null | ProfileType }
+
+  Object.values(notificationsHistory).forEach((notify) => {
+    if (!allContacts[notify.contact]) {
+      additionalProfiles[notify.contact] = null
+    }
+  })
+
+  dispatch(getAdditionalProfiles(Object.keys(additionalProfiles)))
+
+  onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach(async (change) => {
+      if (change.type === 'added') {
+        const doc = change.doc.data() as ValueNotificationsHistoryType
+        // console.log('New: doc', doc)
+
+        if (doc.type === NOTIFICATION_TYPES.CALL_SCHEDULED) scheduleMeeting(doc.contact, doc.data.start_time)
+        if (doc.type === NOTIFICATION_TYPES.CALL_CANCELED) cancelMeeting(doc.contact, doc.data.start_time)
+
+        if (!notificationsHistory[change.doc.id]) {
+          console.log('Unregistered doc!', doc)
+          notificationsHistory[change.doc.id] = doc
+
+          dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
+
+          switch (notificationsHistory[change.doc.id].type) {
+            case NOTIFICATION_TYPES.LIKE: {
+              await onLikeNotification(doc.contact, dispatch)
+              break
             }
-
-            if (notificationsHistory[change.doc.id].type === 'twilio_enter_group') {
-              const { data: { room, token } } = notificationsHistory[change.doc.id]
-
-              dispatch(connectToVideoRoom(room, token))
+            case NOTIFICATION_TYPES.MUTUAL_LIKE: {
+              await onMutualLikeNotification(doc.contact, dispatch)
+              break
             }
+            case NOTIFICATION_TYPES.INVEST: {
+              onInvestNotification(doc.contact, doc.data.role, doc.data.status, dispatch)
+              break
+            }
+            case NOTIFICATION_TYPES.INTRO: {
+              await onIntroNotification(doc.data.contact.displayName, dispatch)
+              break
+            }
+            case NOTIFICATION_TYPES.INTRO_YOU: {
+              dispatch(actionsNotifications.addAnyMsg({
+                msg: `Your account recommended from ${doc.data.broker.displayName}`,
+                uid: uuidv4()
+              }))
+              break
+            }
+            case NOTIFICATION_TYPES.SHARE: {
+              const user = await usersAPI.getUser(doc.contact)
+              dispatch(actionsNotifications.addAnyMsg({
+                msg: `Meeting invitation from ${user.first_name} ${user.last_name}`,
+                uid: uuidv4()
+              }))
+              break
+            }
+            case NOTIFICATION_TYPES.CALL_DECLINED: {
+              const { displayName } = profile.mutuals[doc.contact]
+              dispatch(actionsNotifications.addAnyMsg({ msg: `${displayName} declined your call`, uid: uuidv4() }))
+              break
+            }
+            case NOTIFICATION_TYPES.CALL_FINISHED: {
+              const { displayName } = profile.mutuals[doc.contact]
+              dispatch(actionsNotifications.addAnyMsg({ msg: `${displayName} Call is ended`, uid: uuidv4() }))
+              break
+            }
+            // Входящий звонок
+            case NOTIFICATION_TYPES.CALL_INSTANT: {
+              const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
+              const user = profile.mutuals[contact]
+              const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+              const { photoURL } = user
+              const payload = {
+                uid: contact,
+                name,
+                photoURL,
+                room,
+                token
+              }
+              dispatch(actionsNotifications.addIncomingCall(payload))
+              break
+            }
+            case NOTIFICATION_TYPES.CALL_INSTANT_GROUP: {
+              const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
+
+              const user = profile.mutuals[contact]
+
+              const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+              const { photoURL } = user
+              const payload = {
+                uid: contact,
+                name,
+                photoURL,
+                room,
+                token
+              }
+
+              dispatch(actionsNotifications.addIncomingCall(payload))
+              break
+            }
+            default: break
+          }
+
+          if (notificationsHistory[change.doc.id].type === 'twilio_enter_group') {
+            const { data: { room, token } } = notificationsHistory[change.doc.id]
+
+            dispatch(connectToVideoRoom(room, token))
           }
         }
-        if (change.type === 'modified') {
-          console.log('Modified doc: ', change.doc.data())
-        }
-        if (change.type === 'removed') {
-          console.log('Removed doc: ', change.doc.data())
-        }
-      })
+      }
+      if (change.type === 'modified') {
+        console.log('Modified doc: ', change.doc.data())
+      }
+      if (change.type === 'removed') {
+        console.log('Removed doc: ', change.doc.data())
+      }
     })
-  } catch (err) {
-    console.log(err)
-  }
+  })
 }
 
 const listenSchedulesMeetings = (): ThunkType => async (dispatch, getState) => {

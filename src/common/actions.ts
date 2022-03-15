@@ -30,7 +30,8 @@ export const init = (history: History): ThunkType => async (dispatch, getState, 
   getFirebase().auth().onAuthStateChanged(async (userAuth) => {
     dispatch(actions.setInitialized(true))
     if (userAuth) {
-      await Promise.all([dispatch(initProfile()), dispatch(initSurf())])
+      await dispatch(initProfile())
+      await dispatch(initSurf())
       dispatch(authActions.setAuth(true))
       dispatch(initConversations())
       dispatch(initAdmin())
