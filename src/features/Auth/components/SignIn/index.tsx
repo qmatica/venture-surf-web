@@ -44,6 +44,10 @@ export const SignIn = () => {
     dispatch(signInWithPhoneNumber(`+${phoneNumber}`, window.recaptchaVerifier))
   }
 
+  useEffect(() => {
+    if (codeInputRef.current && confirmation) codeInputRef.current.focus()
+  }, [confirmation])
+
   if (auth) {
     if (!profile) return <Redirect to="/sign_up" />
     return <Redirect to="/surf" />

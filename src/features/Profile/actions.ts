@@ -74,173 +74,176 @@ export const actions = {
 let activeActions: string[] = []
 
 export const init = (): ThunkType => async (dispatch, getState, getFirebase) => {
-  try {
-    let deviceId = localStorage.getItem('deviceId')
+  let deviceId = localStorage.getItem('deviceId')
 
-    if (!deviceId) {
-      deviceId = uuidv4()
-      localStorage.setItem('deviceId', deviceId)
-    }
+  if (!deviceId) {
+    deviceId = uuidv4()
+    localStorage.setItem('deviceId', deviceId)
+  }
 
-    const fcm_token = await getTokenFcm()
+  const fcm_token = await getTokenFcm()
 
-    if (fcm_token) {
-      dispatch(actions.setIsActiveFcm(true))
-    }
+  if (fcm_token) {
+    dispatch(actions.setIsActiveFcm(true))
+  }
 
-    const device = {
-      id: deviceId,
-      os: window.navigator.appVersion,
-      fcm_token,
-      voip_token: VOIP_TOKEN,
-      bundle: BUNDLE
-    }
+  const device = {
+    id: deviceId,
+    os: window.navigator.appVersion,
+    fcm_token,
+    voip_token: VOIP_TOKEN,
+    bundle: BUNDLE
+  }
 
-    const profile = await profileAPI.afterLogin(device)
+  if (getState().profile.isRegistration) return
 
-    const { auth: { uid } } = getState().firebase
+  const profile = await profileAPI.afterLogin(device).catch(() => {
+    dispatch(actions.setMyProfile(null))
+    return null
+  })
 
-    const contactsList: any = {
-      mutuals: {},
-      likes: {},
-      liked: {}
-    }
+  if (!profile) return
 
-    Object.keys(contactsList).forEach((contacts) => {
-      Object.keys(profile[contacts]).forEach((key) => {
-        contactsList[contacts][key] = {
-          ...profile[contacts][key],
-          uid: key
-        }
-      })
-    })
+  const { auth: { uid } } = getState().firebase
 
-    const updatedProfile = {
-      ...profile,
-      ...contactsList,
-      uid,
-      currentDeviceId: deviceId
-    }
-    dispatch(actions.setMyProfile(updatedProfile))
+  const contactsList: any = {
+    mutuals: {},
+    likes: {},
+    liked: {}
+  }
 
-    dispatch(getFullProfiles(contactsList.mutuals, 'mutuals'))
-
-    // if (fcm_token) {
-    //   const messaging = getMessaging(firebaseApp)
-    //
-    //   onMessage(messaging, (payload) => {
-    //     console.log('Message received. ', payload)
-    //     dispatch(checkIncomingCall(payload))
-    //   })
-    // }
-
-    dispatch(listenSchedulesMeetings())
-    dispatch(listenUpdateMyProfile())
-
-    const q = query(collection(getFirebase().firestore(), `profiles/${uid}/notifications`))
-
-    const querySnapshot = await getDocs(q)
-
-    const notificationsHistory = {} as { [key: string]: ValueNotificationsHistoryType }
-
-    querySnapshot.forEach((doc) => {
-      const notify = doc.data() as ValueNotificationsHistoryType
-      console.log('notifications', doc.id, ' => ', notify)
-      notificationsHistory[doc.id] = notify
-    })
-
-    dispatch(actionsNotifications.setHistory(notificationsHistory))
-    dispatch(actionsNotifications.setIsLoadedHistory(true))
-
-    let allContacts = {} as { [key: string]: ProfileType }
-
-    Object.values(contactsList).forEach((contactList: any) => {
-      allContacts = {
-        ...allContacts,
-        ...contactList
+  Object.keys(contactsList).forEach((contacts) => {
+    Object.keys(profile[contacts]).forEach((key) => {
+      contactsList[contacts][key] = {
+        ...profile[contacts][key],
+        uid: key
       }
     })
+  })
 
-    const additionalProfiles = {} as { [key: string]: null | ProfileType }
+  const updatedProfile = {
+    ...profile,
+    ...contactsList,
+    uid,
+    currentDeviceId: deviceId
+  }
+  dispatch(actions.setMyProfile(updatedProfile))
 
-    Object.values(notificationsHistory).forEach((notify) => {
-      if (!allContacts[notify.contact]) {
-        additionalProfiles[notify.contact] = null
-      }
+  dispatch(getFullProfiles(contactsList.mutuals, 'mutuals'))
+
+  // if (fcm_token) {
+  //   const messaging = getMessaging(firebaseApp)
+  //
+  //   onMessage(messaging, (payload) => {
+  //     console.log('Message received. ', payload)
+  //     dispatch(checkIncomingCall(payload))
+  //   })
+  // }
+
+  dispatch(listenSchedulesMeetings())
+  dispatch(listenUpdateMyProfile())
+
+  const q = query(collection(getFirebase().firestore(), `profiles/${uid}/notifications`))
+
+  const querySnapshot = await getDocs(q)
+
+  const notificationsHistory = {} as { [key: string]: ValueNotificationsHistoryType }
+
+  querySnapshot.forEach((doc) => {
+    const notify = doc.data() as ValueNotificationsHistoryType
+    console.log('notifications', doc.id, ' => ', notify)
+    notificationsHistory[doc.id] = notify
+  })
+
+  dispatch(actionsNotifications.setHistory(notificationsHistory))
+  dispatch(actionsNotifications.setIsLoadedHistory(true))
+
+  let allContacts = {} as { [key: string]: ProfileType }
+
+  Object.values(contactsList).forEach((contactList: any) => {
+    allContacts = {
+      ...allContacts,
+      ...contactList
+    }
+  })
+
+  const additionalProfiles = {} as { [key: string]: null | ProfileType }
+
+  Object.values(notificationsHistory).forEach((notify) => {
+    if (!allContacts[notify.contact]) {
+      additionalProfiles[notify.contact] = null
+    }
+  })
+
+  executeAllPromises(Object.keys(additionalProfiles).map((uid) => usersAPI.getUser(uid))).then((items) => {
+    const { errors, results } = items
+
+    results.forEach((res) => {
+      additionalProfiles[res.uid] = res
     })
 
-    executeAllPromises(Object.keys(additionalProfiles).map((uid) => usersAPI.getUser(uid))).then((items) => {
-      const { errors, results } = items
+    dispatch(actionsContacts.setAdditionalProfiles(additionalProfiles))
+  })
 
-      results.forEach((res) => {
-        additionalProfiles[res.uid] = res
-      })
+  onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added') {
+        const doc = change.doc.data() as ValueNotificationsHistoryType
+        console.log('New: doc', doc)
+        if (!notificationsHistory[change.doc.id]) {
+          console.log('Unregistered doc!', doc)
+          notificationsHistory[change.doc.id] = doc
 
-      dispatch(actionsContacts.setAdditionalProfiles(additionalProfiles))
-    })
+          dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
 
-    onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const doc = change.doc.data() as ValueNotificationsHistoryType
-          console.log('New: doc', doc)
-          if (!notificationsHistory[change.doc.id]) {
-            console.log('Unregistered doc!', doc)
-            notificationsHistory[change.doc.id] = doc
+          // Входящий звонок
+          if (notificationsHistory[change.doc.id].type === 'call_instant') {
+            const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
 
-            dispatch(actionsNotifications.addItemInHistory(change.doc.id, doc))
+            const user = profile.mutuals[contact]
 
-            // Входящий звонок
-            if (notificationsHistory[change.doc.id].type === 'call_instant') {
-              const { contact, data: { room, token } } = notificationsHistory[change.doc.id]
+            const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+            const { photoURL } = user
 
-              const user = profile.mutuals[contact]
-
-              const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-              const { photoURL } = user
-
-              const payload = {
-                uid: contact,
-                name,
-                photoURL,
-                room,
-                token
-              }
-
-              dispatch(actionsNotifications.addIncomingCall(payload))
+            const payload = {
+              uid: contact,
+              name,
+              photoURL,
+              room,
+              token
             }
 
-            if (notificationsHistory[change.doc.id].type === 'call_instant_group') {
-              const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
+            dispatch(actionsNotifications.addIncomingCall(payload))
+          }
 
-              const user = profile.mutuals[contact]
+          if (notificationsHistory[change.doc.id].type === 'call_instant_group') {
+            const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
 
-              const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
-              const { photoURL } = user
+            const user = profile.mutuals[contact]
 
-              const payload = {
-                uid: contact,
-                name,
-                photoURL,
-                room,
-                token
-              }
+            const name = user.name || user.displayName || `${user.first_name} ${user.last_name}`
+            const { photoURL } = user
 
-              dispatch(actionsNotifications.addIncomingCall(payload))
+            const payload = {
+              uid: contact,
+              name,
+              photoURL,
+              room,
+              token
             }
+
+            dispatch(actionsNotifications.addIncomingCall(payload))
           }
         }
-        if (change.type === 'modified') {
-          console.log('Modified doc: ', change.doc.data())
-        }
-        if (change.type === 'removed') {
-          console.log('Removed doc: ', change.doc.data())
-        }
-      })
+      }
+      if (change.type === 'modified') {
+        console.log('Modified doc: ', change.doc.data())
+      }
+      if (change.type === 'removed') {
+        console.log('Removed doc: ', change.doc.data())
+      }
     })
-  } catch (err) {
-    console.log(err)
-  }
+  })
 }
 
 const listenSchedulesMeetings = (): ThunkType => async (dispatch, getState) => {
