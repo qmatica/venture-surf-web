@@ -46,6 +46,7 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
     })
   }
 
+  // TODO: Refactor this
   const onScreenSharing = () => {
     // @ts-ignore
     navigator.mediaDevices.getDisplayMedia().then((stream) => {

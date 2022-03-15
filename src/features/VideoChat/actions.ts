@@ -5,7 +5,7 @@ import {
   LocalDataTrack,
   createLocalTracks,
   createLocalVideoTrack,
-  createLocalAudioTrack
+  createLocalAudioTrack, LocalVideoTrack, LocalAudioTrack, LocalTrackPublication
 } from 'twilio-video'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { ThunkType } from './types'
@@ -59,6 +59,7 @@ export const connectToVideoRoom = (room: string, token: string): ThunkType => as
       video: { deviceId: selectedDevices.videoinput }
     })
   }).then((localTracks) => {
+    console.log('LOCAL TRACKS: ', localTracks)
     connect(token, {
       room,
       dominantSpeaker: true,
@@ -83,7 +84,7 @@ export const changeDevice = (kind: string, deviceId: string): ThunkType => async
   dispatch(actions.setSelectedDevices({ [kind]: deviceId }))
 
   if (room) {
-    let track
+    let track: LocalVideoTrack | LocalAudioTrack | undefined
 
     switch (kind) {
       case 'videoinput': {
@@ -97,6 +98,16 @@ export const changeDevice = (kind: string, deviceId: string): ThunkType => async
       default: break
     }
 
-    if (track) room.localParticipant.publishTrack(track)
+    if (track) {
+      const { tracks } = room.localParticipant
+
+      tracks.forEach((t) => {
+        if (t.kind === track?.kind) {
+          t.unpublish()
+        }
+      })
+
+      room.localParticipant.publishTrack(track)
+    }
   }
 }
