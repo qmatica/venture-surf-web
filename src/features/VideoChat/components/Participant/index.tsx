@@ -79,7 +79,7 @@ export const Participant: FC<IParticipant> = memo(({
   }, [videoTracks, isDominant])
 
   useEffect(() => {
-    const audioTrack = audioTracks[0]
+    const audioTrack = audioTracks[audioTracks.length - 1]
     if (audioRef.current) {
       audioTrack?.attach(audioRef.current)
     }
