@@ -9,3 +9,7 @@ export type ActionTypes = InferActionsTypes<typeof actions | typeof actionsNotif
 export type ThunkType = ThunkAction<Promise<void | boolean>, AppStateType, typeof getFirebase, ActionTypes>
 
 export type MapParticipantsType = { [sid: string]: Participant }
+
+export type DevicesType = {
+  [key: string]: MediaDeviceInfo[]
+}
