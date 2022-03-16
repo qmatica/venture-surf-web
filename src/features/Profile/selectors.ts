@@ -87,3 +87,41 @@ export const getMySlots = createSelector(getSlotsMyProfileSelector, (slots) => {
   }
   return formattedSlots
 })
+
+export const getAllMySlots = createSelector(getSlotsMyProfileSelector, (slots) => {
+  const endDate = moment().add(4, 'weeks')
+  const timeZone = moment(new Date()).utcOffset()
+  const formattedSlots: FormattedSlotsType = []
+
+  if (slots) {
+    Object.entries(slots).forEach(([date, value]: any) => {
+      const [slot] = date.split(value.reccurent)
+      const dateSlot = moment(slot).add(timeZone, 'minutes')
+      const formattedDateSlot = dateSlot.format('YYYY-MM-DDTHH:mm:00')
+      switch (value.reccurent) {
+        default:
+        case 'Z': {
+          if (!value?.disabled?.length && dateSlot.isBefore(endDate)) {
+            formattedSlots.push({ ...value, date: formattedDateSlot })
+          }
+          break
+        }
+        case 'D': {
+          const counts = Array(value.count).fill(0).filter((_, i) => !value.disabled.includes(i))
+          const calculatedDates = counts.map((_, i) => moment(dateSlot).add(i, 'days'))
+          // TODO: add disabled value, correct type and optimize
+          formattedSlots.push(...(calculatedDates.filter((date) => date.isBefore(endDate)).map((date) => ({ date: date.format('YYYY-MM-DDTHH:mm:00') })) as any))
+          break
+        }
+        case 'W': {
+          const counts = Array(value.count).fill(0).filter((_, i) => !value.disabled.includes(i))
+          const calculatedDates: any = counts.map((_, i) => moment(dateSlot).add(i, 'weeks'))
+          // TODO: add disabled value, correct type and optimize
+          formattedSlots.push(...(calculatedDates.filter((date: any) => date.isBefore(endDate)).map((date: any) => ({ date: date.format('YYYY-MM-DDTHH:mm:00') })) as any))
+          break
+        }
+      }
+    })
+  }
+  return formattedSlots
+})

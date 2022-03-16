@@ -28,4 +28,4 @@ export type FormattedSlotsType = {
   reccurent?: string
 }[]
 
-export type SlotType = 'Z' | 'W' | 'D' | 'custom'
+export type SlotType = 'Z' | 'W' | 'D' | 'custom'| '0' | 'ALL'

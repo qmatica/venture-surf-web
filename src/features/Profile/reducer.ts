@@ -149,17 +149,35 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
       return state
     }
     case 'PROFILE__DELETE_MY_SLOTS': {
+      // TODO: Create 2 separace cases for del and disable
       if (!state.profile) return state
-      const mySlots = state.profile.slots
       const currentSlot: any = action.payload.slot
-      const { [currentSlot]: _, ...updateMySlots }: any = mySlots
-      return {
-        ...state,
-        profile: {
-          ...state.profile,
-          slots: updateMySlots
+      const { profile: { slots: { [currentSlot]: _, ...updatedSlots } } }: any = state
+      if (action.payload.action === 'del') {
+        return {
+          ...state,
+          profile: {
+            ...state.profile,
+            slots: updatedSlots
+          }
         }
       }
+      if (action.payload.action === 'disable') {
+        return {
+          ...state,
+          profile: {
+            ...state.profile,
+            slots: {
+              ...state.profile.slots,
+              [currentSlot]: {
+                ...state.profile.slots[currentSlot]
+                // TODO: update slot in REDUX
+              }
+            }
+          }
+        }
+      }
+      return state
     }
     case 'PROFILE__ACCEPT_INVEST': {
       const { profile } = state

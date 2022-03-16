@@ -6,7 +6,7 @@ import {
 import { ViewState } from '@devexpress/dx-react-scheduler'
 import { useDispatch, useSelector } from 'react-redux'
 import { connectToCall, updateTimeSlots } from 'features/Profile/actions'
-import { getMySlots } from 'features/Profile/selectors'
+import { getMySlots, getAllMySlots } from 'features/Profile/selectors'
 import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
 import { UserIcon } from 'common/icons'
@@ -40,6 +40,7 @@ const TimeTableCell = ({
   const dispatch = useDispatch()
 
   const mySlots = useSelector(getMySlots)
+  const allMySlots = useSelector(getAllMySlots)
   const mutuals = useSelector(getMutuals)
 
   let hours: string | number | undefined = startDate?.getHours()

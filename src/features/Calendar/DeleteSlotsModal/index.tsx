@@ -1,11 +1,12 @@
 import React, { FC, useState } from 'react'
 import { Modal } from 'features/Modal'
 import { Toggle } from 'features/Calendar/Toggle'
-import { DELETE_SLOTS_MODAL_VALUES, DELETE_SLOTS_MODAL } from 'features/Calendar/constants'
+import { useDispatch, useSelector } from 'react-redux'
+import { DELETE_SLOTS_MODAL_VALUES, DELETE_SLOTS_MODAL, SLOTS_REPEAT } from 'features/Calendar/constants'
 import { Button } from 'common/components/Button'
-import { useSelector } from 'react-redux'
 import { getMySlots } from 'features/Profile/selectors'
 import moment from 'moment'
+import { updateTimeSlots } from 'features/Profile/actions'
 import styles from '../styles.module.sass'
 import { SlotType } from '../types'
 
@@ -23,10 +24,19 @@ export const DeleteSlotsModal: FC<IDeleteSlotsModal> = ({
   const isSubmitDisabled = !selectedSlotType
 
   const mySlots = useSelector(getMySlots)
+  const dispatch = useDispatch()
 
-  // TODO: correct handelOnSubmit function
   const handelOnSubmit = () => {
     const action = mySlots.find(({ date }) => moment(date).isSame(selectedDateSlot)) ? 'del' : 'add'
+    const selectedSlot = mySlots.find(({ date }) => moment(date).isSame(selectedDateSlot))
+    if (selectedSlotType === SLOTS_REPEAT.ONE) {
+      // TODO: update updateReccurent number based on value in allMySlots
+      const updateReccurent = `${selectedSlot?.reccurent}0`
+      dispatch(updateTimeSlots('disable', selectedDateSlot, updateReccurent as any))
+    }
+    if (selectedSlotType === SLOTS_REPEAT.ALL) {
+      dispatch(updateTimeSlots(action, selectedDateSlot, selectedSlot?.reccurent as any))
+    }
     onSubmit()
   }
 

@@ -68,8 +68,8 @@ export const actions = {
   updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   ),
-  deleteMySlots: (slot: string | SlotsType) => (
-    { type: 'PROFILE__DELETE_MY_SLOTS', payload: { slot } } as const
+  deleteMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
+    { type: 'PROFILE__DELETE_MY_SLOTS', payload: { action, slot } } as const
   ),
   addChatInMutual: (uid: string, chat: string) => (
     { type: 'PROFILE__ADD_CHAT_IN_MUTUAL', payload: { uid, chat } } as const
@@ -1072,10 +1072,11 @@ export const updateTimeSlots = (
 ): ThunkType => async (dispatch) => {
   const timeZone = moment(new Date()).utcOffset()
   const formattedDate = []
+  const slotDateWithoutTimeZone = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}`
   if (Array.isArray(date)) {
     formattedDate.push(...date.map((d, i) => `${moment(d).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${reccurent[i]}`))
   } else {
-    formattedDate.push(`${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${reccurent}`)
+    formattedDate.push(`${slotDateWithoutTimeZone}${reccurent}`)
   }
 
   const result = await profileAPI.updateMyTimeSlots({ [action]: formattedDate }).catch((err) => {
@@ -1099,12 +1100,9 @@ export const updateTimeSlots = (
         })
         dispatch(actions.updateMySlots(action, timeSlot))
       }
-
-      if (action === 'del') {
-        if (reccurent === 'Z') {
-          const selectDate = `${moment(date).subtract(timeZone, 'minutes').format('YYYY-MM-DDTHH:mm:00')}${reccurent}`
-          dispatch(actions.deleteMySlots(selectDate))
-        }
+      if (action === 'disable' || (action === 'del' && (reccurent === 'Z' || reccurent === 'W' || reccurent === 'D'))) {
+        const selectedDate = `${slotDateWithoutTimeZone}${reccurent}`
+        dispatch(actions.deleteMySlots(action, selectedDate))
       }
     }
   }
