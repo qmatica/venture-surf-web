@@ -60,6 +60,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
         investor: allSettingsInitial.investor,
         founder: allSettingsInitial.founder
       })
+      setIsNotificationDisabled(allSettingsInitial.isNotificationDisabled)
     }
   }, [isOpen])
 

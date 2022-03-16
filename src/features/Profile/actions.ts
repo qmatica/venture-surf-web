@@ -180,8 +180,6 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
     bundle: BUNDLE
   }
 
-  if (getState().profile.isRegistration) return
-
   const profile = await profileAPI.afterLogin(device).catch(() => {
     dispatch(actions.setMyProfile(null))
     return null

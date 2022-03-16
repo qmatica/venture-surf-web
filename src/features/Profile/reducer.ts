@@ -4,7 +4,7 @@ import { profileInteractionUsers } from './constants'
 const initialState = {
   profile: null as ProfileType | null,
   isActiveFcm: false,
-  isRegistration: false,
+  isRegistration: null as Boolean | null,
   loaders: [] as string[],
   progressLoadingFile: null as number | null
 }
