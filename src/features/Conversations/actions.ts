@@ -183,7 +183,7 @@ export const sendMessage = (message: string, chat: string, attributes?: any): Th
       body: message,
       dateCreated: new Date(),
       dateUpdated: new Date(),
-      index: chats[chat].messages?.length || 0,
+      index: chats[chat]?.messages?.length || 0,
       sid: (Math.random() + 1).toString(36).substring(7),
       aggregatedDeliveryReceipt: null
     }

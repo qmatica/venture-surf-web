@@ -29,7 +29,13 @@ export const init = (history: History): ThunkType => async (dispatch, getState, 
 
   getFirebase().auth().onAuthStateChanged(async (userAuth: any) => {
     dispatch(actions.setInitialized(true))
-    if (userAuth && userAuth.user?.metadata?.creationTime !== userAuth.user?.metadata?.lastSignInTime) {
+    if (
+      (getState().profile.isRegistration === null &&
+      userAuth?.metadata?.creationTime !==
+        userAuth?.metadata?.lastSignInTime) &&
+     (!getState().profile.isRegistration &&
+      userAuth)
+    ) {
       await Promise.all([dispatch(initProfile()), dispatch(initSurf())])
       dispatch(authActions.setAuth(true))
       dispatch(initConversations())
