@@ -46,13 +46,16 @@ export const confirmCode = (code: string): ThunkType => async (dispatch, getStat
   const { auth: { confirmation } } = getState()
 
   confirmation?.confirm(code)
-    .then(async (res) => {
-      console.log('confirmCode success. User:', res.user)
+    .then(async ({ additionalUserInfo: { isNewUser }, user }: any) => {
+      console.log('confirmCode success. User:', user)
       dispatch(actions.setIsLoading(false))
-      dispatch(actions.setIsWaitingProfileData(true))
-      await dispatch(initProfile())
-      await dispatch(initSurf())
-      dispatch(actions.setIsWaitingProfileData(false))
+      if (isNewUser) {
+        dispatch(profileActions.setMyProfile(null))
+      } else {
+        dispatch(actions.setIsWaitingProfileData(true))
+        await Promise.all([dispatch(initProfile()), dispatch(initSurf())])
+        dispatch(actions.setIsWaitingProfileData(false))
+      }
       dispatch(actions.setAuth(true))
     })
     .catch((err) => {
