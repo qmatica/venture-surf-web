@@ -6,6 +6,7 @@ const initialState = {
   localDataTrack: null as LocalDataTrack | null,
   devices: {} as DevicesType,
   selectedDevices: {} as { [key: string]: string },
+  isGroup: false,
   viewEndCallAll: false,
   isOwnerCall: false
 }
@@ -40,6 +41,12 @@ export const VideoChatReducer = (state = initialState, action: ActionTypes): typ
       return {
         ...state,
         devices
+      }
+    }
+    case 'VIDEO_CHAT__SET_IS_GROUP': {
+      return {
+        ...state,
+        isGroup: action.isGroup
       }
     }
     case 'VIDEO_CHAT__SET_SELECTED_DEVICES': {

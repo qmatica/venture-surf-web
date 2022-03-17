@@ -1,4 +1,6 @@
-import React, { FC, useState } from 'react'
+import React, {
+  FC, useEffect, useRef, useState
+} from 'react'
 import { LocalParticipant as LocalParticipantType, LocalVideoTrack } from 'twilio-video'
 import { Button } from 'common/components/Button'
 import { Image } from 'common/components/Image'
@@ -15,8 +17,10 @@ import { actions as actionsNotifications } from 'features/Notifications/actions'
 import ReactTooltip from 'react-tooltip'
 import { Checkbox } from '@material-ui/core'
 import { changeDevice } from 'features/VideoChat/actions'
-import { getDevices, getSelectedDevices } from '../../selectors'
+import { getDevices, getIsGroup, getSelectedDevices } from '../../selectors'
 import styles from './styles.module.sass'
+import { useOutside } from '../../../../common/hooks'
+import { callNow } from '../../../Profile/actions'
 
 interface INavbar {
   localParticipant: LocalParticipantType
@@ -107,6 +111,7 @@ interface IListMembers {
 const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
   const dispatch = useDispatch()
   const mutuals = useSelector(getMutuals)
+  const isGroup = useSelector(getIsGroup)
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState<string | null>(null)
 
@@ -115,6 +120,11 @@ const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
   const invite = async (uid: string) => {
     setLoading(uid)
     const deviceId = localStorage.getItem('deviceId') as string
+
+    if (isGroup) {
+      dispatch(callNow(uid))
+      return
+    }
 
     usersAPI.inviteInVideoRoom(uid, deviceId, 'now')
       .then((res) => {
@@ -179,11 +189,19 @@ interface IButtonMultimedia {
 const ButtonMultimedia: FC<IButtonMultimedia> = ({
   type, title, isActive, onClick
 }) => {
+  const ref = useRef(null)
   const dispatch = useDispatch()
   const devices = useSelector(getDevices)
   const selectedDevices = useSelector(getSelectedDevices)
   const [isOpenList, setIsOpenList] = useState(false)
   const toggleIsOpenList = () => setIsOpenList(!isOpenList)
+
+  const closeIsOpenList = () => {
+    setIsOpenList(() => {
+      ReactTooltip.hide()
+      return false
+    })
+  }
 
   const getIcon = () => {
     switch (type) {
@@ -197,8 +215,10 @@ const ButtonMultimedia: FC<IButtonMultimedia> = ({
     }
   }
 
+  useOutside(ref, closeIsOpenList)
+
   return (
-    <div className={styles.buttonMultimediaContainer}>
+    <div id={title} ref={ref} className={styles.buttonMultimediaContainer}>
       <div onClick={onClick}>
         {getIcon()}
         <div className={styles.title}>{title}</div>

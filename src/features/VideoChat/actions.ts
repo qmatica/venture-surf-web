@@ -20,6 +20,9 @@ export const actions = {
   setDevices: (devices: MediaDeviceInfo[]) => (
     { type: 'VIDEO_CHAT__SET_DEVICES', devices } as const
   ),
+  setIsGroup: (isGroup: boolean) => (
+    { type: 'VIDEO_CHAT__SET_IS_GROUP', isGroup } as const
+  ),
   setSelectedDevices: (devices: { [key: string]: string }) => (
     { type: 'VIDEO_CHAT__SET_SELECTED_DEVICES', devices } as const
   ),
@@ -32,8 +35,14 @@ export const actions = {
   reset: () => ({ type: 'VIDEO_CHAT__RESET' } as const)
 }
 
-export const connectToVideoRoom = (room: string, token: string): ThunkType => async (dispatch, getState) => {
+export const connectToVideoRoom = (
+  room: string,
+  token: string,
+  isGroup?: boolean
+): ThunkType => async (dispatch, getState) => {
   const localDataTrack = new LocalDataTrack()
+
+  if (isGroup) dispatch(actions.setIsGroup(isGroup))
 
   navigator.mediaDevices.enumerateDevices().then((devices) => {
     console.log('Media devices: ', devices)
