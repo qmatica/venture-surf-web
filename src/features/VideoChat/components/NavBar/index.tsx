@@ -1,4 +1,6 @@
-import React, { FC, useState } from 'react'
+import React, {
+  FC, useEffect, useRef, useState
+} from 'react'
 import { LocalParticipant as LocalParticipantType, LocalVideoTrack } from 'twilio-video'
 import { Button } from 'common/components/Button'
 import { Image } from 'common/components/Image'
@@ -6,12 +8,19 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getMutuals } from 'features/Contacts/selectors'
 import { MapParticipantsType } from 'features/VideoChat/types'
 import {
+  ArrowBottomIcon,
   MicIcon, MicOffIcon, UserPhotoIcon, VideoIcon2, VideoOffIcon2
 } from 'common/icons'
 import cn from 'classnames'
 import { usersAPI } from 'api'
 import { actions as actionsNotifications } from 'features/Notifications/actions'
+import ReactTooltip from 'react-tooltip'
+import { Checkbox } from '@material-ui/core'
+import { changeDevice } from 'features/VideoChat/actions'
+import { getDevices, getIsGroup, getSelectedDevices } from '../../selectors'
 import styles from './styles.module.sass'
+import { useOutside } from '../../../../common/hooks'
+import { callNow } from '../../../Profile/actions'
 
 interface INavbar {
   localParticipant: LocalParticipantType
@@ -41,6 +50,7 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
     })
   }
 
+  // TODO: Refactor this
   const onScreenSharing = () => {
     // @ts-ignore
     navigator.mediaDevices.getDisplayMedia().then((stream) => {
@@ -58,13 +68,13 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
       <div>
         <ButtonMultimedia
           isActive={isEnabledMultimedia.audioTracks}
-          icon="audio"
+          type="audioinput"
           title={isEnabledMultimedia.audioTracks ? 'Mute' : 'Unmute'}
           onClick={() => toggleMultimedia('audioTracks')}
         />
         <ButtonMultimedia
           isActive={isEnabledMultimedia.videoTracks}
-          icon="video"
+          type="videoinput"
           title={isEnabledMultimedia.videoTracks ? 'Off video' : 'On video'}
           onClick={() => toggleMultimedia('videoTracks')}
         />
@@ -101,6 +111,7 @@ interface IListMembers {
 const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
   const dispatch = useDispatch()
   const mutuals = useSelector(getMutuals)
+  const isGroup = useSelector(getIsGroup)
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState<string | null>(null)
 
@@ -109,6 +120,11 @@ const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
   const invite = async (uid: string) => {
     setLoading(uid)
     const deviceId = localStorage.getItem('deviceId') as string
+
+    if (isGroup) {
+      dispatch(callNow(uid))
+      return
+    }
 
     usersAPI.inviteInVideoRoom(uid, deviceId, 'now')
       .then((res) => {
@@ -164,31 +180,84 @@ const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
 }
 
 interface IButtonMultimedia {
-  icon: 'audio' | 'video'
+  type: 'audioinput' | 'videoinput'
   title: string
   isActive: boolean
   onClick: () => void
 }
 
 const ButtonMultimedia: FC<IButtonMultimedia> = ({
-  icon, title, isActive, onClick
+  type, title, isActive, onClick
 }) => {
+  const ref = useRef(null)
+  const dispatch = useDispatch()
+  const devices = useSelector(getDevices)
+  const selectedDevices = useSelector(getSelectedDevices)
+  const [isOpenList, setIsOpenList] = useState(false)
+  const toggleIsOpenList = () => setIsOpenList(!isOpenList)
+
+  const closeIsOpenList = () => {
+    setIsOpenList(() => {
+      ReactTooltip.hide()
+      return false
+    })
+  }
+
   const getIcon = () => {
-    switch (icon) {
-      case 'video': {
+    switch (type) {
+      case 'videoinput': {
         return isActive ? <VideoIcon2 /> : <VideoOffIcon2 />
       }
-      case 'audio': {
+      case 'audioinput': {
         return isActive ? <MicIcon /> : <MicOffIcon />
       }
       default: return null
     }
   }
 
+  useOutside(ref, closeIsOpenList)
+
   return (
-    <div className={styles.buttonMultimediaContainer} onClick={onClick}>
-      {getIcon()}
-      <div className={styles.title}>{title}</div>
+    <div id={title} ref={ref} className={styles.buttonMultimediaContainer}>
+      <div onClick={onClick}>
+        {getIcon()}
+        <div className={styles.title}>{title}</div>
+      </div>
+      <div
+        className={cn(styles.arrowBottom, isOpenList && styles.active)}
+        data-tip
+        data-place="top"
+        data-effect="solid"
+        data-offset="{'top': 7}"
+        data-background-color="#EDEDED"
+        data-event="click"
+        data-for={`${title}-tip`}
+        data-class={styles.devicesTooltip}
+      >
+        <ArrowBottomIcon />
+      </div>
+      <ReactTooltip
+        id={`${title}-tip`}
+        afterShow={toggleIsOpenList}
+        afterHide={toggleIsOpenList}
+        type="info"
+      >
+        <div className={styles.devicesContainer}>
+          {devices[type]?.map((device) => (
+            <div
+              key={device.deviceId}
+              onClick={() => dispatch(changeDevice(device.kind, device.deviceId))}
+              className={styles.device}
+            >
+              <div className={styles.label}>{device.label}</div>
+              <Checkbox
+                checked={selectedDevices[device.kind] === device.deviceId}
+                style={{ padding: 5 }}
+              />
+            </div>
+          ))}
+        </div>
+      </ReactTooltip>
     </div>
   )
 }

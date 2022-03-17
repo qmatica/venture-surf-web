@@ -27,9 +27,17 @@ export const init = (history: History): ThunkType => async (dispatch, getState, 
     dispatch(contactsActions.setParamsPublicProfile(paramsPublicProfile))
   }
 
-  getFirebase().auth().onAuthStateChanged(async (userAuth) => {
+  getFirebase().auth().onAuthStateChanged(async (userAuth: any) => {
     dispatch(actions.setInitialized(true))
-    if (userAuth) {
+    if (
+      // TODO: This change sometimes logs the user out on reload
+      // but is necessary to avoid unused calls on registration. Need to investigate
+      //  (getState().profile.isRegistration === null &&
+      //  userAuth?.metadata?.creationTime !==
+      //    userAuth?.metadata?.lastSignInTime) &&
+      // (!getState().profile.isRegistration &&
+      userAuth
+    ) {
       await Promise.all([dispatch(initProfile()), dispatch(initSurf())])
       dispatch(authActions.setAuth(true))
       dispatch(initConversations())

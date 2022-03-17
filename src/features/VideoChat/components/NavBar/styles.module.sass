@@ -91,15 +91,30 @@
           outline: none
 .buttonMultimediaContainer
   display: flex
-  flex-direction: column
-  cursor: pointer
-  justify-content: center
-  align-items: center
   min-width: 65px
-  .title
-    color: #D6D6D6
-    margin-top: 5px
-    font-size: 16px
+  > div
+    display: flex
+    flex-direction: column
+    cursor: pointer
+    justify-content: center
+    align-items: center
+    .title
+      color: #D6D6D6
+      margin-top: 5px
+      font-size: 16px
+  .arrowBottom
+    padding: 0 2px
+    margin-left: 5px
+    border-radius: 3px
+    transition: 0.2s
+    &:hover
+      background: #00000030
+    &.active
+      background: #00000030
+    svg
+      transform: rotate(180deg) scale(0.8)
+      path
+        fill: #FFFFFF
 .leave
   font-size: 16px
   border-color: #da3129
@@ -130,3 +145,24 @@
   &.active
     border-color: #6497d4
     background: #6497d4
+.devicesContainer
+  display: flex
+  flex-direction: column
+  font-family: "Roboto", sans-serif
+  color: #030D21
+  .device
+    padding-left: 7px
+    margin-bottom: 10px
+    display: flex
+    align-items: center
+    justify-content: space-between
+    &:last-child
+      margin-bottom: 0
+    .label
+      margin-right: 5px
+.devicesTooltip
+  pointer-events: all !important
+  cursor: auto !important
+  opacity: 1!important
+  max-width: 250px
+  z-index: 999!important
