@@ -122,7 +122,7 @@ export const SettingsEdit: FC<ISettings> = ({ isOpen, onClose }) => {
               <Toggle
                 id="voice-calls"
                 description={SETTINGS_MODAL.ALLOW_UNSCHEDULED_CALLS}
-                value={selectedSettings.disable_instant_calls}
+                value={!selectedSettings.disable_instant_calls}
                 onClick={() =>
                   setSelectedSettings({
                     ...selectedSettings,

@@ -2,7 +2,9 @@ import { ConfirmationResult, ApplicationVerifier } from '@firebase/auth-types'
 import { init as initProfile, actions as profileActions } from 'features/Profile/actions'
 import { profileAPI, usersAPI } from 'api'
 import { getTokenFcm } from 'features/Profile/utils'
-import { VOIP_TOKEN, BUNDLE, REDIRECT_URI } from 'common/constants'
+import {
+  VOIP_TOKEN, BUNDLE, REDIRECT_URI, LOCAL_STORAGE_VALUES
+} from 'common/constants'
 import { init as initSurf } from '../Surf/actions'
 import { ThunkType } from './types'
 import { actions as actionsNotifications } from '../Notifications/actions'
@@ -91,6 +93,9 @@ export const getOnboardingProfile = (code: string): ThunkType => async (dispatch
         last_name: response.localizedLastName,
         linkedIn_ID: response.id
       })
+      // It is better to set these values in back-end to be consistent on all platforms
+      await profileAPI.updateSettings({ settings: { allow_new_matches: true, allow_founder_updates: true } })
+      localStorage.setItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS, 'true')
       const registeredProfile = await profileAPI.afterLogin(device)
       dispatch(profileActions.setMyProfile(registeredProfile))
     }
