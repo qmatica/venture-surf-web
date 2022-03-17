@@ -334,6 +334,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
               break
             }
             case NOTIFICATION_TYPES.CALL_INSTANT_GROUP: {
+              console.log('call instant group')
               const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
 
               const user = profile.mutuals[contact]
@@ -357,7 +358,7 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
           if (notificationsHistory[change.doc.id].type === 'twilio_enter_group') {
             const { data: { room, token } } = notificationsHistory[change.doc.id]
 
-            dispatch(connectToVideoRoom(room, token))
+            dispatch(connectToVideoRoom(room, token, true))
           }
         }
       }
