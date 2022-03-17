@@ -68,8 +68,11 @@ export const actions = {
   updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   ),
-  deleteMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
-    { type: 'PROFILE__DELETE_MY_SLOTS', payload: { action, slot } } as const
+  deleteMySlots: (slot: string | SlotsType) => (
+    { type: 'PROFILE__DELETE_MY_SLOTS', payload: { slot } } as const
+  ),
+  updateMySlot: (slot: string | SlotsType) => (
+    { type: 'PROFILE__UPDATE_MY_SLOT', payload: { slot } } as const
   ),
   addChatInMutual: (uid: string, chat: string) => (
     { type: 'PROFILE__ADD_CHAT_IN_MUTUAL', payload: { uid, chat } } as const
@@ -1065,6 +1068,24 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
   }
 }
 
+export const disableSlots = (
+  date: string[]
+): ThunkType => async (dispatch) => {
+  const result = await profileAPI.updateMyTimeSlots({ disable: date }).catch((err) => {
+    dispatch(actionsNotifications.addErrorMsg(err.toString()))
+  })
+  // TODO: update REDUX
+}
+
+export const deleteSlots = (
+  date: string[]
+): ThunkType => async (dispatch) => {
+  const result = await profileAPI.updateMyTimeSlots({ del: date }).catch((err) => {
+    dispatch(actionsNotifications.addErrorMsg(err.toString()))
+  })
+  // TODO: update REDUX
+}
+
 export const updateTimeSlots = (
   action: 'add' | 'del' | 'disable' | 'enable',
   date: string | string[],
@@ -1100,9 +1121,14 @@ export const updateTimeSlots = (
         })
         dispatch(actions.updateMySlots(action, timeSlot))
       }
-      if (action === 'disable' || (action === 'del' && (reccurent === 'Z' || reccurent === 'W' || reccurent === 'D'))) {
+      if (action === 'del' && (reccurent === 'Z' || reccurent === 'W' || reccurent === 'D')) {
+        console.log('slotDateWithoutTimeZone :>> ', slotDateWithoutTimeZone)
         const selectedDate = `${slotDateWithoutTimeZone}${reccurent}`
-        dispatch(actions.deleteMySlots(action, selectedDate))
+        dispatch(actions.deleteMySlots(selectedDate))
+      }
+      if (action === 'disable') {
+        const selectedDate = `${slotDateWithoutTimeZone}${reccurent}`
+        dispatch(actions.updateMySlot(selectedDate))
       }
     }
   }

@@ -2,6 +2,7 @@ import { createSelector } from 'reselect'
 import moment from 'moment'
 import { RootState } from 'common/types'
 import { FormattedSlotsType } from 'features/Calendar/types'
+import { range } from 'lodash'
 
 const getMyProfileSelector = (state: RootState) => state.profile.profile
 
@@ -94,8 +95,8 @@ export const getAllMySlots = createSelector(getSlotsMyProfileSelector, (slots) =
   const formattedSlots: FormattedSlotsType = []
 
   if (slots) {
-    Object.entries(slots).forEach(([date, value]: any) => {
-      const [slot] = date.split(value.reccurent)
+    Object.entries(slots).forEach(([parentDate, value]: any) => {
+      const [slot] = parentDate.split(value.reccurent)
       const dateSlot = moment(slot).add(timeZone, 'minutes')
       const formattedDateSlot = dateSlot.format('YYYY-MM-DDTHH:mm:00')
       switch (value.reccurent) {
@@ -107,17 +108,23 @@ export const getAllMySlots = createSelector(getSlotsMyProfileSelector, (slots) =
           break
         }
         case 'D': {
-          const counts = Array(value.count).fill(0).filter((_, i) => !value.disabled.includes(i))
-          const calculatedDates = counts.map((_, i) => moment(dateSlot).add(i, 'days'))
-          // TODO: add disabled value, correct type and optimize
-          formattedSlots.push(...(calculatedDates.filter((date) => date.isBefore(endDate)).map((date) => ({ date: date.format('YYYY-MM-DDTHH:mm:00') })) as any))
+          const diffDays = endDate.diff(dateSlot, 'd') + 1
+          const amountOfRepetitions = value.count ? Math.min(value.count, diffDays) : diffDays
+          const counts = range(0, amountOfRepetitions - 1).filter((count) => !value.disabled?.includes(count))
+          const calculatedDates = counts.map((i) => moment(dateSlot).add(i, 'days'))
+          formattedSlots.push(...(calculatedDates.map((date, reccurentIndex) => ({
+            ...value, date: date.format('YYYY-MM-DDTHH:mm:00'), reccurentIndex, parentDate
+          })) as any))
           break
         }
         case 'W': {
-          const counts = Array(value.count).fill(0).filter((_, i) => !value.disabled.includes(i))
-          const calculatedDates: any = counts.map((_, i) => moment(dateSlot).add(i, 'weeks'))
-          // TODO: add disabled value, correct type and optimize
-          formattedSlots.push(...(calculatedDates.filter((date: any) => date.isBefore(endDate)).map((date: any) => ({ date: date.format('YYYY-MM-DDTHH:mm:00') })) as any))
+          const diffWeeks = endDate.diff(dateSlot, 'weeks') + 1
+          const amountOfRepetitions = value.count ? Math.min(value.count, diffWeeks) : diffWeeks
+          const counts = range(0, amountOfRepetitions - 1).filter((count) => !value.disabled?.includes(count))
+          const calculatedDates: any = counts.map((i) => moment(dateSlot).add(i, 'weeks'))
+          formattedSlots.push(...(calculatedDates.map((date: any, reccurentIndex: number) => ({
+            ...value, date: date.format('YYYY-MM-DDTHH:mm:00'), reccurentIndex, parentDate
+          }))))
           break
         }
       }

@@ -26,6 +26,8 @@ export type FormattedSlotsType = {
   uid?: string
   disabled?: []
   reccurent?: string
+  reccurentIndex?: number
+  parentDate?: string
 }[]
 
 export type SlotType = 'Z' | 'W' | 'D' | 'custom'| '0' | 'ALL'
