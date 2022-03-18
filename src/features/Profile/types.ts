@@ -116,7 +116,16 @@ export type SlotsType = {
         uid?: string
         disabled?: []
         reccurent?: string
+        count?: number
     }
+}
+
+export enum EnumTimeSlots {
+    ADD = 'add',
+    DELETE = 'del',
+    ENABLE = 'enable',
+    DISABLE = 'disable',
+    CUT = 'cut'
 }
 
 export type VideoType = {

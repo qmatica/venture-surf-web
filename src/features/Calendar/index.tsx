@@ -5,9 +5,7 @@ import {
 } from '@devexpress/dx-react-scheduler-material-ui'
 import { ViewState } from '@devexpress/dx-react-scheduler'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  connectToCall, updateTimeSlots, deleteSlots, enableMySlot
-} from 'features/Profile/actions'
+import { connectToCall, updateTimeSlots, updateMySlots } from 'features/Profile/actions'
 import { getAllMySlots } from 'features/Profile/selectors'
 import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
@@ -15,6 +13,7 @@ import { UserIcon } from 'common/icons'
 import { Image } from 'common/components/Image'
 import { ChooseSlotsModal } from 'features/Calendar/ChooseSlotsModal'
 import { DeleteSlotsModal } from 'features/Calendar/DeleteSlotsModal'
+import { EnumTimeSlots } from 'features/Profile/types'
 import { SLOTS_REPEAT } from './constants'
 import styles from './styles.module.sass'
 import { FormattedSlotsType } from './types'
@@ -50,24 +49,18 @@ const TimeTableCell = ({
   const toggleTimeSlot = (selectedDate: string) => {
     const selectedSlot = mySlots.find(({ date }) => moment(date).isSame(selectedDate))
     const isDisabled = selectedSlot?.disabled?.includes(selectedSlot?.reccurentIndex as never)
-    if (isDisabled && selectedSlot) {
-      dispatch(enableMySlot(selectedSlot))
-      return
-    }
-    const action = selectedSlot ? 'del' : 'add'
     if (uid) {
-      dispatch(updateTimeSlots(action, selectedDate, 'Z'))
+      dispatch(updateTimeSlots(selectedSlot ? EnumTimeSlots.DELETE : EnumTimeSlots.ADD, selectedDate, 'Z'))
+    } else if (isDisabled && selectedSlot) {
+      dispatch(updateMySlots(selectedSlot, EnumTimeSlots.ENABLE))
+    } else if (selectedSlot) {
+      if (!selectedSlot.reccurent || selectedSlot.reccurent === SLOTS_REPEAT.CURRENT_DATE) {
+        dispatch(updateMySlots(selectedSlot, EnumTimeSlots.DELETE))
+      } else {
+        openDeleteSlotsModal()
+      }
     } else {
-      if (action === 'add') {
-        openChooseSlotsModal()
-      }
-      if (selectedSlot) {
-        if (selectedSlot?.reccurent === SLOTS_REPEAT.CURRENT_DATE || !selectedSlot?.reccurent) {
-          dispatch(deleteSlots(selectedSlot))
-        } else {
-          openDeleteSlotsModal()
-        }
-      }
+      openChooseSlotsModal()
     }
   }
 
@@ -97,7 +90,10 @@ const TimeTableCell = ({
         const companion = mutuals?.find((mutual) => mutual.uid === myScheduledSlot?.uid)
 
         const classNameMyOpenedSlot =
-          !otherSlots && mySlots.find((slot) => !slot.disabled?.includes(slot.reccurentIndex as never) && slot.status === 'free' && moment(slot.date).isSame(dateSlot))
+          !otherSlots
+            && mySlots.find(({
+              status, date, disabled, reccurentIndex
+            }) => !disabled?.includes(reccurentIndex as never) && status === 'free' && moment(date).isSame(dateSlot))
             ? styles.myOpenedSlot
             : ''
 

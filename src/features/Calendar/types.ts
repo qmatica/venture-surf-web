@@ -27,7 +27,8 @@ export type FormattedSlotType = {
   disabled?: []
   reccurent?: string
   reccurentIndex?: number
-  parentDate?: string
+  count?: number
+  parentDate: string
 }
 
 export type FormattedSlotsType = FormattedSlotType[]

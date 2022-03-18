@@ -14,7 +14,7 @@ import { ValueNotificationsHistoryType } from 'features/Notifications/types'
 import { FormattedSlotsType, FormattedSlotType, SlotType } from 'features/Calendar/types'
 import { UsersType, UserType } from 'features/User/types'
 import { ChatType } from 'features/Conversations/types'
-import { RoleType, InvestmentType } from 'features/Profile/types'
+import { RoleType, InvestmentType, EnumTimeSlots } from 'features/Profile/types'
 import { addToClipboardPublicLinkProfile } from 'common/actions'
 import { determineNotificationContactsOrCall } from 'common/typeGuards'
 import {
@@ -65,13 +65,16 @@ export const actions = {
   toggleLoader: (loader: string) => (
     { type: 'PROFILE__TOGGLE_LOADER', loader } as const
   ),
-  updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
+  updateMySlots: (action: EnumTimeSlots, slot: string | SlotsType) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   ),
-  deleteMySlots: (slot: FormattedSlotType) => (
+  deleteMySlot: (slot: FormattedSlotType) => (
     { type: 'PROFILE__DELETE_MY_SLOTS', payload: { slot } } as const
   ),
-  updateMySlot: (slot: FormattedSlotType) => (
+  cutMySlot: (slot: FormattedSlotType) => (
+    { type: 'PROFILE__CUT_MY_SLOTS', payload: { slot } } as const
+  ),
+  disableMySlot: (slot: FormattedSlotType) => (
     { type: 'PROFILE__DISABLE_MY_SLOT', payload: { slot } } as const
   ),
   enableMySlot: (slot: FormattedSlotType) => (
@@ -401,6 +404,7 @@ const listenSchedulesMeetings = (): ThunkType => async (dispatch, getState) => {
             && moment(date).isAfter(moment())
           ) {
             formattedSlots.push({
+              parentDate: date,
               date: moment(date).format('YYYY-MM-DDTHH:mm:00'),
               ...value
             })
@@ -923,7 +927,7 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
 export const declineCall = (uid: string): ThunkType => async (dispatch, getState) => {
   const { room } = getState().videoChat
 
-  dispatch(actions.updateMySlots('del', 'now'))
+  dispatch(actions.updateMySlots(EnumTimeSlots.DELETE, 'now'))
 
   const status = await usersAPI.callDecline(uid)
 
@@ -1073,39 +1077,27 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
   }
 }
 
-export const disableSlots = (
-  selectedSlot: FormattedSlotType
+export const updateMySlots = (
+  selectedSlot: FormattedSlotType,
+  action: EnumTimeSlots
 ): ThunkType => async (dispatch) => {
-  await profileAPI.updateMyTimeSlots({ disable: [`${selectedSlot?.parentDate}${selectedSlot?.reccurentIndex}`] }).catch((err) => {
-    dispatch(actionsNotifications.addErrorMsg(err.toString()))
-  })
-  dispatch(actions.updateMySlot(selectedSlot))
-}
-
-export const enableMySlot = (
-  selectedSlot: FormattedSlotType
-): ThunkType => async (dispatch) => {
-  await profileAPI.updateMyTimeSlots({ enable: [`${selectedSlot?.parentDate}${selectedSlot?.reccurentIndex}`] }).catch((err) => {
-    dispatch(actionsNotifications.addErrorMsg(err.toString()))
-  })
-  dispatch(actions.enableMySlot(selectedSlot))
-}
-
-export const deleteSlots = (
-  selectedSlot: FormattedSlotType
-): ThunkType => async (dispatch) => {
-  const action = selectedSlot?.reccurentIndex === 0 ? 'del' : 'cut'
-  const date = selectedSlot?.reccurentIndex === 0
-    ? `${selectedSlot?.parentDate}`
-    : `${selectedSlot?.parentDate}${selectedSlot?.reccurentIndex}`
-  await profileAPI.updateMyTimeSlots({ [action]: [date] }).catch((err) => {
-    dispatch(actionsNotifications.addErrorMsg(err.toString()))
-  })
-  dispatch(actions.deleteMySlots(selectedSlot))
+  const { parentDate, reccurentIndex } = selectedSlot
+  await profileAPI
+    .updateMyTimeSlots({ [action]: [`${parentDate}${action === EnumTimeSlots.DELETE ? '' : reccurentIndex}`] })
+    .then(() => {
+      switch (action) {
+        default:
+        case EnumTimeSlots.DELETE: return dispatch(actions.deleteMySlot(selectedSlot))
+        case EnumTimeSlots.DISABLE: return dispatch(actions.disableMySlot(selectedSlot))
+        case EnumTimeSlots.ENABLE: return dispatch(actions.enableMySlot(selectedSlot))
+        case EnumTimeSlots.CUT: return dispatch(actions.cutMySlot(selectedSlot))
+      }
+    })
+    .catch((err) => dispatch(actionsNotifications.addErrorMsg(err.toString())))
 }
 
 export const updateTimeSlots = (
-  action: 'add' | 'del' | 'disable' | 'enable',
+  action: EnumTimeSlots,
   date: string | string[],
   reccurent: SlotType | SlotType[] = 'Z'
 ): ThunkType => async (dispatch) => {
@@ -1175,7 +1167,7 @@ export const connectToCall = (date: string, uid: string): ThunkType => async (di
           })
         dispatch(sendMessage('Meeting', chatSid, attributes))
       }
-      dispatch(actions.updateMySlots('add', { [formattedDate]: newSlot }))
+      dispatch(actions.updateMySlots(EnumTimeSlots.ADD, { [formattedDate]: newSlot }))
       dispatch(actionsNotifications.addAnyMsg({
         msg: `You have scheduled a meeting with ${companionName}`,
         uid: uuidv4()

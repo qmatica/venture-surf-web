@@ -17,6 +17,7 @@ import { getMyUid } from 'features/Auth/selectors'
 import { getMyName } from 'features/Profile/selectors'
 import { getAdditionalProfiles } from 'features/Contacts/actions'
 import { usersAPI } from 'api'
+import { EnumTimeSlots } from 'features/Profile/types'
 import { Participant } from '../Participant'
 import { NavBar } from '../NavBar'
 import { actions } from '../../actions'
@@ -127,7 +128,7 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
     roomListeners(room, 'off')
     room.disconnect()
     dispatch(actions.reset())
-    dispatch(profileActions.updateMySlots('del', 'now'))
+    dispatch(profileActions.updateMySlots(EnumTimeSlots.DELETE, 'now'))
   }
 
   const participantConnected = (participant: ParticipantType) => {

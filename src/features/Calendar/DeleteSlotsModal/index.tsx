@@ -1,14 +1,14 @@
 import React, { FC, useState } from 'react'
+import moment from 'moment'
 import { Modal } from 'features/Modal'
 import { Toggle } from 'features/Calendar/Toggle'
 import { useDispatch, useSelector } from 'react-redux'
-import { DELETE_SLOTS_MODAL_OPTIONS, DELETE_SLOTS_MODAL, DELETE_SLOTS_MODAL_VALUES } from 'features/Calendar/constants'
+import { DELETE_SLOTS_MODAL_OPTIONS, DELETE_SLOTS_MODAL } from 'features/Calendar/constants'
 import { Button } from 'common/components/Button'
-import { getMySlots, getAllMySlots } from 'features/Profile/selectors'
-import moment from 'moment'
-import { deleteSlots, disableSlots } from 'features/Profile/actions'
-import styles from '../styles.module.sass'
-import { SlotType } from '../types'
+import { getAllMySlots } from 'features/Profile/selectors'
+import { updateMySlots } from 'features/Profile/actions'
+import styles from 'features/Calendar/styles.module.sass'
+import { EnumTimeSlots } from 'features/Profile/types'
 
 interface IDeleteSlotsModal {
   isOpen: boolean
@@ -20,21 +20,21 @@ interface IDeleteSlotsModal {
 export const DeleteSlotsModal: FC<IDeleteSlotsModal> = ({
   isOpen, onClose, onSubmit, selectedDateSlot
 }) => {
-  const [selectedSlotType, setSelectedSlotType] = useState<string | undefined>()
-  const isSubmitDisabled = !selectedSlotType
-
   const allMySlots = useSelector(getAllMySlots)
   const dispatch = useDispatch()
+  const [selectedSlotType, setSelectedSlotType] = useState<EnumTimeSlots | undefined>()
+  const selectedSlot = allMySlots.find(({ date }) => moment(date).isSame(selectedDateSlot))
+  const isSubmitDisabled = !selectedSlotType
+  const RADIO_OPTIONS = [
+    DELETE_SLOTS_MODAL_OPTIONS[EnumTimeSlots.DISABLE],
+    selectedSlot && selectedSlot.reccurentIndex === 0
+      ? DELETE_SLOTS_MODAL_OPTIONS[EnumTimeSlots.DELETE]
+      : DELETE_SLOTS_MODAL_OPTIONS[EnumTimeSlots.CUT]
+  ]
 
   const handelOnSubmit = () => {
-    const selectedSlot = allMySlots.find(({ date }) => moment(date).isSame(selectedDateSlot))
-    if (selectedSlot) {
-      if (selectedSlotType === DELETE_SLOTS_MODAL_VALUES.ONE) {
-        dispatch(disableSlots(selectedSlot))
-      }
-      if (selectedSlotType === DELETE_SLOTS_MODAL_VALUES.ALL) {
-        dispatch(deleteSlots(selectedSlot))
-      }
+    if (selectedSlot && selectedSlotType) {
+      dispatch(updateMySlots(selectedSlot, selectedSlotType))
     }
     onSubmit()
   }
@@ -42,7 +42,7 @@ export const DeleteSlotsModal: FC<IDeleteSlotsModal> = ({
   return (
     <Modal onClose={onClose} isOpen={isOpen} width={300} title={DELETE_SLOTS_MODAL.TITLE}>
       <>
-        {DELETE_SLOTS_MODAL_OPTIONS.map(({ value, description }) => (
+        {RADIO_OPTIONS.map(({ value, description }) => (
           <Toggle
             key={value}
             id={value}
