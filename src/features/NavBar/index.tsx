@@ -1,5 +1,5 @@
 import React, {
-  FC, ReactElement, useEffect, useRef, useState
+  FC, ReactElement, useEffect, useState
 } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
@@ -199,7 +199,7 @@ const ProfileList: FC<IProfileList> = ({ icon, url }) => {
         isActiveNotify={isActiveNotificationsInOtherRole}
       />
       <EditJob isOpen={isEdit} onClose={toggleEdit} />
-      <SettingsEdit isOpen={isSettingsOpen} onClose={toggleSettings} />
+      {isSettingsOpen && <SettingsEdit isOpen onClose={toggleSettings} />}
     </>
   )
 }
