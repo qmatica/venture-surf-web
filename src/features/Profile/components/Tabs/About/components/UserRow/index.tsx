@@ -82,7 +82,8 @@ export const UserRow: FC<IUserRow> = ({
       </div>
       <div className={styles.status}>{status}</div>
       {isEdit && isBacked && (
-      <>
+        <>
+          {status === 'verified' && <CheckmarkIcon color="#00D870" />}
           {status === 'requested' && (
             <div
               className={styles.icon}
@@ -107,7 +108,7 @@ export const UserRow: FC<IUserRow> = ({
               )}
             </div>
           )}
-      </>
+        </>
       )}
     </div>
   )

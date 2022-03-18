@@ -584,9 +584,9 @@ export const GiftIcon = () => (
   </svg>
 )
 
-export const CheckmarkIcon = () => (
+export const CheckmarkIcon = ({ color = '#1557FF' }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0 8C0 3.58172 3.58172 0 8 0V0C12.4183 0 16 3.58172 16 8V8C16 12.4183 12.4183 16 8 16V16C3.58172 16 0 12.4183 0 8V8Z" fill="#1557FF" />
+    <path d="M0 8C0 3.58172 3.58172 0 8 0V0C12.4183 0 16 3.58172 16 8V8C16 12.4183 12.4183 16 8 16V16C3.58172 16 0 12.4183 0 8V8Z" fill={color} />
     <path d="M5 8.22247L6.84615 10.0002L11 6.00024" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
