@@ -197,6 +197,24 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         }
       }
     }
+    case 'PROFILE__ENABLE_MY_SLOT': {
+      if (!state.profile) return state
+      const { payload: { slot: { parentDate, reccurentIndex } } }: any = action
+      const { profile: { slots: { [parentDate]: { disabled = [], ...slot }, ...slots }, ...profile } } = state
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          slots: {
+            ...slots,
+            [parentDate]: {
+              ...slot,
+              disabled: disabled.filter((index) => reccurentIndex !== index)
+            }
+          }
+        }
+      }
+    }
     case 'PROFILE__ACCEPT_INVEST': {
       const { profile } = state
 

@@ -111,7 +111,7 @@ export const getAllMySlots = createSelector(getSlotsMyProfileSelector, (slots) =
         case 'D': {
           const diffDays = endDate.diff(dateSlot, 'days') + 1
           const amountOfRepetitions = Math.min(value.count || Infinity, diffDays)
-          const counts = range(0, amountOfRepetitions).filter((count) => !value.disabled?.includes(count))
+          const counts = range(0, amountOfRepetitions)
           const calculatedDates = counts.map((i) => moment(dateSlot).add(i, 'days'))
           formattedSlots.push(...(calculatedDates.map((date, reccurentIndex) => ({
             ...value, date: date.format(SLOT_DATE_FORMAT), reccurentIndex, parentDate
@@ -121,7 +121,7 @@ export const getAllMySlots = createSelector(getSlotsMyProfileSelector, (slots) =
         case 'W': {
           const diffWeeks = endDate.diff(dateSlot, 'weeks') + 1
           const amountOfRepetitions = Math.min(value.count || Infinity, diffWeeks)
-          const counts = range(0, amountOfRepetitions).filter((count) => !value.disabled?.includes(count))
+          const counts = range(0, amountOfRepetitions)
           const calculatedDates = counts.map((i) => moment(dateSlot).add(i, 'weeks'))
           formattedSlots.push(...(calculatedDates.map((date, reccurentIndex) => ({
             ...value, date: date.format(SLOT_DATE_FORMAT), reccurentIndex, parentDate

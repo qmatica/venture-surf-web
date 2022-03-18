@@ -5,7 +5,9 @@ import {
 } from '@devexpress/dx-react-scheduler-material-ui'
 import { ViewState } from '@devexpress/dx-react-scheduler'
 import { useDispatch, useSelector } from 'react-redux'
-import { connectToCall, updateTimeSlots, deleteSlots } from 'features/Profile/actions'
+import {
+  connectToCall, updateTimeSlots, deleteSlots, enableMySlot
+} from 'features/Profile/actions'
 import { getAllMySlots } from 'features/Profile/selectors'
 import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
@@ -47,6 +49,11 @@ const TimeTableCell = ({
 
   const toggleTimeSlot = (selectedDate: string) => {
     const selectedSlot = mySlots.find(({ date }) => moment(date).isSame(selectedDate))
+    const isDisabled = selectedSlot?.disabled?.includes(selectedSlot?.reccurentIndex as never)
+    if (isDisabled && selectedSlot) {
+      dispatch(enableMySlot(selectedSlot))
+      return
+    }
     const action = selectedSlot ? 'del' : 'add'
     if (uid) {
       dispatch(updateTimeSlots(action, selectedDate, 'Z'))
@@ -90,7 +97,7 @@ const TimeTableCell = ({
         const companion = mutuals?.find((mutual) => mutual.uid === myScheduledSlot?.uid)
 
         const classNameMyOpenedSlot =
-          !otherSlots && mySlots.find((slot) => slot.status === 'free' && moment(slot.date).isSame(dateSlot))
+          !otherSlots && mySlots.find((slot) => !slot.disabled?.includes(slot.reccurentIndex as never) && slot.status === 'free' && moment(slot.date).isSame(dateSlot))
             ? styles.myOpenedSlot
             : ''
 

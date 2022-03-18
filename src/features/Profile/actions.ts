@@ -74,6 +74,9 @@ export const actions = {
   updateMySlot: (slot: FormattedSlotType) => (
     { type: 'PROFILE__DISABLE_MY_SLOT', payload: { slot } } as const
   ),
+  enableMySlot: (slot: FormattedSlotType) => (
+    { type: 'PROFILE__ENABLE_MY_SLOT', payload: { slot } } as const
+  ),
   addChatInMutual: (uid: string, chat: string) => (
     { type: 'PROFILE__ADD_CHAT_IN_MUTUAL', payload: { uid, chat } } as const
   ),
@@ -1077,6 +1080,15 @@ export const disableSlots = (
     dispatch(actionsNotifications.addErrorMsg(err.toString()))
   })
   dispatch(actions.updateMySlot(selectedSlot))
+}
+
+export const enableMySlot = (
+  selectedSlot: FormattedSlotType
+): ThunkType => async (dispatch) => {
+  await profileAPI.updateMyTimeSlots({ enable: [`${selectedSlot?.parentDate}${selectedSlot?.reccurentIndex}`] }).catch((err) => {
+    dispatch(actionsNotifications.addErrorMsg(err.toString()))
+  })
+  dispatch(actions.enableMySlot(selectedSlot))
 }
 
 export const deleteSlots = (
