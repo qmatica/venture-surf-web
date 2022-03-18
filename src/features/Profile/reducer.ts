@@ -150,35 +150,52 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
       return state
     }
     case 'PROFILE__DELETE_MY_SLOTS': {
-      // TODO: Create 2 separace cases for del and disable
       if (!state.profile) return state
-      const currentSlot: any = action.payload.slot
-      const { profile: { slots: { [currentSlot]: _, ...updatedSlots } } }: any = state
-      if (action.payload.action === 'del') {
-        return {
-          ...state,
-          profile: {
-            ...state.profile,
-            slots: updatedSlots
-          }
-        }
-      }
-      if (action.payload.action === 'disable') {
+      const { payload: { slot: { parentDate, reccurentIndex = 0 } = {} } } = action
+      if (reccurentIndex > 0) {
         return {
           ...state,
           profile: {
             ...state.profile,
             slots: {
               ...state.profile.slots,
-              [currentSlot]: {
-                ...state.profile.slots[currentSlot]
-                // TODO: update slot in REDUX
+              [parentDate as any]: {
+                ...state.profile.slots[parentDate as any],
+                count: reccurentIndex
               }
             }
           }
         }
       }
+      if (reccurentIndex === 0) {
+        const { profile: { slots: { [parentDate as any]: _, ...slots } } }: any = state
+        return {
+          ...state,
+          profile: {
+            ...state.profile,
+            slots
+          }
+        }
+      }
       return state
+    }
+    case 'PROFILE__DISABLE_MY_SLOT': {
+      if (!state.profile) return state
+      const { payload: { slot: { parentDate, reccurentIndex } } }: any = action
+      const { profile: { slots: { [parentDate]: { disabled = [], ...slot }, ...slots }, ...profile } } = state
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          slots: {
+            ...slots,
+            [parentDate]: {
+              ...slot,
+              disabled: [...disabled, reccurentIndex]
+            }
+          }
+        }
+      }
     }
     case 'PROFILE__ACCEPT_INVEST': {
       const { profile } = state

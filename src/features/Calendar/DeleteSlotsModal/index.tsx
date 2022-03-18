@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react'
 import { Modal } from 'features/Modal'
 import { Toggle } from 'features/Calendar/Toggle'
 import { useDispatch, useSelector } from 'react-redux'
-import { DELETE_SLOTS_MODAL_VALUES, DELETE_SLOTS_MODAL, SLOTS_REPEAT } from 'features/Calendar/constants'
+import { DELETE_SLOTS_MODAL_OPTIONS, DELETE_SLOTS_MODAL, DELETE_SLOTS_MODAL_VALUES } from 'features/Calendar/constants'
 import { Button } from 'common/components/Button'
 import { getMySlots, getAllMySlots } from 'features/Profile/selectors'
 import moment from 'moment'
@@ -20,20 +20,21 @@ interface IDeleteSlotsModal {
 export const DeleteSlotsModal: FC<IDeleteSlotsModal> = ({
   isOpen, onClose, onSubmit, selectedDateSlot
 }) => {
-  const [selectedSlotType, setSelectedSlotType] = useState<SlotType | undefined>()
+  const [selectedSlotType, setSelectedSlotType] = useState<string | undefined>()
   const isSubmitDisabled = !selectedSlotType
 
   const allMySlots = useSelector(getAllMySlots)
-  const mySlots = useSelector(getMySlots)
   const dispatch = useDispatch()
 
   const handelOnSubmit = () => {
     const selectedSlot = allMySlots.find(({ date }) => moment(date).isSame(selectedDateSlot))
-    if (selectedSlotType === SLOTS_REPEAT.ONE) {
-      dispatch(disableSlots([`${selectedSlot?.parentDate}${selectedSlot?.reccurentIndex}`]))
-    }
-    if (selectedSlotType === SLOTS_REPEAT.ALL) {
-      dispatch(deleteSlots([`${selectedSlot?.parentDate}`]))
+    if (selectedSlot) {
+      if (selectedSlotType === DELETE_SLOTS_MODAL_VALUES.ONE) {
+        dispatch(disableSlots(selectedSlot))
+      }
+      if (selectedSlotType === DELETE_SLOTS_MODAL_VALUES.ALL) {
+        dispatch(deleteSlots(selectedSlot))
+      }
     }
     onSubmit()
   }
@@ -41,7 +42,7 @@ export const DeleteSlotsModal: FC<IDeleteSlotsModal> = ({
   return (
     <Modal onClose={onClose} isOpen={isOpen} width={300} title={DELETE_SLOTS_MODAL.TITLE}>
       <>
-        {DELETE_SLOTS_MODAL_VALUES.map(({ value, description }) => (
+        {DELETE_SLOTS_MODAL_OPTIONS.map(({ value, description }) => (
           <Toggle
             key={value}
             id={value}

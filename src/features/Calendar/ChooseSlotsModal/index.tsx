@@ -56,9 +56,9 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
             .format('YYYY-MM-DDTHH:mm:00')
         ], [moment(selectedDateSlot).format('YYYY-MM-DDTHH:mm:00')]
       )
-      dispatch(updateTimeSlots(action, dates, recurrents as any))
+      dispatch(updateTimeSlots('add', dates, recurrents as any))
     } else {
-      dispatch(updateTimeSlots(action, selectedDateSlot, selectedSlotType))
+      dispatch(updateTimeSlots('add', selectedDateSlot, selectedSlotType))
     }
     onSubmit()
   }

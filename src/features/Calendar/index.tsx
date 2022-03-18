@@ -5,7 +5,7 @@ import {
 } from '@devexpress/dx-react-scheduler-material-ui'
 import { ViewState } from '@devexpress/dx-react-scheduler'
 import { useDispatch, useSelector } from 'react-redux'
-import { connectToCall, updateTimeSlots } from 'features/Profile/actions'
+import { connectToCall, updateTimeSlots, deleteSlots } from 'features/Profile/actions'
 import { getAllMySlots } from 'features/Profile/selectors'
 import { getMutuals } from 'features/Contacts/selectors'
 import ReactTooltip from 'react-tooltip'
@@ -54,9 +54,9 @@ const TimeTableCell = ({
       if (action === 'add') {
         openChooseSlotsModal()
       }
-      if (action === 'del') {
+      if (selectedSlot) {
         if (selectedSlot?.reccurent === SLOTS_REPEAT.CURRENT_DATE || !selectedSlot?.reccurent) {
-          dispatch(updateTimeSlots(action, selectedSlot?.date as any, SLOTS_REPEAT.CURRENT_DATE))
+          dispatch(deleteSlots(selectedSlot))
         } else {
           openDeleteSlotsModal()
         }

@@ -17,10 +17,7 @@ export const SLOTS_REPEAT: { [key: string]: SlotType } = {
   CURRENT_DATE: 'Z',
   WEEKLY: 'W',
   DAILY: 'D',
-  CUSTOM: 'custom',
-  // TODO: Better values
-  ONE: '0',
-  ALL: 'ALL'
+  CUSTOM: 'custom'
 }
 
 export const CHOOSE_SLOTS_MODAL_VALUES: { value: SlotType, description: string }[] = [
@@ -91,13 +88,18 @@ export const DELETE_SLOTS_MODAL = {
   TITLE: 'Delete Event'
 }
 
-export const DELETE_SLOTS_MODAL_VALUES: { value: SlotType, description: string }[] = [
+export const DELETE_SLOTS_MODAL_VALUES = {
+  ONE: 'one',
+  ALL: 'all'
+}
+
+export const DELETE_SLOTS_MODAL_OPTIONS: { value: string, description: string }[] = [
   {
-    value: SLOTS_REPEAT.ONE,
+    value: DELETE_SLOTS_MODAL_VALUES.ONE,
     description: DELETE_SLOTS_MODAL.DELETE_SELECT
   },
   {
-    value: SLOTS_REPEAT.ALL,
+    value: DELETE_SLOTS_MODAL_VALUES.ALL,
     description: DELETE_SLOTS_MODAL.DELETE_ALL
   }
 ]

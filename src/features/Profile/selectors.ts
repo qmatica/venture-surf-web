@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 import moment from 'moment'
 import { RootState } from 'common/types'
+import { SLOT_DATE_FORMAT } from 'common/constants'
 import { FormattedSlotsType } from 'features/Calendar/types'
 import { range } from 'lodash'
 
@@ -96,34 +97,34 @@ export const getAllMySlots = createSelector(getSlotsMyProfileSelector, (slots) =
 
   if (slots) {
     Object.entries(slots).forEach(([parentDate, value]: any) => {
-      const [slot] = parentDate.split(value.reccurent)
+      const [slot] = parentDate.split(value.reccurent || 'Z')
       const dateSlot = moment(slot).add(timeZone, 'minutes')
-      const formattedDateSlot = dateSlot.format('YYYY-MM-DDTHH:mm:00')
+      const formattedDateSlot = dateSlot.format(SLOT_DATE_FORMAT)
       switch (value.reccurent) {
         default:
         case 'Z': {
           if (!value?.disabled?.length && dateSlot.isBefore(endDate)) {
-            formattedSlots.push({ ...value, date: formattedDateSlot })
+            formattedSlots.push({ ...value, date: formattedDateSlot, parentDate })
           }
           break
         }
         case 'D': {
-          const diffDays = endDate.diff(dateSlot, 'd') + 1
-          const amountOfRepetitions = value.count ? Math.min(value.count, diffDays) : diffDays
-          const counts = range(0, amountOfRepetitions - 1).filter((count) => !value.disabled?.includes(count))
+          const diffDays = endDate.diff(dateSlot, 'days') + 1
+          const amountOfRepetitions = Math.min(value.count || Infinity, diffDays)
+          const counts = range(0, amountOfRepetitions).filter((count) => !value.disabled?.includes(count))
           const calculatedDates = counts.map((i) => moment(dateSlot).add(i, 'days'))
           formattedSlots.push(...(calculatedDates.map((date, reccurentIndex) => ({
-            ...value, date: date.format('YYYY-MM-DDTHH:mm:00'), reccurentIndex, parentDate
-          })) as any))
+            ...value, date: date.format(SLOT_DATE_FORMAT), reccurentIndex, parentDate
+          }))))
           break
         }
         case 'W': {
           const diffWeeks = endDate.diff(dateSlot, 'weeks') + 1
-          const amountOfRepetitions = value.count ? Math.min(value.count, diffWeeks) : diffWeeks
-          const counts = range(0, amountOfRepetitions - 1).filter((count) => !value.disabled?.includes(count))
-          const calculatedDates: any = counts.map((i) => moment(dateSlot).add(i, 'weeks'))
-          formattedSlots.push(...(calculatedDates.map((date: any, reccurentIndex: number) => ({
-            ...value, date: date.format('YYYY-MM-DDTHH:mm:00'), reccurentIndex, parentDate
+          const amountOfRepetitions = Math.min(value.count || Infinity, diffWeeks)
+          const counts = range(0, amountOfRepetitions).filter((count) => !value.disabled?.includes(count))
+          const calculatedDates = counts.map((i) => moment(dateSlot).add(i, 'weeks'))
+          formattedSlots.push(...(calculatedDates.map((date, reccurentIndex) => ({
+            ...value, date: date.format(SLOT_DATE_FORMAT), reccurentIndex, parentDate
           }))))
           break
         }

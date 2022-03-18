@@ -11,7 +11,7 @@ import { actions as actionsVideoChat, connectToVideoRoom } from 'features/VideoC
 import { actions as actionsNotifications } from 'features/Notifications/actions'
 import { getAdditionalProfiles } from 'features/Contacts/actions'
 import { ValueNotificationsHistoryType } from 'features/Notifications/types'
-import { FormattedSlotsType, SlotType } from 'features/Calendar/types'
+import { FormattedSlotsType, FormattedSlotType, SlotType } from 'features/Calendar/types'
 import { UsersType, UserType } from 'features/User/types'
 import { ChatType } from 'features/Conversations/types'
 import { RoleType, InvestmentType } from 'features/Profile/types'
@@ -68,11 +68,11 @@ export const actions = {
   updateMySlots: (action: 'add' | 'del' | 'disable' | 'enable', slot: string | SlotsType) => (
     { type: 'PROFILE__UPDATE_MY_SLOTS', payload: { action, slot } } as const
   ),
-  deleteMySlots: (slot: string | SlotsType) => (
+  deleteMySlots: (slot: FormattedSlotType) => (
     { type: 'PROFILE__DELETE_MY_SLOTS', payload: { slot } } as const
   ),
-  updateMySlot: (slot: string | SlotsType) => (
-    { type: 'PROFILE__UPDATE_MY_SLOT', payload: { slot } } as const
+  updateMySlot: (slot: FormattedSlotType) => (
+    { type: 'PROFILE__DISABLE_MY_SLOT', payload: { slot } } as const
   ),
   addChatInMutual: (uid: string, chat: string) => (
     { type: 'PROFILE__ADD_CHAT_IN_MUTUAL', payload: { uid, chat } } as const
@@ -1071,21 +1071,25 @@ export const shareLinkMyProfile = (): ThunkType => async (dispatch, getState) =>
 }
 
 export const disableSlots = (
-  date: string[]
+  selectedSlot: FormattedSlotType
 ): ThunkType => async (dispatch) => {
-  const result = await profileAPI.updateMyTimeSlots({ disable: date }).catch((err) => {
+  await profileAPI.updateMyTimeSlots({ disable: [`${selectedSlot?.parentDate}${selectedSlot?.reccurentIndex}`] }).catch((err) => {
     dispatch(actionsNotifications.addErrorMsg(err.toString()))
   })
-  // TODO: update REDUX
+  dispatch(actions.updateMySlot(selectedSlot))
 }
 
 export const deleteSlots = (
-  date: string[]
+  selectedSlot: FormattedSlotType
 ): ThunkType => async (dispatch) => {
-  const result = await profileAPI.updateMyTimeSlots({ del: date }).catch((err) => {
+  const action = selectedSlot?.reccurentIndex === 0 ? 'del' : 'cut'
+  const date = selectedSlot?.reccurentIndex === 0
+    ? `${selectedSlot?.parentDate}`
+    : `${selectedSlot?.parentDate}${selectedSlot?.reccurentIndex}`
+  await profileAPI.updateMyTimeSlots({ [action]: [date] }).catch((err) => {
     dispatch(actionsNotifications.addErrorMsg(err.toString()))
   })
-  // TODO: update REDUX
+  dispatch(actions.deleteMySlots(selectedSlot))
 }
 
 export const updateTimeSlots = (
@@ -1107,7 +1111,7 @@ export const updateTimeSlots = (
   })
 
   if (result) {
-    if (!result.errors.length) {
+    if (!result.errors?.length) {
       let timeSlot: any = formattedDate
       if (action === 'add') {
         timeSlot = {}
@@ -1122,15 +1126,6 @@ export const updateTimeSlots = (
           }
         })
         dispatch(actions.updateMySlots(action, timeSlot))
-      }
-      if (action === 'del' && (reccurent === 'Z' || reccurent === 'W' || reccurent === 'D')) {
-        console.log('slotDateWithoutTimeZone :>> ', slotDateWithoutTimeZone)
-        const selectedDate = `${slotDateWithoutTimeZone}${reccurent}`
-        dispatch(actions.deleteMySlots(selectedDate))
-      }
-      if (action === 'disable') {
-        const selectedDate = `${slotDateWithoutTimeZone}${reccurent}`
-        dispatch(actions.updateMySlot(selectedDate))
       }
     }
   }
