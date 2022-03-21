@@ -39,6 +39,16 @@ export const signInWithPhoneNumber = (phoneNumber: string, applicationVerifier: 
       })
   }
 
+export const signInWithFacebook = (): ThunkType =>
+  async (dispatch, getState, getFirebase) => {
+    dispatch(actions.setIsLoading(true))
+    const { FacebookAuthProvider }: any = getFirebase().auth
+    getFirebase().auth().signInWithPopup(new FacebookAuthProvider())
+      .then(({ user }) => { })
+      .catch((error) => {})
+      .finally(() => dispatch(actions.setIsLoading(false)))
+  }
+
 export const confirmCode = (code: string): ThunkType => async (dispatch, getState) => {
   dispatch(actions.setIsLoading(true))
 

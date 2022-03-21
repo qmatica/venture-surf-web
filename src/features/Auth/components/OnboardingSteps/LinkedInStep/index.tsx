@@ -2,10 +2,14 @@ import React, { FC } from 'react'
 import { profileAPI } from 'api'
 import { v4 as uuidv4 } from 'uuid'
 import { OnboardingUserType } from 'features/Profile/types'
-import { LinkedInIconSm, LinkedInAndVS } from 'common/icons'
+import { LinkedInIconSm, LinkedInAndVS, FacebookInIconSm } from 'common/icons'
 import { linkedInAuthUrl } from 'features/Auth/constants'
 import { getTokenFcm } from 'features/Profile/utils'
 import { VOIP_TOKEN, BUNDLE } from 'common/constants'
+import cn from 'classnames'
+import { signInWithFacebook } from 'features/Auth/actions'
+import { useDispatch } from 'react-redux'
+
 import styles from './styles.module.sass'
 
 interface ILinkedInStep {
@@ -27,15 +31,22 @@ export const LinkedInStep: FC<ILinkedInStep> = ({
       voip_token: VOIP_TOKEN,
       bundle: BUNDLE
     }
-
     await profileAPI.afterSignup({ ...onboardingProfile, device } as any)
     window.open(linkedInAuthUrl, '_self')
   }
+
+  const dispatch = useDispatch()
+
   return (
     <div>
       <div className={styles.icon}><LinkedInAndVS /></div>
       <div className={styles.title}>Get verified by LinkedIn and autofill your profile</div>
-      <button className={styles.button} onClick={handleSignUp}><LinkedInIconSm /> Sign in with LinkedIn</button>
+      <div className={styles.container}>
+        <button className={styles.button} onClick={handleSignUp}><LinkedInIconSm /> Sign in with LinkedIn</button>
+        <button className={cn(styles.button, styles.marginTop)} onClick={() => dispatch(signInWithFacebook)}>
+          <FacebookInIconSm />Sign in with Facebook
+        </button>
+      </div>
     </div>
   )
 }
