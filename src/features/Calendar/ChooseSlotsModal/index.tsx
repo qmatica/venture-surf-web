@@ -6,8 +6,7 @@ import {
 } from 'features/Calendar/constants'
 import { SLOT_DATE_FORMAT } from 'common/constants'
 import { Modal } from 'features/Modal'
-import { getMySlots } from 'features/Profile/selectors'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { updateTimeSlots } from 'features/Profile/actions'
 import moment from 'moment'
 import { Toggle } from 'features/Calendar/Toggle'
@@ -44,7 +43,6 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
 
   const weeks = Array(999).fill(0).map((_, i) => i + 1)
   const isSubmitDisabled = !selectedSlotType
-  const mySlots = useSelector(getMySlots)
   const dispatch = useDispatch()
   const handelOnSubmit = () => {
     if (selectedSlotType === SLOTS_REPEAT.CUSTOM) {
