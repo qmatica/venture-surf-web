@@ -38,8 +38,12 @@ import { ProfileType } from '../Profile/types'
 export const Notifications = () => {
   const dispatch = useDispatch()
   const history = useHistory()
+  const [isLoadedSound, setIsLoadedSound] = useState(false)
   const [playIncomingCall, { stop }] = useSound(incomingCallAudio, {
-    loop: true
+    loop: true,
+    onload: () => {
+      setIsLoadedSound(true)
+    }
   })
 
   const {
@@ -54,11 +58,11 @@ export const Notifications = () => {
   }, [])
 
   useEffect(() => {
-    if (incomingCall) {
-      console.log('incomingCall')
+    if (incomingCall && isLoadedSound) {
+      console.log('Incoming call!')
       playIncomingCall()
     }
-  }, [incomingCall])
+  }, [incomingCall, isLoadedSound, playIncomingCall])
 
   const removeErrorMsg = () => dispatch(actions.removeErrorMsg())
 

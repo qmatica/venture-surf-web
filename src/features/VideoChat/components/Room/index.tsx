@@ -17,6 +17,9 @@ import { getMyUid } from 'features/Auth/selectors'
 import { getMyName } from 'features/Profile/selectors'
 import { getAdditionalProfiles } from 'features/Contacts/actions'
 import { usersAPI } from 'api'
+import useSound from 'use-sound'
+// @ts-ignore
+import outgoingCallAudio from 'common/audio/outgoingCall.mp3'
 import { Participant } from '../Participant'
 import { NavBar } from '../NavBar'
 import { actions } from '../../actions'
@@ -26,14 +29,26 @@ import styles from './styles.module.sass'
 interface IRoom {
   room: RoomType
   localDataTrack: LocalDataTrackType
+  isMyProfileIsOwnerOutgoingCall: boolean
 }
 
-export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
+export const Room: FC<IRoom> = ({
+  room, localDataTrack, isMyProfileIsOwnerOutgoingCall
+}) => {
   const dispatch = useDispatch()
   const dominantVideoRef = createRef<HTMLVideoElement>()
   const myUid = useSelector(getMyUid)
   const myName = useSelector(getMyName)
   const allContacts = useSelector(getAllContacts)
+  const [isConnectedFirstMember, setIsConnectedFirstMember] = useState(false)
+  const [isLoadedSound, setIsLoadedSound] = useState(false)
+  const [playOutgoingCall, { stop }] = useSound(outgoingCallAudio, {
+    loop: true,
+    onload: () => {
+      setIsLoadedSound(true)
+    },
+    volume: 0.06
+  })
 
   const prevState = usePrevious({ room })
 
@@ -61,6 +76,19 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
       room.participants.forEach(participantConnected)
     }
   }, [room])
+
+  useEffect(() => {
+    if (isMyProfileIsOwnerOutgoingCall && isLoadedSound) {
+      if (!isConnectedFirstMember) {
+        if (Object.keys(participants).length >= 2) {
+          stop()
+          setIsConnectedFirstMember(true)
+          return
+        }
+        playOutgoingCall()
+      }
+    }
+  }, [isLoadedSound, playOutgoingCall, isMyProfileIsOwnerOutgoingCall, participants])
 
   useEffect(() => {
     const unknownContacts = Object.values(participants).filter((p) => {
@@ -125,6 +153,12 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
 
   const leave = () => {
     roomListeners(room, 'off')
+    room.localParticipant.videoTracks.forEach(({ track }) => {
+      track.stop()
+    })
+    room.localParticipant.audioTracks.forEach(({ track }) => {
+      track.stop()
+    })
     room.disconnect()
     dispatch(actions.reset())
     dispatch(profileActions.updateMySlots('del', 'now'))
@@ -229,7 +263,12 @@ export const Room: FC<IRoom> = ({ room, localDataTrack }) => {
           <div className={styles.dominantName}>{getDominantName()}</div>
           <video ref={dominantVideoRef} autoPlay />
         </div>
-        <NavBar participants={participants} localParticipant={room.localParticipant} onLeave={leave} />
+        <NavBar
+          roomSid={room.sid}
+          participants={participants}
+          localParticipant={room.localParticipant}
+          onLeave={leave}
+        />
       </div>
     </Modal>
   )

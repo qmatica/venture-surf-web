@@ -1,5 +1,5 @@
 import React, {
-  FC, useEffect, useRef, useState
+  FC, useRef, useState
 } from 'react'
 import { LocalParticipant as LocalParticipantType, LocalVideoTrack } from 'twilio-video'
 import { Button } from 'common/components/Button'
@@ -17,23 +17,26 @@ import { actions as actionsNotifications } from 'features/Notifications/actions'
 import ReactTooltip from 'react-tooltip'
 import { Checkbox } from '@material-ui/core'
 import { changeDevice } from 'features/VideoChat/actions'
+import { useOutside } from 'common/hooks'
 import { getDevices, getIsGroup, getSelectedDevices } from '../../selectors'
 import styles from './styles.module.sass'
-import { useOutside } from '../../../../common/hooks'
-import { callNow } from '../../../Profile/actions'
 
 interface INavbar {
   localParticipant: LocalParticipantType
   onLeave: () => void
   participants: MapParticipantsType
+  roomSid: string
 }
 
-export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants }) => {
+export const NavBar: FC<INavbar> = ({
+  localParticipant, onLeave, participants, roomSid
+}) => {
   const [isEnabledMultimedia, setIsEnabledMultimedia] = useState({
     videoTracks: true,
     audioTracks: true
   })
   const [isActiveListMembers, setIsActiveListMembers] = useState(false)
+  const [screenSharingTrack, setScreenSharingTrack] = useState<LocalVideoTrack | null>(null)
 
   const toggleMultimedia = (kindMultimedia: 'audioTracks' | 'videoTracks') => {
     setIsEnabledMultimedia({
@@ -52,10 +55,17 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
 
   // TODO: Refactor this
   const onScreenSharing = () => {
+    if (screenSharingTrack) {
+      localParticipant.unpublishTrack(screenSharingTrack)
+      screenSharingTrack.stop()
+      setScreenSharingTrack(null)
+      return
+    }
     // @ts-ignore
     navigator.mediaDevices.getDisplayMedia().then((stream) => {
       const screenTrack = new LocalVideoTrack(stream.getTracks()[0])
       localParticipant.publishTrack(screenTrack)
+      setScreenSharingTrack(screenTrack)
     }).catch(() => {
       // eslint-disable-next-line no-alert
       alert('Could not share the screen.')
@@ -81,7 +91,7 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
       </div>
       <div>
         <Button
-          title="Screen sharing"
+          title={screenSharingTrack ? 'Disable screen sharing' : 'Screen sharing'}
           className={styles.screenSharing}
           onClick={onScreenSharing}
         />
@@ -91,7 +101,11 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
             onClick={() => setIsActiveListMembers(!isActiveListMembers)}
             className={cn(styles.addMembers, isActiveListMembers && styles.active)}
           />
-          <ListMembers participants={participants} isActive={isActiveListMembers} />
+          <ListMembers
+            roomSid={roomSid}
+            participants={participants}
+            isActive={isActiveListMembers}
+          />
         </div>
         <Button
           title="Leave"
@@ -106,9 +120,10 @@ export const NavBar: FC<INavbar> = ({ localParticipant, onLeave, participants })
 interface IListMembers {
   isActive: boolean
   participants: MapParticipantsType
+  roomSid: string
 }
 
-const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
+const ListMembers: FC<IListMembers> = ({ isActive = false, participants, roomSid }) => {
   const dispatch = useDispatch()
   const mutuals = useSelector(getMutuals)
   const isGroup = useSelector(getIsGroup)
@@ -121,12 +136,12 @@ const ListMembers: FC<IListMembers> = ({ isActive = false, participants }) => {
     setLoading(uid)
     const deviceId = localStorage.getItem('deviceId') as string
 
-    if (isGroup) {
-      dispatch(callNow(uid))
-      return
-    }
-
-    usersAPI.inviteInVideoRoom(uid, deviceId, 'now')
+    usersAPI.inviteInVideoRoom(
+      uid,
+      deviceId,
+      'now',
+      isGroup ? roomSid : null
+    )
       .then((res) => {
         console.log(res)
         setLoading(null)

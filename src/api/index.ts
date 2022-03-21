@@ -142,7 +142,10 @@ export const usersAPI = {
   callNow(uid: string, device_id: string) {
     return instance.put(`api/call/${uid}/now`, { variants: ['now'], device_id }).then((res) => res.data)
   },
-  inviteInVideoRoom(uid: string, device_id: string, startTime: string) {
+  inviteInVideoRoom(uid: string, device_id: string, startTime: string, room?: string | null) {
+    if (room) {
+      return instance.put(`api/call/${uid}/${room}/${startTime}`).then((res) => res.data)
+    }
     return instance.put(`api/call/${uid}/${startTime}/group_now`, { device_id }).then((res) => res.data)
   },
   callDecline(uid: string) {
