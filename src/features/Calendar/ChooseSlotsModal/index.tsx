@@ -4,12 +4,13 @@ import { Button } from 'common/components/Button'
 import {
   CHOOSE_SLOTS_MODAL, SLOTS_REPEAT, CHOOSE_SLOTS_MODAL_VALUES, WEEKDAYS
 } from 'features/Calendar/constants'
+import { SLOT_DATE_FORMAT } from 'common/constants'
 import { Modal } from 'features/Modal'
-import { getMySlots } from 'features/Profile/selectors'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { updateTimeSlots } from 'features/Profile/actions'
 import moment from 'moment'
 import { Toggle } from 'features/Calendar/Toggle'
+import { EnumTimeSlots } from 'features/Profile/types'
 import styles from './styles.module.sass'
 import calendarStyles from '../styles.module.sass'
 import { SlotType } from '../types'
@@ -42,10 +43,8 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
 
   const weeks = Array(999).fill(0).map((_, i) => i + 1)
   const isSubmitDisabled = !selectedSlotType
-  const mySlots = useSelector(getMySlots)
   const dispatch = useDispatch()
   const handelOnSubmit = () => {
-    const action = mySlots.find(({ date }) => moment(date).isSame(selectedDateSlot)) ? 'del' : 'add'
     if (selectedSlotType === SLOTS_REPEAT.CUSTOM) {
       const recurrents = selectedWeekDays.reduce((acc) => [...acc, `W${selectedWeek}`], [`W${selectedWeek + 1}`])
       const dates = selectedWeekDays.reduce(
@@ -53,12 +52,12 @@ export const ChooseSlotsModal: FC<IChooseSlotsModal> = ({
           ...acc,
           moment(selectedDateSlot)
             .day(dayOfWeek < currentDayOfWeek ? dayOfWeek + 7 : dayOfWeek)
-            .format('YYYY-MM-DDTHH:mm:00')
-        ], [moment(selectedDateSlot).format('YYYY-MM-DDTHH:mm:00')]
+            .format(SLOT_DATE_FORMAT)
+        ], [moment(selectedDateSlot).format(SLOT_DATE_FORMAT)]
       )
-      dispatch(updateTimeSlots(action, dates, recurrents as any))
+      dispatch(updateTimeSlots(EnumTimeSlots.ADD, dates, recurrents as any))
     } else {
-      dispatch(updateTimeSlots(action, selectedDateSlot, selectedSlotType))
+      dispatch(updateTimeSlots(EnumTimeSlots.ADD, selectedDateSlot, selectedSlotType))
     }
     onSubmit()
   }

@@ -106,3 +106,5 @@ export const NOTIFICATION_TYPES = {
 export const BROWSER_PERMISSIONS = {
   GRANTED: 'granted'
 }
+
+export const SLOT_DATE_FORMAT = 'YYYY-MM-DDTHH:mm:00'

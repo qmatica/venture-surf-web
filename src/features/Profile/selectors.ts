@@ -1,7 +1,9 @@
 import { createSelector } from 'reselect'
 import moment from 'moment'
 import { RootState } from 'common/types'
+import { SLOT_DATE_FORMAT } from 'common/constants'
 import { FormattedSlotsType } from 'features/Calendar/types'
+import { range } from 'lodash'
 
 const getMyProfileSelector = (state: RootState) => state.profile.profile
 
@@ -81,8 +83,51 @@ export const getMySlots = createSelector(getSlotsMyProfileSelector, (slots) => {
           .replace('D1', '')
           .replace('D2', '')
           .replace('D', '')}Z`).format('YYYY-MM-DDTHH:mm:00'),
+        parentDate: date,
         ...value
       })
+    })
+  }
+  return formattedSlots
+})
+
+export const getAllMySlots = createSelector(getSlotsMyProfileSelector, (slots) => {
+  const endDate = moment().add(4, 'weeks')
+  const timeZone = moment(new Date()).utcOffset()
+  const formattedSlots: FormattedSlotsType = []
+
+  if (slots) {
+    Object.entries(slots).forEach(([parentDate, value]: any) => {
+      const [slot] = parentDate.split(value.reccurent || 'Z')
+      const dateSlot = moment(slot).add(timeZone, 'minutes')
+      const formattedDateSlot = dateSlot.format(SLOT_DATE_FORMAT)
+      switch (value.reccurent) {
+        default:
+        case 'Z': {
+          if (!value?.disabled?.length && dateSlot.isBefore(endDate)) {
+            formattedSlots.push({ ...value, date: formattedDateSlot, parentDate })
+          }
+          break
+        }
+        case 'D': {
+          const diffDays = endDate.diff(dateSlot, 'days') + 1
+          const amountOfRepetitions = Math.min(value.count || Infinity, diffDays)
+          const calculatedDates = range(0, amountOfRepetitions).map((i) => moment(dateSlot).add(i, 'days'))
+          formattedSlots.push(...(calculatedDates.map((date, reccurentIndex) => ({
+            ...value, date: date.format(SLOT_DATE_FORMAT), reccurentIndex, parentDate
+          }))))
+          break
+        }
+        case 'W': {
+          const diffWeeks = endDate.diff(dateSlot, 'weeks') + 1
+          const amountOfRepetitions = Math.min(value.count || Infinity, diffWeeks)
+          const calculatedDates = range(0, amountOfRepetitions).map((i) => moment(dateSlot).add(i, 'weeks'))
+          formattedSlots.push(...(calculatedDates.map((date, reccurentIndex) => ({
+            ...value, date: date.format(SLOT_DATE_FORMAT), reccurentIndex, parentDate
+          }))))
+          break
+        }
+      }
     })
   }
   return formattedSlots

@@ -1,4 +1,5 @@
 import { SlotType } from 'features/Calendar/types'
+import { EnumTimeSlots } from 'features/Profile/types'
 
 export const CHOOSE_SLOTS_MODAL = {
   CANCEL: 'Cancel',
@@ -83,18 +84,22 @@ export const WEEKDAYS: { value: number, label: string }[] = [
 export const DELETE_SLOTS_MODAL = {
   CANCEL: 'Cancel',
   SUBMIT: 'Submit',
-  DELETE_CURRENT: 'Delete this event only',
+  DELETE_SELECT: 'Delete this event only',
   DELETE_ALL: 'Delete all future events',
   TITLE: 'Delete Event'
 }
 
-export const DELETE_SLOTS_MODAL_VALUES: { value: SlotType, description: string }[] = [
-  {
-    value: SLOTS_REPEAT.CURRENT_DATE,
-    description: DELETE_SLOTS_MODAL.DELETE_CURRENT
+export const DELETE_SLOTS_MODAL_OPTIONS: { [key: string]: { value: EnumTimeSlots, description: string }} = {
+  [EnumTimeSlots.DISABLE]: {
+    value: EnumTimeSlots.DISABLE,
+    description: DELETE_SLOTS_MODAL.DELETE_SELECT
   },
-  {
-    value: SLOTS_REPEAT.CUSTOM,
+  [EnumTimeSlots.DELETE]: {
+    value: EnumTimeSlots.DELETE,
+    description: DELETE_SLOTS_MODAL.DELETE_ALL
+  },
+  [EnumTimeSlots.CUT]: {
+    value: EnumTimeSlots.CUT,
     description: DELETE_SLOTS_MODAL.DELETE_ALL
   }
-]
+}

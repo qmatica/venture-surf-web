@@ -10,7 +10,7 @@ export type timeSlotsType = {
   [key in 'add' & 'del' & 'disable' & 'enable']: string[]
 }
 
-export type FormattedSlotsType = {
+export type FormattedSlotType = {
   date: string,
   duration: number
   request?: string
@@ -26,6 +26,11 @@ export type FormattedSlotsType = {
   uid?: string
   disabled?: []
   reccurent?: string
-}[]
+  reccurentIndex?: number
+  count?: number
+  parentDate: string
+}
+
+export type FormattedSlotsType = FormattedSlotType[]
 
 export type SlotType = 'Z' | 'W' | 'D' | 'custom'

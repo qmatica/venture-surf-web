@@ -1,5 +1,8 @@
+import { merge } from 'lodash'
+import { profile } from 'console'
 import { ActionTypes, ProfileType } from './types'
 import { profileInteractionUsers } from './constants'
+import { SLOT_DATE_FORMAT } from '../../common/constants'
 
 const initialState = {
   profile: null as ProfileType | null,
@@ -148,6 +151,52 @@ export const ProfileReducer = (state = initialState, action: ActionTypes): typeo
         }
       }
       return state
+    }
+    case 'PROFILE__DELETE_MY_SLOTS': {
+      if (!state.profile) return state
+      const { payload: { slot: { parentDate } } } = action
+      const { profile: { slots: { [parentDate]: _, ...slots }, ...profile } } = state
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          slots
+        }
+      }
+    }
+    case 'PROFILE__CUT_MY_SLOTS': {
+      if (!state.profile) return state
+      const { payload: { slot: { parentDate, reccurentIndex } } } = action
+      return merge(
+        {},
+        state,
+        { profile: { slots: { [parentDate]: { count: reccurentIndex } } } }
+      )
+    }
+    case 'PROFILE__DISABLE_MY_SLOT': {
+      if (!state.profile) return state
+      const { payload: { slot: { parentDate, reccurentIndex } } }: any = action
+      const { profile: { slots: { [parentDate]: { disabled = [] } } } } = state
+      return merge(
+        {},
+        state,
+        { profile: { slots: { [parentDate]: { disabled: [...disabled, reccurentIndex] } } } }
+      )
+    }
+    case 'PROFILE__ENABLE_MY_SLOT': {
+      if (!state.profile) return state
+      const { payload: { slot: { parentDate, reccurentIndex } } }: any = action
+      const { profile: { slots: { [parentDate]: { disabled = [], ...slot }, ...slots }, ...profile } } = state
+      return {
+        ...state,
+        profile: {
+          ...profile,
+          slots: {
+            ...slots,
+            [parentDate]: { ...slot, disabled: disabled.filter((index) => reccurentIndex !== index) }
+          }
+        }
+      }
     }
     case 'PROFILE__ACCEPT_INVEST': {
       const { profile } = state
