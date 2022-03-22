@@ -48,9 +48,9 @@ export const Participant: FC<IParticipant> = memo(({
   const trackUnsubscribed = (track: VideoTrackType | AudioTrackType) => {
     console.log('UNSUBSCRIBED TRACK: ', track)
     if (track.kind === 'video') {
-      setVideoTracks((videoTracks) => videoTracks.filter((v) => v !== track))
+      setVideoTracks((videoTracks) => videoTracks.filter((v) => v !== track && v !== null))
     } else if (track.kind === 'audio') {
-      setAudioTracks((audioTracks) => audioTracks.filter((a) => a !== track))
+      setAudioTracks((audioTracks) => audioTracks.filter((a) => a !== track && a !== null))
     }
   }
 
@@ -132,7 +132,7 @@ const ButtonLike: FC<IButtonLike> = ({ onClick }) => {
 
   return (
     <Button
-      title="Like"
+      title="Connect"
       className={styles.likeButton}
       onClick={() => {
         onClick()

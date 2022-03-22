@@ -347,7 +347,18 @@ export const init = (): ThunkType => async (dispatch, getState, getFirebase) => 
             }
             case NOTIFICATION_TYPES.CALL_INSTANT_GROUP: {
               console.log('call instant group')
-              const { contact, data: { twilio: { room, token } } } = notificationsHistory[change.doc.id]
+              const { contact } = notificationsHistory[change.doc.id]
+
+              let room = ''
+              let token = ''
+
+              if (notificationsHistory[change.doc.id].data.twilio) {
+                room = notificationsHistory[change.doc.id].data.twilio.room
+                token = notificationsHistory[change.doc.id].data.twilio.token
+              } else {
+                room = notificationsHistory[change.doc.id].data.room
+                token = notificationsHistory[change.doc.id].data.token
+              }
 
               const user = profile.mutuals[contact]
 
@@ -905,7 +916,7 @@ export const callNow = (uid: string): ThunkType => async (dispatch, getState) =>
 
   if (profile) {
     dispatch(actionsVideoChat.setViewEndCallAll(true))
-    dispatch(actionsVideoChat.setIsOwnerCall())
+    dispatch(actionsVideoChat.setIsMyProfileIsOwnerOutgoingCall())
 
     const contacts = 'mutuals'
 

@@ -8,7 +8,7 @@ const initialState = {
   selectedDevices: {} as { [key: string]: string },
   isGroup: false,
   viewEndCallAll: false,
-  isOwnerCall: false
+  isMyProfileIsOwnerOutgoingCall: false
 }
 
 export const VideoChatReducer = (state = initialState, action: ActionTypes): typeof initialState => {
@@ -61,10 +61,10 @@ export const VideoChatReducer = (state = initialState, action: ActionTypes): typ
         viewEndCallAll: action.viewEndCallAll
       }
     }
-    case 'VIDEO_CHAT__SET_IS_OWNER_CALL': {
+    case 'VIDEO_CHAT__SET_IS_MY_PROFILE_IS_OWNER_OUTGOING_CALL': {
       return {
         ...state,
-        isOwnerCall: true
+        isMyProfileIsOwnerOutgoingCall: true
       }
     }
     case 'VIDEO_CHAT__RESET':

@@ -5,11 +5,17 @@ import { getVideoChat } from './selectors'
 
 export const VideoChat = () => {
   const {
-    room, localDataTrack, viewEndCallAll, isOwnerCall
+    room, localDataTrack, viewEndCallAll, isMyProfileIsOwnerOutgoingCall
   } = useSelector(getVideoChat)
 
   if (!room) return null
   if (!localDataTrack) return null
 
-  return <Room room={room} localDataTrack={localDataTrack} />
+  return (
+    <Room
+      room={room}
+      localDataTrack={localDataTrack}
+      isMyProfileIsOwnerOutgoingCall={isMyProfileIsOwnerOutgoingCall}
+    />
+  )
 }
