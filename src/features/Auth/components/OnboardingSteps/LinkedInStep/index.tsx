@@ -9,7 +9,6 @@ import { VOIP_TOKEN, BUNDLE } from 'common/constants'
 import cn from 'classnames'
 import { signInWithFacebook } from 'features/Auth/actions'
 import { useDispatch } from 'react-redux'
-
 import styles from './styles.module.sass'
 
 interface ILinkedInStep {
@@ -19,6 +18,7 @@ interface ILinkedInStep {
 export const LinkedInStep: FC<ILinkedInStep> = ({
   onboardingProfile
 }) => {
+  const dispatch = useDispatch()
   const handleSignUp = async () => {
     localStorage.setItem('onboardingProfile', JSON.stringify(onboardingProfile))
     const deviceId = localStorage.getItem('deviceId') || uuidv4()
@@ -34,8 +34,6 @@ export const LinkedInStep: FC<ILinkedInStep> = ({
     await profileAPI.afterSignup({ ...onboardingProfile, device } as any)
     window.open(linkedInAuthUrl, '_self')
   }
-
-  const dispatch = useDispatch()
 
   return (
     <div>

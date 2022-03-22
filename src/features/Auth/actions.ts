@@ -45,16 +45,17 @@ export const signInWithFacebook = (): ThunkType =>
     const { FacebookAuthProvider }: any = getFirebase().auth
     getFirebase().auth().signInWithPopup(new FacebookAuthProvider())
       .then(async ({ user }) => {
-        const { displayName, email } : any = user
-        await profileAPI.updateMyProfile({
-          first_name: displayName?.split(' ')[0],
-          last_name: displayName?.split(' ')[1],
-          email
-        })
+        if (user) {
+          const { displayName, email } = user
+          const [first_name, last_name] = displayName?.split(' ') || []
+          await profileAPI.updateMyProfile({
+            first_name,
+            last_name,
+            email
+          })
+        }
       })
-      .catch((err) => {
-        dispatch(actions.setIsLoading(false))
-      })
+      .catch(() => dispatch(actions.setIsLoading(false)))
       .finally(() => dispatch(actions.setIsLoading(false)))
     await profileAPI.updateSettings({ settings: { allow_new_matches: true, allow_founder_updates: true } })
     localStorage.setItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS, 'true')
