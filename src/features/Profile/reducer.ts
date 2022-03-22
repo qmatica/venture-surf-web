@@ -1,5 +1,4 @@
-import { merge } from 'lodash'
-import { profile } from 'console'
+import merge from 'lodash/merge'
 import { ActionTypes, ProfileType } from './types'
 import { profileInteractionUsers } from './constants'
 import { SLOT_DATE_FORMAT } from '../../common/constants'

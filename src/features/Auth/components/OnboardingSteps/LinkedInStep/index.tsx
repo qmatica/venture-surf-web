@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import { profileAPI } from 'api'
 import { v4 as uuidv4 } from 'uuid'
 import { OnboardingUserType } from 'features/Profile/types'
-import { LinkedInIconSm, LinkedInAndVS, FacebookInIconSm } from 'common/icons'
+import { LinkedInIconSm, LinkedInAndVS, FacebookIconSm } from 'common/icons'
 import { linkedInAuthUrl } from 'features/Auth/constants'
 import { getTokenFcm } from 'features/Profile/utils'
 import { VOIP_TOKEN, BUNDLE } from 'common/constants'
@@ -43,8 +43,8 @@ export const LinkedInStep: FC<ILinkedInStep> = ({
       <div className={styles.title}>Get verified by LinkedIn and autofill your profile</div>
       <div className={styles.container}>
         <button className={styles.button} onClick={handleSignUp}><LinkedInIconSm /> Sign in with LinkedIn</button>
-        <button className={cn(styles.button, styles.marginTop)} onClick={() => dispatch(signInWithFacebook)}>
-          <FacebookInIconSm />Sign in with Facebook
+        <button className={cn(styles.button, styles.marginTop)} onClick={() => dispatch(signInWithFacebook())}>
+          <FacebookIconSm />Sign in with Facebook
         </button>
       </div>
     </div>

@@ -3,7 +3,7 @@ import moment from 'moment'
 import { RootState } from 'common/types'
 import { SLOT_DATE_FORMAT } from 'common/constants'
 import { FormattedSlotsType } from 'features/Calendar/types'
-import { range } from 'lodash'
+import range from 'lodash/range'
 
 const getMyProfileSelector = (state: RootState) => state.profile.profile
 

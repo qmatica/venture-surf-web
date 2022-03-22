@@ -44,9 +44,22 @@ export const signInWithFacebook = (): ThunkType =>
     dispatch(actions.setIsLoading(true))
     const { FacebookAuthProvider }: any = getFirebase().auth
     getFirebase().auth().signInWithPopup(new FacebookAuthProvider())
-      .then(({ user }) => { })
-      .catch((error) => {})
+      .then(async ({ user }) => {
+        const { displayName, email } : any = user
+        await profileAPI.updateMyProfile({
+          first_name: displayName?.split(' ')[0],
+          last_name: displayName?.split(' ')[1],
+          email
+        })
+      })
+      .catch((err) => {
+        console.log('signInWhinithFacebook failed:', err)
+        dispatch(actions.setIsLoading(false))
+      })
       .finally(() => dispatch(actions.setIsLoading(false)))
+    await profileAPI.updateSettings({ settings: { allow_new_matches: true, allow_founder_updates: true } })
+    localStorage.setItem(LOCAL_STORAGE_VALUES.NOTIFY_BEFORE_MEETINGS, 'true')
+    await Promise.all([dispatch(initProfile()), dispatch(initSurf())])
   }
 
 export const confirmCode = (code: string): ThunkType => async (dispatch, getState) => {
