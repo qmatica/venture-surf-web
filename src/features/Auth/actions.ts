@@ -53,7 +53,6 @@ export const signInWithFacebook = (): ThunkType =>
         })
       })
       .catch((err) => {
-        console.log('signInWhinithFacebook failed:', err)
         dispatch(actions.setIsLoading(false))
       })
       .finally(() => dispatch(actions.setIsLoading(false)))
