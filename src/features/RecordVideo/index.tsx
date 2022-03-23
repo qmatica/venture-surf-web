@@ -30,11 +30,7 @@ export const RecordVideo: FC = () => {
           <PauseIcon />
         </div>
       ) : (
-        <div
-          onClick={() =>
-            setIsStartRecord(!isStartRecord)}
-          className={styles.buttonGo}
-        >
+        <div onClick={() => setIsStartRecord(!isStartRecord)} className={styles.buttonGo}>
           {VIDEO_RECORDER.GO}
         </div>
       )}
