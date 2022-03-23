@@ -40,3 +40,8 @@ export const USER_RELATIONS = {
   SENT: 'sent',
   RECEIVED: 'received'
 }
+
+export const VIDEO_RECORDER = {
+  PREPARE: 'Prepare',
+  GO: 'Go'
+}

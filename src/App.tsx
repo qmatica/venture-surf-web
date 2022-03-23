@@ -13,6 +13,7 @@ import { Contacts } from 'features/Contacts'
 import { Surf } from 'features/Surf'
 import { Calendar } from 'features/Calendar'
 import { Conversations } from 'features/Conversations'
+import { RecordVideo } from 'features/RecordVideo'
 import { Notifications } from './features/Notifications'
 import { Admin } from './features/Admin'
 
@@ -39,6 +40,7 @@ export const App: FC = () => {
             <Route path="/calendar" component={Calendar} />
             <Route path="/conversations" component={Conversations} />
             <Route path="/profile/:uid" component={Profile} />
+            <Route path="/record" component={RecordVideo} />
           </Layout>
         </Route>
       </Switch>
