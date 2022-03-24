@@ -81,7 +81,7 @@ export const SETTINGS_MODAL = {
 
 export const DELETE_ALL_DATA_MODAL = {
   TITLE: 'Delete all data',
-  BODY: 'Your account, personal data, PDF files, videos, connections and appointments will be deleted.',
+  BODY: 'Your account, personal data, PDF files, connections and appointments will be deleted.',
   WARNING: 'This cannot be undone.',
   CONFIRMATION: 'Are you sure?',
   CANCEL: 'Cancel',

@@ -19,7 +19,6 @@ import { UsersType, UserType } from 'features/User/types'
 import { Button } from 'common/components/Button'
 import { Deck } from './components/Tabs/Deck'
 import { About } from './components/Tabs/About'
-import { Videos } from './components/Tabs/Videos'
 import { Job } from './components/Job'
 import { SwitchRoles } from './components/SwitchRoles'
 import { Avatar } from './components/Avatar'
@@ -34,7 +33,6 @@ interface IProfile {
 
 const tabs = [
   { title: 'About', Component: About },
-  { title: 'Videos', value: 'videos', Component: Videos },
   { title: 'Deck', value: 'docs', Component: Deck }
 ]
 

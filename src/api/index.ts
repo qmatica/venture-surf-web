@@ -1,9 +1,8 @@
 import axios from 'axios'
 import { getFirebase } from 'react-redux-firebase'
-import { AuthUserType, StatisticVideoType } from 'common/types'
+import { AuthUserType } from 'common/types'
 import { proj } from 'config/firebase'
 import { DeviceType, ProfileType } from 'features/Profile/types'
-import { CLIENT_ID, CLIENT_SECRET, REDIRECT_URI } from 'common/constants'
 import { timeSlotsType } from '../features/Calendar/types'
 
 const headers = {
@@ -55,15 +54,6 @@ export const profileAPI = {
   },
   updateActiveRole(activeRole: 'investor' | 'founder', value?: { [key: string]: any }) {
     return instance.post(`api/role/${activeRole}`, value).then((res) => res.status)
-  },
-  uploadVideo(title: string) {
-    return instance.put('/api/video', { title }).then((res) => res.data as { ref: string, upload_url: string })
-  },
-  renameVideo(title: string, new_title: string) {
-    return instance.patch('/api/video', { title, new_title }).then((res) => res.status)
-  },
-  deleteVideo(title: string) {
-    return instance.post('/api/video/delete', { title }).then((res) => res.status)
   },
   updateProfilePhoto(file: File) {
     const body = new FormData()
@@ -130,9 +120,6 @@ export const usersAPI = {
   getMatches() {
     return instance.get('api/matches').then((res) => res.data)
   },
-  getCurrentVideo(uid: string, videoId: string) {
-    return instance.get(`/api/videos/${uid}/${videoId}`).then((res) => res.data)
-  },
   getRecommended() {
     return instance.get('/api/intro').then((res) => res.data)
   },
@@ -153,9 +140,6 @@ export const usersAPI = {
   },
   createChat(uid: string) {
     return instance.post(`api/chat/${uid}`).then((res) => res.data)
-  },
-  sendStatisticVideo(uid: string, playbackID: string, data: StatisticVideoType) {
-    return instance.post(`api/videos/${uid}/${playbackID}`, data).then((res) => res.data)
   },
   createPublicToken(uid: string) {
     return instance.get(`api/publicToken/${uid}`).then((res) => res.data)

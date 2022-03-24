@@ -135,8 +135,7 @@ export const parseUser = (profile: any): UserType => {
     tags,
     job: founder?.job || investor?.job,
     content: {
-      docs: founder?.job || investor?.job,
-      videos: founder?.videos || investor?.videos
+      docs: founder?.job || investor?.job
     },
     activeRole,
     slots,

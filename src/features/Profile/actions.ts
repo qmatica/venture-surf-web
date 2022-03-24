@@ -1,7 +1,6 @@
 import {
   collection, getDocs, query, onSnapshot
 } from 'firebase/firestore'
-import * as UpChunk from '@mux/upchunk'
 import { v4 as uuidv4 } from 'uuid'
 import moment from 'moment'
 import { profileAPI, usersAPI } from 'api'
@@ -34,7 +33,6 @@ import {
   JobType,
   ResponseCallNowType,
   ThunkType,
-  onSnapshotVideoType,
   ProfileType,
   ResultCompareContactsType,
   ContactsListType,
@@ -710,178 +708,6 @@ export const updateMyProfile = (
   }
 }
 
-export const uploadVideo = (
-  file: File,
-  title: string,
-  setIsOpenModal: (isOpenModal: boolean) => void,
-  setIsLoadingButton: (inLoadingButton: 'onSaveButton' | null) => void
-): ThunkType => async (dispatch, getState, getFirebase) => {
-  dispatch(actions.setProgressLoadingFile(0.1))
-
-  const { upload_url, ref } = await profileAPI.uploadVideo(title)
-
-  const upload = UpChunk.createUpload({
-    endpoint: upload_url,
-    file,
-    chunkSize: 5120
-  })
-
-  setIsLoadingButton(null)
-
-  upload.on('error', async (err) => {
-    console.log('💥 🙀', err.detail)
-    await profileAPI.deleteVideo(title)
-    setIsOpenModal(false)
-    dispatch(actionsNotifications.addErrorMsg('Failed to upload the video'))
-  })
-
-  upload.on('offline', () => {
-    dispatch(actionsNotifications.addAnyMsg({ msg: 'You are now offline. Your video will be uploaded once you come online', uid: uuidv4() }))
-    setIsOpenModal(false)
-  })
-
-  upload.on('progress', (progress) => {
-    const { progressLoadingFile } = getState().profile
-    const progressDetail = progressLoadingFile === 100 ? null : progress.detail
-    dispatch(actions.setProgressLoadingFile(progressDetail))
-    console.log('Uploaded', progress.detail, 'percent of this file.')
-  })
-
-  upload.on('success', async () => {
-    console.log("Wrap it up, we're done here. 👋")
-
-    const { firebase: { auth: { uid } }, profile: { profile } } = getState()
-
-    if (profile) {
-      const updatedProfile = {
-        ...profile,
-        [profile.activeRole]: {
-          ...profile[profile.activeRole],
-          videos: {
-            ...profile[profile.activeRole].videos,
-            _uploading_: [
-              ...profile[profile.activeRole].videos._uploading_,
-              title
-            ]
-          }
-        }
-      }
-      dispatch(actions.setMyProfile(updatedProfile))
-    }
-
-    setIsOpenModal(false)
-
-    const unSubscribe = await getFirebase().firestore().doc(ref).onSnapshot(async (doc: any) => {
-      const video = doc.data() as onSnapshotVideoType
-
-      if (video.status === 'ready') {
-        const { profile } = getState().profile
-
-        if (profile) {
-          const updatedProfile = {
-            ...profile,
-            [profile.activeRole]: {
-              ...profile[profile.activeRole],
-              videos: {
-                ...profile[profile.activeRole].videos,
-                _uploading_: profile[profile.activeRole].videos._uploading_.filter((video) => video !== title),
-                _order_: [
-                  title,
-                  ...profile[profile.activeRole].videos._order_
-                ],
-                [title]: {
-                  width: video.max_width,
-                  height: video.max_height,
-                  playbackID: video.playbackID,
-                  assetID: video.asset_id,
-                  created_at: video.created
-                }
-              }
-            }
-          }
-
-          dispatch(actions.setMyProfile(updatedProfile))
-        }
-        unSubscribe()
-      }
-    })
-  })
-}
-
-export const renameVideo = (
-  assetID: string,
-  title: string,
-  newTitle: string,
-  setIsOpenModal: (isOpen: boolean) => void,
-  setIsLoadingButton: (isLoadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
-): ThunkType => async (dispatch, getState) => {
-  const status = await profileAPI.renameVideo(title, newTitle)
-
-  if (status === apiCodes.success) {
-    const { profile } = getState().profile
-
-    if (profile) {
-      const updatedVideosOrder = [...profile[profile.activeRole].videos._order_]
-      const updatedVideoOrderIndex = profile[profile.activeRole].videos._order_.findIndex((video) => video === title)
-      updatedVideosOrder[updatedVideoOrderIndex] = newTitle
-
-      const updatedProfile = {
-        ...profile,
-        [profile.activeRole]: {
-          ...profile[profile.activeRole],
-          videos: {
-            ...profile[profile.activeRole].videos,
-            _order_: updatedVideosOrder,
-            [newTitle]: { ...profile[profile.activeRole].videos[title] }
-          }
-        }
-      }
-
-      delete updatedProfile[updatedProfile.activeRole].videos[title]
-
-      dispatch(actions.setMyProfile(updatedProfile))
-    }
-  }
-  setIsLoadingButton(null)
-  setIsOpenModal(false)
-}
-
-export const deleteVideo = (
-  title: string,
-  setIsOpenModal: (isOpen: boolean) => void,
-  setIsLoadingButton: (isLoadingButton: 'onSaveButton' | 'onDeleteButton' | null) => void
-): ThunkType => async (dispatch, getState) => {
-  const status = await profileAPI.deleteVideo(title)
-
-  if (status === apiCodes.success) {
-    const { profile } = getState().profile
-
-    if (profile) {
-      const updatedVideosOrder = [...profile[profile.activeRole].videos._order_]
-      const updatedVideoOrderIndex = updatedVideosOrder.findIndex((titleVideo) => titleVideo === title)
-
-      updatedVideosOrder.splice(updatedVideoOrderIndex, 1)
-
-      const updatedProfile = {
-        ...profile,
-        [profile.activeRole]: {
-          ...profile[profile.activeRole],
-          videos: {
-            ...profile[profile.activeRole].videos,
-            _order_: profile[profile.activeRole].videos._order_.filter((video) => video !== title)
-          }
-        }
-      }
-
-      delete updatedProfile[updatedProfile.activeRole].videos[title]
-
-      dispatch(actions.setMyProfile(updatedProfile))
-    }
-  }
-  setIsLoadingButton(null)
-  setIsOpenModal(false)
-}
-
 const togglePreloader = (
   contacts: 'mutuals' | 'likes' | 'liked',
   uid: string,
@@ -967,10 +793,6 @@ export const createNewRole = (
         activeRole: role,
         [role]: {
           ...jobInfo,
-          videos: {
-            _order_: [],
-            _uploading_: []
-          },
           docs: {
             _order_: []
           }

@@ -95,7 +95,6 @@ export const Surf = () => {
               key={`${user.uid}-recommended`}
               user={user}
               rightSide="tags"
-              viewVideos
               typeUser="surf"
               isRecommended
             />
@@ -107,7 +106,6 @@ export const Surf = () => {
           key={user.uid}
           user={user}
           rightSide="tags"
-          viewVideos
           typeUser="surf"
         />
       ))}

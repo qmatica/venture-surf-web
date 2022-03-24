@@ -1,8 +1,6 @@
 import { merge } from 'lodash'
-import { profile } from 'console'
 import { ActionTypes, ProfileType } from './types'
 import { profileInteractionUsers } from './constants'
-import { SLOT_DATE_FORMAT } from '../../common/constants'
 
 const initialState = {
   profile: null as ProfileType | null,

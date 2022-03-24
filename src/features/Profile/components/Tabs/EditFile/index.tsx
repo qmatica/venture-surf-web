@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useState } from 'react'
 import { PreloaderIcon, TrashCanIcon } from 'common/icons'
 import { useSelector } from 'react-redux'
 import { getMyProfile } from 'features/Profile/selectors'
@@ -9,7 +9,7 @@ import styles from './styles.module.sass'
 interface IEditFile {
   fileName?: string
   previewUrl?: string
-  fileType: 'videos' | 'docs'
+  fileType: 'docs'
   loadingButton?: 'onSaveButton' | 'onDeleteButton' | null
   onSaveFile: (values: FieldValues) => void
   onSetSelectedFile?: (value: File | null) => void

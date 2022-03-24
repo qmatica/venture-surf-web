@@ -59,21 +59,12 @@ export type ProfileType = {
             install_counter: number
         }
     }
-    videos: {
-        [key: string] : VideoType
-    }
 } & {
     [key in 'founder' | 'investor']: {
         hidden: boolean
         stages: number[]
         roles: string[]
         industries: string[]
-        videos: {
-            _order_: string[]
-            _uploading_: string[]
-        } & {
-            [key: string]: VideoType
-        }
         job: JobType
         docs: {
             _order_: string[]
@@ -134,26 +125,6 @@ export type VideoType = {
     playbackID: string
     assetID: string
     created_at: number
-}
-
-export type onSnapshotVideoType = {
-    aspect_ratio: string
-    asset_id: string
-    created: string
-    duration_secs: number
-    encoding_quality: string
-    encoding_url: string
-    id: string
-    max_height: number
-    max_width: number
-    playbackID: string
-    role: 'founder' | 'investor'
-    status: 'uploading' | 'ready'
-    thumb_url: string
-    title: string
-    uid: string
-    upload_id: string
-    upload_url: string
 }
 
 export type profileInteractionUsersType = {

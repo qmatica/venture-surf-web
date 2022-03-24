@@ -1,4 +1,4 @@
-import { DocsType, VideosType } from 'common/types'
+import { DocsType } from 'common/types'
 import { ReactElement } from 'react'
 import { EnumActionsUser } from './constants'
 
@@ -17,7 +17,6 @@ export type UserType = {
     job: { [key in 'founder' | 'investor']: Job } | Job
     content?: {
         docs?: DocsType,
-        videos?: VideosType
     }
     activeRole: 'investor' | 'founder'
     recommended_by?: RecommendedUserType

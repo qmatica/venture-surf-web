@@ -60,19 +60,6 @@ export enum apiCodes {
     error = 400
 }
 
-export type VideosType = {
-    _order_: string[],
-    _uploading_: string[]
-} & {
-    [key: string]: {
-        playbackID: string,
-        assetID: string,
-        created_at: number
-        height: number
-
-    }
-}
-
 export type DocsType = {
     _order_: string[]
 } & {
@@ -83,10 +70,4 @@ export type stagesType = {
     [key: string]: {
         [key: number]: string
     }
-}
-
-export type StatisticVideoType = {
-    stop_time: number
-    percent: number
-    action: string
 }

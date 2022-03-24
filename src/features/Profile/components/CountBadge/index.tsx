@@ -1,11 +1,10 @@
 import React, { FC } from 'react'
-import { ProfileType, VideoType, JobType } from 'features/Profile/types'
-import { SSL_OP_NO_TLSv1 } from 'constants'
+import { ProfileType } from 'features/Profile/types'
 import styles from './styles.module.sass'
 
 interface ICountBadge {
   profile: ProfileType
-  value?: 'videos' | 'docs'
+  value?: 'docs'
 }
 
 export const CountBadge: FC<ICountBadge> = ({ profile, value }) => {
